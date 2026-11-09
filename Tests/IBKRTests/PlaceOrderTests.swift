@@ -68,3 +68,23 @@ private func fields(_ r: IBRequest) throws -> [String] { FieldReader(try r.body(
 @Test func placeOrderRefusesNonASCII() {
     #expect(throws: IBEncodingError.nonASCII(field: "Купить 500")) { try limit("187.25", ref: "Купить 500").body() }
 }
+
+@Test func placeOrderRefusesLayoutsItCannotEncode() {
+    func req(secType: String = "STK", exchange: String = "SMART", orderType: String = "LMT") -> IBRequest {
+        var c = Contract(symbol: "AAPL", secType: secType, exchange: exchange)
+        c.strike = nil
+        return .placeOrder(orderID: 1, contract: c, order: Order(action: .buy, quantity: d("1"), orderType: orderType))
+    }
+    #expect(throws: IBEncodingError.unsupported("secType BAG")) { try req(secType: "BAG").body() }
+    #expect(throws: IBEncodingError.unsupported("exchange IBKRATS")) { try req(exchange: "IBKRATS").body() }
+    for t in ["PEG BENCH", "PEGBENCH", "PEG BEST", "PEGBEST", "PEG MID", "PEGMID"] {
+        #expect(throws: IBEncodingError.unsupported("orderType \(t)")) { try req(orderType: t).body() }
+    }
+}
+
+@Test func strikeEncodesAsADouble() throws {
+    var c = Contract(symbol: "AAPL", secType: "OPT")
+    c.strike = d("150")
+    let f = try fields(.placeOrder(orderID: 1, contract: c, order: Order(action: .buy, quantity: d("1"), orderType: "LMT")))
+    #expect(f[6] == "150.0")  // row 6 strike
+}

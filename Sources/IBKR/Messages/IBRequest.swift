@@ -1,3 +1,5 @@
+import Foundation
+
 public enum IBRequest: Sendable, Equatable {
     case startAPI(clientID: Int, capabilities: String)
     case requestIDs
@@ -41,10 +43,16 @@ public enum IBRequest: Sendable, Equatable {
     /// The base case of the table: plain order, no BAG / delta-neutral / scale / hedge / algo / PEG / conditions.
     /// Every unmodelled field carries the table's default; row numbers are the table's.
     private static func placeOrder(_ w: inout FieldWriter, _ id: Int, _ c: Contract, _ o: Order) throws(IBEncodingError) {
+        // Table conditions that add fields this encoder does not emit; refuse rather than misalign.
+        if c.secType == "BAG" { throw .unsupported("secType BAG") }
+        if c.exchange == "IBKRATS" { throw .unsupported("exchange IBKRATS") }
+        if ["PEG BENCH", "PEGBENCH", "PEG BEST", "PEGBEST", "PEG MID", "PEGMID"].contains(o.orderType) {
+            throw .unsupported("orderType \(o.orderType)")
+        }
         func raw(_ values: String...) throws(IBEncodingError) { for v in values { try w.add(v) } }
         w.add(3); w.add(id)
         w.add(c.conID); try w.add(c.symbol); try w.add(c.secType); try w.add(c.lastTradeDateOrContractMonth)
-        if let k = c.strike { w.add(k) } else { try raw("0.0") }
+        if let k = c.strike { w.add((k as NSDecimalNumber).doubleValue) } else { try raw("0.0") }  // str(double), as the default
         try w.add(c.right); try w.add(c.multiplier); try w.add(c.exchange); try w.add(c.primaryExchange)
         try w.add(c.currency); try w.add(c.localSymbol); try w.add(c.tradingClass)
         try raw("", "")                                           // 14-15 secIdType, secId

@@ -8,4 +8,5 @@ public enum IBProtocolError: Error, Equatable, Sendable {
 
 public enum IBEncodingError: Error, Equatable, Sendable {
     case nonASCII(field: String)
+    case unsupported(String)
 }
