@@ -22,4 +22,5 @@ that merge IB's separate messages into whole objects: `OrderTracker` (orders) an
 sockets, no positions, no market data yet.
 
 **Next, stage 2:** the socket, the `IBClient` actor, request throttle, snapshot + stream, a live check on the
-owner's paper account, and recording real frames as fixtures.
+owner's paper account, and recording real frames as fixtures. What stage 1 leaves open is in
+`docs/KNOWN-GAPS.md`.
