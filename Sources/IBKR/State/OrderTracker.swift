@@ -30,16 +30,16 @@ public struct OrderTracker: Sendable {
     private var permIndex: [Int: Int] = [:]
     private var held: [OrderKey: OrderStatusMessage] = [:]
     private var sentOrders: [OrderKey: (contract: Contract, order: Order)] = [:]
-    private var ownClientID: Int?
+    private let ownClientID: Int
 
-    public init() {}
+    /// `clientID` is this connection's: IB sends order errors only to the owning client, so errors match its orders only.
+    public init(clientID: Int) { ownClientID = clientID }
 
     /// First-seen order.
     public var orders: [OrderSnapshot] { snaps }
 
     public mutating func sent(orderID: Int, clientID: Int, contract: Contract, order: Order) {
         sentOrders[.api(clientID: clientID, orderID: orderID)] = (contract, order)
-        ownClientID = clientID
     }
 
     public mutating func apply(_ message: IBMessage) -> [OrderSnapshot] {
@@ -48,8 +48,10 @@ public struct OrderTracker: Sendable {
             let key = Self.key(m.orderID, m.clientID, m.permID)
             let heldStatus = held.removeValue(forKey: key)
             return upsert(key, m.permID, new: Self.blank(m.contract, m.order)) { s in
+                let prior = s.status
                 s.orderID = m.orderID; s.clientID = m.clientID; s.permID = m.permID
                 s.contract = m.contract; s.order = m.order; s.status = m.status
+                if prior.isFinal && !m.status.isFinal { s.status = prior }
                 if let h = heldStatus { Self.merge(h, into: &s) }
             }
         case .orderStatus(let m):
@@ -62,7 +64,7 @@ public struct OrderTracker: Sendable {
             fresh.permID = m.permID
             if m.status == .filled { fresh.filled = m.order.totalQuantity; fresh.remaining = 0 }
             return upsert(.permanent(m.permID), m.permID, new: fresh) { s in
-                s.contract = m.contract; s.order = m.order; s.status = m.status; s.completedTime = m.completedTime
+                s.status = m.status; s.completedTime = m.completedTime  // a joined order keeps its own order/contract: v178 completedOrder lacks parentID etc.
             }
         case .orderBound(let permID, let clientID, let orderID):
             return upsert(.api(clientID: clientID, orderID: orderID), permID, new: nil) { s in
@@ -87,15 +89,9 @@ public struct OrderTracker: Sendable {
         }
     }
 
-    /// IB reports order errors with the orderId as reqId, with no client id. This connection's order wins
-    /// (`sent` fixes its client id); with no `sent` a lone candidate is taken and an ambiguous id matches none.
+    /// IB reports order errors with the orderId as reqId and sends them only to the owning client.
     private func errorKey(_ id: Int) -> OrderKey? {
-        guard id > 0 else { return nil }
-        var candidates = Set(keyIndex.keys).union(sentOrders.keys).filter {
-            if case .api(_, let o) = $0 { return o == id } else { return false }
-        }
-        if let own = ownClientID { candidates = candidates.filter { $0 == .api(clientID: own, orderID: id) } }
-        return candidates.count == 1 ? candidates.first : nil
+        id > 0 ? .api(clientID: ownClientID, orderID: id) : nil
     }
 
     private func sentSnapshot(_ key: OrderKey) -> OrderSnapshot? {

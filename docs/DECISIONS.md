@@ -16,6 +16,7 @@
 | placeOrder defaults follow `ib_async` (openClose "O", usePriceMgmtAlgo "0") | proven in practice; to be checked live in stage 2 | IB's own client defaults |
 | One shared unset set (empty, 2147483647, 9223372036854775807, 1.7976931348623157E308, -9223372036854775808) for every optional reader | IB uses all of them as "no value"; per-reader sets drifted | per-type sentinel lists |
 | placeOrder encodes only the base layout; secType BAG, PEG order types and exchange IBKRATS throw `.unsupported` | the table adds combo-leg / PEG / IBKRATS fields the encoder does not emit, which would misalign the bytes | emitting the base layout silently |
+| OrderTracker takes the connection's client id at construction; an error matches only `.api(clientID: own, orderID: requestID)` | IB sends order errors only to the owning client, so another client's order with the same id must never be touched | guessing the client from the last `sent`, or taking a lone orderID candidate |
 
 ## Error-code table
 

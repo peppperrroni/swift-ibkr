@@ -4,10 +4,11 @@ import Testing
 
 private let unset = "1.7976931348623157E308"
 
-private func open(_ orderID: Int = 12, permID: Int = 918273001, clientID: Int = 1, status: String = "Submitted") -> IBMessage {
+private func open(_ orderID: Int = 12, permID: Int = 918273001, clientID: Int = 1, status: String = "Submitted",
+                  parentID: Int = 0) -> IBMessage {
     Decoder.decode(body(Fixtures.openOrderFields(
         orderID: orderID, permID: permID, clientID: clientID, symbol: "AAPL", action: "BUY", quantity: "100",
-        orderType: "LMT", limitPrice: "187.25", auxPrice: unset, tif: "DAY", parentID: "0", outsideRTH: "0",
+        orderType: "LMT", limitPrice: "187.25", auxPrice: unset, tif: "DAY", parentID: "\(parentID)", outsideRTH: "0",
         orderRef: "r", status: status)))
 }
 
@@ -33,7 +34,7 @@ private let aapl = Contract(symbol: "AAPL")
 private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT", limitPrice: d("187.25"))
 
 @Test func openOrderThenStatusMerges() {
-    var t = OrderTracker()
+    var t = OrderTracker(clientID: 1)
     let a = t.apply(open())
     #expect(a.count == 1 && a[0].status == .submitted && a[0].remaining == d("100"))
     let b = t.apply(status(.filled, filled: "100", remaining: "0", avg: "187.20"))
@@ -44,7 +45,7 @@ private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT"
 }
 
 @Test func statusBeforeOpenOrderIsHeld() {
-    var t = OrderTracker()
+    var t = OrderTracker(clientID: 1)
     #expect(t.apply(status(.preSubmitted, filled: "40", remaining: "60")).isEmpty)
     #expect(t.orders.isEmpty)
     let r = t.apply(open())
@@ -52,14 +53,14 @@ private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT"
 }
 
 @Test func statusAfterSendPublishesFromTheSentOrder() {
-    var t = OrderTracker()
+    var t = OrderTracker(clientID: 1)
     t.sent(orderID: 12, clientID: 1, contract: aapl, order: sentOrder)
     let r = t.apply(status(.preSubmitted))
     #expect(r.count == 1 && r[0].contract == aapl && r[0].order == sentOrder && r[0].status == .preSubmitted)
 }
 
 @Test func identicalRepeatPublishesNothing() {
-    var t = OrderTracker()
+    var t = OrderTracker(clientID: 1)
     _ = t.apply(open())
     #expect(t.apply(open()).isEmpty)
     #expect(t.apply(status(.submitted, filled: "10", remaining: "90")).count == 1)
@@ -67,57 +68,68 @@ private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT"
 }
 
 @Test func rejectionBeforeOpenOrder() {
-    var t = OrderTracker()
+    var t = OrderTracker(clientID: 1)
     t.sent(orderID: 12, clientID: 1, contract: aapl, order: sentOrder)
     let r = t.apply(error(12, 201, "Order rejected"))
     #expect(r.count == 1 && r[0].status == .inactive && r[0].rejectReason == "Order rejected")
 }
 
 @Test func cancelConfirmation() {
-    var t = OrderTracker()
+    var t = OrderTracker(clientID: 1)
     _ = t.apply(open())
     let r = t.apply(error(12, 202, "Order Canceled"))
     #expect(r.count == 1 && r[0].status == .cancelled && r[0].rejectReason == nil)
 }
 
 @Test func cancelRejectionKeepsTheOrder() {
-    var t = OrderTracker()
+    var t = OrderTracker(clientID: 1)
     _ = t.apply(open(status: "Filled"))
     #expect(t.apply(error(12, 10148)).isEmpty)
     #expect(t.orders[0].status == .filled && t.orders[0].rejectReason == nil)
 }
 
-@Test func fatalErrorKeepsAFinalStatus() {
-    var t = OrderTracker()
+@Test func fatalErrorKeepsAFinalStatus() throws {
+    var t = OrderTracker(clientID: 1)
     _ = t.apply(open(status: "Filled"))
     let r = t.apply(error(12, 201, "late"))
+    try #require(r.count == 1)
     #expect(r[0].status == .filled && r[0].rejectReason == "late")
 }
 
 @Test func errorForUnknownOrderChangesNothing() {
-    var t = OrderTracker()
+    var t = OrderTracker(clientID: 1)
     #expect(t.apply(error(99, 201)).isEmpty)
     #expect(t.orders.isEmpty)
 }
 
-@Test func errorMatchesOwnClientsOrder() {
-    var t = OrderTracker()
-    t.sent(orderID: 5, clientID: 1, contract: aapl, order: sentOrder)
-    _ = t.apply(open(12, permID: 1, clientID: 2))
-    _ = t.apply(open(12, permID: 2, clientID: 1))
-    let r = t.apply(error(12, 202))
-    #expect(r.count == 1 && r[0].clientID == 1)
+@Test func errorForAnotherClientsOrderChangesNothing() {
+    var t = OrderTracker(clientID: 1)
+    _ = t.apply(open(5, permID: 1, clientID: 2))
+    let before = t.orders
+    #expect(t.apply(error(5, 201)).isEmpty)
+    #expect(t.orders == before)
 }
 
-@Test func ambiguousErrorWithoutSentMatchesNone() {
-    var t = OrderTracker()
-    _ = t.apply(open(12, permID: 1, clientID: 2))
-    _ = t.apply(open(12, permID: 2, clientID: 1))
-    #expect(t.apply(error(12, 202)).isEmpty)
+@Test func openOrderDoesNotReviveAFinalStatus() {
+    var t = OrderTracker(clientID: 1)
+    _ = t.apply(open(status: "Filled"))
+    #expect(t.apply(open(status: "Submitted")).isEmpty)
+    #expect(t.orders[0].status == .filled)
+}
+
+@Test func completedOrderKeepsTheBracketLink() throws {
+    var t = OrderTracker(clientID: 1)
+    _ = t.apply(open(13, permID: 918273001, parentID: 12))
+    _ = t.apply(status(.filled, id: 13, filled: "100", remaining: "0"))
+    let before = t.orders[0]
+    let r = t.apply(completed(permID: 918273001))
+    try #require(r.count == 1)
+    #expect(r[0].order == before.order && r[0].order.parentID == 12 && r[0].contract == before.contract)
+    #expect(r[0].completedTime != nil)
 }
 
 @Test func manualOrderKeyedByPermID() {
-    var t = OrderTracker()
+    var t = OrderTracker(clientID: 1)
     let a = t.apply(open(0, permID: 5555, clientID: 0))
     #expect(a.count == 1 && a[0].orderID == 0)
     let b = t.apply(status(.filled, id: 0, filled: "100", remaining: "0", permID: 5555, clientID: 0))
@@ -126,7 +138,7 @@ private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT"
 }
 
 @Test func completedOrderJoinsByPermID() {
-    var t = OrderTracker()
+    var t = OrderTracker(clientID: 1)
     _ = t.apply(open())
     let r = t.apply(completed(permID: 918273001))
     #expect(r.count == 1 && r[0].orderID == 12 && r[0].status == .filled && r[0].completedTime == "20261109 15:59:01")
@@ -137,7 +149,7 @@ private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT"
 }
 
 @Test func orderBoundLinks() {
-    var t = OrderTracker()
+    var t = OrderTracker(clientID: 1)
     _ = t.apply(open(0, permID: 5555, clientID: 0))
     _ = t.apply(.orderBound(permID: 5555, clientID: 0, orderID: 41))
     let r = t.apply(status(.filled, id: 41, filled: "100", remaining: "0", permID: 5555, clientID: 0))
