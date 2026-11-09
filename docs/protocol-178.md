@@ -1,0 +1,818 @@
+# TWS API socket protocol at server version 178
+
+Field order derived from `ib_async` (BSD-2-Clause, © Ewald de Wit, Matt Stancliff) commit
+`ab629f34c1823ea4c1542f32f07377208a86bdfd`, cross-checked against IB's published client; not
+affiliated with Interactive Brokers.
+
+Every table below is `ib_async`'s `client.py` / `decoder.py` evaluated at `serverVersion == 178`:
+fields gated above 178 are dropped, fields gated at or below are kept. Defaults come from
+`ib_async`'s `order.py`, `contract.py` and `objects.py`, passed through `Client.send`.
+
+## Conventions
+
+- **Frame.** Every message after the handshake is a 4-byte big-endian payload length, then the
+  payload. The payload is a run of ASCII fields, each terminated by one NUL (`\0`), including
+  the last. Field 0 is the message id as decimal text (`"3"`), never a binary int — the binary
+  id only starts at server version 201.
+- **Index.** `#` counts fields inside the payload, field 0 being the message id. The absolute
+  indices are those of the **base case**: every conditional group absent. A conditional group
+  is listed where it sits with `+` in the `#` column; when present it shifts every later index
+  by its size.
+- **Outgoing encoding** (`ib_async` `Client.send`): `bool` → `"1"` / `"0"`; `int` equal to
+  UNSET_INTEGER (2147483647) → `""`; `double` equal to UNSET_DOUBLE (1.7976931348623157e308) →
+  `""`; `double` +∞ → `"Infinite"`; other numbers → Python `str()` (`0.0` → `"0.0"`, `100` →
+  `"100"`); `None` → `""`; a `TagValue` list in one field → `"tag=value;"` concatenated.
+  Contract fields go through `str()` unconditionally (no UNSET mapping).
+- **Incoming unset values.** A field may arrive empty or as a sentinel: `2147483647`,
+  `9223372036854775807`, `1.7976931348623157E308` (IB's own decoder treats all three, and
+  `-9223372036854775808`, as unset for decimals). Decode them as "no value".
+- **"Version" fields.** Some messages still carry a per-message version number at 178; where
+  they do it is a row of its own. Its value is constant on the way out and ignored on the way in.
+- **Types.** `int` is a signed integer as text (`permId` can exceed Int32 — use 64 bits);
+  `decimal` is a quantity sent as text (`"100"`, `"0.5"`); `double` a price as text; `bool`
+  `"1"`/`"0"` (empty decodes as false); `string` as is.
+- **★** marks a field of the stage-1 `Contract` / `Order` model (plan Task 4). Unstarred fields
+  of `placeOrder` are sent with the default shown.
+
+## Handshake
+
+Client → server, one write:
+
+| Bytes | Content |
+|---|---|
+| 4 | `41 50 49 00` — the text `API` and one NUL, **not** length-prefixed |
+| 4 | big-endian length of the version text: `00 00 00 09` |
+| 9 | `v100..178` (`76 31 30 30 2E 2E 31 37 38`) — **no** trailing NUL |
+
+`ib_async` itself sends `v157..178`; a connect option, when used, is appended after one space
+(`v100..178 +PACEAPI`) and counted in the length.
+
+Server → client, first frame: a normal length-prefixed frame of **two** NUL-terminated fields
+and no message id.
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | serverVersion | int | the version the server picked, ≤ 178 here |
+| 1 | connectionTime | string | server-local time text, e.g. `20261109 09:30:00 EST` (format illustrative) |
+
+IB's own client loops until it sees a two-field frame (it notes other traffic may precede it);
+`ib_async` treats the first two-field frame received before a version is known as the reply.
+
+Then the client sends `startApi`. The connection is ready once both `nextValidId (in 9)` and
+`managedAccounts (in 15)` have arrived (`ib_async` waits for both); other messages (e.g. `error`
+notices about data farms) may interleave.
+
+## Outgoing messages
+
+### startApi (out 71)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `71` |
+| 1 | version | int | `2` |
+| 2 | clientId | int | (caller) |
+| 3 | optionalCapabilities | string | `""` |
+
+Total: 4 fields.
+
+### reqIds (out 8)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `8` |
+| 1 | version | int | `1` |
+| 2 | numIds | int | (caller; the reply is `nextValidId (in 9)`) |
+
+Total: 3 fields.
+
+### placeOrder (out 3)
+
+No version field at 178 (it stopped at server version 145). Base case: not `BAG`, no delta-neutral
+order type, no scale increment, no hedge, no algo, not PEG BENCH / PEG BEST / PEG MID, no
+conditions, exchange not `IBKRATS`.
+
+| # | Field | Type | Default sent | Notes |
+|---|---|---|---|---|
+| 0 | msgId | int | `3` | |
+| 1 | orderId | int | (caller) | |
+| 2 | conId ★ | int | `0` | |
+| 3 | symbol ★ | string | `""` | |
+| 4 | secType ★ | string | `""` | |
+| 5 | lastTradeDateOrContractMonth ★ | string | `""` | |
+| 6 | strike ★ | double | `0.0` | `str()`, not UNSET-mapped |
+| 7 | right ★ | string | `""` | |
+| 8 | multiplier ★ | string | `""` | |
+| 9 | exchange ★ | string | `""` | |
+| 10 | primaryExchange ★ | string | `""` | |
+| 11 | currency ★ | string | `""` | |
+| 12 | localSymbol ★ | string | `""` | |
+| 13 | tradingClass ★ | string | `""` | |
+| 14 | secIdType | string | `""` | |
+| 15 | secId | string | `""` | |
+| 16 | action ★ | string | `""` | `BUY` / `SELL` / `SSHORT` |
+| 17 | totalQuantity ★ | decimal | `0.0` | |
+| 18 | orderType ★ | string | `""` | |
+| 19 | lmtPrice ★ | double | `""` | UNSET |
+| 20 | auxPrice ★ | double | `""` | UNSET |
+| 21 | tif ★ | string | `""` | |
+| 22 | ocaGroup ★ | string | `""` | |
+| 23 | account ★ | string | `""` | |
+| 24 | openClose | string | `O` | see Disagreements |
+| 25 | origin | int | `0` | |
+| 26 | orderRef ★ | string | `""` | |
+| 27 | transmit ★ | bool | `1` | |
+| 28 | parentId ★ | int | `0` | |
+| 29 | blockOrder | bool | `0` | |
+| 30 | sweepToFill | bool | `0` | |
+| 31 | displaySize | int | `0` | |
+| 32 | triggerMethod | int | `0` | |
+| 33 | outsideRth ★ | bool | `0` | |
+| 34 | hidden | bool | `0` | |
+| + | comboLegsCount | int | `0` | only if secType == `BAG` (with the next 2 counts) |
+| + | ↳ leg.conId | int | | × comboLegsCount, 8 fields per leg |
+| + | ↳ leg.ratio | int | | |
+| + | ↳ leg.action | string | | |
+| + | ↳ leg.exchange | string | | |
+| + | ↳ leg.openClose | int | `0` | |
+| + | ↳ leg.shortSaleSlot | int | `0` | |
+| + | ↳ leg.designatedLocation | string | `""` | |
+| + | ↳ leg.exemptCode | int | `-1` | |
+| + | orderComboLegsCount | int | `0` | only if `BAG` |
+| + | ↳ orderComboLeg.price | double | `""` | × orderComboLegsCount |
+| + | smartComboRoutingParamsCount | int | `0` | only if `BAG` |
+| + | ↳ tag | string | | × count, 2 fields per element |
+| + | ↳ value | string | | |
+| 35 | sharesAllocation | string | `""` | deprecated, always empty |
+| 36 | discretionaryAmt | double | `0.0` | |
+| 37 | goodAfterTime | string | `""` | |
+| 38 | goodTillDate | string | `""` | |
+| 39 | faGroup | string | `""` | |
+| 40 | faMethod | string | `""` | |
+| 41 | faPercentage | string | `""` | faProfile follows only below 177 — dropped |
+| 42 | modelCode | string | `""` | |
+| 43 | shortSaleSlot | int | `0` | |
+| 44 | designatedLocation | string | `""` | |
+| 45 | exemptCode | int | `-1` | |
+| 46 | ocaType ★ | int | `0` | |
+| 47 | rule80A | string | `""` | |
+| 48 | settlingFirm | string | `""` | |
+| 49 | allOrNone | bool | `0` | |
+| 50 | minQty | int | `""` | UNSET |
+| 51 | percentOffset | double | `""` | UNSET |
+| 52 | eTradeOnly | bool | `0` | deprecated, always false |
+| 53 | firmQuoteOnly | bool | `0` | deprecated, always false |
+| 54 | nbboPriceCap | double | `""` | deprecated, always UNSET |
+| 55 | auctionStrategy | int | `0` | |
+| 56 | startingPrice | double | `""` | UNSET |
+| 57 | stockRefPrice | double | `""` | UNSET |
+| 58 | delta | double | `""` | UNSET |
+| 59 | stockRangeLower | double | `""` | UNSET |
+| 60 | stockRangeUpper | double | `""` | UNSET |
+| 61 | overridePercentageConstraints | bool | `0` | |
+| 62 | volatility | double | `""` | `ib_async` forces `""` unless orderType starts with `VOL` |
+| 63 | volatilityType | int | `""` | UNSET |
+| 64 | deltaNeutralOrderType | string | `""` | |
+| 65 | deltaNeutralAuxPrice | double | `""` | UNSET |
+| + | deltaNeutralConId | int | `0` | only if deltaNeutralOrderType ≠ `""`; 8 fields |
+| + | deltaNeutralSettlingFirm | string | `""` | |
+| + | deltaNeutralClearingAccount | string | `""` | |
+| + | deltaNeutralClearingIntent | string | `""` | |
+| + | deltaNeutralOpenClose | string | `""` | |
+| + | deltaNeutralShortSale | bool | `0` | |
+| + | deltaNeutralShortSaleSlot | int | `0` | |
+| + | deltaNeutralDesignatedLocation | string | `""` | |
+| 66 | continuousUpdate | bool | `0` | |
+| 67 | referencePriceType | int | `""` | UNSET |
+| 68 | trailStopPrice | double | `""` | UNSET |
+| 69 | trailingPercent | double | `""` | UNSET |
+| 70 | scaleInitLevelSize | int | `""` | UNSET |
+| 71 | scaleSubsLevelSize | int | `""` | UNSET |
+| 72 | scalePriceIncrement | double | `""` | UNSET |
+| + | scalePriceAdjustValue | double | `""` | only if 0 < scalePriceIncrement < UNSET; 7 fields |
+| + | scalePriceAdjustInterval | int | `""` | |
+| + | scaleProfitOffset | double | `""` | |
+| + | scaleAutoReset | bool | `0` | |
+| + | scaleInitPosition | int | `""` | |
+| + | scaleInitFillQty | int | `""` | |
+| + | scaleRandomPercent | bool | `0` | |
+| 73 | scaleTable | string | `""` | |
+| 74 | activeStartTime | string | `""` | |
+| 75 | activeStopTime | string | `""` | |
+| 76 | hedgeType | string | `""` | |
+| + | hedgeParam | string | `""` | only if hedgeType ≠ `""` |
+| 77 | optOutSmartRouting | bool | `0` | |
+| 78 | clearingAccount | string | `""` | |
+| 79 | clearingIntent | string | `""` | |
+| 80 | notHeld | bool | `0` | |
+| 81 | deltaNeutralContractPresent | bool | `0` | |
+| + | deltaNeutralContract.conId | int | | only if present = `1`; 3 fields |
+| + | deltaNeutralContract.delta | double | | |
+| + | deltaNeutralContract.price | double | | |
+| 82 | algoStrategy | string | `""` | |
+| + | algoParamsCount | int | `0` | only if algoStrategy ≠ `""` |
+| + | ↳ tag | string | | × algoParamsCount, 2 fields per element |
+| + | ↳ value | string | | |
+| 83 | algoId | string | `""` | |
+| 84 | whatIf | bool | `0` | |
+| 85 | orderMiscOptions | string | `""` | TagValue list as `tag=value;…` in one field |
+| 86 | solicited | bool | `0` | |
+| 87 | randomizeSize | bool | `0` | |
+| 88 | randomizePrice | bool | `0` | |
+| + | referenceContractId | int | `0` | only if orderType is `PEG BENCH` / `PEGBENCH`; 5 fields |
+| + | isPeggedChangeAmountDecrease | bool | `0` | |
+| + | peggedChangeAmount | double | `0.0` | |
+| + | referenceChangeAmount | double | `0.0` | |
+| + | referenceExchangeId | string | `""` | |
+| 89 | conditionsCount | int | `0` | |
+| + | ↳ one condition | | | × conditionsCount — see [Order condition element](#order-condition-element) |
+| + | conditionsIgnoreRth | bool | `0` | only if conditionsCount > 0 |
+| + | conditionsCancelOrder | bool | `0` | only if conditionsCount > 0 |
+| 90 | adjustedOrderType | string | `""` | |
+| 91 | triggerPrice | double | `""` | UNSET |
+| 92 | lmtPriceOffset | double | `""` | UNSET |
+| 93 | adjustedStopPrice | double | `""` | UNSET |
+| 94 | adjustedStopLimitPrice | double | `""` | UNSET |
+| 95 | adjustedTrailingAmount | double | `""` | UNSET |
+| 96 | adjustableTrailingUnit | int | `0` | |
+| 97 | extOperator | string | `""` | |
+| 98 | softDollarTier.name | string | `""` | |
+| 99 | softDollarTier.value | string | `""` | |
+| 100 | cashQty | double | `""` | UNSET |
+| 101 | mifid2DecisionMaker | string | `""` | |
+| 102 | mifid2DecisionAlgo | string | `""` | |
+| 103 | mifid2ExecutionTrader | string | `""` | |
+| 104 | mifid2ExecutionAlgo | string | `""` | |
+| 105 | dontUseAutoPriceForHedge | bool | `0` | |
+| 106 | isOmsContainer | bool | `0` | |
+| 107 | discretionaryUpToLimitPrice | bool | `0` | |
+| 108 | usePriceMgmtAlgo | bool | `0` | see Disagreements |
+| 109 | duration | int | `""` | UNSET (gate 158) |
+| 110 | postToAts | int | `""` | UNSET (gate 160) |
+| 111 | autoCancelParent | bool | `0` | gate 162 |
+| 112 | advancedErrorOverride | string | `""` | gate 166 |
+| 113 | manualOrderTime | string | `""` | gate 169 |
+| + | minTradeQty | int | `""` | gate 170; only if contract.exchange == `IBKRATS` |
+| + | minCompeteSize | int | `""` | gate 170; only if orderType `PEG BEST` / `PEGBEST` |
+| + | competeAgainstBestOffset | double | `""` | same condition; +∞ is sent as `Infinite` |
+| + | midOffsetAtWhole | double | `""` | if PEG BEST with competeAgainstBestOffset = +∞, or orderType `PEG MID` / `PEGMID` |
+| + | midOffsetAtHalf | double | `""` | same condition |
+
+Total: 114 fields in the base case (indices 0–113). Nothing follows `manualOrderTime` at 178
+(customerAccount 183, professionalCustomer 184, includeOvernight 189, manualOrderIndicator 192,
+imbalanceOnly 199 are all above).
+
+### cancelOrder (out 4)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `4` |
+| 1 | version | int | `1` |
+| 2 | orderId | int | (caller) |
+| 3 | manualOrderCancelTime | string | `""` (gate 169) |
+
+Total: 4 fields. The version field is still sent at 178 (it goes away at 192).
+
+### reqOpenOrders (out 5)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `5` |
+| 1 | version | int | `1` |
+
+Total: 2 fields.
+
+### reqAllOpenOrders (out 16)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `16` |
+| 1 | version | int | `1` |
+
+Total: 2 fields.
+
+### reqAutoOpenOrders (out 15)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `15` |
+| 1 | version | int | `1` |
+| 2 | autoBind | bool | (caller; `ib_async`'s `IB.reqAutoOpenOrders` defaults to `1`) |
+
+Total: 3 fields. Meaningful only for clientId 0 (per `ib_async`'s docstring).
+
+### reqCompletedOrders (out 99)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `99` |
+| 1 | apiOnly | bool | (caller) |
+
+Total: 2 fields. No version field.
+
+### reqExecutions (out 7)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `7` |
+| 1 | version | int | `3` |
+| 2 | reqId | int | (caller) |
+| 3 | filter.clientId | int | `0` |
+| 4 | filter.acctCode | string | `""` |
+| 5 | filter.time | string | `""` |
+| 6 | filter.symbol | string | `""` |
+| 7 | filter.secType | string | `""` |
+| 8 | filter.exchange | string | `""` |
+| 9 | filter.side | string | `""` |
+
+Total: 10 fields. (lastNDays / specificDates start at 200.)
+
+### Order condition element
+
+One element of the `placeOrder` / `openOrder` / `completedOrder` conditions group. The same
+layout both ways; `ib_async` sends a condition dataclass's fields in declaration order.
+
+| # | Field | Type | Default sent | Present for type |
+|---|---|---|---|---|
+| c0 | conditionType | int | | all: 1 Price, 3 Time, 4 Margin, 5 Execution, 6 Volume, 7 PercentChange |
+| c1 | conjunction | string | `a` | all: `a` = and, `o` = or |
+| c2 | isMore | bool | `1` | 1, 3, 4, 6, 7 |
+| c3 | value | | | 1 price (double), 3 time (string), 4 percent (int), 6 volume (int), 7 changePercent (double) |
+| c4 | conId | int | `0` | 1, 6, 7 |
+| c5 | exchange | string | `""` | 1, 6, 7 |
+| c6 | triggerMethod | int | `0` | 1 only |
+
+Execution (5) has instead, after the conjunction: secType (string), exchange (string), symbol
+(string). Element sizes: Price 7, Time 4, Margin 4, Execution 5, Volume 6, PercentChange 6.
+
+## Incoming messages
+
+### orderStatus (in 3)
+
+No version field at 178 (it stopped at 131).
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `3` |
+| 1 | orderId | int | 0 for orders placed by hand in TWS (design spec) |
+| 2 | status | string | |
+| 3 | filled | decimal | |
+| 4 | remaining | decimal | |
+| 5 | avgFillPrice | double | |
+| 6 | permId | int | |
+| 7 | parentId | int | |
+| 8 | lastFillPrice | double | |
+| 9 | clientId | int | |
+| 10 | whyHeld | string | |
+| 11 | mktCapPrice | double | |
+
+Total: 12 fields.
+
+### error (in 4)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `4` |
+| 1 | version | int | ignored (removed at 194) |
+| 2 | reqId | int | order id / request id; -1 when not order-related (`ib_async` wrapper comment) |
+| 3 | errorCode | int | |
+| 4 | errorString | string | |
+| 5 | advancedOrderRejectJson | string | gate 166; usually empty |
+
+Total: 6 fields. errorTime arrives only from 194.
+
+### openOrder (in 5)
+
+No version field at 178 (it stopped at 145). Base case as for `placeOrder`, and no combo legs,
+no smart-routing params.
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `5` |
+| 1 | orderId | int | |
+| 2 | conId ★ | int | |
+| 3 | symbol ★ | string | |
+| 4 | secType ★ | string | |
+| 5 | lastTradeDateOrContractMonth ★ | string | |
+| 6 | strike ★ | double | |
+| 7 | right ★ | string | |
+| 8 | multiplier ★ | string | |
+| 9 | exchange ★ | string | |
+| 10 | currency ★ | string | no primaryExchange here |
+| 11 | localSymbol ★ | string | |
+| 12 | tradingClass ★ | string | |
+| 13 | action ★ | string | |
+| 14 | totalQuantity ★ | decimal | |
+| 15 | orderType ★ | string | |
+| 16 | lmtPrice ★ | double | |
+| 17 | auxPrice ★ | double | |
+| 18 | tif ★ | string | |
+| 19 | ocaGroup ★ | string | |
+| 20 | account ★ | string | |
+| 21 | openClose | string | |
+| 22 | origin | int | |
+| 23 | orderRef ★ | string | |
+| 24 | clientId | int | |
+| 25 | permId | int | |
+| 26 | outsideRth ★ | bool | |
+| 27 | hidden | bool | |
+| 28 | discretionaryAmt | double | |
+| 29 | goodAfterTime | string | |
+| 30 | sharesAllocation | string | deprecated, skip |
+| 31 | faGroup | string | |
+| 32 | faMethod | string | |
+| 33 | faPercentage | string | faProfile only below 177 — absent |
+| 34 | modelCode | string | |
+| 35 | goodTillDate | string | |
+| 36 | rule80A | string | |
+| 37 | percentOffset | double | |
+| 38 | settlingFirm | string | |
+| 39 | shortSaleSlot | int | |
+| 40 | designatedLocation | string | |
+| 41 | exemptCode | int | |
+| 42 | auctionStrategy | int | |
+| 43 | startingPrice | double | |
+| 44 | stockRefPrice | double | |
+| 45 | delta | double | |
+| 46 | stockRangeLower | double | |
+| 47 | stockRangeUpper | double | |
+| 48 | displaySize | int | |
+| 49 | blockOrder | bool | |
+| 50 | sweepToFill | bool | |
+| 51 | allOrNone | bool | |
+| 52 | minQty | int | |
+| 53 | ocaType ★ | int | |
+| 54 | eTradeOnly | bool | deprecated, skip |
+| 55 | firmQuoteOnly | bool | deprecated, skip |
+| 56 | nbboPriceCap | double | deprecated, skip |
+| 57 | parentId ★ | int | |
+| 58 | triggerMethod | int | |
+| 59 | volatility | double | |
+| 60 | volatilityType | int | |
+| 61 | deltaNeutralOrderType | string | |
+| 62 | deltaNeutralAuxPrice | double | |
+| + | deltaNeutralConId | int | only if deltaNeutralOrderType ≠ `""`; 8 fields |
+| + | deltaNeutralSettlingFirm | string | |
+| + | deltaNeutralClearingAccount | string | |
+| + | deltaNeutralClearingIntent | string | |
+| + | deltaNeutralOpenClose | string | |
+| + | deltaNeutralShortSale | bool | |
+| + | deltaNeutralShortSaleSlot | int | |
+| + | deltaNeutralDesignatedLocation | string | |
+| 63 | continuousUpdate | bool | |
+| 64 | referencePriceType | int | |
+| 65 | trailStopPrice | double | overwritten by #105 in both clients |
+| 66 | trailingPercent | double | |
+| 67 | basisPoints | double | |
+| 68 | basisPointsType | int | |
+| 69 | comboLegsDescrip | string | |
+| 70 | comboLegsCount | int | always present |
+| + | ↳ leg: conId int, ratio int, action string, exchange string, openClose int, shortSaleSlot int, designatedLocation string, exemptCode int | | × comboLegsCount, 8 fields per leg |
+| 71 | orderComboLegsCount | int | always present |
+| + | ↳ price | double | × orderComboLegsCount |
+| 72 | smartComboRoutingParamsCount | int | always present |
+| + | ↳ tag, value | string, string | × count, 2 fields per element |
+| 73 | scaleInitLevelSize | int | |
+| 74 | scaleSubsLevelSize | int | |
+| 75 | scalePriceIncrement | double | |
+| + | scalePriceAdjustValue double, scalePriceAdjustInterval int, scaleProfitOffset double, scaleAutoReset bool, scaleInitPosition int, scaleInitFillQty int, scaleRandomPercent bool | | only if 0 < scalePriceIncrement < UNSET; 7 fields |
+| 76 | hedgeType | string | |
+| + | hedgeParam | string | only if hedgeType ≠ `""` |
+| 77 | optOutSmartRouting | bool | |
+| 78 | clearingAccount | string | |
+| 79 | clearingIntent | string | |
+| 80 | notHeld | bool | |
+| 81 | deltaNeutralContractPresent | bool | |
+| + | conId int, delta double, price double | | only if present; 3 fields |
+| 82 | algoStrategy | string | |
+| + | algoParamsCount | int | only if algoStrategy ≠ `""` |
+| + | ↳ tag, value | string, string | × algoParamsCount |
+| 83 | solicited | bool | |
+| 84 | whatIf | bool | |
+| 85 | status | string | OrderState.status |
+| 86 | initMarginBefore | string | |
+| 87 | maintMarginBefore | string | |
+| 88 | equityWithLoanBefore | string | |
+| 89 | initMarginChange | string | |
+| 90 | maintMarginChange | string | |
+| 91 | equityWithLoanChange | string | |
+| 92 | initMarginAfter | string | |
+| 93 | maintMarginAfter | string | |
+| 94 | equityWithLoanAfter | string | |
+| 95 | commission | double | |
+| 96 | minCommission | double | |
+| 97 | maxCommission | double | |
+| 98 | commissionCurrency | string | |
+| 99 | warningText | string | (the outside-RTH margin block starts at 195 — absent) |
+| 100 | randomizeSize | bool | |
+| 101 | randomizePrice | bool | |
+| + | referenceContractId int, isPeggedChangeAmountDecrease bool, peggedChangeAmount double, referenceChangeAmount double, referenceExchangeId string | | only if orderType `PEG BENCH` / `PEGBENCH`; 5 fields |
+| 102 | conditionsCount | int | |
+| + | ↳ one condition | | × conditionsCount — see [Order condition element](#order-condition-element) |
+| + | conditionsIgnoreRth, conditionsCancelOrder | bool, bool | only if conditionsCount > 0 |
+| 103 | adjustedOrderType | string | |
+| 104 | triggerPrice | double | |
+| 105 | trailStopPrice | double | second occurrence |
+| 106 | lmtPriceOffset | double | |
+| 107 | adjustedStopPrice | double | |
+| 108 | adjustedStopLimitPrice | double | |
+| 109 | adjustedTrailingAmount | double | |
+| 110 | adjustableTrailingUnit | int | |
+| 111 | softDollarTier.name | string | |
+| 112 | softDollarTier.value | string | |
+| 113 | softDollarTier.displayName | string | |
+| 114 | cashQty | double | |
+| 115 | dontUseAutoPriceForHedge | bool | |
+| 116 | isOmsContainer | bool | |
+| 117 | discretionaryUpToLimitPrice | bool | |
+| 118 | usePriceMgmtAlgo | bool | |
+| 119 | duration | int | |
+| 120 | postToAts | int | |
+| 121 | autoCancelParent | bool | |
+| 122 | minTradeQty | int | gate 170, always present |
+| 123 | minCompeteSize | int | |
+| 124 | competeAgainstBestOffset | double | `Infinite` = +∞ |
+| 125 | midOffsetAtWhole | double | |
+| 126 | midOffsetAtHalf | double | |
+
+Total: 127 fields in the base case (indices 0–126).
+
+### nextValidId (in 9)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `9` |
+| 1 | version | int | ignored |
+| 2 | orderId | int | next usable order id |
+
+Total: 3 fields.
+
+### execDetails (in 11)
+
+No version field at 178 (it stopped at 136).
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `11` |
+| 1 | reqId | int | a reqId with no pending `reqExecutions` is a live fill (`ib_async`) |
+| 2 | orderId | int | |
+| 3 | conId | int | |
+| 4 | symbol | string | |
+| 5 | secType | string | |
+| 6 | lastTradeDateOrContractMonth | string | |
+| 7 | strike | double | |
+| 8 | right | string | |
+| 9 | multiplier | string | |
+| 10 | exchange | string | contract exchange |
+| 11 | currency | string | |
+| 12 | localSymbol | string | |
+| 13 | tradingClass | string | |
+| 14 | execId | string | |
+| 15 | time | string | |
+| 16 | acctNumber | string | |
+| 17 | exchange | string | execution exchange |
+| 18 | side | string | `BOT` / `SLD` |
+| 19 | shares | decimal | |
+| 20 | price | double | |
+| 21 | permId | int | |
+| 22 | clientId | int | |
+| 23 | liquidation | int | |
+| 24 | cumQty | decimal | |
+| 25 | avgPrice | double | |
+| 26 | orderRef | string | |
+| 27 | evRule | string | |
+| 28 | evMultiplier | double | |
+| 29 | modelCode | string | |
+| 30 | lastLiquidity | int | |
+| 31 | pendingPriceRevision | bool | gate 178 — present |
+
+Total: 32 fields. submitter arrives only from 198.
+
+### managedAccounts (in 15)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `15` |
+| 1 | version | int | ignored |
+| 2 | accountsList | string | comma-separated; may end in a comma — drop empty items |
+
+Total: 3 fields.
+
+### currentTime (in 49)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `49` |
+| 1 | version | int | ignored |
+| 2 | time | int | Unix seconds |
+
+Total: 3 fields.
+
+### openOrderEnd (in 53)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `53` |
+| 1 | version | int | ignored |
+
+Total: 2 fields.
+
+### execDetailsEnd (in 55)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `55` |
+| 1 | version | int | ignored |
+| 2 | reqId | int | |
+
+Total: 3 fields.
+
+### commissionReport (in 59)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `59` |
+| 1 | version | int | ignored |
+| 2 | execId | string | |
+| 3 | commission | double | |
+| 4 | currency | string | |
+| 5 | realizedPNL | double | may be the UNSET sentinel |
+| 6 | yield | double | may be the UNSET sentinel |
+| 7 | yieldRedemptionDate | int | empty decodes as 0 (`ib_async`) |
+
+Total: 8 fields.
+
+### orderBound (in 100)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `100` |
+| 1 | permId | int | `ib_async`'s wrapper calls it `reqId`; IB's client `permId` |
+| 2 | apiClientId | int | |
+| 3 | apiOrderId | int | |
+
+Total: 4 fields. No version field.
+
+### completedOrder (in 101)
+
+**There is no orderId field at version 178** — the message starts directly with the contract.
+The Swift side uses orderId 0 and keys completed orders by permId. There is no clientId either.
+No version field. Base case as for `openOrder`.
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `101` |
+| 1 | conId ★ | int | |
+| 2 | symbol ★ | string | |
+| 3 | secType ★ | string | |
+| 4 | lastTradeDateOrContractMonth ★ | string | |
+| 5 | strike ★ | double | |
+| 6 | right ★ | string | |
+| 7 | multiplier ★ | string | |
+| 8 | exchange ★ | string | |
+| 9 | currency ★ | string | |
+| 10 | localSymbol ★ | string | |
+| 11 | tradingClass ★ | string | |
+| 12 | action ★ | string | |
+| 13 | totalQuantity ★ | decimal | |
+| 14 | orderType ★ | string | |
+| 15 | lmtPrice ★ | double | |
+| 16 | auxPrice ★ | double | |
+| 17 | tif ★ | string | |
+| 18 | ocaGroup ★ | string | |
+| 19 | account ★ | string | |
+| 20 | openClose | string | |
+| 21 | origin | int | |
+| 22 | orderRef ★ | string | |
+| 23 | permId | int | the key |
+| 24 | outsideRth ★ | bool | |
+| 25 | hidden | bool | |
+| 26 | discretionaryAmt | double | |
+| 27 | goodAfterTime | string | no sharesAllocation here |
+| 28 | faGroup | string | |
+| 29 | faMethod | string | |
+| 30 | faPercentage | string | faProfile only below 177 — absent |
+| 31 | modelCode | string | |
+| 32 | goodTillDate | string | |
+| 33 | rule80A | string | |
+| 34 | percentOffset | double | |
+| 35 | settlingFirm | string | |
+| 36 | shortSaleSlot | int | |
+| 37 | designatedLocation | string | |
+| 38 | exemptCode | int | no auctionStrategy here |
+| 39 | startingPrice | double | |
+| 40 | stockRefPrice | double | |
+| 41 | delta | double | |
+| 42 | stockRangeLower | double | |
+| 43 | stockRangeUpper | double | |
+| 44 | displaySize | int | no blockOrder here |
+| 45 | sweepToFill | bool | |
+| 46 | allOrNone | bool | |
+| 47 | minQty | int | |
+| 48 | ocaType ★ | int | no eTradeOnly / firmQuoteOnly / nbboPriceCap / parentId here |
+| 49 | triggerMethod | int | |
+| 50 | volatility | double | |
+| 51 | volatilityType | int | |
+| 52 | deltaNeutralOrderType | string | |
+| 53 | deltaNeutralAuxPrice | double | |
+| + | deltaNeutralConId int, deltaNeutralShortSale bool, deltaNeutralShortSaleSlot int, deltaNeutralDesignatedLocation string | | only if deltaNeutralOrderType ≠ `""`; **4** fields (no settlingFirm / clearing / openClose) |
+| 54 | continuousUpdate | bool | |
+| 55 | referencePriceType | int | |
+| 56 | trailStopPrice | double | overwritten by #76 in both clients |
+| 57 | trailingPercent | double | no basisPoints here |
+| 58 | comboLegsDescrip | string | |
+| 59 | comboLegsCount | int | always present |
+| + | ↳ leg: 8 fields as in `openOrder` | | × comboLegsCount |
+| 60 | orderComboLegsCount | int | always present |
+| + | ↳ price | double | × orderComboLegsCount |
+| 61 | smartComboRoutingParamsCount | int | always present |
+| + | ↳ tag, value | string, string | × count |
+| 62 | scaleInitLevelSize | int | |
+| 63 | scaleSubsLevelSize | int | |
+| 64 | scalePriceIncrement | double | |
+| + | the 7 scale fields as in `openOrder` | | only if 0 < scalePriceIncrement < UNSET |
+| 65 | hedgeType | string | |
+| + | hedgeParam | string | only if hedgeType ≠ `""` |
+| 66 | clearingAccount | string | no optOutSmartRouting here |
+| 67 | clearingIntent | string | |
+| 68 | notHeld | bool | |
+| 69 | deltaNeutralContractPresent | bool | |
+| + | conId int, delta double, price double | | only if present |
+| 70 | algoStrategy | string | |
+| + | algoParamsCount, then tag/value pairs | | only if algoStrategy ≠ `""` |
+| 71 | solicited | bool | no whatIf here |
+| 72 | status | string | OrderState.status; no margin / commission block |
+| 73 | randomizeSize | bool | |
+| 74 | randomizePrice | bool | |
+| + | the 5 PEG BENCH fields as in `openOrder` | | only if orderType `PEG BENCH` / `PEGBENCH` |
+| 75 | conditionsCount | int | |
+| + | ↳ one condition | | × conditionsCount — see [Order condition element](#order-condition-element) |
+| + | conditionsIgnoreRth, conditionsCancelOrder | bool, bool | only if conditionsCount > 0 |
+| 76 | trailStopPrice | double | second occurrence; no adjusted-order block here |
+| 77 | lmtPriceOffset | double | |
+| 78 | cashQty | double | no softDollarTier here |
+| 79 | dontUseAutoPriceForHedge | bool | |
+| 80 | isOmsContainer | bool | |
+| 81 | autoCancelDate | string | |
+| 82 | filledQuantity | decimal | |
+| 83 | refFuturesConId | int | |
+| 84 | autoCancelParent | bool | |
+| 85 | shareholder | string | |
+| 86 | imbalanceOnly | bool | always present in completedOrder (unlike placeOrder / openOrder) |
+| 87 | routeMarketableToBbo | bool | |
+| 88 | parentPermId | int | |
+| 89 | completedTime | string | |
+| 90 | completedStatus | string | |
+| 91 | minTradeQty | int | gate 170, always present |
+| 92 | minCompeteSize | int | |
+| 93 | competeAgainstBestOffset | double | |
+| 94 | midOffsetAtWhole | double | |
+| 95 | midOffsetAtHalf | double | |
+
+Total: 96 fields in the base case (indices 0–95). customerAccount (183), professionalCustomer
+(184) and submitter (198) are above 178.
+
+### completedOrdersEnd (in 102)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `102` |
+
+Total: 1 field. No version field.
+
+## Disagreements
+
+Cross-check of `placeOrder`, `openOrder`, `completedOrder`, `orderStatus`, `execDetails` and
+`commissionReport` (and, in passing, every other section) against IB's published Python client
+at server version 178. **Field order agrees in every message.** The order-condition element
+agrees type by type. The differences are in default values and value formatting only:
+
+1. **placeOrder `openClose` default.** `ib_async` sends `O`; IB's client sends `""` (its
+   default has been empty since server version 155, "no default open/close"). The table follows
+   `ib_async` as the brief requires. For an individual stock account the field is not expected to
+   matter, but this is not verified against a live Gateway.
+2. **placeOrder `usePriceMgmtAlgo` default.** `ib_async` sends `0` (its default is `False`); IB's
+   client sends `""` (default `None` → unset, i.e. "Gateway decides"). `0` explicitly opts out of
+   IB's price-management algo. The table follows `ib_async`; worth a decision in Task 4.
+3. **placeOrder unset numbers.** For triggerPrice, lmtPriceOffset, adjustedStopPrice,
+   adjustedStopLimitPrice, adjustedTrailingAmount, cashQty, duration and postToAts IB's client
+   sends the raw sentinel text (`1.7976931348623157e+308`, `2147483647`), not `""`, because it
+   uses the plain field writer there. `ib_async` sends `""` for every unset number. The table
+   follows `ib_async`, which runs against 178 Gateways in this form; how the Gateway parses
+   the sentinel text is not verified here.
+4. **Number formatting.** `ib_async` formats floats with Python `str()` (`100.0`, `0.0`), IB's
+   client sends quantities as `Decimal` text (`100`) and `discretionaryAmt` as `0`. Position is
+   unaffected; the Swift encoder may write `100` / `0`.
+5. **Decimal vs double.** IB's client decodes `totalQuantity`, `filled`, `remaining`, `shares`,
+   `cumQty` and `filledQuantity` as `Decimal`; `ib_async` as `float`. The tables say `decimal`,
+   following IB's client, because the Swift models hold quantities as `Decimal`.
+6. **orderBound field 1 name.** `ib_async`'s wrapper names it `reqId`; IB's client `permId`. The
+   table follows IB's client (it is the order's permId); position is the same.
+7. **Version gates differ below 178, not at it.** `ib_async` gates openOrder's `duration` at
+   159, IB's client at 158; both are present at 178. `ib_async` advertises `v157..178`, IB's
+   client `v100..<max>`; the handshake above uses `v100..178` per the design.
+8. **Incoming text decoding.** `ib_async` decodes the whole frame as UTF-8 with backslash
+   replacement. IB's client decodes `errorString` and `advancedOrderRejectJson` with Python's
+   `unicode-escape` codec from server version 153. Not a field-order matter; noted for the reader.
+
+No row in this document is unverified: every table was checked line by line against the
+verbatim source of both clients.
