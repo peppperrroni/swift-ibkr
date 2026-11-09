@@ -1,6 +1,6 @@
 import Foundation
 
-public enum Decoder {
+public enum IBDecoder {
     /// Never throws. A non-numeric message id is `.malformed` with id 0.
     public static func decode(_ body: [UInt8]) -> IBMessage {
         var r = FieldReader(body)

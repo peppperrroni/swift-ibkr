@@ -15,16 +15,16 @@ private func completedFields() -> [String] {
     Fixtures.completedOrderFields(orderID: 12, permID: 918273001, clientID: 1, symbol: "AAPL", action: "BUY",
                                   quantity: "100", orderType: "LMT", limitPrice: "187.25", auxPrice: unset, tif: "DAY",
                                   parentID: "0", outsideRTH: "0", orderRef: "preset-1", status: "Filled",
-                                  completedTime: "20261109 15:59:01", completedStatus: "Filled")
+                                  completedTime: "20261109 15:59:01", completedStatus: "Filled", filledQuantity: "100")
 }
 
 private func openOrder(_ fields: [String]) -> OpenOrderMessage? {
-    guard case .openOrder(let m) = Decoder.decode(body(fields)) else { return nil }
+    guard case .openOrder(let m) = IBDecoder.decode(body(fields)) else { return nil }
     return m
 }
 
 private func isMalformed(_ fields: [String]) -> Bool {
-    if case .malformed = Decoder.decode(body(fields)) { return true }
+    if case .malformed = IBDecoder.decode(body(fields)) { return true }
     return false
 }
 
@@ -47,7 +47,7 @@ private func inserting(_ groups: [(after: Int, fields: [String])], into f: [Stri
     c.conID = 265598; c.strike = 0; c.localSymbol = "AAPL"; c.tradingClass = "NMS"
     var o = Order(action: .buy, quantity: 100, orderType: "LMT", limitPrice: d("187.25"), tif: "DAY")
     o.account = "DU123456"; o.orderRef = "preset-1"; o.ocaGroup = "oca-1"; o.ocaType = 2; o.outsideRTH = true
-    #expect(Decoder.decode(body(f)) == .openOrder(OpenOrderMessage(
+    #expect(IBDecoder.decode(body(f)) == .openOrder(OpenOrderMessage(
         orderID: 12, clientID: 1, permID: 918273001, contract: c, order: o, status: .submitted)))
 }
 
@@ -74,13 +74,13 @@ private func inserting(_ groups: [(after: Int, fields: [String])], into f: [Stri
     c.strike = 0; c.localSymbol = "AAPL"
     var o = Order(action: .buy, quantity: 100, orderType: "LMT", limitPrice: d("187.25"), tif: "DAY")
     o.account = "DU123456"; o.orderRef = "preset-1"
-    #expect(Decoder.decode(body(completedFields())) == .completedOrder(CompletedOrderMessage(
-        permID: 918273001, clientID: 0, orderID: 0, contract: c, order: o, status: .filled,
-        completedTime: "20261109 15:59:01", completedStatus: "Filled")))
+    #expect(IBDecoder.decode(body(completedFields())) == .completedOrder(CompletedOrderMessage(
+        permID: 918273001, contract: c, order: o, status: .filled,
+        completedTime: "20261109 15:59:01", completedStatus: "Filled", filledQuantity: 100)))
 }
 
 @Test func completedOrderConsumesEveryField() {
-    guard case .completedOrder = Decoder.decode(body(completedFields() + ["extra"])) else { Issue.record("not decoded"); return }
+    guard case .completedOrder = IBDecoder.decode(body(completedFields() + ["extra"])) else { Issue.record("not decoded"); return }
     #expect(isMalformed(Array(completedFields().dropLast())))
 }
 
@@ -119,7 +119,7 @@ private func inserting(_ groups: [(after: Int, fields: [String])], into f: [Stri
         (74, ["265598", "0", "1", "1", "ISLAND"]),
         (75, ["5", "a", "STK", "SMART", "AAPL", "4", "a", "1", "30", "0", "0"]),       // execution + margin condition, flags
     ], into: f)
-    guard case .completedOrder(let m) = Decoder.decode(body(f)) else { Issue.record("not decoded"); return }
+    guard case .completedOrder(let m) = IBDecoder.decode(body(f)) else { Issue.record("not decoded"); return }
     #expect(m.status == .filled)
     #expect(m.completedTime == "20261109 15:59:01")
     #expect(isMalformed(Array(f.dropLast())))

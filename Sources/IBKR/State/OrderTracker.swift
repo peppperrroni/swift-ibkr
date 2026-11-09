@@ -62,7 +62,7 @@ public struct OrderTracker: Sendable {
         case .completedOrder(let m):
             var fresh = Self.blank(m.contract, m.order)
             fresh.permID = m.permID
-            if m.status == .filled { fresh.filled = m.order.totalQuantity; fresh.remaining = 0 }
+            fresh.filled = m.filledQuantity; fresh.remaining = m.order.totalQuantity - m.filledQuantity
             return upsert(.permanent(m.permID), m.permID, new: fresh) { s in
                 s.status = m.status; s.completedTime = m.completedTime  // a joined order keeps its own order/contract: v178 completedOrder lacks parentID etc.
             }
@@ -85,7 +85,7 @@ public struct OrderTracker: Sendable {
         return upsert(key, 0, new: sentSnapshot(key)) { s in
             if kind == .orderCancelled { s.status = .cancelled; return }
             s.rejectReason = e.text
-            if !s.status.isFinal { s.status = .inactive }
+            if s.status == .apiPending { s.status = .inactive }  // once IB acknowledged the order, its own status wins
         }
     }
 

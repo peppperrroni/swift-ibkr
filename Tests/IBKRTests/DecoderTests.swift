@@ -3,7 +3,7 @@ import Testing
 @testable import IBKR
 
 @Test func orderStatusDecodes() {
-    let m = Decoder.decode(body("3", "12", "Submitted", "0", "100", "0", "918273001", "0", "0", "1", "", "1.7976931348623157E308"))
+    let m = IBDecoder.decode(body("3", "12", "Submitted", "0", "100", "0", "918273001", "0", "0", "1", "", "1.7976931348623157E308"))
     #expect(m == .orderStatus(OrderStatusMessage(
         orderID: 12, status: .submitted, filled: 0, remaining: 100, averageFillPrice: 0, permID: 918273001,
         parentID: 0, lastFillPrice: 0, clientID: 1, whyHeld: "", marketCapPrice: nil)))
@@ -11,24 +11,24 @@ import Testing
 
 @Test func errorDecodes() {
     let text = "Order rejected - reason:x"
-    #expect(Decoder.decode(body("4", "2", "12", "201", text, "")) ==
+    #expect(IBDecoder.decode(body("4", "2", "12", "201", text, "")) ==
         .error(IBErrorMessage(requestID: 12, code: 201, text: text, advancedOrderRejectJSON: "")))
 }
 
 @Test func errorWithMinusOneIsConnectionLevel() {
-    guard case .error(let e) = Decoder.decode(body("4", "2", "-1", "2104", "farm ok", "")) else { Issue.record("not error"); return }
+    guard case .error(let e) = IBDecoder.decode(body("4", "2", "-1", "2104", "farm ok", "")) else { Issue.record("not error"); return }
     #expect(e.requestID == -1)
 }
 
-@Test func nextValidIDDecodes() { #expect(Decoder.decode(body("9", "1", "13")) == .nextValidID(13)) }
+@Test func nextValidIDDecodes() { #expect(IBDecoder.decode(body("9", "1", "13")) == .nextValidID(13)) }
 
 @Test func managedAccountsSplitsOnComma() {
-    #expect(Decoder.decode(body("15", "1", "DU123456,DU654321")) == .managedAccounts(["DU123456", "DU654321"]))
-    #expect(Decoder.decode(body("15", "1", "DU123456,")) == .managedAccounts(["DU123456"]))
+    #expect(IBDecoder.decode(body("15", "1", "DU123456,DU654321")) == .managedAccounts(["DU123456", "DU654321"]))
+    #expect(IBDecoder.decode(body("15", "1", "DU123456,")) == .managedAccounts(["DU123456"]))
 }
 
 @Test func execDetailsDecodes() {
-    let m = Decoder.decode(body("11", "7", "12", "265598", "AAPL", "STK", "", "0", "", "", "SMART", "USD", "AAPL", "NMS",
+    let m = IBDecoder.decode(body("11", "7", "12", "265598", "AAPL", "STK", "", "0", "", "", "SMART", "USD", "AAPL", "NMS",
         "0000e0d5.6556b5f0.01.01", "20251109 10:00:00", "DU123456", "ISLAND", "BOT", "100", "187.25", "918273001", "1", "0",
         "100", "187.25", "", "", "", "", "1", "0"))
     var c = Contract(symbol: "AAPL", exchange: "SMART", currency: "USD")
@@ -40,31 +40,31 @@ import Testing
 }
 
 @Test func commissionReportDecodes() {
-    #expect(Decoder.decode(body("59", "1", "0000e0d5.6556b5f0.01.01", "1.0", "USD", "1.7976931348623157E308", "1.7976931348623157E308", "")) ==
+    #expect(IBDecoder.decode(body("59", "1", "0000e0d5.6556b5f0.01.01", "1.0", "USD", "1.7976931348623157E308", "1.7976931348623157E308", "")) ==
         .commissionReport(CommissionReport(execID: "0000e0d5.6556b5f0.01.01", commission: d("1.0"), currency: "USD",
                                            realizedPNL: nil, yield: nil, yieldRedemptionDate: nil)))
 }
 
 @Test func endMarkersDecode() {
-    #expect(Decoder.decode(body("53", "1")) == .openOrderEnd)
-    #expect(Decoder.decode(body("55", "1", "7")) == .execDetailsEnd(requestID: 7))
-    #expect(Decoder.decode(body("102")) == .completedOrdersEnd)
+    #expect(IBDecoder.decode(body("53", "1")) == .openOrderEnd)
+    #expect(IBDecoder.decode(body("55", "1", "7")) == .execDetailsEnd(requestID: 7))
+    #expect(IBDecoder.decode(body("102")) == .completedOrdersEnd)
 }
 
 @Test func orderBoundDecodes() {
-    #expect(Decoder.decode(body("100", "918273001", "1", "12")) == .orderBound(permID: 918273001, clientID: 1, orderID: 12))
+    #expect(IBDecoder.decode(body("100", "918273001", "1", "12")) == .orderBound(permID: 918273001, clientID: 1, orderID: 12))
 }
 
-@Test func currentTimeDecodes() { #expect(Decoder.decode(body("49", "1", "1762680000")) == .currentTime(1762680000)) }
+@Test func currentTimeDecodes() { #expect(IBDecoder.decode(body("49", "1", "1762680000")) == .currentTime(1762680000)) }
 
-@Test func unknownIDIsKept() { #expect(Decoder.decode(body("999", "x")) == .unknown(id: 999, fields: ["999", "x"])) }
+@Test func unknownIDIsKept() { #expect(IBDecoder.decode(body("999", "x")) == .unknown(id: 999, fields: ["999", "x"])) }
 
 @Test func truncatedKnownMessageIsMalformed() {
-    guard case .malformed(let id, _, _) = Decoder.decode(body("3", "12")) else { Issue.record("not malformed"); return }
+    guard case .malformed(let id, _, _) = IBDecoder.decode(body("3", "12")) else { Issue.record("not malformed"); return }
     #expect(id == 3)
 }
 
 @Test func nonNumericIDIsMalformedWithIDZero() {
-    guard case .malformed(let id, _, _) = Decoder.decode(body("abc")) else { Issue.record("not malformed"); return }
+    guard case .malformed(let id, _, _) = IBDecoder.decode(body("abc")) else { Issue.record("not malformed"); return }
     #expect(id == 0)
 }

@@ -35,7 +35,8 @@ enum Fixtures {
                                      quantity: String, orderType: String, limitPrice: String, auxPrice: String,
                                      tif: String, parentID: String, outsideRTH: String, orderRef: String, status: String,
                                      completedTime: String = "20261109 15:59:01",
-                                     completedStatus: String? = nil) -> [String] {
+                                     completedStatus: String? = nil,
+                                     filledQuantity: String = "0") -> [String] {
         ["101",
          "0", symbol, "STK", "", "0", "", "", "SMART", "USD", symbol, "",                      // 1–11 contract
          action, quantity, orderType, limitPrice, auxPrice, tif, "", "DU123456", "O", "0", orderRef, // 12–22
@@ -49,7 +50,7 @@ enum Fixtures {
          "", "IB", "0", "0", "", "0",                                                          // 66–71 clearingAccount … solicited
          status,                                                                               // 72
          "0", "0", "0",                                                                        // 73–75 randomize, conditionsCount
-         "", "", "", "0", "0", "", "0", "", "0", "", "0", "0", "",                             // 76–88 trailStopPrice … parentPermId
+         "", "", "", "0", "0", "", filledQuantity, "", "0", "", "0", "0", "",                           // 76–88 trailStopPrice … parentPermId
          completedTime, completedStatus ?? status,                                             // 89–90
          "", "", "", "", ""]                                                                   // 91–95 minTradeQty … midOffsetAtHalf
     }

@@ -55,7 +55,7 @@ private func commission(_ id: String = id1) -> IBMessage {
 @Test func unsetRealizedPNLIsNil() {
     var t = ExecutionTracker()
     _ = t.apply(exec())
-    _ = t.apply(Decoder.decode(body("59", "1", id1, "1.0", "USD", "1.7976931348623157E308", "1.7976931348623157E308", "")))
+    _ = t.apply(IBDecoder.decode(body("59", "1", id1, "1.0", "USD", "1.7976931348623157E308", "1.7976931348623157E308", "")))
     #expect(t.fills[0].commission.realizedPNL == nil)
 }
 

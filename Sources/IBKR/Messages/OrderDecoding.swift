@@ -9,21 +9,20 @@ public struct OpenOrderMessage: Sendable, Equatable {
     public var status: OrderStatus
 }
 
-/// `orderID` and `clientID` are not on the wire at version 178: both are 0, the key is `permID`.
+/// `orderId` and `clientId` are not on the wire at version 178: the key is `permID`.
 public struct CompletedOrderMessage: Sendable, Equatable {
     public var permID: Int
-    public var clientID: Int
-    public var orderID: Int
     public var contract: Contract
     public var order: Order
     public var status: OrderStatus
     public var completedTime: String
     public var completedStatus: String
+    public var filledQuantity: Decimal
 }
 
 /// Field order: docs/protocol-178.md, `openOrder (in 5)` and `completedOrder (in 101)`. Comments give
 /// the base-case indices of the fields skipped.
-extension Decoder {
+extension IBDecoder {
     static func openOrder(_ r: inout FieldReader) throws -> OpenOrderMessage {
         let orderID = try r.int()
         let contract = try self.contract(&r)
@@ -65,11 +64,14 @@ extension Decoder {
         try r.skip()  // 71 solicited
         let status = OrderStatus(rawValue: try r.string())
         try skipRandomizeThroughConditions(&r, orderType: o.orderType)
-        try r.skip(13)  // 76–88 trailStopPrice … parentPermId
+        try r.skip(6)  // 76-81 trailStopPrice ... autoCancelDate
+        let filledQuantity = try r.decimal()
+        try r.skip(6)  // 83-88 refFuturesConId ... parentPermId
         let completedTime = try r.string(), completedStatus = try r.string()
         try r.skip(5)  // 91–95 minTradeQty … midOffsetAtHalf
-        return CompletedOrderMessage(permID: permID, clientID: 0, orderID: 0, contract: contract, order: o, status: status,
-                                     completedTime: completedTime, completedStatus: completedStatus)
+        return CompletedOrderMessage(permID: permID, contract: contract, order: o, status: status,
+                                     completedTime: completedTime, completedStatus: completedStatus,
+                                     filledQuantity: filledQuantity)
     }
 
     /// conId … tradingClass, 11 fields, no primaryExchange (also execDetails' layout).

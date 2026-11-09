@@ -6,17 +6,17 @@ private let unset = "1.7976931348623157E308"
 
 private func open(_ orderID: Int = 12, permID: Int = 918273001, clientID: Int = 1, status: String = "Submitted",
                   parentID: Int = 0) -> IBMessage {
-    Decoder.decode(body(Fixtures.openOrderFields(
+    IBDecoder.decode(body(Fixtures.openOrderFields(
         orderID: orderID, permID: permID, clientID: clientID, symbol: "AAPL", action: "BUY", quantity: "100",
         orderType: "LMT", limitPrice: "187.25", auxPrice: unset, tif: "DAY", parentID: "\(parentID)", outsideRTH: "0",
         orderRef: "r", status: status)))
 }
 
-private func completed(permID: Int, status: String = "Filled") -> IBMessage {
-    Decoder.decode(body(Fixtures.completedOrderFields(
+private func completed(permID: Int, status: String = "Filled", filledQuantity: String = "0") -> IBMessage {
+    IBDecoder.decode(body(Fixtures.completedOrderFields(
         orderID: 0, permID: permID, clientID: 0, symbol: "AAPL", action: "BUY", quantity: "100", orderType: "LMT",
         limitPrice: "187.25", auxPrice: unset, tif: "DAY", parentID: "0", outsideRTH: "0", orderRef: "r", status: status,
-        completedTime: "20261109 15:59:01")))
+        completedTime: "20261109 15:59:01", filledQuantity: filledQuantity)))
 }
 
 private func status(_ s: OrderStatus, id orderID: Int = 12, filled: String = "0", remaining: String = "100",
@@ -72,6 +72,19 @@ private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT"
     t.sent(orderID: 12, clientID: 1, contract: aapl, order: sentOrder)
     let r = t.apply(error(12, 201, "Order rejected"))
     #expect(r.count == 1 && r[0].status == .inactive && r[0].rejectReason == "Order rejected")
+}
+
+@Test func rejectedModifyKeepsTheOrderWorking() {
+    var t = OrderTracker(clientID: 1)
+    _ = t.apply(open())
+    let r = t.apply(error(12, 201, "Order rejected"))
+    #expect(r.count == 1 && r[0].status == .submitted && r[0].rejectReason == "Order rejected")
+}
+
+@Test func completedOrderCancelledAfterPartialFill() {
+    var t = OrderTracker(clientID: 1)
+    let r = t.apply(completed(permID: 555, status: "Cancelled", filledQuantity: "40"))
+    #expect(r.count == 1 && r[0].filled == d("40") && r[0].remaining == d("60") && r[0].status == .cancelled)
 }
 
 @Test func cancelConfirmation() {

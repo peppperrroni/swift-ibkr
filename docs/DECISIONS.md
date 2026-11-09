@@ -18,6 +18,13 @@
 | One shared unset set (empty, 2147483647, 9223372036854775807, 1.7976931348623157E308, -9223372036854775808) for every optional reader | IB uses all of them as "no value"; per-reader sets drifted | per-type sentinel lists |
 | placeOrder encodes only the base layout; secType BAG, PEG order types and exchange IBKRATS throw `.unsupported` | the table adds combo-leg / PEG / IBKRATS fields the encoder does not emit, which would misalign the bytes | emitting the base layout silently |
 | OrderTracker takes the connection's client id at construction; an error matches only `.api(clientID: own, orderID: requestID)` | IB sends order errors only to the owning client, so another client's order with the same id must never be touched | guessing the client from the last `sent`, or taking a lone orderID candidate |
+| Orders and requests share ONE id sequence seeded from `nextValidId` (as `ib_async` does) | IB reports both orderId and reqId errors in the same field; stage 2's `IBClient` must never number requests from a separate counter | separate counters: an error on request N would hit order N |
+| A fatal error sets an order `.inactive` only while IB has not acknowledged it (status still `.apiPending`); otherwise it records `rejectReason` and leaves the status to IB's orderStatus/openOrder | IB keeps an acknowledged order working when a modification (re-sent placeOrder) is rejected with 110 or 201, or on a warning missing from the table | `.inactive` on every non-final order |
+| An `openOrder` never revives a final status | a late or replayed openOrder must not undo Filled/Cancelled | taking the openOrder status as is |
+| A fatal error after a final status keeps the status and records `rejectReason` | the final status came from IB; the error is a late reply | overwriting the status |
+| A `completedOrder` joined to an existing order updates only status and completedTime | v178 completedOrder lacks parentID etc.; the existing snapshot's contract/order (e.g. bracket parentID) are fuller | replacing contract and order |
+| `completedOrder` has no orderId/clientId at 178; it joins by permID. A new snapshot from it takes `filled` from field 82 (filledQuantity) and `remaining = totalQuantity - filledQuantity` | a cancelled order can be part-filled, so status alone says nothing about the fill | Filled implies filled = total |
+| A nil `ExecutionFilter.clientID` is sent as "0" (`ib_async` default) | to confirm live in stage 2 | omitting the field |
 
 ## Error-code table
 
