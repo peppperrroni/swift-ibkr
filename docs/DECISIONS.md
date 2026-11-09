@@ -16,3 +16,13 @@
 | placeOrder defaults follow `ib_async` (openClose "O", usePriceMgmtAlgo "0") | proven in practice; to be checked live in stage 2 | IB's own client defaults |
 | One shared unset set (empty, 2147483647, 9223372036854775807, 1.7976931348623157E308, -9223372036854775808) for every optional reader | IB uses all of them as "no value"; per-reader sets drifted | per-type sentinel lists |
 | placeOrder encodes only the base layout; secType BAG, PEG order types and exchange IBKRATS throw `.unsupported` | the table adds combo-leg / PEG / IBKRATS fields the encoder does not emit, which would misalign the bytes | emitting the base layout silently |
+
+## Error-code table
+
+| Kind | Codes | Effect |
+|---|---|---|
+| notice | 2100...2199, 10167, 399, 404, 161, 10147, 10148, 165 | informational, never fails a request |
+| order cancelled | 202 | the cancel confirmation, not a rejection |
+| fatal | everything else | fails the request it belongs to |
+
+A message id that is not a number decodes as malformed with id 0: there is no id to report.
