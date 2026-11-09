@@ -16,7 +16,36 @@ import Testing
 @Test func writerRefusesNonASCII() {
     var w = FieldWriter()
     #expect(throws: IBEncodingError.nonASCII(field: "Купить")) { try w.add("Купить") }
-    #expect(throws: IBEncodingError.self) { try w.add("a\u{7}") }
+    #expect(throws: IBEncodingError.nonASCII(field: "a\u{7}")) { try w.add("a\u{7}") }
+}
+
+@Test func everyOptionalReaderMapsEverySentinel() throws {
+    let sentinels = ["", "2147483647", "9223372036854775807", "1.7976931348623157E308", "-9223372036854775808"]
+    for s in sentinels {
+        var r = FieldReader(body(s, s, s))
+        #expect(try r.optionalInt() == nil, "optionalInt \(s)")
+        #expect(try r.optionalDecimal() == nil, "optionalDecimal \(s)")
+        #expect(try r.optionalDouble() == nil, "optionalDouble \(s)")
+    }
+}
+
+@Test func decimalRejectsTrailingGarbage() throws {
+    for s in ["12.5x", "1.2.3", "--1", "1e", "0x10", " 1", "1 "] {
+        var r = FieldReader(body(s))
+        #expect(throws: IBProtocolError.badNumber(s, index: 0)) { try r.decimal() }
+        var r2 = FieldReader(body(s))
+        #expect(throws: IBProtocolError.badNumber(s, index: 0)) { try r2.optionalDecimal() }
+    }
+    var ok = FieldReader(body("-12.5", "+3", "1E3"))
+    #expect(try ok.decimal() == d("-12.5"))
+    #expect(try ok.decimal() == d("3"))
+    #expect(try ok.decimal() == d("1000"))
+}
+
+@Test func emptyBodyHasNoFields() {
+    let r = FieldReader([])
+    #expect(r.fields == [])
+    #expect(r.isAtEnd)
 }
 
 @Test func unsetSentinelsAreNil() throws {

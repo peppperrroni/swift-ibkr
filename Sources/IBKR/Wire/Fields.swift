@@ -23,7 +23,7 @@ struct FieldReader {
 
     init(_ body: [UInt8]) {
         var parts = body.split(separator: 0, omittingEmptySubsequences: false)
-        if body.last == 0 { parts.removeLast() }  // the terminator of the last field
+        if body.isEmpty || body.last == 0 { parts.removeLast() }  // the terminator of the last field
         fields = parts.map { String(decoding: $0, as: UTF8.self) }
     }
 
@@ -35,13 +35,40 @@ struct FieldReader {
         return fields[index]
     }
 
+    /// IB's "no value" markers; "-9223372036854775808" is IB's own extra decimal sentinel.
+    private static let unset: Set<String> = [
+        "", "2147483647", "9223372036854775807", "1.7976931348623157E308", "-9223372036854775808",
+    ]
+
+    /// Optional sign, digits with at most one ".", optional exponent: nothing else.
+    private static func isPlainNumber(_ s: String) -> Bool {
+        let u = Array(s.utf8)
+        var i = 0
+        if i < u.count, u[i] == 0x2B || u[i] == 0x2D { i += 1 }
+        var digits = 0
+        while i < u.count, (0x30...0x39).contains(u[i]) { i += 1; digits += 1 }
+        if i < u.count, u[i] == 0x2E {
+            i += 1
+            while i < u.count, (0x30...0x39).contains(u[i]) { i += 1; digits += 1 }
+        }
+        guard digits > 0 else { return false }
+        if i < u.count, u[i] == 0x45 || u[i] == 0x65 {
+            i += 1
+            if i < u.count, u[i] == 0x2B || u[i] == 0x2D { i += 1 }
+            var exp = 0
+            while i < u.count, (0x30...0x39).contains(u[i]) { i += 1; exp += 1 }
+            guard exp > 0 else { return false }
+        }
+        return i == u.count
+    }
+
     mutating func int() throws -> Int { try optionalInt() ?? 0 }
     mutating func decimal() throws -> Decimal { try optionalDecimal() ?? 0 }
 
     mutating func optionalInt() throws -> Int? {
         let at = index
         let s = try string()
-        if s.isEmpty || s == "2147483647" || s == "9223372036854775807" { return nil }
+        if Self.unset.contains(s) { return nil }
         guard let v = Int(s) else { throw IBProtocolError.badNumber(s, index: at) }
         return v
     }
@@ -49,9 +76,8 @@ struct FieldReader {
     mutating func optionalDecimal() throws -> Decimal? {
         let at = index
         let s = try string()
-        if s.isEmpty || s == "2147483647" || s == "9223372036854775807" || s == "1.7976931348623157E308"
-            || s == "-9223372036854775808" { return nil }
-        guard let v = Decimal(string: s, locale: Locale(identifier: "en_US_POSIX")) else {
+        if Self.unset.contains(s) { return nil }
+        guard Self.isPlainNumber(s), let v = Decimal(string: s, locale: Locale(identifier: "en_US_POSIX")) else {
             throw IBProtocolError.badNumber(s, index: at)
         }
         return v
@@ -65,7 +91,7 @@ struct FieldReader {
     mutating func optionalDouble() throws -> Double? {
         let at = index
         let s = try string()
-        if s.isEmpty || s == "1.7976931348623157E308" || s == "1.7976931348623157e308" { return nil }
+        if Self.unset.contains(s) { return nil }
         if s == "Infinite" { return .infinity }
         guard let v = Double(s) else { throw IBProtocolError.badNumber(s, index: at) }
         return v
