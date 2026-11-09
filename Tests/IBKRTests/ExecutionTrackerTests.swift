@@ -64,3 +64,19 @@ private func commission(_ id: String = id1) -> IBMessage {
     #expect(t.apply(.orderStatus(OrderStatusMessage(orderID: 1, status: .filled, filled: 1, remaining: 0,
         averageFillPrice: nil, permID: 1, parentID: 0, lastFillPrice: nil, clientID: 1, whyHeld: "", marketCapPrice: nil))) == [])
 }
+
+@Test func lateOriginalDoesNotOverwriteCorrection() {
+    var t = ExecutionTracker()
+    _ = t.apply(exec()); _ = t.apply(exec(id2, price: "187.30"))
+    #expect(t.apply(commission(id2)).count == 1)
+    #expect(t.apply(commission()) == [])
+    #expect(t.fills.count == 1 && t.fills[0].execution.execID == id2)
+}
+
+@Test func correctionCommissionBeforeExec() {
+    var t = ExecutionTracker()
+    _ = t.apply(exec()); _ = t.apply(commission())
+    #expect(t.apply(commission(id2)) == [])
+    #expect(t.apply(exec(id2, price: "187.30")).count == 1)
+    #expect(t.fills.count == 1 && t.fills[0].execution.execID == id2)
+}

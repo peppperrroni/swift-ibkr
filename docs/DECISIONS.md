@@ -6,6 +6,7 @@
 | Order status is an open set (`struct OrderStatus: RawRepresentable`), unknown statuses are kept | IB adds statuses; dropping one loses state | closed enum |
 | Outgoing text outside 0x20...0x7E throws `IBEncodingError.nonASCII(field:)` | IB's own client refuses it (error 579); Russian preset names cannot go into orderRef as is | silently transliterating or sending UTF-8 |
 | Execution and order times stay IB's raw strings in stage 1 | formats vary by account and message | parsing into `Date` |
+| Fills join by execId in either order; a correction (execId minus its last segment, higher suffix) replaces the fill in place; a lower or resent superseded execId is dropped; unmatched halves are kept for the session | an execution and its commission arrive as separate messages, in either order, and IB resends and corrects them | evicting unmatched halves: a day's volume is small |
 | A fill is published only when execDetails and commissionReport are both present; correction key = execId without its last `.`-segment | commission arrives separately; corrections reuse the execId prefix | publishing fills without commission |
 | Trackers publish only real changes; an identical repeat publishes nothing | IB repeats messages | publishing every message |
 | Error codes: notice — 2100...2199, 10167, 399, 404, 161, 10147, 10148, 165; order cancelled — 202; everything else fatal | an explicit table instead of a generic rule: 10167 would kill delayed data, 202 would mark every cancel a rejection | generic rule by code range |

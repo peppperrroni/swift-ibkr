@@ -13,9 +13,13 @@ Field orders are documented in `docs/protocol-178.md`; design decisions in `docs
 
 ## Status
 
-**Stage 1 (done): codec and merging.** Frame encoding and decoding for the v178 messages in scope, the models,
-and three pure-value trackers that merge IB's separate messages into whole objects: `OrderTracker` (orders),
-`ExecutionTracker` (execDetails + commissionReport into fills), plus the position/quote state. No I/O yet.
+**Stage 1 (done): codec and merging, no I/O.** The version-178 wire format (frames, fields, unset values
+decode to nil); the handshake; the requests (startApi, reqIds, placeOrder including modify and brackets,
+cancelOrder, reqOpenOrders, reqAllOpenOrders, reqAutoOpenOrders, reqCompletedOrders, reqExecutions); the decoders
+(orderStatus, error with its code table, openOrder, completedOrder, execDetails, commissionReport, nextValidId,
+managedAccounts, currentTime, orderBound, end markers, unknown and malformed frames); and two pure-value trackers
+that merge IB's separate messages into whole objects: `OrderTracker` (orders) and `ExecutionTracker` (fills). No
+sockets, no positions, no market data yet.
 
 **Next, stage 2:** the socket, the `IBClient` actor, request throttle, snapshot + stream, a live check on the
 owner's paper account, and recording real frames as fixtures.

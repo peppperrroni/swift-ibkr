@@ -47,6 +47,13 @@ public struct ExecutionTracker: Sendable {
         id.lastIndex(of: ".").map { String(id[..<$0]) } ?? id
     }
 
+    /// Compares the last segments numerically when both parse, else lexically. 
+    private static func isNewer(_ a: String, than b: String) -> Bool {
+        let (x, y) = (a.split(separator: ".").last.map(String.init) ?? a, b.split(separator: ".").last.map(String.init) ?? b)
+        if let m = Int(x), let n = Int(y) { return m > n }
+        return x > y
+    }
+
     private mutating func join(_ id: String) -> [Fill] {
         guard let e = pendingExecs[id], let c = pendingCommissions[id] else { return [] }
         pendingExecs[id] = nil; pendingCommissions[id] = nil
@@ -54,7 +61,7 @@ public struct ExecutionTracker: Sendable {
         let key = Self.correctionKey(id)
         let i = byCorrectionKey[key] ?? all.count
         if i < all.count {
-            guard all[i] != fill else { return [] }
+            guard !Self.isNewer(all[i].execution.execID, than: id), all[i] != fill else { return [] }
             all[i] = fill
         } else {
             all.append(fill)
