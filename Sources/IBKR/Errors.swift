@@ -2,6 +2,7 @@ public enum IBProtocolError: Error, Equatable, Sendable {
     case frameTooLong(Int)
     case missingField(index: Int)
     case badNumber(String, index: Int)
+    case unexpectedValue(String, index: Int)
     case unsupportedServerVersion(Int)
     case badHandshake
 }

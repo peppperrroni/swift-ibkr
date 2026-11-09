@@ -16,6 +16,7 @@ public enum Decoder {
                 try r.skip()
                 return .error(IBErrorMessage(requestID: try r.int(), code: try r.int(), text: try r.string(),
                                              advancedOrderRejectJSON: try r.string()))
+            case 5: return .openOrder(try openOrder(&r))
             case 9: try r.skip(); return .nextValidID(try r.int())
             case 11: return try execDetails(&r)
             case 15:
@@ -31,6 +32,7 @@ public enum Decoder {
                     realizedPNL: try r.optionalDecimal(), yield: try r.optionalDecimal(),
                     yieldRedemptionDate: try r.optionalInt()))
             case 100: return .orderBound(permID: try r.int(), clientID: try r.int(), orderID: try r.int())
+            case 101: return .completedOrder(try completedOrder(&r))
             case 102: return .completedOrdersEnd
             default: return .unknown(id: id, fields: fields)
             }
@@ -50,11 +52,7 @@ public enum Decoder {
     private static func execDetails(_ r: inout FieldReader) throws -> IBMessage {
         let requestID = try r.int()
         let orderID = try r.int()
-        var c = Contract(symbol: "")
-        c.conID = try r.int(); c.symbol = try r.string(); c.secType = try r.string()
-        c.lastTradeDateOrContractMonth = try r.string(); c.strike = try r.optionalDecimal()
-        c.right = try r.string(); c.multiplier = try r.string(); c.exchange = try r.string()
-        c.currency = try r.string(); c.localSymbol = try r.string(); c.tradingClass = try r.string()
+        let c = try contract(&r)
         let execID = try r.string(), time = try r.string(), account = try r.string(), exchange = try r.string()
         let side = try r.string(), shares = try r.decimal(), price = try r.decimal()
         let permID = try r.int(), clientID = try r.int(), liquidation = try r.int()

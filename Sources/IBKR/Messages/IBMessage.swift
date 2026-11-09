@@ -11,7 +11,9 @@ public enum IBMessage: Sendable, Equatable {
     case nextValidID(Int)
     case managedAccounts([String])
     case currentTime(Int)
+    case openOrder(OpenOrderMessage)
     case openOrderEnd
+    case completedOrder(CompletedOrderMessage)
     case execDetails(requestID: Int, contract: Contract, execution: Execution)
     case execDetailsEnd(requestID: Int)
     case commissionReport(CommissionReport)
