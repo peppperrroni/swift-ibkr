@@ -86,12 +86,17 @@ struct LiveTests {
             let cancelled = await client.orders().updates
             let id = try await client.placeOrder(
                 aapl, Order(action: .buy, quantity: 1, orderType: "LMT", limitPrice: d("1.00")))
-            _ = try await wait("order \(id) to be PreSubmitted or Submitted", .seconds(15), placed) {
-                $0.orderID == id && ($0.status == .preSubmitted || $0.status == .submitted)
-            }
-            try await client.cancelOrder(id)
-            _ = try await wait("order \(id) to be Cancelled", .seconds(15), cancelled) {
-                $0.orderID == id && $0.status == .cancelled
+            do {
+                _ = try await wait("order \(id) to be PreSubmitted or Submitted", .seconds(15), placed) {
+                    $0.orderID == id && ($0.status == .preSubmitted || $0.status == .submitted)
+                }
+                try await client.cancelOrder(id)
+                _ = try await wait("order \(id) to be Cancelled", .seconds(15), cancelled) {
+                    $0.orderID == id && $0.status == .cancelled
+                }
+            } catch {
+                try? await client.cancelOrder(id)   // the $1 DAY BUY must not stay working
+                throw error
             }
         }
     }
@@ -155,7 +160,9 @@ struct LiveTests {
                     _ = try await wait("order \(sellID) to be Filled", .seconds(30), sellFilled) {
                         $0.orderID == sellID && $0.status == .filled
                     }
-                } catch { Issue.record("SELL after the BUY failed: \(error)") }
+                } catch {
+                    Issue.record("SELL after the BUY failed: \(error); check the paper account in TWS and flatten AAPL by hand")
+                }
             }
             if let failure { throw failure }
         }

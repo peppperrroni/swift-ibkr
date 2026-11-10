@@ -59,7 +59,7 @@ private func until(_ condition: @escaping @Sendable () async -> Bool) async thro
     await #expect(throws: IBClientError.notConnected) { try await client.modifyOrder(1, aapl, buy) }
     await #expect(throws: IBClientError.notConnected) { try await client.cancelOrder(1) }
     gateway.close()
-    _ = try? await connecting.value
+    await #expect(throws: IBClientError.connectionClosed) { try await within2s { try await connecting.value } }
 }
 
 @Test func placeOrderPublishesWholeOrderOnAck() async throws {

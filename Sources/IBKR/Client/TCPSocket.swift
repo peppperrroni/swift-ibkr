@@ -76,7 +76,8 @@ final class TCPSocket: Transport, @unchecked Sendable {
         sendLock.withLock { lock.withLock { closed = true; closeHandle(handle) } }
     }
 
-    /// Resolves `host` and connects to the first address that answers, all within `timeout`.
+    /// Resolves `host` and connects to the first address that answers; the connect attempts share `timeout`.
+    // shortcut: DNS lookup is not bounded by timeout, upgrade when remote hostnames matter
     private static func openHandle(host: String, port: Int, timeout: Duration) throws(IBClientError) -> Handle {
         _ = startup
         let deadline = ContinuousClock.now + timeout
