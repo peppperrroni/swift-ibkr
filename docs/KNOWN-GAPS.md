@@ -41,9 +41,11 @@ Still open:
 - `connect` ignores the caller's task cancellation and runs until its deadline.
 - `placeOrder` then an immediate `disconnect()` can drop the queued frame, and the order stays `.apiPending` in
   the stale snapshot.
-- Subscriber buffers are `.unbounded`: fine for orders and fills, revisit before stage 4 market data.
+- Subscriber buffers are `.unbounded` (orders, fills, the positions stream and the account-summary / P&L request
+  streams): fine for these volumes, revisit before stage 4 market data.
 - `frameAfterDisconnectIsIgnored` cannot catch a removed generation guard, because FakeGateway closes its stream;
-  it needs a mode that stays open after close.
+  it needs a mode that stays open after close. The same goes for the generation guard in `IBClient`'s request-stream
+  `stopped(...)`, which stops a late consumer-stop from an old connection cancelling a reused reqId.
 - Public memberwise initialisers for the public value types, so consumers (the TWS adapter) can build test values;
   `OrderKey` is public but used by no public API.
 - completedOrder's `parentPermId` is skipped: after an app restart a fresh tracker loses bracket links of

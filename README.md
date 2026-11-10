@@ -33,7 +33,7 @@ Field orders are documented in `docs/protocol-178.md`; design decisions in `docs
     try await client.connect(port: 4002, clientID: 7)   // host 127.0.0.1, timeout 10 s by default
 
     // Positions are always on: connect syncs them, positions() hands the set now, then every whole new set.
-    let (held, changes) = await client.positions()
+    let (_, changes) = await client.positions()
     Task { for await set in changes { print(set.map(\.quantity)) } }
 
     // Account summary and single-position P&L are per request: each call opens one subscription, which ends when
@@ -70,7 +70,7 @@ Field orders are documented in `docs/protocol-178.md`; design decisions in `docs
     // ...
     await client.disconnect()
 
-`connect` returns once the handshake is done and open orders, completed orders and executions are synced; one
+`connect` returns once the handshake is done and open orders, completed orders, executions and positions are synced; one
 timeout covers all of it. It throws an `IBClientError` (`.timeout`, `.connectionClosed`, `.ib(code:text:)` when
 the gateway refuses, e.g. 326 "client id already in use", and so on). `states()` and `messages()` hand out a fresh
 stream on every call, so any number of consumers can listen; `states()` yields the current state first, and
@@ -78,7 +78,7 @@ stream on every call, so any number of consumers can listen; `states()` yields t
 and is **not reconnected automatically**: call `connect` again. Subscribers stay subscribed across reconnects, except
 the `accountSummary` and `pnlSingle` streams: they throw the connection's end error (`.connectionClosed` after
 `disconnect()`) and are not resumed, so subscribe again after the reconnect. `accountSummary` yields the whole set,
-sorted by account, tag and currency, at IB's first end marker and then on every change, never the same set twice.
+sorted by account, tag and currency, at IB's first end marker and then on every change, never the same set twice in a row.
 
 Always call `disconnect()` when done: a connected `IBClient` is kept alive by its reader and writer tasks, and its
 streams never finish on their own.
