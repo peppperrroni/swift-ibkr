@@ -29,7 +29,9 @@ public struct PositionTracker: Sendable {
                 if p.quantity != 0 { pending[key] = p }
                 return nil
             }
-            if p.quantity == 0 { current[key] = nil } else { current[key] = p }
+            let next: Position? = p.quantity == 0 ? nil : p
+            guard current[key] != next else { return nil }
+            current[key] = next
             return positions
         case .positionEnd:
             guard reloading else { return nil }

@@ -54,4 +54,11 @@ private func keys(_ set: [Position]?) -> [String]? { set?.map { "\($0.account)/\
         #expect(t.apply(.openOrderEnd) == nil)
         #expect(t.apply(.positionEnd) == nil)
     }
+
+    @Test func unchangedPositionPublishesNothing() {
+        var t = PositionTracker()
+        _ = t.apply(pos("DU1", 1, "5"))
+        #expect(t.apply(pos("DU1", 1, "5")) == nil)
+        #expect(t.apply(pos("DU1", 2, "0")) == nil)
+    }
 }
