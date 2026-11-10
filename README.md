@@ -19,6 +19,28 @@ Field orders are documented in `docs/protocol-178.md`; design decisions in `docs
     Task { for await state in await client.states() { print(state) } }
     Task { for await message in await client.messages() { print(message) } }
     try await client.connect(port: 4002, clientID: 7)   // host 127.0.0.1, timeout 10 s by default
+
+    // Orders: placeOrder returns the id once the frame is queued; the outcome arrives through orders().
+    let (known, updates) = await client.orders()          // snapshot now, then every change as a whole order
+    Task { for await order in updates { print(order.orderID, order.status) } }
+    let id = try await client.placeOrder(Contract(symbol: "AAPL"),
+                                         Order(action: .buy, quantity: 1, orderType: "LMT", limitPrice: 180))
+    let changed = Order(action: .buy, quantity: 1, orderType: "LMT", limitPrice: 181)
+    try await client.modifyOrder(id, Contract(symbol: "AAPL"), changed)   // re-sends under the same id
+    try await client.cancelOrder(id)
+
+    let aapl = Contract(symbol: "AAPL")
+    // A bracket: the parent is held (transmit = false), the children point at it by parentID, and the last
+    // child transmits the whole group.
+    var parent = Order(action: .buy, quantity: 100, orderType: "LMT", limitPrice: 180); parent.transmit = false
+    let parentID = try await client.placeOrder(aapl, parent)
+    var profit = Order(action: .sell, quantity: 100, orderType: "LMT", limitPrice: 190)
+    profit.parentID = parentID; profit.transmit = false
+    var stop = Order(action: .sell, quantity: 100, orderType: "STP", auxPrice: 175)
+    stop.parentID = parentID; stop.transmit = true
+    _ = try await client.placeOrder(aapl, profit); _ = try await client.placeOrder(aapl, stop)
+
+    let (fills, fillUpdates) = await client.executions()   // a fill is published once execDetails and its commission are in
     // ...
     await client.disconnect()
 

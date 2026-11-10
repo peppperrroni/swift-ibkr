@@ -11,6 +11,8 @@ public actor IBClient {
     private var state: ConnectionState = .disconnected(nil)
     private var stateSubscribers = Subscribers<ConnectionState>()
     private var messageSubscribers = Subscribers<IBMessage>()
+    private var orderSubscribers = Subscribers<OrderSnapshot>()
+    private var fillSubscribers = Subscribers<Fill>()
 
     // The current connection. `generation` changes whenever one starts or ends, so a late event from an old
     // connection's reader, writer or timer is dropped.
@@ -86,6 +88,47 @@ public actor IBClient {
         messageSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(message: id) } }
     }
 
+    /// Queues the order and returns its id at once; IB's answer arrives through `orders()`. Throws
+    /// `.notConnected` unless the state is `.connected`, and `.encoding` when the order does not encode.
+    public func placeOrder(_ contract: Contract, _ order: Order) throws(IBClientError) -> Int {
+        try requireConnected()
+        let id = nextRequestID()
+        try submit(id, contract, order)
+        return id
+    }
+
+    /// Re-sends the order under its id; IB treats that as a modification.
+    public func modifyOrder(_ orderID: Int, _ contract: Contract, _ order: Order) throws(IBClientError) {
+        try requireConnected()
+        try submit(orderID, contract, order)
+    }
+
+    public func cancelOrder(_ orderID: Int) throws(IBClientError) {
+        try requireConnected()
+        try send(.cancelOrder(orderID: orderID, manualCancelTime: ""))
+    }
+
+    /// The orders known now, then every change from now on, as whole snapshots.
+    public func orders() -> (snapshot: [OrderSnapshot], updates: AsyncStream<OrderSnapshot>) {
+        (orderTracker.orders, orderSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(order: id) } })
+    }
+
+    /// The fills known now, then every new or corrected fill from now on.
+    public func executions() -> (snapshot: [Fill], updates: AsyncStream<Fill>) {
+        (executionTracker.fills, fillSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(fill: id) } })
+    }
+
+    var orderSubscriberCount: Int { orderSubscribers.count }
+
+    private func requireConnected() throws(IBClientError) {
+        guard case .connected = state else { throw .notConnected }
+    }
+
+    private func submit(_ id: Int, _ contract: Contract, _ order: Order) throws(IBClientError) {
+        try send(.placeOrder(orderID: id, contract: contract, order: order))
+        orderTracker.sent(orderID: id, clientID: clientID, contract: contract, order: order)
+    }
+
     /// Encodes, frames and queues; throws before queuing when the request does not encode.
     func send(_ request: IBRequest) throws(IBClientError) {
         guard let outbox else { throw .notConnected }
@@ -144,8 +187,8 @@ public actor IBClient {
         }
         let message = IBDecoder.decode(body)
         messageSubscribers.yield(message)
-        _ = orderTracker.apply(message)       // Task 4 publishes what the trackers return
-        _ = executionTracker.apply(message)
+        for snapshot in orderTracker.apply(message) { orderSubscribers.yield(snapshot) }
+        for fill in executionTracker.apply(message) { fillSubscribers.yield(fill) }
         switch message {
         case .nextValidID(let n): nextID = max(nextID ?? n, n)
         case .managedAccounts(let a): accounts = a
@@ -209,4 +252,6 @@ public actor IBClient {
 
     private func unsubscribe(state id: Int) { stateSubscribers.remove(id) }
     private func unsubscribe(message id: Int) { messageSubscribers.remove(id) }
+    private func unsubscribe(order id: Int) { orderSubscribers.remove(id) }
+    private func unsubscribe(fill id: Int) { fillSubscribers.remove(id) }
 }

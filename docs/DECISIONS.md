@@ -9,7 +9,7 @@
 | Fills join by execId in either order; a correction (execId minus its last segment, higher suffix) replaces the fill in place; a lower or resent superseded execId is dropped; unmatched halves are kept for the session | an execution and its commission arrive as separate messages, in either order, and IB resends and corrects them | evicting unmatched halves: a day's volume is small |
 | A fill is published only when execDetails and commissionReport are both present; correction key = execId without its last `.`-segment | commission arrives separately; corrections reuse the execId prefix | publishing fills without commission |
 | Trackers publish only real changes; an identical repeat publishes nothing | IB repeats messages | publishing every message |
-| Error codes: notice — 2100...2199, 10167, 399, 404, 161, 10147, 10148, 165; order cancelled — 202; everything else fatal | an explicit table instead of a generic rule: 10167 would kill delayed data, 202 would mark every cancel a rejection | generic rule by code range |
+| Error codes: notice — 2100...2199, 10167, 399, 404, 161, 10147, 10148, 165, 1101, 1102; order cancelled — 202; everything else fatal | an explicit table instead of a generic rule: 10167 would kill delayed data, 202 would mark every cancel a rejection | generic rule by code range |
 | Connect-time sync sends reqAllOpenOrders, reqCompletedOrders, reqExecutions and waits for their end markers (as `ib_async`) | state is complete before `connect` returns | lazy sync |
 | Modify = re-sent placeOrder with the same orderId | that is how the protocol modifies | a separate modify message (none exists) |
 | Depth and tick-by-tick without subscriptions count as done when they fail with a typed "no permission" error | those entitlements are absent on most accounts | requiring live data to pass |
@@ -34,12 +34,16 @@
 | `Transport` is internal; consumers get `IBClient()` over TCP, tests inject a fake through an internal init | no transport API to support before anyone needs one | a public transport protocol |
 | `TCPSocket.close()` only shuts the socket down; the reader thread closes the handle once `recv` returned and no send holds it | closing in `close()` races a reader still inside `recv`, which could then touch a reused handle | closing the handle in `close()` |
 | A loopback connect asks for no SYN retransmissions; remote hosts keep the OS default | Windows retries a refused SYN for ~2 s, so a closed 127.0.0.1 port would hang the connect and "localhost" would wait on ::1 before IPv4 | the default retries everywhere |
+| 1101 and 1102 (connectivity restored) are notices | IB sends them after a brief gateway-to-IB outage; as fatal they would abort a `connect` that happens to span one | leaving them fatal |
+| `placeOrder` returns the id as soon as the frame is queued, not on IB's acknowledgement | the caller needs the id to cancel or correlate; the outcome (ack, rejection) arrives through `orders()` | waiting for IB's openOrder / orderStatus |
+| `placeOrder`, `modifyOrder`, `cancelOrder` require the state `.connected` | before `nextValidId` the id counter is 0, and an order sent mid-handshake would take an id IB has not issued | allowing them once the socket is up |
+| Public memberwise initialisers for the stage-1 value types move to stage 5 | the TWS adapter's fakes will show which ones are needed | adding them all now |
 
 ## Error-code table
 
 | Kind | Codes | Effect |
 |---|---|---|
-| notice | 2100...2199, 10167, 399, 404, 161, 10147, 10148, 165 | informational, never fails a request |
+| notice | 2100...2199, 10167, 399, 404, 161, 10147, 10148, 165, 1101, 1102 | informational, never fails a request |
 | order cancelled | 202 | the cancel confirmation, not a rejection |
 | fatal | everything else | fails the request it belongs to |
 
