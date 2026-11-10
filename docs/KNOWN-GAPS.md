@@ -19,6 +19,11 @@ account) closes or confirms each line; delete a line when it is settled.
 - Replace the hand-built fixtures with recorded frames (commissionReport with realized P&L, a bracket's three
   openOrders, an execution correction).
 
+## To confirm on a Mac
+
+- `TCPSocket`'s POSIX branch (Darwin) was written on Windows and has never been compiled or run: build and run
+  `swift test` on macOS.
+
 ## To build in stage 2
 
 - Orders and requests share one id sequence from `nextValidId` (see `docs/DECISIONS.md`).

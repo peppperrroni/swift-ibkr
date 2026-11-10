@@ -1,0 +1,100 @@
+import Testing
+@testable import IBKR
+#if os(Windows)
+import WinSDK
+#elseif canImport(Darwin)
+import Darwin
+#else
+import Glibc
+#endif
+
+private func isTransport(_ error: any Error) -> Bool {
+    if case .transport = error as? IBClientError { true } else { false }
+}
+
+@Test func connectToClosedPortFails() async {
+    let start = ContinuousClock.now
+    await #expect(performing: {
+        _ = try await TCPSocket.connect(host: "127.0.0.1", port: 1, timeout: .seconds(2))
+    }, throws: isTransport)
+    #expect(ContinuousClock.now - start < .seconds(2))
+}
+
+@Test func unknownHostFails() async {
+    await #expect(performing: {
+        _ = try await TCPSocket.connect(host: "no-such-host.invalid", port: 4001, timeout: .seconds(2))
+    }, throws: isTransport)
+}
+
+private struct TimedOut: Error {}
+
+/// Runs `operation`, failing with `TimedOut` after 2 s instead of hanging.
+private func within2s<T: Sendable>(_ operation: @escaping @Sendable () async throws -> T) async throws -> T {
+    try await withThrowingTaskGroup(of: T.self) { group in
+        group.addTask { try await operation() }
+        group.addTask { try await Task.sleep(for: .seconds(2)); throw TimedOut() }
+        defer { group.cancelAll() }
+        return try await group.next()!
+    }
+}
+
+/// Collects `stream` until it finishes.
+private func drain(_ stream: AsyncThrowingStream<[UInt8], any Error>) async throws -> [UInt8] {
+    try await within2s { try await stream.reduce([], +) }
+}
+
+/// A loopback listener on an ephemeral port, so the test never touches a real gateway.
+private struct Listener {
+    var handle: TCPSocket.Handle
+    var port = 0
+
+    init() {
+        _ = TCPSocket.startup
+        var addr = sockaddr_in()
+        addr.sin_family = .init(AF_INET)
+        #if os(Windows)
+        addr.sin_addr.S_un.S_addr = UInt32(0x7F00_0001).bigEndian
+        handle = socket(AF_INET, SOCK_STREAM, 0)
+        var len = Int32(MemoryLayout<sockaddr_in>.size)
+        #else
+        addr.sin_addr.s_addr = UInt32(0x7F00_0001).bigEndian
+        handle = socket(AF_INET, TCPSocket.streamType, 0)
+        var len = socklen_t(MemoryLayout<sockaddr_in>.size)
+        #endif
+        let h = handle
+        withUnsafeMutablePointer(to: &addr) {
+            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+                _ = bind(h, $0, len)
+                _ = getsockname(h, $0, &len)
+            }
+        }
+        _ = listen(h, 1)
+        port = Int(UInt16(bigEndian: addr.sin_port))
+    }
+
+    /// Returns at once when a connection is already queued.
+    func accept() -> TCPSocket { TCPSocket(handle: acceptHandle(handle)) }
+}
+
+#if os(Windows)
+private func acceptHandle(_ h: TCPSocket.Handle) -> TCPSocket.Handle { WinSDK.accept(h, nil, nil) }
+#elseif canImport(Darwin)
+private func acceptHandle(_ h: TCPSocket.Handle) -> TCPSocket.Handle { Darwin.accept(h, nil, nil) }
+#else
+private func acceptHandle(_ h: TCPSocket.Handle) -> TCPSocket.Handle { Glibc.accept(h, nil, nil) }
+#endif
+
+@Test func socketsExchangeBytesAndCloseEndsBothStreams() async throws {
+    let listener = Listener()
+    let client = try await TCPSocket.connect(host: "localhost", port: listener.port, timeout: .seconds(2))
+    let peer = listener.accept()
+
+    try client.write(Array("hello".utf8))
+    client.close()
+    client.close()   // idempotent
+    #expect(throws: IBClientError.connectionClosed) { try client.write([1]) }
+
+    #expect(try await drain(client.incoming) == [])                  // finishes without throwing
+    #expect(try await drain(peer.incoming) == Array("hello".utf8))   // bytes, then end of stream
+    peer.close()
+}
