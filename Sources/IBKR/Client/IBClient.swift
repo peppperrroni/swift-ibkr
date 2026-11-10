@@ -26,6 +26,7 @@ public actor IBClient {
     private var nextID: Int?
     private var orderTracker = OrderTracker(clientID: 0)
     private var executionTracker = ExecutionTracker()
+    private var frameTap: (@Sendable ([String]) -> Void)?
 
     // While `connect` waits: its continuation, its deadline timer, and the sync's end markers still due
     // (nil until the sync requests are sent).
@@ -118,6 +119,10 @@ public actor IBClient {
         (executionTracker.fills, fillSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(fill: id) } })
     }
 
+    /// Receives the fields of every incoming frame after the server hello, in arrival order, on the actor.
+    /// Used to record live frames; `nil` removes it.
+    func setFrameTap(_ tap: (@Sendable ([String]) -> Void)?) { frameTap = tap }
+
     var orderSubscriberCount: Int { orderSubscribers.count }
 
     private func requireConnected() throws(IBClientError) {
@@ -185,6 +190,7 @@ public actor IBClient {
             try? send(.startAPI(clientID: clientID, capabilities: ""))   // all-ASCII, cannot throw
             return
         }
+        frameTap?(FieldReader(body).fields)
         let message = IBDecoder.decode(body)
         messageSubscribers.yield(message)
         for snapshot in orderTracker.apply(message) { orderSubscribers.yield(snapshot) }

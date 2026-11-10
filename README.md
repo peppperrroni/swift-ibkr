@@ -9,6 +9,13 @@ Not affiliated with Interactive Brokers.
     swift build
     swift test
 
+Live tests run against a paper IB Gateway on 127.0.0.1:4002 and are skipped unless asked for; they refuse
+to place anything unless every managed account starts with `DU`, and record the frames to `Tests/IBKRTests/Recorded/`:
+
+    $env:IBKR_LIVE="1"; swift test --filter LiveTests
+
+Add `$env:IBKR_LIVE_FILL="1"` only during US regular hours (14:30-21:00 UTC): it trades 1 AAPL at market.
+
 Field orders are documented in `docs/protocol-178.md`; design decisions in `docs/DECISIONS.md`.
 
 ## Use

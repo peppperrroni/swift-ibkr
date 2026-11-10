@@ -38,6 +38,8 @@
 | `placeOrder` returns the id as soon as the frame is queued, not on IB's acknowledgement | the caller needs the id to cancel or correlate; the outcome (ack, rejection) arrives through `orders()` | waiting for IB's openOrder / orderStatus |
 | `placeOrder`, `modifyOrder`, `cancelOrder` require the state `.connected` | before `nextValidId` the id counter is 0, and an order sent mid-handshake would take an id IB has not issued | allowing them once the socket is up |
 | Public memberwise initialisers for the stage-1 value types move to stage 5 | the TWS adapter's fakes will show which ones are needed | adding them all now |
+| Live tests refuse to place anything unless every managed account starts with `DU` | the tests place real orders on whatever gateway is on 127.0.0.1:4002; a live account must never be touched by a test | trusting the port number to mean paper |
+| Recorded frames replace every managed account id with `DU0000001`, inside every field | the recordings are committed; account ids are personal data and fixtures only need a stable one | committing raw frames, redacting by hand |
 
 ## Error-code table
 
