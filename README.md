@@ -97,4 +97,7 @@ sockets, no positions, no market data yet.
 throttle and snapshot + stream, and live checks on the owner's paper account (a limit order placed and cancelled;
 1 AAPL bought and sold back pre-market, with commission) whose frames are recorded in `Tests/IBKRTests/Recorded/`
 and replayed by the tests.
+
+**Stage 3 (done): the account.** Positions, account summary and per-position P&L as streams on `IBClient`, checked
+live on the paper account and recorded in `Tests/IBKRTests/Recorded/`.
 `main` is local: nothing is pushed. What is still open is in `docs/KNOWN-GAPS.md`.

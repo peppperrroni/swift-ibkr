@@ -63,13 +63,22 @@ func recordedFillHasCommission() throws {
     #expect(buy?.execution.price == d("351.66"))
     #expect(buy?.commission.commission == d("1.000003"))
     #expect(buy?.commission.realizedPNL == nil)
+    // The closing SELL: its report arrived live in the 2026-11-10 stage-3 run, with realized P&L.
+    let sell = tracker.fills.first { $0.execution.execID == "0000dc8f.6c0b3a8d.01.01" }
+    #expect(sell?.execution.price == d("347.52"))
+    #expect(sell?.commission.commission == d("1.007162"))
+    #expect(sell?.commission.realizedPNL == d("-2.027165"))
 }
 
 /// The fill run's connect-time sync replayed the morning's cancelled $1 limit order: the first live completedOrder.
 @Test(.enabled(if: fillRecorded))
 func recordedCompletedOrderDecodes() throws {
-    let frame = try #require(try recording("liveOrderFillsWithCommission").first { $0.first == "101" })
-    guard case .completedOrder(let m) = IBDecoder.decode(body(frame)) else { Issue.record("not a completedOrder"); return }
+    // The sync replays several completed orders: pick the cancelled $1 BUY by permID.
+    let found: CompletedOrderMessage? = try recording("liveOrderFillsWithCommission").lazy.compactMap { f -> CompletedOrderMessage? in
+        guard f.first == "101", case .completedOrder(let m) = IBDecoder.decode(body(f)), m.permID == 610467324 else { return nil }
+        return m
+    }.first
+    let m = try #require(found)
     #expect(m.permID == 610467324)
     #expect(m.contract.symbol == "AAPL" && m.contract.conID == 265598)
     #expect(m.order.action == .buy && m.order.totalQuantity == 1 && m.order.orderType == "LMT")
@@ -92,4 +101,68 @@ private let filledCompletedOrder = "101;265598;AAPL;STK;;0;?;;SMART;USD;AAPL;NMS
     #expect(r[0].status == .filled && r[0].permID == 610467325)
     #expect(r[0].order.totalQuantity == 0, "kept as IB sent it")
     #expect(r[0].filled == 1 && r[0].remaining == 0)
+}
+
+@Test func recordedAccountSummaryDecodes() throws {
+    var values: [String: String] = [:]
+    var ends = 0
+    for f in try recording("liveAccountSummary") {
+        switch IBDecoder.decode(body(f)) {
+        case .accountSummary(_, let v) where v.account == "DU0000001" && v.currency == "GBP": values[v.tag] = v.value
+        case .accountSummaryEnd: ends += 1
+        default: break
+        }
+    }
+    #expect(values["NetLiquidation"] == "4642.32")
+    #expect(values["TotalCashValue"] == "4642.32")
+    #expect(values["BuyingPower"] == "18569.26")
+    #expect(ends == 1)
+}
+
+/// IB keeps a 0 row for a closed position; it must not show as one.
+@Test(.enabled(if: fillRecorded))
+func recordedPositionsGoFlatAgain() throws {
+    var tracker = PositionTracker()
+    tracker.reload()
+    var sets: [[Position]] = []
+    for f in try recording("liveOrderFillsWithCommission") {
+        if let s = tracker.apply(IBDecoder.decode(body(f))) { sets.append(s) }
+    }
+    let aapl = sets.map { $0.first { $0.contract.conID == 265598 }?.quantity ?? 0 }
+    #expect(aapl.contains(1))
+    #expect(aapl.last == 0)
+    #expect(sets.last?.contains { $0.contract.conID == 265598 } == false)
+    #expect(!sets.flatMap { $0 }.contains { $0.quantity == 0 })
+}
+
+@Test(.enabled(if: fillRecorded))
+func recordedPnLSingleDecodes() throws {
+    let pnls = try recording("liveOrderFillsWithCommission").compactMap { f -> PnL? in
+        if case .pnlSingle(_, let p) = IBDecoder.decode(body(f)) { return p }
+        return nil
+    }
+    let p = try #require(pnls.first)
+    #expect(p.position == 1)
+    #expect(p.daily == d("-4.9739869"))
+    #expect(p.unrealized == d("-0.9296179000000393"))
+    #expect(p.realized == d("-4.0444118499999995"))
+    #expect(p.value == d("347.6103821"))
+}
+
+/// IB's price cap cancels an over-aggressive limit with a 202; the tracker keeps no reason (a known gap).
+@Test func recordedPriceCapCancelEndsCancelled() throws {
+    var tracker = OrderTracker(clientID: 77)
+    var snapshots: [OrderSnapshot] = []
+    var cap: IBErrorMessage?
+    for f in try recording("liveOrderRefusedByPriceCap") {
+        let m = IBDecoder.decode(body(f))
+        if case .error(let e) = m, e.code == 202 { cap = e }
+        snapshots += tracker.apply(m)
+    }
+    let last = try #require(snapshots.last { $0.orderID == 7 })
+    #expect(last.status == .cancelled)
+    #expect(last.order.action == .buy && last.order.totalQuantity == 1 && last.order.limitPrice == d("358.53"))
+    #expect(last.rejectReason == nil)
+    let e = try #require(cap)
+    #expect(e.requestID == 7 && e.text.contains("357.97385"))
 }
