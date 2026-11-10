@@ -10,6 +10,11 @@ public enum IBRequest: Sendable, Equatable {
     case completedOrders(apiOnly: Bool)
     case executions(requestID: Int, filter: ExecutionFilter)
     case placeOrder(orderID: Int, contract: Contract, order: Order)
+    case positions
+    case accountSummary(requestID: Int, group: String, tags: [String])
+    case cancelAccountSummary(requestID: Int)
+    case pnlSingle(requestID: Int, account: String, modelCode: String, conID: Int)
+    case cancelPnLSingle(requestID: Int)
 
     /// Fields only; the caller frames them. Field order is docs/protocol-178.md.
     func body() throws(IBEncodingError) -> [UInt8] {
@@ -36,6 +41,16 @@ public enum IBRequest: Sendable, Equatable {
             try w.add(f.secType); try w.add(f.exchange); try w.add(f.side)
         case .placeOrder(let id, let c, let o):
             try Self.placeOrder(&w, id, c, o)
+        case .positions:
+            w.add(61); w.add(1)
+        case .accountSummary(let reqID, let group, let tags):
+            w.add(62); w.add(1); w.add(reqID); try w.add(group); try w.add(tags.joined(separator: ","))
+        case .cancelAccountSummary(let reqID):
+            w.add(63); w.add(1); w.add(reqID)
+        case .pnlSingle(let reqID, let account, let modelCode, let conID):
+            w.add(94); w.add(reqID); try w.add(account); try w.add(modelCode); w.add(conID)
+        case .cancelPnLSingle(let reqID):
+            w.add(95); w.add(reqID)
         }
         return w.body
     }

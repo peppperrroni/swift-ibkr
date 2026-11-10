@@ -31,6 +31,20 @@ public enum IBDecoder {
                     execID: try r.string(), commission: try r.decimal(), currency: try r.string(),
                     realizedPNL: try r.optionalDecimal(), yield: try r.optionalDecimal(),
                     yieldRedemptionDate: try r.optionalInt()))
+            case 61:
+                try r.skip()
+                return .position(Position(account: try r.string(), contract: try contract(&r),
+                                          quantity: try r.decimal(), averageCost: try r.decimal()))
+            case 62: return .positionEnd
+            case 63:
+                try r.skip()
+                return .accountSummary(requestID: try r.int(), AccountValue(
+                    account: try r.string(), tag: try r.string(), value: try r.string(), currency: try r.string()))
+            case 64: try r.skip(); return .accountSummaryEnd(requestID: try r.int())
+            case 95:
+                return .pnlSingle(requestID: try r.int(), PnL(
+                    position: try r.decimal(), daily: try r.optionalDecimal(), unrealized: try r.optionalDecimal(),
+                    realized: try r.optionalDecimal(), value: try r.optionalDecimal()))
             case 100: return .orderBound(permID: try r.int(), clientID: try r.int(), orderID: try r.int())
             case 101: return .completedOrder(try completedOrder(&r))
             case 102: return .completedOrdersEnd

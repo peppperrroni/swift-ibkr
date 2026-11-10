@@ -19,6 +19,11 @@ public enum IBMessage: Sendable, Equatable {
     case commissionReport(CommissionReport)
     case orderBound(permID: Int, clientID: Int, orderID: Int)
     case completedOrdersEnd
+    case position(Position)
+    case positionEnd
+    case accountSummary(requestID: Int, AccountValue)
+    case accountSummaryEnd(requestID: Int)
+    case pnlSingle(requestID: Int, PnL)
     case unknown(id: Int, fields: [String])
     case malformed(id: Int, fields: [String], reason: String)
 }

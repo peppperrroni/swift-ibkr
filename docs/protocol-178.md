@@ -326,6 +326,58 @@ Total: 2 fields. No version field.
 
 Total: 10 fields. (lastNDays / specificDates start at 200.)
 
+### reqPositions (out 61)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `61` |
+| 1 | version | int | `1` |
+
+Total: 2 fields. No reqId: one subscription per connection.
+
+### reqAccountSummary (out 62)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `62` |
+| 1 | version | int | `1` |
+| 2 | reqId | int | (caller) |
+| 3 | group | string | (caller; `All` for every account) |
+| 4 | tags | string | (caller; comma-joined) |
+
+Total: 5 fields.
+
+### cancelAccountSummary (out 63)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `63` |
+| 1 | version | int | `1` |
+| 2 | reqId | int | (caller) |
+
+Total: 3 fields.
+
+### reqPnLSingle (out 94)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `94` |
+| 1 | reqId | int | (caller) |
+| 2 | account | string | (caller) |
+| 3 | modelCode | string | `""` |
+| 4 | conId | int | (caller) |
+
+Total: 5 fields. No version field.
+
+### cancelPnLSingle (out 95)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `95` |
+| 1 | reqId | int | (caller) |
+
+Total: 2 fields. No version field.
+
 ### Order condition element
 
 One element of the `placeOrder` / `openOrder` / `completedOrder` conditions group. The same
@@ -640,6 +692,66 @@ Total: 3 fields.
 | 7 | yieldRedemptionDate | int | empty decodes as 0 (`ib_async`) |
 
 Total: 8 fields.
+
+### position (in 61)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `61` |
+| 1 | version | int | ignored |
+| 2 | account | string | |
+| 3-13 | contract | | conId, symbol, secType, lastTradeDateOrContractMonth, strike, right, multiplier, exchange, currency, localSymbol, tradingClass (no primaryExchange) |
+| 14 | position | double | |
+| 15 | avgCost | double | |
+
+Total: 16 fields.
+
+### positionEnd (in 62)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `62` |
+| 1 | version | int | ignored |
+
+Total: 2 fields.
+
+### accountSummary (in 63)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `63` |
+| 1 | version | int | ignored |
+| 2 | reqId | int | |
+| 3 | account | string | |
+| 4 | tag | string | |
+| 5 | value | string | text for some tags (`AccountType`) |
+| 6 | currency | string | |
+
+Total: 7 fields.
+
+### accountSummaryEnd (in 64)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `64` |
+| 1 | version | int | ignored |
+| 2 | reqId | int | |
+
+Total: 3 fields.
+
+### pnlSingle (in 95)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `95` |
+| 1 | reqId | int | |
+| 2 | pos | double | |
+| 3 | dailyPnL | double | may be the UNSET sentinel |
+| 4 | unrealizedPnL | double | may be the UNSET sentinel |
+| 5 | realizedPnL | double | may be the UNSET sentinel |
+| 6 | value | double | may be the UNSET sentinel |
+
+Total: 7 fields. No version field.
 
 ### orderBound (in 100)
 
