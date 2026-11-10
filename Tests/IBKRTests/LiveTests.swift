@@ -37,21 +37,15 @@ where S.Element: Sendable {
     }
 }
 
-/// The managed accounts of a connected client (the first state is `.connected`).
-private func managedAccounts(_ client: IBClient) async -> [String] {
-    for await s in await client.states() { if case .connected(_, let a) = s { return a }; break }
-    return []
-}
-
 /// What `account` holds of `conID` in a whole position set; 0 when it holds none.
 private func held(_ set: [Position], _ account: String, _ conID: Int) -> Decimal {
     set.filter { $0.account == account && $0.contract.conID == conID }.reduce(0) { $0 + $1.quantity }
 }
 
-/// Connects as `clientID`, runs the paper guard, hands the client to `work`, then always disconnects and writes
+/// Connects as `clientID`, runs the paper guard, hands the client and the managed accounts to `work`, then always disconnects and writes
 /// the recording (named `name`) — also when `work` fails.
 private func live(_ name: String, clientID: Int = 77, file: String = #filePath,
-                  _ work: (IBClient, String) async throws -> Void) async throws {
+                  _ work: (IBClient, [String]) async throws -> Void) async throws {
     let client = IBClient()
     let recorder = FrameRecorder()
     await client.setFrameTap(recorder.tap)
@@ -67,7 +61,7 @@ private func live(_ name: String, clientID: Int = 77, file: String = #filePath,
         await client.disconnect()
         return
     }
-    do { try await work(client, name) } catch { failure = error }
+    do { try await work(client, accounts) } catch { failure = error }
     await client.disconnect()
 
     let dir = URL(fileURLWithPath: file).deletingLastPathComponent().appendingPathComponent("Recorded")
@@ -114,14 +108,22 @@ struct LiveTests {
     }
 
     @Test func liveAccountSummary() async throws {
-        try await live("liveAccountSummary") { client, _ in
-            let managed = await managedAccounts(client)
-            let summary = try await client.accountSummary(tags: ["NetLiquidation", "TotalCashValue", "BuyingPower"])
-            let set = try await wait("a NetLiquidation for every managed account", .seconds(15), summary) { values in
-                managed.allSatisfy { a in values.contains { $0.account == a && $0.tag == "NetLiquidation" } }
+        try await live("liveAccountSummary") { client, managed in
+            do {   // the stream lives only in this scope: leaving it must cancel the subscription
+                let summary = try await client.accountSummary(tags: ["NetLiquidation", "TotalCashValue", "BuyingPower"])
+                _ = try await wait("a NetLiquidation for every managed account", .seconds(15), summary) { values in
+                    managed.allSatisfy { a in values.contains { $0.account == a && $0.tag == "NetLiquidation" } }
+                }
             }
-            #expect(!set.isEmpty)
-            for p in await client.positions().snapshot { #expect(managed.contains(p.account), "a position outside the managed accounts") }
+            // Counts, never ids: a failed #expect prints its operands.
+            let outside = await client.positions().snapshot.filter { !managed.contains($0.account) }.count
+            #expect(outside == 0, "positions outside the managed accounts")
+            var open = await client.requestStreamCount
+            for _ in 0..<20 where open != 0 {
+                try await Task.sleep(for: .milliseconds(100))
+                open = await client.requestStreamCount
+            }
+            #expect(open == 0, "the account summary subscription was not cancelled")
         }
     }
 
@@ -140,8 +142,8 @@ struct LiveTests {
             order.outsideRTH = true
             return order
         }
-        try await live("liveOrderFillsWithCommission") { client, _ in
-            guard let account = await managedAccounts(client).first else { throw LiveFailure(description: "no managed account") }
+        try await live("liveOrderFillsWithCommission") { client, managed in
+            guard let account = managed.first else { throw LiveFailure(description: "no managed account") }
             let q0 = held(await client.positions().snapshot, account, 265598)
             let buyHeld = await client.positions().updates
             let buyFilled = await client.orders().updates
