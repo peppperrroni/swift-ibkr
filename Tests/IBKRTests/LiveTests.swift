@@ -105,23 +105,28 @@ struct LiveTests {
             _ = try await wait("order \(buyID) to be Filled", .seconds(30), buyFilled) {
                 $0.orderID == buyID && $0.status == .filled
             }
-            let fill = try await wait("a fill with commission for order \(buyID)", .seconds(30), fills) {
-                $0.execution.orderID == buyID
-            }
-            #expect(fill.commission.execID == fill.execution.execID)
+            // The BUY filled: the SELL must run whatever the checks below do, so no AAPL position is left behind.
+            var failure: (any Error)?
+            do {
+                let fill = try await wait("a fill with commission for order \(buyID)", .seconds(30), fills) {
+                    $0.execution.orderID == buyID
+                }
+                #expect(fill.commission.execID == fill.execution.execID)
 
-            // clientID "0" in reqExecutions should return every client's fills
-            let other = IBClient()
-            try await other.connect(clientID: 78, timeout: .seconds(15))
-            let seen = await other.executions().snapshot.contains { $0.execution.execID == fill.execution.execID }
-            await other.disconnect()
-            #expect(seen, "client 78 does not see client 77's execution")
+                // clientID "0" in reqExecutions should return every client's fills
+                let other = IBClient()
+                try await other.connect(clientID: 78, timeout: .seconds(15))
+                let seen = await other.executions().snapshot.contains { $0.execution.execID == fill.execution.execID }
+                await other.disconnect()
+                #expect(seen, "client 78 does not see client 77's execution")
+            } catch { failure = error }
 
             let sellFilled = await client.orders().updates
             let sellID = try await client.placeOrder(aapl, Order(action: .sell, quantity: 1, orderType: "MKT"))
             _ = try await wait("order \(sellID) to be Filled", .seconds(30), sellFilled) {
                 $0.orderID == sellID && $0.status == .filled
             }
+            if let failure { throw failure }
         }
     }
 }

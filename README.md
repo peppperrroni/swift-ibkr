@@ -68,6 +68,8 @@ managedAccounts, currentTime, orderBound, end markers, unknown and malformed fra
 that merge IB's separate messages into whole objects: `OrderTracker` (orders) and `ExecutionTracker` (fills). No
 sockets, no positions, no market data yet.
 
-**Next, stage 2:** the socket, the `IBClient` actor, request throttle, snapshot + stream, a live check on the
-owner's paper account, and recording real frames as fixtures. What stage 1 leaves open is in
-`docs/KNOWN-GAPS.md`.
+**Stage 2 (done): the client.** A plain OS socket (Windows and macOS), the `IBClient` actor with its request
+throttle and snapshot + stream, and a live check on the owner's paper account whose frames are recorded in
+`Tests/IBKRTests/Recorded/` and replayed by the tests. The live tests run with
+`$env:IBKR_LIVE="1"; swift test --filter LiveTests`; the fill test needs US market hours and has not run yet.
+`main` is local: nothing is pushed. What is still open is in `docs/KNOWN-GAPS.md`.

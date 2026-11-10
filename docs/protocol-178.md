@@ -789,7 +789,7 @@ agrees type by type. The differences are in default values and value formatting 
 1. **placeOrder `openClose` default.** `ib_async` sends `O`; IB's client sends `""` (its
    default has been empty since server version 155, "no default open/close"). The table follows
    `ib_async` as the brief requires. For an individual stock account the field is not expected to
-   matter; the live paper gateway accepted `O` (item 9).
+   matter; the live paper gateway did not reject `O` (item 9; its openOrder echo has `""` there, so that shows no more).
 2. **placeOrder `usePriceMgmtAlgo` default.** `ib_async` sends `0` (its default is `False`); IB's
    client sends `""` (default `None` → unset, i.e. "Gateway decides"). `0` explicitly opts out of
    IB's price-management algo. The table follows `ib_async`; worth a decision in Task 4.
@@ -819,7 +819,7 @@ agrees type by type. The differences are in default values and value formatting 
    135 fields, not 127. Field order otherwise matched this table exactly (status at 93 =
    85 + 8). Also seen: contract `right` `?` and deltaNeutralOpenClose `?` for a stock,
    auxPrice `0.0` (not unset), the sentinels `2147483647` / `1.7976931348623157E308` rather than
-   `""`. The gateway accepted placeOrder as encoded here (items 1–3: `openClose` `O`,
+   `""`. The gateway accepted placeOrder as encoded here (items 1–3: `openClose` `O`, not rejected, echoed back as `""`;
    `usePriceMgmtAlgo` `0`, unset numbers `""`, deltaNeutralOrderType `""` with no group), and
    answered the handshake with 178. Recorded frames: `Tests/IBKRTests/Recorded/`.
 
