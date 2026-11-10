@@ -50,12 +50,32 @@ func everyRecordedFrameDecodes(_ name: String) throws {
 }
 
 private let fillRecorded = FileManager.default.fileExists(atPath: URL(fileURLWithPath: #filePath)
-    .deletingLastPathComponent().appendingPathComponent("Recorded/liveMarketOrderFillsWithCommission.json").path)
+    .deletingLastPathComponent().appendingPathComponent("Recorded/liveOrderFillsWithCommission.json").path)
 
-/// Absent until the fill test has run during US regular hours.
+/// Absent until the fill test has run (needs `IBKR_LIVE_FILL` and `IBKR_LIVE_FILL_PRICE`).
 @Test(.enabled(if: fillRecorded))
 func recordedFillHasCommission() throws {
     var tracker = ExecutionTracker()
-    for f in try recording("liveMarketOrderFillsWithCommission") { _ = tracker.apply(IBDecoder.decode(body(f))) }
+    for f in try recording("liveOrderFillsWithCommission") { _ = tracker.apply(IBDecoder.decode(body(f))) }
     #expect(tracker.fills.contains { $0.commission.commission > 0 })
+    // The 2026-11-10 pre-market BUY: an opening fill, so IB sends realizedPNL unset.
+    let buy = tracker.fills.first { $0.execution.side == "BOT" }
+    #expect(buy?.execution.price == d("351.66"))
+    #expect(buy?.commission.commission == d("1.000003"))
+    #expect(buy?.commission.realizedPNL == nil)
+}
+
+/// The fill run's connect-time sync replayed the morning's cancelled $1 limit order: the first live completedOrder.
+@Test(.enabled(if: fillRecorded))
+func recordedCompletedOrderDecodes() throws {
+    let frame = try #require(try recording("liveOrderFillsWithCommission").first { $0.first == "101" })
+    guard case .completedOrder(let m) = IBDecoder.decode(body(frame)) else { Issue.record("not a completedOrder"); return }
+    #expect(m.permID == 610467324)
+    #expect(m.contract.symbol == "AAPL" && m.contract.conID == 265598)
+    #expect(m.order.action == .buy && m.order.totalQuantity == 1 && m.order.orderType == "LMT")
+    #expect(m.order.limitPrice == d("1"))
+    #expect(m.status == .cancelled)
+    #expect(m.completedTime == "20261110 06:20:29 US/Eastern")
+    #expect(m.completedStatus == "Cancelled by Trader")
+    #expect(m.filledQuantity == 0)
 }

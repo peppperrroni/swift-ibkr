@@ -24,7 +24,7 @@
 | A fatal error after a final status keeps the status and records `rejectReason` | the final status came from IB; the error is a late reply | overwriting the status |
 | A `completedOrder` joined to an existing order updates only status and completedTime | v178 completedOrder lacks parentID etc.; the existing snapshot's contract/order (e.g. bracket parentID) are fuller | replacing contract and order |
 | `completedOrder` has no orderId/clientId at 178; it joins by permID. A new snapshot from it takes `filled` from field 82 (filledQuantity) and `remaining = totalQuantity - filledQuantity` | a cancelled order can be part-filled, so status alone says nothing about the fill | Filled implies filled = total |
-| A nil `ExecutionFilter.clientID` is sent as "0" (`ib_async` default) | the default `ib_async` uses; not yet confirmed live: the pending fill test `liveMarketOrderFillsWithCommission` checks that client 78 sees client 77's fill | omitting the field |
+| A nil `ExecutionFilter.clientID` is sent as "0" (`ib_async` default) | the default `ib_async` uses; confirmed live on 2026-11-10: client 78's connect-time reqExecutions returned client 77's fill | omitting the field |
 | `IBClient`'s streams (`states()`, `messages()`, and the update streams of `orders()` and `executions()`) are fresh on every call; `states()` yields the current state first, `orders()` / `executions()` hand a snapshot alongside | any number of consumers can listen, and a late one still learns where the connection stands | one shared stream |
 | `messages()` carries every decoded incoming message, including those routed to the trackers | a superset loses nothing and needs no filter | only the messages no request claimed (the spec's wording) |
 | One timeout covers the whole `connect` (TCP, handshake, readiness, order / fill sync), 10 s by default | the caller waits for one thing, "ready", and bounds it once | separate timeouts per phase |
@@ -42,6 +42,7 @@
 | Public memberwise initialisers for the stage-1 value types move to stage 5 | the TWS adapter's fakes will show which ones are needed | adding them all now |
 | Live tests refuse to place anything unless every managed account starts with `DU` | the tests place real orders on whatever gateway is on 127.0.0.1:4002; a live account must never be touched by a test | trusting the port number to mean paper |
 | Recorded frames replace every managed account id with `DU0000001`, inside every field | the recordings are committed; account ids are personal data and fixtures only need a stable one | committing raw frames, redacting by hand |
+| The live fill test trades marketable limits with `outsideRTH` (BUY +2%, SELL -2% of `IBKR_LIVE_FILL_PRICE`) | IB does not fill MKT orders outside regular hours, and without a market-data subscription the test cannot read a price itself (stage 4) | MKT orders limited to 14:30-21:00 UTC |
 
 ## Error-code table
 

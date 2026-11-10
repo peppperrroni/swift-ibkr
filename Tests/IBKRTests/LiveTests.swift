@@ -101,12 +101,25 @@ struct LiveTests {
         }
     }
 
+    /// Marketable limit orders with `outsideRTH`, so the test also runs pre-market and after hours, where IB does not
+    /// fill MKT orders. `IBKR_LIVE_FILL_PRICE` is the current AAPL price; BUY at +2%, SELL at -2%.
     @Test(.enabled(if: env["IBKR_LIVE_FILL"] == "1"))
-    func liveMarketOrderFillsWithCommission() async throws {
-        try await live("liveMarketOrderFillsWithCommission") { client, _ in
+    func liveOrderFillsWithCommission() async throws {
+        guard let reference = env["IBKR_LIVE_FILL_PRICE"].flatMap({ Decimal(string: $0) }), reference > 0 else {
+            Issue.record("set IBKR_LIVE_FILL_PRICE to the current AAPL price; nothing placed")
+            return
+        }
+        func limit(_ action: OrderAction, _ quantity: Decimal) -> Order {
+            var price = reference * (action == .buy ? d("1.02") : d("0.98")), rounded = Decimal()
+            NSDecimalRound(&rounded, &price, 2, .plain)
+            var order = Order(action: action, quantity: quantity, orderType: "LMT", limitPrice: rounded)
+            order.outsideRTH = true
+            return order
+        }
+        try await live("liveOrderFillsWithCommission") { client, _ in
             let buyFilled = await client.orders().updates
             let fills = await client.executions().updates
-            let buyID = try await client.placeOrder(aapl, Order(action: .buy, quantity: 1, orderType: "MKT"))
+            let buyID = try await client.placeOrder(aapl, limit(.buy, 1))
             // From here the paper account may hold AAPL: whatever fails, flatten before rethrowing the first failure.
             var failure: (any Error)?
             var filled = false
@@ -156,7 +169,7 @@ struct LiveTests {
             if quantity > 0 {
                 do {
                     let sellFilled = await client.orders().updates
-                    let sellID = try await client.placeOrder(aapl, Order(action: .sell, quantity: quantity, orderType: "MKT"))
+                    let sellID = try await client.placeOrder(aapl, limit(.sell, quantity))
                     _ = try await wait("order \(sellID) to be Filled", .seconds(30), sellFilled) {
                         $0.orderID == sellID && $0.status == .filled
                     }

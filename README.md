@@ -14,10 +14,12 @@ to place anything unless every managed account starts with `DU`, and record the 
 
     $env:IBKR_LIVE="1"; swift test --filter LiveTests
 
-Add `$env:IBKR_LIVE_FILL="1"` only during US regular hours (14:30-21:00 UTC): it trades 1 AAPL at market.
-Afterwards clear both, so a later `swift test` in the same shell does not trade:
+Add `$env:IBKR_LIVE_FILL="1"; $env:IBKR_LIVE_FILL_PRICE="<current AAPL price>"` to buy and sell back 1 AAPL with
+marketable limits (+2% / -2% of that price, `outsideRTH`), so it runs in regular and extended hours (pre-market
+from 09:00 UTC, after hours until 01:00 UTC). Afterwards clear them, so a later `swift test` in the same shell does
+not trade:
 
-    Remove-Item Env:IBKR_LIVE, Env:IBKR_LIVE_FILL
+    Remove-Item Env:IBKR_LIVE, Env:IBKR_LIVE_FILL, Env:IBKR_LIVE_FILL_PRICE
 
 Field orders are documented in `docs/protocol-178.md`; design decisions in `docs/DECISIONS.md`.
 
@@ -74,8 +76,8 @@ managedAccounts, currentTime, orderBound, end markers, unknown and malformed fra
 that merge IB's separate messages into whole objects: `OrderTracker` (orders) and `ExecutionTracker` (fills). No
 sockets, no positions, no market data yet.
 
-**Stage 2 (done except the live fill check): the client.** A plain OS socket (Windows and macOS), the `IBClient`
-actor with its request throttle and snapshot + stream, and a live check on the owner's paper account whose frames
-are recorded in `Tests/IBKRTests/Recorded/` and replayed by the tests. The market-order fill test
-(`liveMarketOrderFillsWithCommission`) still has to run during US regular hours, 14:30-21:00 UTC.
+**Stage 2 (done): the client.** A plain OS socket (Windows and macOS), the `IBClient` actor with its request
+throttle and snapshot + stream, and live checks on the owner's paper account (a limit order placed and cancelled;
+1 AAPL bought and sold back pre-market, with commission) whose frames are recorded in `Tests/IBKRTests/Recorded/`
+and replayed by the tests.
 `main` is local: nothing is pushed. What is still open is in `docs/KNOWN-GAPS.md`.
