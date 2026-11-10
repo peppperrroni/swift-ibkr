@@ -54,3 +54,5 @@
 | fatal | everything else | fails the request it belongs to |
 
 A message id that is not a number decodes as malformed with id 0: there is no id to report.
+| Positions are always on: `connect` sends reqPositions with the sync and waits for positionEnd; cancelPositions is never sent; `positions()` is a snapshot + `AsyncStream<[Position]>` of whole sets, like `orders()` | a trading app needs positions from the first moment; reqPositions has no reqId, so there is no per-request error to throw; one subscription per connection needs no reference counting (as `ib_async`) | a per-call `AsyncThrowingStream` with reference counting and cancelPositions |
+| A position of 0 is removed from the set; at a reconnect the old set stays visible and the new sync's positions are collected aside, replacing it whole at positionEnd. The `PositionTracker` lives across connections | a position closed while disconnected disappears at positionEnd, and no subscriber sees a half-built or merged set | merging the replay into the old set (a closed position would never leave); clearing at connect (an empty set in between) |

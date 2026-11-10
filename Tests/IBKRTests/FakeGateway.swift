@@ -7,18 +7,21 @@ final class FakeGateway: Transport, @unchecked Sendable {
     let incoming: AsyncThrowingStream<[UInt8], any Error>
     private let continuation: AsyncThrowingStream<[UInt8], any Error>.Continuation
     private let serverVersion: String, nextValidID: Int, accounts: String, answersStartAPI: Bool
+    private let answersPositions: Bool
     private let lock = NSLock()
     private var sawHello = false
     private var sent: [[String]] = []
     private var closed = false
     private var _onRequest: (@Sendable ([String]) -> [[String]])?
 
-    init(serverVersion: String = "178", nextValidID: Int = 1, accounts: String = "DU1", answersStartAPI: Bool = true) {
+    init(serverVersion: String = "178", nextValidID: Int = 1, accounts: String = "DU1", answersStartAPI: Bool = true,
+         answersPositions: Bool = true) {
         (incoming, continuation) = AsyncThrowingStream.makeStream()
         self.serverVersion = serverVersion
         self.nextValidID = nextValidID
         self.accounts = accounts
         self.answersStartAPI = answersStartAPI
+        self.answersPositions = answersPositions
     }
 
     var connector: Connector { { _, _, _ in self } }
@@ -59,6 +62,7 @@ final class FakeGateway: Transport, @unchecked Sendable {
         case "16": feed(["53", "1"])
         case "99": feed(["102"])
         case "7": feed(["55", "1", fields[2]])
+        case "61" where answersPositions: feed(["62", "1"])
         default: break
         }
     }

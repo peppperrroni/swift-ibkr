@@ -13,6 +13,7 @@ public actor IBClient {
     private var messageSubscribers = Subscribers<IBMessage>()
     private var orderSubscribers = Subscribers<OrderSnapshot>()
     private var fillSubscribers = Subscribers<Fill>()
+    private var positionSubscribers = Subscribers<[Position]>()
 
     // The current connection. `generation` changes whenever one starts or ends, so a late event from an old
     // connection's reader, writer or timer is dropped.
@@ -26,6 +27,7 @@ public actor IBClient {
     private var nextID: Int?
     private var orderTracker = OrderTracker(clientID: 0)
     private var executionTracker = ExecutionTracker()
+    private var positionTracker = PositionTracker()
     private var frameTap: (@Sendable ([String]) -> Void)?
 
     // While `connect` waits: its continuation, its deadline timer, and the sync's end markers still due
@@ -42,7 +44,7 @@ public actor IBClient {
 
     init(connector: @escaping Connector) { self.connector = connector }
 
-    /// Returns once the handshake is done and open orders, completed orders and executions are synced.
+    /// Returns once the handshake is done and open orders, completed orders, executions and positions are synced.
     /// `timeout` covers all of it.
     public func connect(host: String = "127.0.0.1", port: Int = 4002, clientID: Int,
                         timeout: Duration = .seconds(10)) async throws(IBClientError) {
@@ -54,6 +56,7 @@ public actor IBClient {
         frames = FrameReader()
         (serverVersion, accounts, nextID, syncEnds) = (nil, nil, nil, nil)
         orderTracker = OrderTracker(clientID: clientID)   // fills are kept: the sync's replay of them publishes nothing
+        positionTracker.reload()   // the set is kept too, and replaced whole at the sync's positionEnd
         setState(.connecting)
 
         let t: any Transport
@@ -116,6 +119,12 @@ public actor IBClient {
     /// The fills known now, then every new or corrected fill from now on.
     public func executions() -> (snapshot: [Fill], updates: AsyncStream<Fill>) {
         (executionTracker.fills, fillSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(fill: id) } })
+    }
+
+    /// The positions known now, then every whole new set from now on. Always on: `connect` requests them and
+    /// they stream for the whole connection.
+    public func positions() -> (snapshot: [Position], updates: AsyncStream<[Position]>) {
+        (positionTracker.positions, positionSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(position: id) } })
     }
 
     /// Receives the fields of every incoming frame after the server hello, in arrival order, on the actor.
@@ -194,6 +203,7 @@ public actor IBClient {
         messageSubscribers.yield(message)
         for snapshot in orderTracker.apply(message) { orderSubscribers.yield(snapshot) }
         for fill in executionTracker.apply(message) { fillSubscribers.yield(fill) }
+        if let set = positionTracker.apply(message) { positionSubscribers.yield(set) }
         switch message {
         case .nextValidID(let n): nextID = max(nextID ?? n, n)
         case .managedAccounts(let a): accounts = a
@@ -214,10 +224,11 @@ public actor IBClient {
     /// Only end markers that arrive after these requests are counted.
     private func sync() {
         let executionsID = nextRequestID()
-        syncEnds = [.openOrderEnd, .completedOrdersEnd, .execDetailsEnd(requestID: executionsID)]
-        try? send(.allOpenOrders)   // none of the three can fail to encode
+        syncEnds = [.openOrderEnd, .completedOrdersEnd, .execDetailsEnd(requestID: executionsID), .positionEnd]
+        try? send(.allOpenOrders)   // none of the four can fail to encode
         try? send(.completedOrders(apiOnly: false))
         try? send(.executions(requestID: executionsID, filter: ExecutionFilter()))
+        try? send(.positions)
     }
 
     private func connected() {
@@ -260,4 +271,5 @@ public actor IBClient {
     private func unsubscribe(message id: Int) { messageSubscribers.remove(id) }
     private func unsubscribe(order id: Int) { orderSubscribers.remove(id) }
     private func unsubscribe(fill id: Int) { fillSubscribers.remove(id) }
+    private func unsubscribe(position id: Int) { positionSubscribers.remove(id) }
 }

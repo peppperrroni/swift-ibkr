@@ -30,8 +30,8 @@ private let ready = ConnectionState.connected(serverVersion: 178, accounts: ["DU
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     #expect(try await first(client.states()) == ready)
-    let sent = try await gateway.waitForSent(4)
-    #expect(sent.map { $0[0] } == ["71", "16", "99", "7"])
+    let sent = try await gateway.waitForSent(5)
+    #expect(sent.map { $0[0] } == ["71", "16", "99", "7", "61"])
     #expect(sent.first == ["71", "2", "7", ""])
 }
 
@@ -96,7 +96,7 @@ private actor Gateways {
 
     try await connect(client)
     #expect(try await first(client.states()) == ready)
-    #expect(try await two.waitForSent(4).count == 4)
+    #expect(try await two.waitForSent(5).count == 5)
 }
 
 @Test func reconnectDoesNotRepublishFills() async throws {
