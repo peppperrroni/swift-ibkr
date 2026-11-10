@@ -1,6 +1,6 @@
 # Known gaps after stage 3
 
-What stages 1 and 2 (codec and merging; socket, `IBClient`, a live paper run) leave open. Delete a line when it
+What stages 1 to 3 (codec and merging; socket, `IBClient`, a live paper run; positions, account summary, P&L) leave open. Delete a line when it
 is settled.
 
 ## To confirm against a live gateway

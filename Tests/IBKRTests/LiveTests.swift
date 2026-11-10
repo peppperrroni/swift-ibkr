@@ -187,9 +187,13 @@ struct LiveTests {
                 let final = try? await wait("order \(buyID) to reach a final status", .seconds(15), settled) {
                     $0.orderID == buyID && $0.status.isFinal
                 }
-                if let final {
+                if var final {
+                    final = await withFillNumbers(final, client)
                     quantity = final.filled
                     if let avg = final.averageFillPrice, avg != 0 { sellBase = avg }
+                    if final.status == .filled && quantity == 0 {
+                        Issue.record("BUY \(buyID) is Filled but no fill quantity arrived; check the paper account in TWS and flatten AAPL by hand")
+                    }
                 } else {
                     // No final status yet: cancel again, then poll the snapshot until it is final.
                     do { try await client.cancelOrder(buyID) } catch { Issue.record("second cancel of BUY \(buyID) failed: \(error)") }
@@ -199,9 +203,10 @@ struct LiveTests {
                         if last?.status.isFinal == true { break }
                         try? await Task.sleep(for: .milliseconds(500))
                     }
+                    if let l = last, l.status.isFinal { last = await withFillNumbers(l, client) }
                     quantity = last?.filled ?? 0
                     if let avg = last?.averageFillPrice, avg != 0 { sellBase = avg }
-                    if last?.status.isFinal != true {
+                    if last?.status.isFinal != true || (last?.status == .filled && quantity == 0) {
                         Issue.record("BUY \(buyID) is not final after cancel (status \(String(describing: last?.status)), filled \(quantity)); check the paper account in TWS and flatten AAPL by hand")
                     }
                 }
@@ -233,6 +238,16 @@ struct LiveTests {
             if let failure { throw failure }
         }
     }
+}
+
+/// openOrder Filled can arrive before the orderStatus with the quantity: re-read the snapshot for up to 5 s until `filled > 0`.
+private func withFillNumbers(_ s: OrderSnapshot, _ client: IBClient) async -> OrderSnapshot {
+    guard s.status == .filled, s.filled == 0 else { return s }
+    for _ in 0..<10 {
+        try? await Task.sleep(for: .milliseconds(500))
+        if let n = await client.orders().snapshot.first(where: { $0.orderID == s.orderID }), n.filled > 0 { return n }
+    }
+    return s
 }
 
 @Test func frameTapSeesFramesAndRecordingsHideTheAccount() async throws {
