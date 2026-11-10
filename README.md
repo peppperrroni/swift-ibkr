@@ -36,6 +36,16 @@ Field orders are documented in `docs/protocol-178.md`; design decisions in `docs
     let (held, changes) = await client.positions()
     Task { for await set in changes { print(set.map(\.quantity)) } }
 
+    // Account summary and single-position P&L are per request: each call opens one subscription, which ends when
+    // the consumer stops (the cancel goes out), on IB's error for it, or with the connection. IB allows two
+    // account summaries at a time; a third throws .ib(code: 322, ...).
+    Task {
+        for try await set in try await client.accountSummary(tags: ["NetLiquidation", "BuyingPower"]) {
+            print(set.map { "\($0.tag) \($0.value) \($0.currency)" })   // value is IB's string
+        }
+    }
+    Task { for try await pnl in try await client.pnlSingle(account: "DU1", conID: 265598) { print(pnl.daily as Any) } }
+
     // Orders: placeOrder returns the id once the frame is queued; the outcome arrives through orders().
     let (known, updates) = await client.orders()          // snapshot now, then every change as a whole order
     Task { for await order in updates { print(order.orderID, order.status) } }
@@ -65,7 +75,10 @@ timeout covers all of it. It throws an `IBClientError` (`.timeout`, `.connection
 the gateway refuses, e.g. 326 "client id already in use", and so on). `states()` and `messages()` hand out a fresh
 stream on every call, so any number of consumers can listen; `states()` yields the current state first, and
 `messages()` carries every decoded incoming message. A lost connection turns the state to `.disconnected(error)`
-and is **not reconnected automatically**: call `connect` again. Subscribers stay subscribed across reconnects.
+and is **not reconnected automatically**: call `connect` again. Subscribers stay subscribed across reconnects, except
+the `accountSummary` and `pnlSingle` streams: they throw the connection's end error (`.connectionClosed` after
+`disconnect()`) and are not resumed, so subscribe again after the reconnect. `accountSummary` yields the whole set,
+sorted by account, tag and currency, at IB's first end marker and then on every change, never the same set twice.
 
 Always call `disconnect()` when done: a connected `IBClient` is kept alive by its reader and writer tasks, and its
 streams never finish on their own.

@@ -15,6 +15,15 @@ public actor IBClient {
     private var fillSubscribers = Subscribers<Fill>()
     private var positionSubscribers = Subscribers<[Position]>()
 
+    /// A per-request stream, by reqId: `route` gets what IB sends for it, `finish` ends it, `cancel` is sent
+    /// when the consumer stops it. Every entry belongs to the current connection; `end()` clears them all.
+    private struct RequestStream {
+        let route: (IBMessage) -> Void
+        let finish: (IBClientError) -> Void
+        let cancel: IBRequest
+    }
+    private var requestStreams: [Int: RequestStream] = [:]
+
     // The current connection. `generation` changes whenever one starts or ends, so a late event from an old
     // connection's reader, writer or timer is dropped.
     private var generation = 0
@@ -127,11 +136,47 @@ public actor IBClient {
         (positionTracker.positions, positionSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(position: id) } })
     }
 
+    /// The account summary for `tags`: the whole set, keyed and sorted by account, tag and currency, at
+    /// IB's first end marker, then again on every change. Ends, throwing, on a fatal IB error for it or
+    /// when the connection ends; stopping it cancels the subscription. IB allows two at a time.
+    public func accountSummary(tags: [String], group: String = "All") throws(IBClientError)
+        -> AsyncThrowingStream<[AccountValue], any Error> {
+        try requireConnected()
+        let id = nextRequestID()
+        var values: [AccountValue] = [], ended = false, last: [AccountValue]?
+        return try openStream(.accountSummary(requestID: id, group: group, tags: tags), id: id,
+                              cancel: .cancelAccountSummary(requestID: id)) { message, out in
+            switch message {
+            case .accountSummary(_, let v):
+                values.removeAll { ($0.account, $0.tag, $0.currency) == (v.account, v.tag, v.currency) }
+                values.append(v)
+                values.sort { ($0.account, $0.tag, $0.currency) < ($1.account, $1.tag, $1.currency) }
+            case .accountSummaryEnd: ended = true
+            default: return
+            }
+            guard ended, values != last else { return }
+            last = values
+            out.yield(values)
+        }
+    }
+
+    /// Every P&L update IB sends for one position, as it comes. Ends like `accountSummary`.
+    public func pnlSingle(account: String, conID: Int, modelCode: String = "") throws(IBClientError)
+        -> AsyncThrowingStream<PnL, any Error> {
+        try requireConnected()
+        let id = nextRequestID()
+        return try openStream(.pnlSingle(requestID: id, account: account, modelCode: modelCode, conID: conID), id: id,
+                              cancel: .cancelPnLSingle(requestID: id)) { message, out in
+            if case .pnlSingle(_, let pnl) = message { out.yield(pnl) }
+        }
+    }
+
     /// Receives the fields of every incoming frame after the server hello, in arrival order, on the actor.
     /// Used to record live frames; `nil` removes it.
     func setFrameTap(_ tap: (@Sendable ([String]) -> Void)?) { frameTap = tap }
 
     var orderSubscriberCount: Int { orderSubscribers.count }
+    var requestStreamCount: Int { requestStreams.count }
 
     private func requireConnected() throws(IBClientError) {
         guard case .connected = state else { throw .notConnected }
@@ -148,6 +193,38 @@ public actor IBClient {
         let body: [UInt8]
         do { body = try request.body() } catch { throw .encoding(error) }
         outbox.yield(Frame.encode(body))
+    }
+
+    /// Sends `request`, then registers its stream; nothing is registered when it does not encode.
+    private func openStream<Element: Sendable>(
+        _ request: IBRequest, id: Int, cancel: IBRequest,
+        route: @escaping (IBMessage, AsyncThrowingStream<Element, any Error>.Continuation) -> Void
+    ) throws(IBClientError) -> AsyncThrowingStream<Element, any Error> {
+        try send(request)
+        let (stream, out) = AsyncThrowingStream.makeStream(of: Element.self, throwing: (any Error).self,
+                                                           bufferingPolicy: .unbounded)
+        requestStreams[id] = RequestStream(route: { route($0, out) }, finish: { out.finish(throwing: $0) },
+                                           cancel: cancel)
+        let gen = generation
+        out.onTermination = { [weak self] _ in Task { await self?.stopped(id, gen) } }
+        return stream
+    }
+
+    /// The consumer stopped the stream. An entry already gone was finished by the client, which sends no cancel;
+    /// `gen` keeps a late stop from touching a stream that reuses the reqId on a later connection.
+    private func stopped(_ id: Int, _ gen: Int) {
+        guard gen == generation, let s = requestStreams.removeValue(forKey: id) else { return }
+        try? send(s.cancel)   // the cancel encodes: it is all integers
+    }
+
+    private func routeToStream(_ message: IBMessage) {
+        switch message {
+        case .accountSummary(let id, _), .accountSummaryEnd(let id), .pnlSingle(let id, _):
+            requestStreams[id]?.route(message)
+        case .error(let e) where ErrorCode.kind(e.code) == .fatal:
+            requestStreams.removeValue(forKey: e.requestID)?.finish(.ib(code: e.code, text: e.text))
+        default: break
+        }
     }
 
     /// Orders and requests share this one sequence (docs/DECISIONS.md).
@@ -204,6 +281,7 @@ public actor IBClient {
         for snapshot in orderTracker.apply(message) { orderSubscribers.yield(snapshot) }
         for fill in executionTracker.apply(message) { fillSubscribers.yield(fill) }
         if let set = positionTracker.apply(message) { positionSubscribers.yield(set) }
+        routeToStream(message)
         switch message {
         case .nextValidID(let n): nextID = max(nextID ?? n, n)
         case .managedAccounts(let a): accounts = a
@@ -257,6 +335,9 @@ public actor IBClient {
         outbox?.finish()
         connectTimer?.cancel()
         (transport, outbox, connectTimer, syncEnds) = (nil, nil, nil, nil)
+        let streams = requestStreams.values
+        requestStreams = [:]   // emptied first: their termination then sends no cancel
+        for s in streams { s.finish(error ?? .connectionClosed) }
         setState(.disconnected(error))
         pendingConnect?.resume(returning: .failure(error ?? .connectionClosed))
         pendingConnect = nil
