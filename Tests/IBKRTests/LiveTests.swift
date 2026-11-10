@@ -102,9 +102,6 @@ struct LiveTests {
             let buyFilled = await client.orders().updates
             let fills = await client.executions().updates
             let buyID = try await client.placeOrder(aapl, Order(action: .buy, quantity: 1, orderType: "MKT"))
-            _ = try await wait("order \(buyID) to be Filled", .seconds(30), buyFilled) {
-                $0.orderID == buyID && $0.status == .filled
-            }
             // From here the paper account may hold AAPL: whatever fails, flatten before rethrowing the first failure.
             var failure: (any Error)?
             var filled = false
@@ -131,9 +128,15 @@ struct LiveTests {
             // A cancelled test still gets here; only the waits below end early, and the SELL is queued before them.
             var quantity: Decimal = filled ? 1 : 0
             if !filled {
+                let settled = await client.orders().updates  // subscribed before the cancel so the final status is not missed
                 try? await client.cancelOrder(buyID)
-                try? await Task.sleep(for: .seconds(2))
-                quantity = await client.orders().snapshot.first { $0.orderID == buyID }?.filled ?? 0
+                let final = try? await wait("order \(buyID) to reach a final status", .seconds(15), settled) {
+                    $0.orderID == buyID && $0.status.isFinal
+                }
+                if let final { quantity = final.filled } else {
+                    quantity = await client.orders().snapshot.first { $0.orderID == buyID }?.filled ?? 0
+                    Issue.record("BUY \(buyID) reached no final status after cancel; check the paper position by hand")
+                }
             }
             if quantity > 0 {
                 do {
