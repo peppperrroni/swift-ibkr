@@ -1,0 +1,48 @@
+[
+  [
+    "15",
+    "1",
+    "DU0000001"
+  ],
+  [
+    "9",
+    "1",
+    "1"
+  ],
+  [
+    "4",
+    "2",
+    "-1",
+    "2104",
+    "Market data farm connection is OK:usfarm",
+    ""
+  ],
+  [
+    "4",
+    "2",
+    "-1",
+    "2107",
+    "HMDS data farm connection is inactive but should be available upon demand.ushmds",
+    ""
+  ],
+  [
+    "4",
+    "2",
+    "-1",
+    "2158",
+    "Sec-def data farm connection is OK:secdefil",
+    ""
+  ],
+  [
+    "53",
+    "1"
+  ],
+  [
+    "55",
+    "1",
+    "1"
+  ],
+  [
+    "102"
+  ]
+]

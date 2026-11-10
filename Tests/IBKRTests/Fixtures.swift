@@ -3,7 +3,9 @@ import Foundation
 func body(_ fields: [String]) -> [UInt8] { fields.flatMap { Array($0.utf8) + [0] } }
 
 /// Version-178 incoming order messages in their base case (docs/protocol-178.md), every unmodelled
-/// field at what a gateway sends for a plain SMART stock order.
+/// field at what a gateway sends for a plain SMART stock order, except deltaNeutralOrderType: a real
+/// gateway sends `None` and the 8 (completedOrder: 4) fields after it. The fixtures keep `""` so their
+/// indices stay the table's; RecordedFrameTests decode the real 135-field frame.
 enum Fixtures {
     static func openOrderFields(orderID: Int, permID: Int, clientID: Int, symbol: String, action: String, quantity: String,
                                 orderType: String, limitPrice: String, auxPrice: String, tif: String, parentID: String,

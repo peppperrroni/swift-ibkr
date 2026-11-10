@@ -450,7 +450,7 @@ no smart-routing params.
 | 60 | volatilityType | int | |
 | 61 | deltaNeutralOrderType | string | |
 | 62 | deltaNeutralAuxPrice | double | |
-| + | deltaNeutralConId | int | only if deltaNeutralOrderType ≠ `""`; 8 fields |
+| + | deltaNeutralConId | int | only if deltaNeutralOrderType ≠ `""`; 8 fields. The live gateway sends `None` for a plain order, so the group is present (Disagreements 9) |
 | + | deltaNeutralSettlingFirm | string | |
 | + | deltaNeutralClearingAccount | string | |
 | + | deltaNeutralClearingIntent | string | |
@@ -714,7 +714,7 @@ No version field. Base case as for `openOrder`.
 | 51 | volatilityType | int | |
 | 52 | deltaNeutralOrderType | string | |
 | 53 | deltaNeutralAuxPrice | double | |
-| + | deltaNeutralConId int, deltaNeutralShortSale bool, deltaNeutralShortSaleSlot int, deltaNeutralDesignatedLocation string | | only if deltaNeutralOrderType ≠ `""`; **4** fields (no settlingFirm / clearing / openClose) |
+| + | deltaNeutralConId int, deltaNeutralShortSale bool, deltaNeutralShortSaleSlot int, deltaNeutralDesignatedLocation string | | only if deltaNeutralOrderType ≠ `""`; **4** fields (no settlingFirm / clearing / openClose); expect it present (`None`, Disagreements 9) |
 | 54 | continuousUpdate | bool | |
 | 55 | referencePriceType | int | |
 | 56 | trailStopPrice | double | overwritten by #76 in both clients |
@@ -789,7 +789,7 @@ agrees type by type. The differences are in default values and value formatting 
 1. **placeOrder `openClose` default.** `ib_async` sends `O`; IB's client sends `""` (its
    default has been empty since server version 155, "no default open/close"). The table follows
    `ib_async` as the brief requires. For an individual stock account the field is not expected to
-   matter, but this is not verified against a live Gateway.
+   matter; the live paper gateway accepted `O` (item 9).
 2. **placeOrder `usePriceMgmtAlgo` default.** `ib_async` sends `0` (its default is `False`); IB's
    client sends `""` (default `None` → unset, i.e. "Gateway decides"). `0` explicitly opts out of
    IB's price-management algo. The table follows `ib_async`; worth a decision in Task 4.
@@ -813,6 +813,15 @@ agrees type by type. The differences are in default values and value formatting 
 8. **Incoming text decoding.** `ib_async` decodes the whole frame as UTF-8 with backslash
    replacement. IB's client decodes `errorString` and `advancedOrderRejectJson` with Python's
    `unicode-escape` codec from server version 153. Not a field-order matter; noted for the reader.
+9. **Settled by the live paper gateway (stage 2, Task 5).** The tables are the base case, but a
+   real gateway never sends it for openOrder: for a plain AAPL LMT order it sent
+   deltaNeutralOrderType `None`, so the 8-field delta-neutral group follows and the frame has
+   135 fields, not 127. Field order otherwise matched this table exactly (status at 93 =
+   85 + 8). Also seen: contract `right` `?` and deltaNeutralOpenClose `?` for a stock,
+   auxPrice `0.0` (not unset), the sentinels `2147483647` / `1.7976931348623157E308` rather than
+   `""`. The gateway accepted placeOrder as encoded here (items 1–3: `openClose` `O`,
+   `usePriceMgmtAlgo` `0`, unset numbers `""`, deltaNeutralOrderType `""` with no group), and
+   answered the handshake with 178. Recorded frames: `Tests/IBKRTests/Recorded/`.
 
 No row in this document is unverified: every table was checked line by line against the
 verbatim source of both clients.

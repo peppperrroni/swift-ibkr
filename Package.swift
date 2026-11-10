@@ -7,6 +7,6 @@ let package = Package(
     products: [.library(name: "IBKR", targets: ["IBKR"])],
     targets: [
         .target(name: "IBKR"),
-        .testTarget(name: "IBKRTests", dependencies: ["IBKR"]),
+        .testTarget(name: "IBKRTests", dependencies: ["IBKR"], exclude: ["Recorded"]),
     ]
 )
