@@ -134,8 +134,18 @@ struct LiveTests {
                     $0.orderID == buyID && $0.status.isFinal
                 }
                 if let final { quantity = final.filled } else {
-                    quantity = await client.orders().snapshot.first { $0.orderID == buyID }?.filled ?? 0
-                    Issue.record("BUY \(buyID) reached no final status after cancel; check the paper position by hand")
+                    // No final status yet: cancel again, then poll the snapshot until it is final.
+                    do { try await client.cancelOrder(buyID) } catch { Issue.record("second cancel of BUY \(buyID) failed: \(error)") }
+                    var last: OrderSnapshot?
+                    for _ in 0..<60 {
+                        last = await client.orders().snapshot.first { $0.orderID == buyID }
+                        if last?.status.isFinal == true { break }
+                        try? await Task.sleep(for: .milliseconds(500))
+                    }
+                    quantity = last?.filled ?? 0
+                    if last?.status.isFinal != true {
+                        Issue.record("BUY \(buyID) is not final after cancel (status \(String(describing: last?.status)), filled \(quantity)); check the paper account in TWS and flatten AAPL by hand")
+                    }
                 }
             }
             if quantity > 0 {
