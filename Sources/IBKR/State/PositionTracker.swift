@@ -26,7 +26,7 @@ public struct PositionTracker: Sendable {
         case .position(let p):
             let key = Key(account: p.account, conID: p.contract.conID)
             if reloading {
-                if p.quantity != 0 { pending[key] = p }
+                pending[key] = p.quantity == 0 ? nil : p
                 return nil
             }
             let next: Position? = p.quantity == 0 ? nil : p

@@ -49,6 +49,15 @@ private func keys(_ set: [Position]?) -> [String]? { set?.map { "\($0.account)/\
         #expect(keys(t.positions) == ["DU1/2"])
     }
 
+    @Test func zeroDuringReloadRemovesThePendingPosition() {
+        var t = PositionTracker()
+        t.reload()
+        _ = t.apply(pos("DU1", 1, "5"))
+        _ = t.apply(pos("DU1", 1, "0"))
+        #expect(t.apply(.positionEnd) == [])
+        #expect(t.positions.isEmpty)
+    }
+
     @Test func unrelatedMessagesPublishNothing() {
         var t = PositionTracker()
         #expect(t.apply(.openOrderEnd) == nil)
