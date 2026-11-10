@@ -128,7 +128,7 @@ struct LiveTests {
     }
 
     /// Marketable limit orders with `outsideRTH`, so the test also runs pre-market and after hours, where IB does not
-    /// fill MKT orders. `IBKR_LIVE_FILL_PRICE` is the current AAPL price; BUY at +2%, SELL at -2%.
+    /// fill MKT orders. `IBKR_LIVE_FILL_PRICE` is the current AAPL price; BUY at +1%, SELL at -1%.
     @Test(.enabled(if: env["IBKR_LIVE_FILL"] == "1"))
     func liveOrderFillsWithCommission() async throws {
         guard let reference = env["IBKR_LIVE_FILL_PRICE"].flatMap({ Decimal(string: $0) }), reference > 0 else {
@@ -136,7 +136,7 @@ struct LiveTests {
             return
         }
         func limit(_ action: OrderAction, _ quantity: Decimal) -> Order {
-            var price = reference * (action == .buy ? d("1.02") : d("0.98")), rounded = Decimal()
+            var price = reference * (action == .buy ? d("1.01") : d("0.99")), rounded = Decimal()
             NSDecimalRound(&rounded, &price, 2, .plain)
             var order = Order(action: action, quantity: quantity, orderType: "LMT", limitPrice: rounded)
             order.outsideRTH = true
