@@ -128,15 +128,16 @@ struct LiveTests {
     }
 
     /// Marketable limit orders with `outsideRTH`, so the test also runs pre-market and after hours, where IB does not
-    /// fill MKT orders. `IBKR_LIVE_FILL_PRICE` is the current AAPL price; BUY at +1%, SELL at -1%.
+    /// fill MKT orders. `IBKR_LIVE_FILL_PRICE` is the current AAPL price; BUY at +1% of it; the SELL is priced 1% under the BUY's fill
+    /// (the reference goes stale when the market moves), or under the snapshot's average fill price if there is no fill.
     @Test(.enabled(if: env["IBKR_LIVE_FILL"] == "1"))
     func liveOrderFillsWithCommission() async throws {
         guard let reference = env["IBKR_LIVE_FILL_PRICE"].flatMap({ Decimal(string: $0) }), reference > 0 else {
             Issue.record("set IBKR_LIVE_FILL_PRICE to the current AAPL price; nothing placed")
             return
         }
-        func limit(_ action: OrderAction, _ quantity: Decimal) -> Order {
-            var price = reference * (action == .buy ? d("1.01") : d("0.99")), rounded = Decimal()
+        func limit(_ action: OrderAction, _ quantity: Decimal, from base: Decimal? = nil) -> Order {
+            var price = (base ?? reference) * (action == .buy ? d("1.01") : d("0.99")), rounded = Decimal()
             NSDecimalRound(&rounded, &price, 2, .plain)
             var order = Order(action: action, quantity: quantity, orderType: "LMT", limitPrice: rounded)
             order.outsideRTH = true
@@ -152,14 +153,17 @@ struct LiveTests {
             // From here the paper account may hold AAPL: whatever fails, flatten before rethrowing the first failure.
             var failure: (any Error)?
             var filled = false
+            var sellBase = reference
             do {
-                _ = try await wait("order \(buyID) to be Filled", .seconds(30), buyFilled) {
+                let filledSnapshot = try await wait("order \(buyID) to be Filled", .seconds(30), buyFilled) {
                     $0.orderID == buyID && $0.status == .filled
                 }
                 filled = true
+                if let avg = filledSnapshot.averageFillPrice, avg != 0 { sellBase = avg }
                 let fill = try await wait("a fill with commission for order \(buyID)", .seconds(30), fills) {
                     $0.execution.orderID == buyID
                 }
+                sellBase = fill.execution.price
                 #expect(fill.commission.execID == fill.execution.execID)
                 _ = try await wait("AAPL at \(q0 + 1) in the positions", .seconds(30), buyHeld) { held($0, account, 265598) == q0 + 1 }
                 let pnl = try await client.pnlSingle(account: account, conID: 265598)
@@ -183,7 +187,10 @@ struct LiveTests {
                 let final = try? await wait("order \(buyID) to reach a final status", .seconds(15), settled) {
                     $0.orderID == buyID && $0.status.isFinal
                 }
-                if let final { quantity = final.filled } else {
+                if let final {
+                    quantity = final.filled
+                    if let avg = final.averageFillPrice, avg != 0 { sellBase = avg }
+                } else {
                     // No final status yet: cancel again, then poll the snapshot until it is final.
                     do { try await client.cancelOrder(buyID) } catch { Issue.record("second cancel of BUY \(buyID) failed: \(error)") }
                     var last: OrderSnapshot?
@@ -193,6 +200,7 @@ struct LiveTests {
                         try? await Task.sleep(for: .milliseconds(500))
                     }
                     quantity = last?.filled ?? 0
+                    if let avg = last?.averageFillPrice, avg != 0 { sellBase = avg }
                     if last?.status.isFinal != true {
                         Issue.record("BUY \(buyID) is not final after cancel (status \(String(describing: last?.status)), filled \(quantity)); check the paper account in TWS and flatten AAPL by hand")
                     }
@@ -203,7 +211,7 @@ struct LiveTests {
                     let sellFilled = await client.orders().updates
                     let sellHeld = await client.positions().updates
                     let sellFills = await client.executions().updates
-                    let sellID = try await client.placeOrder(aapl, limit(.sell, quantity))
+                    let sellID = try await client.placeOrder(aapl, limit(.sell, quantity, from: sellBase))
                     _ = try await wait("order \(sellID) to be Filled", .seconds(30), sellFilled) {
                         $0.orderID == sellID && $0.status == .filled
                     }

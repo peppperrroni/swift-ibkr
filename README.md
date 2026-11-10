@@ -15,7 +15,7 @@ to place anything unless every managed account starts with `DU`, and record the 
     $env:IBKR_LIVE="1"; swift test --filter LiveTests
 
 Add `$env:IBKR_LIVE_FILL="1"; $env:IBKR_LIVE_FILL_PRICE="<current AAPL price>"` to buy and sell back 1 AAPL with
-marketable limits (+1% / -1% of that price, `outsideRTH`), so it runs in regular and extended hours (pre-market
+marketable limits (BUY +1% of that price, SELL 1% under the BUY's fill price, `outsideRTH`), so it runs in regular and extended hours (pre-market
 from 09:00 UTC, after hours until 01:00 UTC). Afterwards clear them, so a later `swift test` in the same shell does
 not trade:
 
