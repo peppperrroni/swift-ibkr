@@ -23,17 +23,29 @@ final class FrameRecorder: @unchecked Sendable {
 struct LiveFailure: Error, CustomStringConvertible { var description: String }
 
 /// Waits for the first element of `stream` that satisfies `match`, failing clearly after `limit`.
-private func wait<T: Sendable>(_ what: String, _ limit: Duration, _ stream: AsyncStream<T>,
-                               _ match: @escaping @Sendable (T) -> Bool) async throws -> T {
-    try await withThrowingTaskGroup(of: T.self) { group in
+private func wait<S: AsyncSequence & Sendable>(_ what: String, _ limit: Duration, _ stream: S,
+                                               _ match: @escaping @Sendable (S.Element) -> Bool) async throws -> S.Element
+where S.Element: Sendable {
+    try await withThrowingTaskGroup(of: S.Element.self) { group in
         group.addTask {
-            for await x in stream where match(x) { return x }
+            for try await x in stream where match(x) { return x }
             throw LiveFailure(description: "stream ended while waiting for \(what)")
         }
         group.addTask { try await Task.sleep(for: limit); throw LiveFailure(description: "timed out waiting for \(what)") }
         defer { group.cancelAll() }
         return try await group.next()!
     }
+}
+
+/// The managed accounts of a connected client (the first state is `.connected`).
+private func managedAccounts(_ client: IBClient) async -> [String] {
+    for await s in await client.states() { if case .connected(_, let a) = s { return a }; break }
+    return []
+}
+
+/// What `account` holds of `conID` in a whole position set; 0 when it holds none.
+private func held(_ set: [Position], _ account: String, _ conID: Int) -> Decimal {
+    set.filter { $0.account == account && $0.contract.conID == conID }.reduce(0) { $0 + $1.quantity }
 }
 
 /// Connects as `clientID`, runs the paper guard, hands the client to `work`, then always disconnects and writes
@@ -101,6 +113,18 @@ struct LiveTests {
         }
     }
 
+    @Test func liveAccountSummary() async throws {
+        try await live("liveAccountSummary") { client, _ in
+            let managed = await managedAccounts(client)
+            let summary = try await client.accountSummary(tags: ["NetLiquidation", "TotalCashValue", "BuyingPower"])
+            let set = try await wait("a NetLiquidation for every managed account", .seconds(15), summary) { values in
+                managed.allSatisfy { a in values.contains { $0.account == a && $0.tag == "NetLiquidation" } }
+            }
+            #expect(!set.isEmpty)
+            for p in await client.positions().snapshot { #expect(managed.contains(p.account), "a position outside the managed accounts") }
+        }
+    }
+
     /// Marketable limit orders with `outsideRTH`, so the test also runs pre-market and after hours, where IB does not
     /// fill MKT orders. `IBKR_LIVE_FILL_PRICE` is the current AAPL price; BUY at +2%, SELL at -2%.
     @Test(.enabled(if: env["IBKR_LIVE_FILL"] == "1"))
@@ -117,6 +141,9 @@ struct LiveTests {
             return order
         }
         try await live("liveOrderFillsWithCommission") { client, _ in
+            guard let account = await managedAccounts(client).first else { throw LiveFailure(description: "no managed account") }
+            let q0 = held(await client.positions().snapshot, account, 265598)
+            let buyHeld = await client.positions().updates
             let buyFilled = await client.orders().updates
             let fills = await client.executions().updates
             let buyID = try await client.placeOrder(aapl, limit(.buy, 1))
@@ -132,6 +159,9 @@ struct LiveTests {
                     $0.execution.orderID == buyID
                 }
                 #expect(fill.commission.execID == fill.execution.execID)
+                _ = try await wait("AAPL at \(q0 + 1) in the positions", .seconds(30), buyHeld) { held($0, account, 265598) == q0 + 1 }
+                let pnl = try await client.pnlSingle(account: account, conID: 265598)
+                _ = try await wait("a P&L for AAPL at position \(q0 + 1)", .seconds(30), pnl) { $0.position == q0 + 1 }
 
                 // clientID "0" in reqExecutions should return every client's fills
                 let other = IBClient()
@@ -169,9 +199,18 @@ struct LiveTests {
             if quantity > 0 {
                 do {
                     let sellFilled = await client.orders().updates
+                    let sellHeld = await client.positions().updates
+                    let sellFills = await client.executions().updates
                     let sellID = try await client.placeOrder(aapl, limit(.sell, quantity))
                     _ = try await wait("order \(sellID) to be Filled", .seconds(30), sellFilled) {
                         $0.orderID == sellID && $0.status == .filled
+                    }
+                    let sellFill = try await wait("a fill with commission for order \(sellID)", .seconds(30), sellFills) {
+                        $0.execution.orderID == sellID
+                    }
+                    #expect(sellFill.commission.realizedPNL != nil, "the SELL's commission report carries no realized P&L")
+                    if filled {
+                        _ = try await wait("AAPL back at \(q0) in the positions", .seconds(30), sellHeld) { held($0, account, 265598) == q0 }
                     }
                 } catch {
                     Issue.record("SELL after the BUY failed: \(error); check the paper account in TWS and flatten AAPL by hand")
