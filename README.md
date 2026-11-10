@@ -15,6 +15,9 @@ to place anything unless every managed account starts with `DU`, and record the 
     $env:IBKR_LIVE="1"; swift test --filter LiveTests
 
 Add `$env:IBKR_LIVE_FILL="1"` only during US regular hours (14:30-21:00 UTC): it trades 1 AAPL at market.
+Afterwards clear both, so a later `swift test` in the same shell does not trade:
+
+    Remove-Item Env:IBKR_LIVE, Env:IBKR_LIVE_FILL
 
 Field orders are documented in `docs/protocol-178.md`; design decisions in `docs/DECISIONS.md`.
 
@@ -58,6 +61,9 @@ stream on every call, so any number of consumers can listen; `states()` yields t
 `messages()` carries every decoded incoming message. A lost connection turns the state to `.disconnected(error)`
 and is **not reconnected automatically**: call `connect` again. Subscribers stay subscribed across reconnects.
 
+Always call `disconnect()` when done: a connected `IBClient` is kept alive by its reader and writer tasks, and its
+streams never finish on their own.
+
 ## Status
 
 **Stage 1 (done): codec and merging, no I/O.** The version-178 wire format (frames, fields, unset values
@@ -68,8 +74,8 @@ managedAccounts, currentTime, orderBound, end markers, unknown and malformed fra
 that merge IB's separate messages into whole objects: `OrderTracker` (orders) and `ExecutionTracker` (fills). No
 sockets, no positions, no market data yet.
 
-**Stage 2 (done): the client.** A plain OS socket (Windows and macOS), the `IBClient` actor with its request
-throttle and snapshot + stream, and a live check on the owner's paper account whose frames are recorded in
-`Tests/IBKRTests/Recorded/` and replayed by the tests. The live tests run with
-`$env:IBKR_LIVE="1"; swift test --filter LiveTests`; the fill test needs US market hours and has not run yet.
+**Stage 2 (done except the live fill check): the client.** A plain OS socket (Windows and macOS), the `IBClient`
+actor with its request throttle and snapshot + stream, and a live check on the owner's paper account whose frames
+are recorded in `Tests/IBKRTests/Recorded/` and replayed by the tests. The market-order fill test
+(`liveMarketOrderFillsWithCommission`) still has to run during US regular hours, 14:30-21:00 UTC.
 `main` is local: nothing is pushed. What is still open is in `docs/KNOWN-GAPS.md`.

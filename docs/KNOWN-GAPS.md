@@ -32,10 +32,16 @@ placeOrder's `openClose O` (its openOrder echo has `""` there, so that shows no 
 
 - `TCPSocket`'s POSIX branch (Darwin) was written on Windows and has never been compiled or run: build and run
   `swift test` on macOS (the Mac build of the Darwin branch is unverified).
+- EINTR from `poll` / `send` / `recv` is treated as a failure, not retried.
 
 ## To build later
 
-- Orders and requests share one id sequence from `nextValidId` (see `docs/DECISIONS.md`).
+- `connect` ignores the caller's task cancellation and runs until its deadline.
+- `placeOrder` then an immediate `disconnect()` can drop the queued frame, and the order stays `.apiPending` in
+  the stale snapshot.
+- Subscriber buffers are `.unbounded`: fine for orders and fills, revisit before stage 4 market data.
+- `frameAfterDisconnectIsIgnored` cannot catch a removed generation guard, because FakeGateway closes its stream;
+  it needs a mode that stays open after close.
 - Public memberwise initialisers for the public value types, so consumers (the TWS adapter) can build test values;
   `OrderKey` is public but used by no public API.
 - completedOrder's `parentPermId` is skipped: after an app restart a fresh tracker loses bracket links of
