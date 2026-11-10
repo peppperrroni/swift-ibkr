@@ -210,9 +210,13 @@ struct LiveTests {
                     let sellFill = try await wait("a fill with commission for order \(sellID)", .seconds(30), sellFills) {
                         $0.execution.orderID == sellID
                     }
-                    #expect(sellFill.commission.realizedPNL != nil, "the SELL's commission report carries no realized P&L")
-                    if filled {
-                        _ = try await wait("AAPL back at \(q0) in the positions", .seconds(30), sellHeld) { held($0, account, 265598) == q0 }
+                    do {
+                        #expect(sellFill.commission.realizedPNL != nil, "the SELL's commission report carries no realized P&L")
+                        if filled {
+                            _ = try await wait("AAPL back at \(q0) in the positions", .seconds(30), sellHeld) { held($0, account, 265598) == q0 }
+                        }
+                    } catch {
+                        Issue.record("post-fill checks after the SELL failed: \(error)")
                     }
                 } catch {
                     Issue.record("SELL after the BUY failed: \(error); check the paper account in TWS and flatten AAPL by hand")
