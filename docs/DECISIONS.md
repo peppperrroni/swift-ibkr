@@ -25,6 +25,15 @@
 | A `completedOrder` joined to an existing order updates only status and completedTime | v178 completedOrder lacks parentID etc.; the existing snapshot's contract/order (e.g. bracket parentID) are fuller | replacing contract and order |
 | `completedOrder` has no orderId/clientId at 178; it joins by permID. A new snapshot from it takes `filled` from field 82 (filledQuantity) and `remaining = totalQuantity - filledQuantity` | a cancelled order can be part-filled, so status alone says nothing about the fill | Filled implies filled = total |
 | A nil `ExecutionFilter.clientID` is sent as "0" (`ib_async` default) | to confirm live in stage 2 | omitting the field |
+| `IBClient`'s streams (`states()`, `messages()`, later `orders()`, `executions()`) are fresh on every call; `states()` yields the current state first | any number of consumers can listen, and a late one still learns where the connection stands | one shared stream |
+| `messages()` carries every decoded incoming message, including those routed to the trackers | a superset loses nothing and needs no filter | only the messages no request claimed (the spec's wording) |
+| One timeout covers the whole `connect` (TCP, handshake, readiness, order / fill sync), 10 s by default | the caller waits for one thing, "ready", and bounds it once | separate timeouts per phase |
+| `connect` after a disconnect starts fresh trackers; subscribers stay subscribed; streams end only when their consumer stops; nothing reconnects automatically | the client id may differ between connects; consumers should not have to resubscribe | auto-reconnect; finishing streams on disconnect |
+| During `connect`, a fatal error with reqId −1 (e.g. 326 "client id already in use") fails `connect` with `.ib(code:text:)`; after `connect` it only goes to `messages()` | IB refuses a client this way and then closes; reporting the code beats a bare "connection closed" | failing on the close that follows |
+| Requests leave through one FIFO writer task that applies the throttle (45 per sliding second) | a cancel can never overtake its order, even when the throttle delays both | a per-call sleep under actor reentrancy, which does not keep call order |
+| `Transport` is internal; consumers get `IBClient()` over TCP, tests inject a fake through an internal init | no transport API to support before anyone needs one | a public transport protocol |
+| `TCPSocket.close()` only shuts the socket down; the reader thread closes the handle once `recv` returned and no send holds it | closing in `close()` races a reader still inside `recv`, which could then touch a reused handle | closing the handle in `close()` |
+| A loopback connect asks for no SYN retransmissions; remote hosts keep the OS default | Windows retries a refused SYN for ~2 s, so a closed 127.0.0.1 port would hang the connect and "localhost" would wait on ::1 before IPv4 | the default retries everywhere |
 
 ## Error-code table
 

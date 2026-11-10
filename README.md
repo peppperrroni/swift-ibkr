@@ -11,6 +11,24 @@ Not affiliated with Interactive Brokers.
 
 Field orders are documented in `docs/protocol-178.md`; design decisions in `docs/DECISIONS.md`.
 
+## Use
+
+    import IBKR
+
+    let client = IBClient()                     // TCP to IB Gateway
+    Task { for await state in await client.states() { print(state) } }
+    Task { for await message in await client.messages() { print(message) } }
+    try await client.connect(port: 4002, clientID: 7)   // host 127.0.0.1, timeout 10 s by default
+    // ...
+    await client.disconnect()
+
+`connect` returns once the handshake is done and open orders, completed orders and executions are synced; one
+timeout covers all of it. It throws an `IBClientError` (`.timeout`, `.connectionClosed`, `.ib(code:text:)` when
+the gateway refuses, e.g. 326 "client id already in use", and so on). `states()` and `messages()` hand out a fresh
+stream on every call, so any number of consumers can listen; `states()` yields the current state first, and
+`messages()` carries every decoded incoming message. A lost connection turns the state to `.disconnected(error)`
+and is **not reconnected automatically**: call `connect` again. Subscribers stay subscribed across reconnects.
+
 ## Status
 
 **Stage 1 (done): codec and merging, no I/O.** The version-178 wire format (frames, fields, unset values

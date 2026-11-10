@@ -26,18 +26,6 @@ private func isTransport(_ error: any Error) -> Bool {
     }, throws: isTransport)
 }
 
-private struct TimedOut: Error {}
-
-/// Runs `operation`, failing with `TimedOut` after 2 s instead of hanging.
-private func within2s<T: Sendable>(_ operation: @escaping @Sendable () async throws -> T) async throws -> T {
-    try await withThrowingTaskGroup(of: T.self) { group in
-        group.addTask { try await operation() }
-        group.addTask { try await Task.sleep(for: .seconds(2)); throw TimedOut() }
-        defer { group.cancelAll() }
-        return try await group.next()!
-    }
-}
-
 /// Collects `stream` until it finishes.
 private func drain(_ stream: AsyncThrowingStream<[UInt8], any Error>) async throws -> [UInt8] {
     try await within2s { try await stream.reduce([], +) }

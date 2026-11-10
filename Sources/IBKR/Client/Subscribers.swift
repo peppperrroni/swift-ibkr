@@ -8,10 +8,12 @@ struct Subscribers<Element: Sendable> {
 
     var count: Int { continuations.count }
 
-    mutating func stream(onTermination: @escaping @Sendable (Int) -> Void) -> AsyncStream<Element> {
+    /// `first`, when given, goes to this stream only, ahead of everything yielded later.
+    mutating func stream(first: Element? = nil, onTermination: @escaping @Sendable (Int) -> Void) -> AsyncStream<Element> {
         let id = nextID
         nextID += 1
         let (stream, continuation) = AsyncStream.makeStream(of: Element.self, bufferingPolicy: .unbounded)
+        if let first { continuation.yield(first) }
         continuation.onTermination = { _ in onTermination(id) }
         continuations[id] = continuation
         return stream
