@@ -105,9 +105,14 @@ struct LiveTests {
             _ = try await wait("order \(buyID) to be Filled", .seconds(30), buyFilled) {
                 $0.orderID == buyID && $0.status == .filled
             }
-            // The BUY filled: the SELL must run whatever the checks below do, so no AAPL position is left behind.
+            // From here the paper account may hold AAPL: whatever fails, flatten before rethrowing the first failure.
             var failure: (any Error)?
+            var filled = false
             do {
+                _ = try await wait("order \(buyID) to be Filled", .seconds(30), buyFilled) {
+                    $0.orderID == buyID && $0.status == .filled
+                }
+                filled = true
                 let fill = try await wait("a fill with commission for order \(buyID)", .seconds(30), fills) {
                     $0.execution.orderID == buyID
                 }
@@ -115,16 +120,29 @@ struct LiveTests {
 
                 // clientID "0" in reqExecutions should return every client's fills
                 let other = IBClient()
-                try await other.connect(clientID: 78, timeout: .seconds(15))
-                let seen = await other.executions().snapshot.contains { $0.execution.execID == fill.execution.execID }
+                do {
+                    try await other.connect(clientID: 78, timeout: .seconds(15))
+                    let seen = await other.executions().snapshot.contains { $0.execution.execID == fill.execution.execID }
+                    #expect(seen, "client 78 does not see client 77's execution")
+                } catch { await other.disconnect(); throw error }
                 await other.disconnect()
-                #expect(seen, "client 78 does not see client 77's execution")
             } catch { failure = error }
 
-            let sellFilled = await client.orders().updates
-            let sellID = try await client.placeOrder(aapl, Order(action: .sell, quantity: 1, orderType: "MKT"))
-            _ = try await wait("order \(sellID) to be Filled", .seconds(30), sellFilled) {
-                $0.orderID == sellID && $0.status == .filled
+            // A cancelled test still gets here; only the waits below end early, and the SELL is queued before them.
+            var quantity: Decimal = filled ? 1 : 0
+            if !filled {
+                try? await client.cancelOrder(buyID)
+                try? await Task.sleep(for: .seconds(2))
+                quantity = await client.orders().snapshot.first { $0.orderID == buyID }?.filled ?? 0
+            }
+            if quantity > 0 {
+                do {
+                    let sellFilled = await client.orders().updates
+                    let sellID = try await client.placeOrder(aapl, Order(action: .sell, quantity: quantity, orderType: "MKT"))
+                    _ = try await wait("order \(sellID) to be Filled", .seconds(30), sellFilled) {
+                        $0.orderID == sellID && $0.status == .filled
+                    }
+                } catch { Issue.record("SELL after the BUY failed: \(error)") }
             }
             if let failure { throw failure }
         }
