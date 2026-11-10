@@ -53,8 +53,7 @@ public actor IBClient {
         self.clientID = clientID
         frames = FrameReader()
         (serverVersion, accounts, nextID, syncEnds) = (nil, nil, nil, nil)
-        orderTracker = OrderTracker(clientID: clientID)
-        executionTracker = ExecutionTracker()
+        orderTracker = OrderTracker(clientID: clientID)   // fills are kept: the sync's replay of them publishes nothing
         setState(.connecting)
 
         let t: any Transport
@@ -198,8 +197,9 @@ public actor IBClient {
         switch message {
         case .nextValidID(let n): nextID = max(nextID ?? n, n)
         case .managedAccounts(let a): accounts = a
-        case .error(let e) where pendingConnect != nil && e.requestID == -1 && ErrorCode.kind(e.code) == .fatal:
-            return end(.ib(code: e.code, text: e.text))
+        case .error(let e) where pendingConnect != nil && ErrorCode.kind(e.code) == .fatal
+                && (e.requestID == -1 || syncEnds?.contains(.execDetailsEnd(requestID: e.requestID)) == true):
+            return end(.ib(code: e.code, text: e.text))   // -1: the connection itself; else the sync's reqExecutions
         default: break
         }
         guard pendingConnect != nil else { return }

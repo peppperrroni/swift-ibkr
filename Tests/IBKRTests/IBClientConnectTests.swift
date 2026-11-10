@@ -99,6 +99,44 @@ private actor Gateways {
     #expect(try await two.waitForSent(4).count == 4)
 }
 
+@Test func reconnectDoesNotRepublishFills() async throws {
+    let id = "0000e0d5.6556b5f0.01.01"
+    let exec = ["11", "-1", "12", "265598", "AAPL", "STK", "", "0", "", "", "SMART", "USD", "AAPL", "NMS",
+                id, "20251109 10:00:00", "DU1", "ISLAND", "BOT", "100", "187.25", "918273001", "7", "0",
+                "100", "187.25", "", "", "", "", "1", "0"]
+    let commission = ["59", "1", id, "1.5", "USD", "1.7976931348623157E308", "1.7976931348623157E308", ""]
+    let (one, two) = (FakeGateway(), FakeGateway())
+    two.onRequest = { $0[0] == "7" ? [exec, commission] : [] }   // the sync replays the fill
+    let gateways = Gateways([one, two])
+    let client = IBClient(connector: { _, _, _ in await gateways.next() })
+    try await connect(client)
+    let (_, updates) = await client.executions()
+    one.feed(exec)
+    one.feed(commission)
+    _ = try await first(updates)
+
+    await client.disconnect()
+    try await connect(client)
+    let got = Task { () -> Fill? in
+        for await f in updates { return f }
+        return nil
+    }
+    try await Task.sleep(for: .milliseconds(300))
+    got.cancel()
+    #expect(await got.value == nil)
+    #expect(await client.executions().snapshot.count == 1)
+}
+
+@Test func fatalErrorOnSyncRequestFailsConnect() async throws {
+    let gateway = FakeGateway()
+    gateway.onRequest = { $0[0] == "7" ? [["4", "2", $0[2], "321", "Error validating request", ""]] : [] }
+    let client = IBClient(connector: gateway.connector)
+    let error = IBClientError.ib(code: 321, text: "Error validating request")
+    await #expect(throws: error) { try await connect(client) }
+    #expect(try await first(client.states()) == .disconnected(error))
+    #expect(gateway.isClosed)
+}
+
 @Test func malformedFrameReachesMessages() async throws {
     let gateway = FakeGateway()
     let client = try await connected(gateway)
