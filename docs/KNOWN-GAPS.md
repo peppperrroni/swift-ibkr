@@ -25,6 +25,10 @@ Still open:
   three openOrders, an execution correction.
 - openOrder gives a plain stock LMT order contract `right` `?` and auxPrice `0.0`; the decoder keeps them as `"?"`
   and `0`, not `""` / nil, so a consumer must not read them as set.
+- A filled order replayed by completedOrders (the connect-time sync) has `order.totalQuantity` 0: its size is only
+  in `filled`. The tracker keeps the 0 and clamps `remaining` at 0; a consumer reads the size from `filled`.
+- execDetails `time` comes in two formats: `20261110-11:56:31` (UTC, no zone) on a live fill and
+  `20261110 06:56:31 US/Eastern` in the reqExecutions reply. It stays a raw string; a consumer parses both.
 
 ## To confirm on a Mac
 

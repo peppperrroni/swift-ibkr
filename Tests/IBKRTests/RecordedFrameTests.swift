@@ -79,3 +79,17 @@ func recordedCompletedOrderDecodes() throws {
     #expect(m.completedStatus == "Cancelled by Trader")
     #expect(m.filledQuantity == 0)
 }
+
+/// From the gateway's API log of 2026-11-10 (client 78's sync, account redacted):
+/// a filled order's completedOrder carries totalQuantity 0 and the size only in filledQuantity.
+private let filledCompletedOrder = "101;265598;AAPL;STK;;0;?;;SMART;USD;AAPL;NMS;BUY;0;LMT;357.0;0.0;DAY;;DU0000001;;0;;610467325;1;0;0;;;;;;;;;;0;;-1;;;;;;2147483647;0;0;;3;0;;0;None;;0;0;0;;0;0;;;;0;0;0;2147483647;2147483647;;;;IB;0;0;;0;Filled;0;0;0;358.0;1.7976931348623157E308;0;1;0;;1;2147483647;0;Not an insider or substantial shareholder;0;0;9223372036854775807;20261110 06:56:31 US/Eastern;Filled Size: 1;;;;;".split(separator: ";", omittingEmptySubsequences: false).map(String.init)
+
+@Test func filledCompletedOrderNeverHasNegativeRemaining() throws {
+    #expect(filledCompletedOrder.count == 100)
+    var tracker = OrderTracker(clientID: 78)
+    let r = tracker.apply(IBDecoder.decode(body(filledCompletedOrder)))
+    try #require(r.count == 1)
+    #expect(r[0].status == .filled && r[0].permID == 610467325)
+    #expect(r[0].order.totalQuantity == 0, "kept as IB sent it")
+    #expect(r[0].filled == 1 && r[0].remaining == 0)
+}

@@ -43,6 +43,7 @@
 | Live tests refuse to place anything unless every managed account starts with `DU` | the tests place real orders on whatever gateway is on 127.0.0.1:4002; a live account must never be touched by a test | trusting the port number to mean paper |
 | Recorded frames replace every managed account id with `DU0000001`, inside every field | the recordings are committed; account ids are personal data and fixtures only need a stable one | committing raw frames, redacting by hand |
 | The live fill test trades marketable limits with `outsideRTH` (BUY +2%, SELL -2% of `IBKR_LIVE_FILL_PRICE`) | IB does not fill MKT orders outside regular hours, and without a market-data subscription the test cannot read a price itself (stage 4) | MKT orders limited to 14:30-21:00 UTC |
+| A completedOrder's `totalQuantity` stays as IB sends it; only the tracker's `remaining` is clamped at 0 | the gateway sends a filled order's completedOrder with totalQuantity 0 and the size in filledQuantity (API log, 2026-11-10), so `remaining` came out -1 after a restart; `ib_async` passes the order through raw too (and leaves filled / remaining at 0) | replacing totalQuantity with filledQuantity in the tracker: a guess at IB's meaning that a consumer cannot undo |
 
 ## Error-code table
 

@@ -567,7 +567,7 @@ No version field at 178 (it stopped at 136).
 | 12 | localSymbol | string | |
 | 13 | tradingClass | string | |
 | 14 | execId | string | |
-| 15 | time | string | |
+| 15 | time | string | `20261110-11:56:31` (UTC) live, `20261110 06:56:31 US/Eastern` in the reqExecutions reply |
 | 16 | acctNumber | string | |
 | 17 | exchange | string | execution exchange |
 | 18 | side | string | `BOT` / `SLD` |

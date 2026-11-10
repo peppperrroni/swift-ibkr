@@ -62,7 +62,7 @@ public struct OrderTracker: Sendable {
         case .completedOrder(let m):
             var fresh = Self.blank(m.contract, m.order)
             fresh.permID = m.permID
-            fresh.filled = m.filledQuantity; fresh.remaining = m.order.totalQuantity - m.filledQuantity
+            fresh.filled = m.filledQuantity; fresh.remaining = max(0, m.order.totalQuantity - m.filledQuantity)  // a filled one arrives with totalQuantity 0
             return upsert(.permanent(m.permID), m.permID, new: fresh) { s in
                 s.status = m.status; s.completedTime = m.completedTime  // a joined order keeps its own order/contract: v178 completedOrder lacks parentID etc.
             }
