@@ -275,10 +275,8 @@ public actor IBClient {
     private func routeToStream(_ message: IBMessage) {
         switch message {
         case .accountSummary(let id, _), .accountSummaryEnd(let id), .pnlSingle(let id, _),
-             .contractData(let id, _), .contractDataEnd(let id), .symbolSamples(let id, _):
+             .contractData(let id, _), .contractDataEnd(let id), .symbolSamples(let id, _), .tick(let id, _):
             if requestStreams[id]?.route(message) == true { requestStreams[id] = nil }   // before any termination hop
-        case .tick(let id, _):
-            _ = requestStreams[id]?.route(message)
         case .error(let e) where ErrorCode.kind(e.code) == .notice:
             if requestStreams[e.requestID]?.route(message) == true { requestStreams[e.requestID] = nil }
         case .error(let e) where ErrorCode.kind(e.code) == .fatal:
