@@ -75,3 +75,22 @@ public enum Tick: Sendable, Equatable {
     case string(TickField, String)
     case dataType(MarketDataType)
 }
+
+/// One row of the depth book. `marketMaker` is empty unless IB names one (message 13 on non-smart depth).
+public struct DepthLevel: Sendable, Equatable {
+    public var price: Decimal
+    public var size: Decimal
+    public var marketMaker: String
+}
+
+/// One change to the book, as IB sends it (messages 12 and 13).
+public struct DepthUpdate: Sendable, Equatable {
+    public enum Operation: Int, Sendable { case insert = 0, update, delete }
+    public enum Side: Int, Sendable { case ask = 0, bid }
+    public var position: Int
+    public var marketMaker: String
+    public var operation: Operation
+    public var side: Side
+    public var price: Decimal
+    public var size: Decimal
+}

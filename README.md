@@ -66,6 +66,10 @@ Field orders are documented in `docs/protocol-178.md`; design decisions in `docs
         if case .history(let bars) = event { print(bars.count) }
     }
 
+    // Market depth: the whole DepthBook (bids and asks sorted by position) after every update. IB's reset (317)
+    // yields an empty book and the stream goes on. `smart` (default true) is resent on cancel.
+    Task { for try await book in try await client.marketDepth(Contract(symbol: "AAPL"), rows: 10) { print(book.bids.first as Any) } }
+
     // Orders: placeOrder returns the id once the frame is queued; the outcome arrives through orders().
     let (known, updates) = await client.orders()          // snapshot now, then every change as a whole order
     Task { for await order in updates { print(order.orderID, order.status) } }

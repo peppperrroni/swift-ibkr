@@ -23,6 +23,8 @@ public enum IBRequest: Sendable, Equatable {
     case historicalData(requestID: Int, contract: Contract, end: Date?, barSize: String, duration: String,
                         rth: Bool, whatToShow: String, keepUpToDate: Bool)
     case cancelHistoricalData(requestID: Int)
+    case marketDepth(requestID: Int, contract: Contract, rows: Int, smart: Bool)
+    case cancelMarketDepth(requestID: Int, smart: Bool)
 
     /// Fields only; the caller frames them. Field order is docs/protocol-178.md.
     func body() throws(IBEncodingError) -> [UInt8] {
@@ -78,6 +80,11 @@ public enum IBRequest: Sendable, Equatable {
             w.add(2); w.add(keep); try w.add("")  // formatDate (epoch seconds), keepUpToDate, chartOptions
         case .cancelHistoricalData(let reqID):
             w.add(25); w.add(1); w.add(reqID)
+        case .marketDepth(let reqID, let c, let rows, let smart):
+            w.add(10); w.add(5); w.add(reqID); try Self.contract(&w, c)
+            w.add(rows); w.add(smart); try w.add("")  // numRows, isSmartDepth, options
+        case .cancelMarketDepth(let reqID, let smart):
+            w.add(11); w.add(1); w.add(reqID); w.add(smart)
         }
         return w.body
     }

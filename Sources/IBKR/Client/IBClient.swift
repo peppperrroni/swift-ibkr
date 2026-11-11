@@ -242,6 +242,24 @@ public actor IBClient {
         }
     }
 
+    /// The whole depth book after every update (12 and 13 both feed it). IB's depth reset (317) empties the book,
+    /// yields it and goes on. `smart` is resent on cancel, as IB requires. Ends like `marketData` on a refusal.
+    public func marketDepth(_ contract: Contract, rows: Int, smart: Bool = true)
+        throws(IBClientError) -> AsyncThrowingStream<DepthBook, any Error> {
+        try requireConnected()
+        let id = nextRequestID()
+        var book = DepthBook()
+        return try openStream(.marketDepth(requestID: id, contract: contract, rows: rows, smart: smart), id: id,
+                              cancel: .cancelMarketDepth(requestID: id, smart: smart)) { message, out in
+            switch message {
+            case .depth(_, let u): book.apply(u); out.yield(book)
+            case .error(let e) where e.code == 317: book.reset(); out.yield(book)
+            default: break
+            }
+            return false
+        }
+    }
+
     /// Reads a self-ending stream to its end. It ends without error only when its end marker came, or when the
     /// calling task was cancelled.
     private func collect<E: Sendable>(_ stream: AsyncThrowingStream<E, any Error>) async throws(IBClientError) -> [E] {
@@ -301,7 +319,7 @@ public actor IBClient {
         switch message {
         case .accountSummary(let id, _), .accountSummaryEnd(let id), .pnlSingle(let id, _),
              .contractData(let id, _), .contractDataEnd(let id), .symbolSamples(let id, _), .tick(let id, _),
-             .historicalData(let id, _), .historicalDataUpdate(let id, _):
+             .historicalData(let id, _), .historicalDataUpdate(let id, _), .depth(let id, _):
             if requestStreams[id]?.route(message) == true { requestStreams[id] = nil }   // before any termination hop
         case .error(let e) where ErrorCode.kind(e.code) == .notice:
             if requestStreams[e.requestID]?.route(message) == true { requestStreams[e.requestID] = nil }

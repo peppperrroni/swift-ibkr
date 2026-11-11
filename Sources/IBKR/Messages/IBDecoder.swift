@@ -63,6 +63,14 @@ public enum IBDecoder {
                 return .historicalDataUpdate(requestID: id, Bar(
                     time: time, open: open, high: high, low: low, close: close, volume: try r.decimal(),
                     average: average, count: count))
+            case 12:
+                try r.skip(); let id = try r.int(), pos = try r.int(), op = try r.int(), side = try r.int()
+                return .depth(requestID: id, try depthUpdate(pos, "", op, side, &r))
+            case 13:
+                try r.skip(); let id = try r.int(), pos = try r.int(), mm = try r.string(), op = try r.int(), side = try r.int()
+                let u = try depthUpdate(pos, mm, op, side, &r)
+                _ = try r.bool()  // isSmartDepth
+                return .depth(requestID: id, u)
             case 81:
                 return .tickRequestParameters(requestID: try r.int(), minTick: try r.optionalDecimal(),
                                               bboExchange: try r.string(), snapshotPermissions: try r.int())
@@ -119,6 +127,12 @@ public enum IBDecoder {
             price: price, permID: permID, clientID: clientID, orderID: orderID, liquidation: liquidation,
             cumulativeQuantity: cumQty, averagePrice: avgPrice, orderRef: orderRef,
             lastLiquidity: lastLiquidity, pendingPriceRevision: pending))
+    }
+
+    private static func depthUpdate(_ pos: Int, _ mm: String, _ op: Int, _ side: Int, _ r: inout FieldReader) throws -> DepthUpdate {
+        guard let o = DepthUpdate.Operation(rawValue: op) else { throw IBProtocolError.badNumber(String(op), index: r.index - 1) }
+        guard let s = DepthUpdate.Side(rawValue: side) else { throw IBProtocolError.badNumber(String(side), index: r.index - 1) }
+        return DepthUpdate(position: pos, marketMaker: mm, operation: o, side: s, price: try r.decimal(), size: try r.decimal())
     }
 
     /// A repeat count off the wire: a negative one is a corrupt frame, not an empty list (and `0..<n` traps on it).

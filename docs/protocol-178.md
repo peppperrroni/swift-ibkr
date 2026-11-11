@@ -1081,6 +1081,25 @@ digits is epoch seconds; anything else (formatDate 1 text) is malformed.
 No version. `90, reqId, barCount, date, open, close, high, low, average, volume`; 10 fields. The order is O,C,H,L, unlike 17.
 `date` as above.
 
+### reqMktDepth (out 10)
+
+`10, 5, reqId, contract(12), numRows, isSmartDepth, mktDepthOptions`; 18 fields. `mktDepthOptions` is always `""`.
+A BAG contract is refused.
+
+### cancelMktDepth (out 11)
+
+`11, 1, reqId, isSmartDepth`; 4 fields. `isSmartDepth` is sent on cancel and must match the subscribe.
+
+### updateMktDepth (in 12)
+
+`12, version, reqId, position, operation, side, price, size`; 8 fields. operation 0 insert, 1 update, 2 delete; side 0 ask,
+1 bid. No market maker (decoded as `""`). An operation or side outside those ranges is malformed.
+
+### updateMktDepthL2 (in 13)
+
+`13, version, reqId, position, marketMaker, operation, side, price, size, isSmartDepth`; 10 fields. `isSmartDepth` is read
+and dropped. Both 12 and 13 become `.depth`. Error 317 (depth reset, a notice) empties the book; the stream goes on.
+
 ## Disagreements
 
 Cross-check of `placeOrder`, `openOrder`, `completedOrder`, `orderStatus`, `execDetails` and

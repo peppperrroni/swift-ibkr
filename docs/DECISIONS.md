@@ -13,6 +13,7 @@
 | Connect-time sync sends reqAllOpenOrders, reqCompletedOrders, reqExecutions and waits for their end markers (as `ib_async`) | state is complete before `connect` returns | lazy sync |
 | Modify = re-sent placeOrder with the same orderId | that is how the protocol modifies | a separate modify message (none exists) |
 | Depth and tick-by-tick without subscriptions count as done when they fail with a typed "no permission" error | those entitlements are absent on most accounts | requiring live data to pass |
+| `marketDepth` yields the whole `DepthBook` after every update; position-indexed per side (insert/update set, delete removes, gaps dropped), fed by both 12 and 13; error 317 empties it and the stream goes on | the TWS port's `OrderBookFeed` wants snapshots and the book logic belongs in one place; matches `ib_async` | a raw `DepthUpdate` stream as in the spec sketch (every consumer would rebuild the book); ending the stream on 317 |
 | Protocol version pinned to 178 like `ib_async` | one field layout, no protobuf (starts at 201) | version branches, protobuf |
 | placeOrder defaults follow `ib_async` (openClose "O", usePriceMgmtAlgo "0") | proven in practice; the 2026-11-10 paper run placed an order with them and the gateway did not reject it | IB's own client defaults |
 | One shared unset set (empty, 2147483647, 9223372036854775807, 1.7976931348623157E308, -9223372036854775808) for every optional reader | IB uses all of them as "no value"; per-reader sets drifted | per-type sentinel lists |
