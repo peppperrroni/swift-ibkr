@@ -33,6 +33,7 @@ public enum IBMessage: Sendable, Equatable {
     case historicalData(requestID: Int, [Bar])
     case historicalDataUpdate(requestID: Int, Bar)
     case depth(requestID: Int, DepthUpdate)
+    case tickByTick(requestID: Int, TickByTick)
     case tickRequestParameters(requestID: Int, minTick: Decimal?, bboExchange: String, snapshotPermissions: Int)
     case unknown(id: Int, fields: [String])
     case malformed(id: Int, fields: [String], reason: String)

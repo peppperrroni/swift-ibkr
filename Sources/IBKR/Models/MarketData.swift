@@ -76,6 +76,17 @@ public enum Tick: Sendable, Equatable {
     case dataType(MarketDataType)
 }
 
+/// What `reqTickByTickData` is asked for; the raw value is the text IB's request carries.
+public enum TickByTickType: String, Sendable { case last = "Last", allLast = "AllLast", bidAsk = "BidAsk", midPoint = "MidPoint" }
+
+/// One tick-by-tick event. `time` is IB's epoch seconds. The attribute masks are read: a trade's become
+/// `pastLimit` (bit 0) and `unreported` (bit 1); a quote's is dropped.
+public enum TickByTick: Sendable, Equatable {
+    case trade(time: Date, price: Decimal, size: Decimal, exchange: String, conditions: String, pastLimit: Bool, unreported: Bool)
+    case bidAsk(time: Date, bidPrice: Decimal, askPrice: Decimal, bidSize: Decimal, askSize: Decimal)
+    case midPoint(time: Date, price: Decimal)
+}
+
 /// One row of the depth book. `marketMaker` is empty unless IB names one (message 13 on non-smart depth).
 public struct DepthLevel: Sendable, Equatable {
     public var price: Decimal

@@ -70,6 +70,9 @@ Field orders are documented in `docs/protocol-178.md`; design decisions in `docs
     // yields an empty book and the stream goes on. `smart` (default true) is resent on cancel.
     Task { for try await book in try await client.marketDepth(Contract(symbol: "AAPL"), rows: 10) { print(book.bids.first as Any) } }
 
+    // Tick-by-tick: every trade (.allLast / .last), quote (.bidAsk) or midpoint as it happens; ends only if you stop.
+    Task { for try await t in try await client.tickByTick(Contract(symbol: "AAPL"), .allLast) { print(t) } }
+
     // Orders: placeOrder returns the id once the frame is queued; the outcome arrives through orders().
     let (known, updates) = await client.orders()          // snapshot now, then every change as a whole order
     Task { for await order in updates { print(order.orderID, order.status) } }

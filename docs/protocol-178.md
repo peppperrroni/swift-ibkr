@@ -1100,6 +1100,23 @@ A BAG contract is refused.
 `13, version, reqId, position, marketMaker, operation, side, price, size, isSmartDepth`; 10 fields. `isSmartDepth` is read
 and dropped. Both 12 and 13 become `.depth`. Error 317 (depth reset, a notice) empties the book; the stream goes on.
 
+### reqTickByTickData (out 97)
+
+`97, reqId, contract(12), tickType, numberOfTicks, ignoreSize`; 17 fields. **No version field.** `tickType` is text: `Last`,
+`AllLast`, `BidAsk` or `MidPoint`. We send `numberOfTicks` 0 (unlimited) and `ignoreSize` false. A BAG contract is refused.
+
+### cancelTickByTickData (out 98)
+
+`98, reqId`; 2 fields. No version.
+
+### tickByTick (in 99)
+
+`99, reqId, tickType, time, ...`; no version. `tickType` is an int, unlike the request: 1 Last and 2 AllLast
+(price, size, attribMask, exchange, specialConditions; 9 fields), 3 BidAsk (bidPrice, askPrice, bidSize, askSize,
+attribMask; 9), 4 MidPoint (midPoint; 5). `time` is Unix seconds; a non-numeric one is malformed. Any other tickType is
+malformed. Trade mask: bit 0 pastLimit, bit 1 unreported. The BidAsk mask is read and dropped. The reqId routes it to
+its stream; the stream never ends itself.
+
 ## Disagreements
 
 Cross-check of `placeOrder`, `openOrder`, `completedOrder`, `orderStatus`, `execDetails` and

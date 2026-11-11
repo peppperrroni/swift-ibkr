@@ -25,6 +25,8 @@ public enum IBRequest: Sendable, Equatable {
     case cancelHistoricalData(requestID: Int)
     case marketDepth(requestID: Int, contract: Contract, rows: Int, smart: Bool)
     case cancelMarketDepth(requestID: Int, smart: Bool)
+    case tickByTick(requestID: Int, contract: Contract, type: TickByTickType)
+    case cancelTickByTick(requestID: Int)
 
     /// Fields only; the caller frames them. Field order is docs/protocol-178.md.
     func body() throws(IBEncodingError) -> [UInt8] {
@@ -85,6 +87,11 @@ public enum IBRequest: Sendable, Equatable {
             w.add(rows); w.add(smart); try w.add("")  // numRows, isSmartDepth, options
         case .cancelMarketDepth(let reqID, let smart):
             w.add(11); w.add(1); w.add(reqID); w.add(smart)
+        case .tickByTick(let reqID, let c, let type):
+            w.add(97); w.add(reqID); try Self.contract(&w, c)
+            try w.add(type.rawValue); w.add(0); w.add(false)  // numberOfTicks (unlimited), ignoreSize
+        case .cancelTickByTick(let reqID):
+            w.add(98); w.add(reqID)
         }
         return w.body
     }

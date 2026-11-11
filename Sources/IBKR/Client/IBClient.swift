@@ -260,6 +260,19 @@ public actor IBClient {
         }
     }
 
+    /// Every trade, quote or midpoint IB reports for `contract`, unlimited and with size-only quote changes kept.
+    /// Never ends itself; ends like `marketData` on a refusal.
+    public func tickByTick(_ contract: Contract, _ type: TickByTickType)
+        throws(IBClientError) -> AsyncThrowingStream<TickByTick, any Error> {
+        try requireConnected()
+        let id = nextRequestID()
+        return try openStream(.tickByTick(requestID: id, contract: contract, type: type), id: id,
+                              cancel: .cancelTickByTick(requestID: id)) { message, out in
+            if case .tickByTick(_, let t) = message { out.yield(t) }
+            return false
+        }
+    }
+
     /// Reads a self-ending stream to its end. It ends without error only when its end marker came, or when the
     /// calling task was cancelled.
     private func collect<E: Sendable>(_ stream: AsyncThrowingStream<E, any Error>) async throws(IBClientError) -> [E] {
@@ -319,7 +332,8 @@ public actor IBClient {
         switch message {
         case .accountSummary(let id, _), .accountSummaryEnd(let id), .pnlSingle(let id, _),
              .contractData(let id, _), .contractDataEnd(let id), .symbolSamples(let id, _), .tick(let id, _),
-             .historicalData(let id, _), .historicalDataUpdate(let id, _), .depth(let id, _):
+             .historicalData(let id, _), .historicalDataUpdate(let id, _), .depth(let id, _),
+             .tickByTick(let id, _):
             if requestStreams[id]?.route(message) == true { requestStreams[id] = nil }   // before any termination hop
         case .error(let e) where ErrorCode.kind(e.code) == .notice:
             if requestStreams[e.requestID]?.route(message) == true { requestStreams[e.requestID] = nil }

@@ -71,6 +71,21 @@ public enum IBDecoder {
                 let u = try depthUpdate(pos, mm, op, side, &r)
                 _ = try r.bool()  // isSmartDepth
                 return .depth(requestID: id, u)
+            case 99:
+                let id = try r.int(), type = try r.int(), time = Date(timeIntervalSince1970: Double(try r.int()))
+                switch type {
+                case 1, 2:
+                    let price = try r.decimal(), size = try r.decimal(), mask = try r.int()
+                    return .tickByTick(requestID: id, .trade(
+                        time: time, price: price, size: size, exchange: try r.string(), conditions: try r.string(),
+                        pastLimit: mask & 1 != 0, unreported: mask & 2 != 0))
+                case 3:
+                    let bid = try r.decimal(), ask = try r.decimal(), bidSize = try r.decimal(), askSize = try r.decimal()
+                    try r.skip()  // attribMask
+                    return .tickByTick(requestID: id, .bidAsk(time: time, bidPrice: bid, askPrice: ask, bidSize: bidSize, askSize: askSize))
+                case 4: return .tickByTick(requestID: id, .midPoint(time: time, price: try r.decimal()))
+                default: throw IBProtocolError.badNumber(String(type), index: r.index - 1)
+                }
             case 81:
                 return .tickRequestParameters(requestID: try r.int(), minTick: try r.optionalDecimal(),
                                               bboExchange: try r.string(), snapshotPermissions: try r.int())
