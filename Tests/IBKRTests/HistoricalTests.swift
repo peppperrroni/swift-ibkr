@@ -71,7 +71,8 @@ private let batch = ["17", "9", "20261110  09:30:00", "20261110  16:00:00", "2",
     let events = try await within2s { try await result.value }
     guard events.count == 1, case .history(let bars) = events[0] else { Issue.record("expected one history"); return }
     #expect(bars.count == 2)
-    #expect(try await gateway.waitForSent(6).allSatisfy { $0.first != "25" })
+    try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel
+    #expect(try await gateway.waitForSent(6).count == 6)
     #expect(await client.requestStreamCount == 0)
 }
 
