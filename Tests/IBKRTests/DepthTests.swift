@@ -56,14 +56,38 @@ private func upd(_ pos: Int, _ op: DepthUpdate.Operation, _ side: DepthUpdate.Si
     #expect(book.bids.isEmpty)
 }
 
+/// Like `take`, but feeds the next frame only after the previous book was read: the stream keeps only the newest
+/// book, so frames fed ahead of a slow reader would collapse into one.
+private func oneBookPerFrame(_ gateway: FakeGateway, _ stream: AsyncThrowingStream<DepthBook, any Error>,
+                             _ frames: [[String]]) -> (reader: Task<Void, Never>, result: Task<[DepthBook], any Error>) {
+    let (seen, out) = AsyncThrowingStream.makeStream(of: DepthBook.self, throwing: (any Error).self)
+    let reader = Task {
+        do {
+            var it = stream.makeAsyncIterator()
+            for frame in frames {
+                gateway.feed(frame)
+                guard let book = try await it.next() else { break }
+                out.yield(book)
+            }
+            while try await it.next() != nil {}   // hold the stream until cancelled
+            out.finish()
+        } catch { out.finish(throwing: error) }
+    }
+    let result = Task {
+        var got: [DepthBook] = []
+        for try await book in seen { got.append(book); if got.count == frames.count { break } }
+        return got
+    }
+    return (reader, result)
+}
+
 @Test func depthStreamYieldsWholeBooks() async throws {
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     let stream = try await client.marketDepth(Contract(symbol: "AAPL"), rows: 10)
     let id = try await gateway.waitForSent(6)[5][2]
-    gateway.feed(["12", "1", id, "0", "0", "1", "351.5", "100"])
-    gateway.feed(["13", "1", id, "0", "NSDQ", "0", "0", "351.6", "50", "1"])
-    let (reader, result) = take(2, stream)
+    let (reader, result) = oneBookPerFrame(gateway, stream, [["12", "1", id, "0", "0", "1", "351.5", "100"],
+                                                              ["13", "1", id, "0", "NSDQ", "0", "0", "351.6", "50", "1"]])
     let books = try await within2s { try await result.value }
     #expect(books[0].bids.count == 1 && books[0].asks.isEmpty)
     #expect(books[1].bids.count == 1 && books[1].asks == [DepthLevel(price: d("351.6"), size: d("50"), marketMaker: "NSDQ")])
@@ -76,11 +100,12 @@ private func upd(_ pos: Int, _ op: DepthUpdate.Operation, _ side: DepthUpdate.Si
     let client = try await connected(gateway)
     let stream = try await client.marketDepth(Contract(symbol: "AAPL"), rows: 10)
     let id = try await gateway.waitForSent(6)[5][2]
-    gateway.feed(["12", "1", id, "0", "0", "1", "351.5", "100"])
-    gateway.feed(["12", "1", id, "1", "0", "1", "351.4", "100"])
-    gateway.feed(["4", "2", id, "317", "Market depth data has been RESET. Please empty deep book contents", ""])
-    gateway.feed(["12", "1", id, "0", "0", "1", "351.0", "10"])
-    let (reader, result) = take(4, stream)
+    let (reader, result) = oneBookPerFrame(gateway, stream, [
+        ["12", "1", id, "0", "0", "1", "351.5", "100"],
+        ["12", "1", id, "1", "0", "1", "351.4", "100"],
+        ["4", "2", id, "317", "Market depth data has been RESET. Please empty deep book contents", ""],
+        ["12", "1", id, "0", "0", "1", "351.0", "10"],
+    ])
     let books = try await within2s { try await result.value }
     #expect(books[1].bids.count == 2)
     #expect(books[2].bids.isEmpty && books[2].asks.isEmpty)
