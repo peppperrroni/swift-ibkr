@@ -244,13 +244,16 @@ public actor IBClient {
 
     /// The whole depth book after every update (12 and 13 both feed it). IB's depth reset (317) empties the book,
     /// yields it and goes on. `smart` is resent on cancel, as IB requires. Ends like `marketData` on a refusal.
+    /// Every element is a whole book,
+    /// so a slow consumer keeps only the newest.
     public func marketDepth(_ contract: Contract, rows: Int, smart: Bool = true)
         throws(IBClientError) -> AsyncThrowingStream<DepthBook, any Error> {
         try requireConnected()
         let id = nextRequestID()
         var book = DepthBook()
         return try openStream(.marketDepth(requestID: id, contract: contract, rows: rows, smart: smart), id: id,
-                              cancel: .cancelMarketDepth(requestID: id, smart: smart)) { message, out in
+                              cancel: .cancelMarketDepth(requestID: id, smart: smart),
+                              buffering: .bufferingNewest(1)) { message, out in
             switch message {
             case .depth(_, let u): book.apply(u); out.yield(book)
             case .error(let e) where e.code == 317: book.reset(); out.yield(book)
@@ -309,11 +312,12 @@ public actor IBClient {
     /// Sends `request`, then registers its stream; nothing is registered when it does not encode.
     private func openStream<Element: Sendable>(
         _ request: IBRequest, id: Int, cancel: IBRequest?,
+        buffering: AsyncThrowingStream<Element, any Error>.Continuation.BufferingPolicy = .unbounded,
         route: @escaping (IBMessage, AsyncThrowingStream<Element, any Error>.Continuation) -> Bool
     ) throws(IBClientError) -> AsyncThrowingStream<Element, any Error> {
         try send(request)
         let (stream, out) = AsyncThrowingStream.makeStream(of: Element.self, throwing: (any Error).self,
-                                                           bufferingPolicy: .unbounded)
+                                                           bufferingPolicy: buffering)
         requestStreams[id] = RequestStream(route: { route($0, out) }, finish: { out.finish(throwing: $0) },
                                            cancel: cancel)
         let gen = generation

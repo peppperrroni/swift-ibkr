@@ -87,3 +87,16 @@ private func upd(_ pos: Int, _ op: DepthUpdate.Operation, _ side: DepthUpdate.Si
     #expect(books[3].bids.count == 1)
     reader.cancel()
 }
+
+@Test func slowDepthConsumerGetsOnlyTheNewestBook() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.marketDepth(Contract(symbol: "AAPL"), rows: 10)
+    let id = try await gateway.waitForSent(6)[5][2]
+    gateway.feed(["12", "1", id, "0", "0", "1", "351.5", "100"])
+    gateway.feed(["12", "1", id, "1", "0", "1", "351.4", "100"])
+    gateway.feed(["12", "1", id, "2", "0", "1", "351.3", "100"])
+    try await Task.sleep(for: .milliseconds(100))   // the route has applied all three before the first read
+    let first = try await within2s { try await stream.first { _ in true } }
+    #expect(first?.bids.count == 3)
+}

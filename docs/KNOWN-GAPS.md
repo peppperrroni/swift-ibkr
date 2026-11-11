@@ -66,8 +66,9 @@ Still open:
 - `connect` ignores the caller's task cancellation and runs until its deadline.
 - `placeOrder` then an immediate `disconnect()` can drop the queued frame, and the order stays `.apiPending` in
   the stale snapshot.
-- Subscriber buffers are `.unbounded` (orders, fills, the positions stream and the account-summary / P&L request
-  streams): fine for these volumes, revisit before stage 4 market data.
+- Subscriber buffers are `.unbounded` (orders, fills, the positions stream and every request stream) on purpose:
+  each element counts (a tick, a bar, a trade, a lookup row), so none may be dropped. The one exception is
+  `marketDepth`, which keeps only the newest book (`.bufferingNewest(1)`) because every element is a whole book.
 - `frameAfterDisconnectIsIgnored` cannot catch a removed generation guard, because FakeGateway closes its stream;
   it needs a mode that stays open after close. The same goes for the generation guard in `IBClient`'s request-stream
   `stopped(...)`, which stops a late consumer-stop from an old connection cancelling a reused reqId.
