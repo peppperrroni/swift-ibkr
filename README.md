@@ -1,130 +1,262 @@
 # swift-ibkr
 
-A pure-Swift client for Interactive Brokers' IB Gateway, speaking the TWS API socket protocol
-pinned to **server version 178** (one field layout, no protobuf, which starts at 201).
-Not affiliated with Interactive Brokers.
+A pure-Swift client for **Interactive Brokers' IB Gateway and TWS**, speaking the TWS API socket protocol
+directly. One actor, async streams, no dependencies, and it runs on **Windows and macOS**.
 
-## Build and test
+```swift
+import IBKR
 
-    swift build
-    swift test
+let client = IBClient()
+try await client.connect(port: 4002, clientID: 7)          // paper IB Gateway
 
-Live tests run against a paper IB Gateway on 127.0.0.1:4002 and are skipped unless asked for; they refuse
-to place anything unless every managed account starts with `DU`, and record the frames to `Tests/IBKRTests/Recorded/`:
+let id = try await client.placeOrder(Contract(symbol: "AAPL"),
+                                     Order(action: .buy, quantity: 1, orderType: "LMT", limitPrice: 180))
+for await order in await client.orders().updates where order.orderID == id {
+    print(order.status)                                     // Submitted, Filled, Cancelled ...
+}
+```
 
-    $env:IBKR_LIVE="1"; swift test --filter LiveTests
+> **Not affiliated with Interactive Brokers.** This library places real orders when you point it at a live
+> account. Try everything on a paper account first. The software comes with no warranty (see [LICENSE](LICENSE)).
 
-Add `$env:IBKR_LIVE_FILL="1"; $env:IBKR_LIVE_FILL_PRICE="<current AAPL price>"` to buy and sell back 1 AAPL with
-marketable limits (BUY +1% of that price, SELL 1% under the BUY's fill price, `outsideRTH`), so it runs in regular and extended hours (pre-market
-from 09:00 UTC, after hours until 01:00 UTC). Afterwards clear them, so a later `swift test` in the same shell does
-not trade:
+## Why
 
-    Remove-Item Env:IBKR_LIVE, Env:IBKR_LIVE_FILL, Env:IBKR_LIVE_FILL_PRICE
-
-Field orders are documented in `docs/protocol-178.md`; design decisions in `docs/DECISIONS.md`.
-
-## Use
-
-    import IBKR
-
-    let client = IBClient()                     // TCP to IB Gateway
-    Task { for await state in await client.states() { print(state) } }
-    Task { for await message in await client.messages() { print(message) } }
-    try await client.connect(port: 4002, clientID: 7)   // host 127.0.0.1, timeout 10 s by default
-
-    // Positions are always on: connect syncs them, positions() hands the set now, then every whole new set.
-    let (_, changes) = await client.positions()
-    Task { for await set in changes { print(set.map(\.quantity)) } }
-
-    // Account summary and single-position P&L are per request: each call opens one subscription, which ends when
-    // the consumer stops (the cancel goes out), on IB's error for it, or with the connection. IB allows two
-    // account summaries at a time; a third throws .ib(code: 322, ...).
-    Task {
-        for try await set in try await client.accountSummary(tags: ["NetLiquidation", "BuyingPower"]) {
-            print(set.map { "\($0.tag) \($0.value) \($0.currency)" })   // value is IB's string
-        }
-    }
-    Task { for try await pnl in try await client.pnlSingle(account: "DU1", conID: 265598) { print(pnl.daily as Any) } }
-
-    // One-shot lookups wait for IB's whole answer and throw like a stream ends: .ib(code: 200, ...) when nothing
-    // matches, .connectionClosed with the connection, .cancelled when the calling task is cancelled.
-    let details = try await client.contractDetails(Contract(symbol: "AAPL"))   // [ContractDetails]
-    let matches = try await client.matchingSymbols("AAP")                      // [ContractDescription]
-
-    // Top-of-book quotes. setMarketDataType (1 real-time ... 4 delayed-frozen) is not kept across reconnects: a new
-    // connection starts at real-time, so set it again after connect. Without a subscription IB sends error 10167
-    // (a notice) and delayed ticks, whose field numbers TickField.live maps to the real-time ones. A refusal ends the
-    // stream with .noMarketDataPermission(code:text:); stopping the stream sends the cancel.
-    try await client.setMarketDataType(.delayed)
-    Task { for try await tick in try await client.marketData(Contract(symbol: "AAPL")) { print(tick) } }
-
-    // Historical bars: one .history batch, then the stream ends (no cancel) unless keepUpToDate, which follows with raw
-    // .update bars until you stop it. A same-time update replaces the forming bar; merge on your side. Bar.time is epoch
-    // seconds, or 00:00 UTC of the day for daily bars. duration, barSize and whatToShow are IB's strings. A refusal
-    // for want of data permission ends the stream with .noMarketDataPermission, as for marketData.
-    for try await event in try await client.historicalBars(Contract(symbol: "AAPL"), duration: "1 D", barSize: "5 mins") {
-        if case .history(let bars) = event { print(bars.count) }
-    }
-
-    // Market depth: the whole DepthBook (bids and asks sorted by position) after every update. IB's reset (317)
-    // yields an empty book and the stream goes on. `smart` (default true) is resent on cancel.
-    Task { for try await book in try await client.marketDepth(Contract(symbol: "AAPL"), rows: 10) { print(book.bids.first as Any) } }
-
-    // Tick-by-tick: every trade (.allLast / .last), quote (.bidAsk) or midpoint as it happens; ends only if you stop.
-    Task { for try await t in try await client.tickByTick(Contract(symbol: "AAPL"), .allLast) { print(t) } }
-
-    // Orders: placeOrder returns the id once the frame is queued; the outcome arrives through orders().
-    let (known, updates) = await client.orders()          // snapshot now, then every change as a whole order
-    Task { for await order in updates { print(order.orderID, order.status) } }
-    let id = try await client.placeOrder(Contract(symbol: "AAPL"),
-                                         Order(action: .buy, quantity: 1, orderType: "LMT", limitPrice: 180))
-    let changed = Order(action: .buy, quantity: 1, orderType: "LMT", limitPrice: 181)
-    try await client.modifyOrder(id, Contract(symbol: "AAPL"), changed)   // re-sends under the same id
-    try await client.cancelOrder(id)
-
-    let aapl = Contract(symbol: "AAPL")
-    // A bracket: the parent is held (transmit = false), the children point at it by parentID, and the last
-    // child transmits the whole group.
-    var parent = Order(action: .buy, quantity: 100, orderType: "LMT", limitPrice: 180); parent.transmit = false
-    let parentID = try await client.placeOrder(aapl, parent)
-    var profit = Order(action: .sell, quantity: 100, orderType: "LMT", limitPrice: 190)
-    profit.parentID = parentID; profit.transmit = false
-    var stop = Order(action: .sell, quantity: 100, orderType: "STP", auxPrice: 175)
-    stop.parentID = parentID; stop.transmit = true
-    _ = try await client.placeOrder(aapl, profit); _ = try await client.placeOrder(aapl, stop)
-
-    let (fills, fillUpdates) = await client.executions()   // a fill is published once execDetails and its commission are in
-    // ...
-    await client.disconnect()
-
-`connect` returns once the handshake is done and open orders, completed orders, executions and positions are synced; one
-timeout covers all of it. It throws an `IBClientError` (`.timeout`, `.connectionClosed`, `.ib(code:text:)` when
-the gateway refuses, e.g. 326 "client id already in use", and so on). `states()` and `messages()` hand out a fresh
-stream on every call, so any number of consumers can listen; `states()` yields the current state first, and
-`messages()` carries every decoded incoming message. A lost connection turns the state to `.disconnected(error)`
-and is **not reconnected automatically**: call `connect` again. Subscribers stay subscribed across reconnects, except
-the `accountSummary` and `pnlSingle` streams: they throw the connection's end error (`.connectionClosed` after
-`disconnect()`) and are not resumed, so subscribe again after the reconnect. `accountSummary` yields the whole set,
-sorted by account, tag and currency, at IB's first end marker and then on every change, never the same set twice in a row.
-
-Always call `disconnect()` when done: a connected `IBClient` is kept alive by its reader and writer tasks, and its
-streams never finish on their own.
+- **Pure Swift, no dependencies.** It does not wrap IB's official client, and it contains none of IB's code.
+  The wire layouts follow the open-source [ib_async](https://github.com/ib-api-reloaded/ib_async) and are
+  written down in [`docs/protocol-178.md`](docs/protocol-178.md).
+- **Swift concurrency all the way.** `IBClient` is an actor. Every feed is an `AsyncStream`, or an
+  `AsyncThrowingStream` when IB can refuse it, and errors are typed (`throws(IBClientError)`).
+- **Whole objects, not message soup.** IB reports an order in several pieces: openOrder, orderStatus and
+  completedOrder. A fill arrives as execDetails plus a commission report, and IB resends and corrects them. The
+  library merges these and publishes only whole orders and fills, and only when something actually changed.
+- **Snapshot plus stream.** `orders()`, `executions()` and `positions()` return the current state together with
+  a stream of changes, so a late subscriber never misses the past.
+- **Checked on the real gateway.** The frames of live paper-account runs are recorded in
+  `Tests/IBKRTests/Recorded/` and replayed by the unit tests.
 
 ## Status
 
-**Stage 1 (done): codec and merging, no I/O.** The version-178 wire format (frames, fields, unset values
-decode to nil); the handshake; the requests (startApi, reqIds, placeOrder including modify and brackets,
-cancelOrder, reqOpenOrders, reqAllOpenOrders, reqAutoOpenOrders, reqCompletedOrders, reqExecutions); the decoders
-(orderStatus, error with its code table, openOrder, completedOrder, execDetails, commissionReport, nextValidId,
-managedAccounts, currentTime, orderBound, end markers, unknown and malformed frames); and two pure-value trackers
-that merge IB's separate messages into whole objects: `OrderTracker` (orders) and `ExecutionTracker` (fills). No
-sockets, no positions, no market data yet.
+The protocol is pinned to **server version 178**, which has one field layout and no protobuf (protobuf starts at
+201). The client offers it in the handshake, and current gateways agree to it.
 
-**Stage 2 (done): the client.** A plain OS socket (Windows and macOS), the `IBClient` actor with its request
-throttle and snapshot + stream, and live checks on the owner's paper account (a limit order placed and cancelled;
-1 AAPL bought and sold back pre-market, with commission) whose frames are recorded in `Tests/IBKRTests/Recorded/`
-and replayed by the tests.
+| Area | What you get | State |
+|---|---|---|
+| Connection | handshake, request throttle, `states()`, the raw `messages()` feed | ✅ live-checked |
+| Orders | place, modify, cancel, brackets, open and completed orders merged | ✅ live-checked |
+| Executions | fills joined with commissions, corrections applied | ✅ live-checked |
+| Positions | synced at connect, whole sets on every change | ✅ live-checked |
+| Account | account summary, per-position P&L | ✅ live-checked |
+| Contract lookup | contract details, matching symbols | ✅ live-checked |
+| Market data | quotes, historical bars, depth book, tick-by-tick, typed «no permission» refusal | ✅ refusals live-checked; the data itself only on hand-built frames (no subscription yet) |
 
-**Stage 3 (done): the account.** Positions, account summary and per-position P&L as streams on `IBClient`, checked
-live on the paper account and recorded in `Tests/IBKRTests/Recorded/`.
-`main` is local: nothing is pushed. What is still open is in `docs/KNOWN-GAPS.md`.
+What is still unconfirmed against a live gateway is listed in [`docs/KNOWN-GAPS.md`](docs/KNOWN-GAPS.md).
+There are no tagged releases yet, and the API may still change.
+
+## Installation
+
+**Requirements**
+
+- Swift 6.0 or later.
+- macOS 13+ or Windows. Linux is not tried yet.
+- IB Gateway or TWS running, with *Enable ActiveX and Socket Clients* switched on. To place orders, also switch
+  *Read-Only API* off.
+
+Add the package with Swift Package Manager:
+
+```swift
+// Package.swift
+dependencies: [
+    .package(url: "https://github.com/peppperrroni/swift-ibkr.git", branch: "main"),
+],
+targets: [
+    .target(name: "MyApp", dependencies: [.product(name: "IBKR", package: "swift-ibkr")]),
+]
+```
+
+These are the default ports:
+
+| | Paper | Live |
+|---|---|---|
+| IB Gateway | 4002 | 4001 |
+| TWS | 7497 | 7496 |
+
+## Guide
+
+### Connecting
+
+```swift
+let client = IBClient()
+Task { for await state in await client.states() { print(state) } }        // current state first
+Task { for await message in await client.messages() { print(message) } }  // every decoded frame
+
+try await client.connect(port: 4002, clientID: 7)   // host 127.0.0.1, 10 s timeout by default
+// ...
+await client.disconnect()
+```
+
+- **When `connect` returns.** It returns once the handshake is done and the open orders, completed orders,
+  executions and positions are all synced. One timeout covers all of that.
+- **What it throws.** On failure it throws an `IBClientError`:
+  - `.timeout`;
+  - `.connectionClosed`;
+  - `.ib(code:text:)` when the gateway refuses, for example 326 «client id already in use».
+- **Streams.** Every call to `states()` or `messages()` hands out a fresh stream, so any number of consumers
+  can listen.
+- **No automatic reconnect.** A lost connection turns the state to `.disconnected(error)`, and nothing
+  reconnects for you: call `connect` again.
+- **Across a reconnect.** Subscribers of `orders()`, `executions()` and `positions()` stay subscribed. Per-request
+  streams such as `accountSummary` and `pnlSingle` end with the connection's error instead, so subscribe to
+  them again.
+- **Always call `disconnect()`** when you are done. A connected client is kept alive by its reader and writer
+  tasks, and its streams never finish on their own.
+
+### Orders
+
+`placeOrder` returns the order id as soon as the frame is queued. The outcome arrives through `orders()`.
+`orderType` and `tif` are IB's own strings (`"LMT"`, `"STP"`, `"DAY"`, `"GTC"` and so on).
+
+```swift
+let (known, updates) = await client.orders()     // snapshot now, then every change as a whole order
+Task { for await order in updates { print(order.orderID, order.status, order.filled) } }
+
+let aapl = Contract(symbol: "AAPL")              // stock, SMART routing, USD by default
+let id = try await client.placeOrder(aapl, Order(action: .buy, quantity: 1, orderType: "LMT", limitPrice: 180))
+try await client.modifyOrder(id, aapl, Order(action: .buy, quantity: 1, orderType: "LMT", limitPrice: 181))
+try await client.cancelOrder(id)
+```
+
+To place a bracket, hold the parent back with `transmit = false` and point the children at it by `parentID`.
+The last child transmits the whole group:
+
+```swift
+var parent = Order(action: .buy, quantity: 100, orderType: "LMT", limitPrice: 180); parent.transmit = false
+let parentID = try await client.placeOrder(aapl, parent)
+
+var profit = Order(action: .sell, quantity: 100, orderType: "LMT", limitPrice: 190)
+profit.parentID = parentID; profit.transmit = false
+var stop = Order(action: .sell, quantity: 100, orderType: "STP", auxPrice: 175)
+stop.parentID = parentID; stop.transmit = true
+
+_ = try await client.placeOrder(aapl, profit)
+_ = try await client.placeOrder(aapl, stop)
+```
+
+Outgoing text must be printable ASCII. This is the same rule as IB's own client, and anything else throws
+`IBEncodingError.nonASCII(field:)`.
+
+### Executions and positions
+
+```swift
+let (fills, fillUpdates) = await client.executions()   // a fill is published once its commission is in
+let (positions, changes) = await client.positions()    // always on: the whole set after every change
+Task { for await set in changes { print(set.map { "\($0.contract.symbol) \($0.quantity)" }) } }
+```
+
+### Account summary and P&L
+
+Each call opens one subscription. The subscription ends when the consumer stops (the library then sends the
+cancel), when IB reports an error for it, or when the connection ends. IB allows two account summaries at a
+time, and a third throws `.ib(code: 322, ...)`.
+
+```swift
+Task {
+    for try await set in try await client.accountSummary(tags: ["NetLiquidation", "BuyingPower"]) {
+        print(set.map { "\($0.tag) \($0.value) \($0.currency)" })   // value is IB's string
+    }
+}
+Task {
+    for try await pnl in try await client.pnlSingle(account: "DU1234567", conID: 265598) {
+        print(pnl.daily as Any, pnl.unrealized as Any)
+    }
+}
+```
+
+### Contract lookup
+
+One-shot calls wait for IB's whole answer. They throw `.ib(code: 200, ...)` when nothing matches, the
+connection's error when it drops, and `.cancelled` when the calling task is cancelled.
+
+```swift
+let details = try await client.contractDetails(Contract(symbol: "AAPL"))   // [ContractDetails]: conID, minTick, hours ...
+let matches = try await client.matchingSymbols("AAP")                      // [ContractDescription]
+```
+
+### Market data
+
+Every feed below is a stream for one request: stopping it sends the cancel. When IB refuses it for want of a
+data subscription, the stream ends with `.noMarketDataPermission(code:text:)`, so a UI can tell «not subscribed»
+from a real failure.
+
+```swift
+// Quotes. Without a subscription ask for delayed data; it is not kept across reconnects, so set it after connect.
+try await client.setMarketDataType(.delayed)
+Task { for try await tick in try await client.marketData(aapl) { print(tick) } }   // .price, .size, .generic, .string, .dataType
+
+// Historical bars: one .history batch, then the stream ends, unless keepUpToDate, which goes on with .update bars.
+for try await event in try await client.historicalBars(aapl, duration: "1 D", barSize: "5 mins") {
+    if case .history(let bars) = event { print(bars.count) }
+}
+
+// The depth book, whole after every update (bids and asks sorted by position); IB's reset (317) empties it.
+Task { for try await book in try await client.marketDepth(aapl, rows: 10) { print(book.bids.first as Any) } }
+
+// Tick-by-tick: every trade (.allLast / .last), quote (.bidAsk) or midpoint as it happens.
+Task { for try await t in try await client.tickByTick(aapl, .allLast) { print(t) } }
+```
+
+- **Field numbers.** Delayed ticks carry their own field numbers. `TickField.live` maps each one to its
+  real-time counterpart.
+- **Bar times.** `Bar.time` is in epoch seconds. Daily bars are stamped 00:00 UTC of their day.
+- **Depth without permissions.** IB sends notice 2152 and then nothing, so the depth stream just stays quiet (see
+  [`docs/KNOWN-GAPS.md`](docs/KNOWN-GAPS.md)).
+
+### Errors
+
+IB sends informational notices and real errors through the same message. The library sorts them with an explicit
+table, which is in [`docs/DECISIONS.md`](docs/DECISIONS.md):
+
+- **Notices** never fail anything. They include 2104 «market data farm connection is OK», 10167 «delayed data»
+  and 399.
+- **202** confirms a cancel.
+- **Everything else** is fatal to the request it belongs to.
+
+All of them, notices included, are still visible on `messages()`.
+
+## Development
+
+Run the unit tests. They need no gateway, because they use a fake gateway and the recorded frames:
+
+```bash
+swift build
+swift test
+```
+
+The live tests run against a **paper** IB Gateway on 127.0.0.1:4002 and are skipped unless you ask for them.
+They refuse to place anything unless every managed account starts with `DU`, which marks a paper account. They
+also record the frames to `Tests/IBKRTests/Recorded/`, with the account id redacted.
+
+```bash
+IBKR_LIVE=1 swift test --filter LiveTests
+```
+
+To also buy and sell back 1 AAPL with marketable limits, add `IBKR_LIVE_FILL=1` and
+`IBKR_LIVE_FILL_PRICE=<current AAPL price>`. The BUY goes 1% above that price and the SELL 1% under the BUY's
+fill, both with `outsideRTH`. That lets the test run in regular and extended hours: pre-market from 09:00 UTC,
+after hours until 01:00 UTC.
+
+On Windows PowerShell, set the variables with `$env:IBKR_LIVE="1"`. Remove them afterwards
+(`Remove-Item Env:IBKR_LIVE, Env:IBKR_LIVE_FILL, Env:IBKR_LIVE_FILL_PRICE`), so that a later `swift test` in the
+same shell does not trade.
+
+### Documents
+
+| File | What it holds |
+|---|---|
+| [`docs/protocol-178.md`](docs/protocol-178.md) | every message's field order, and where sources disagree |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | design decisions, why each was taken and what was rejected |
+| [`docs/KNOWN-GAPS.md`](docs/KNOWN-GAPS.md) | what is still open or unconfirmed live |
+| [`docs/superpowers/`](docs/superpowers/) | the design spec and the plan for each stage |
+
+## License
+
+[MIT](LICENSE). Interactive Brokers, IB Gateway and TWS are trademarks of Interactive Brokers LLC.
