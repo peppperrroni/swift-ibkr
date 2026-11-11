@@ -6,13 +6,29 @@ func d(_ s: String) -> Decimal { Decimal(string: s, locale: Locale(identifier: "
 
 struct TimedOut: Error {}
 
-/// Runs `operation`, failing with `TimedOut` after 2 s instead of hanging.
+/// Resumes its continuation once: the first of the operation and the timer wins.
+private final class Race<T: Sendable>: @unchecked Sendable {
+    private let lock = NSLock()
+    private var cont: CheckedContinuation<T, any Error>?
+    init(_ cont: CheckedContinuation<T, any Error>) { self.cont = cont }
+    func finish(_ result: Result<T, any Error>) {
+        lock.lock(); let c = cont; cont = nil; lock.unlock()
+        c?.resume(with: result)
+    }
+}
+
+/// Runs `operation`, failing with `TimedOut` after 2 s instead of hanging. A task group would wait for a stuck
+/// child on exit (one that awaits an unstructured `Task.value` ignores cancellation), so the two race through a
+/// continuation and a timed-out operation is cancelled and left behind.
 func within2s<T: Sendable>(_ operation: @escaping @Sendable () async throws -> T) async throws -> T {
-    try await withThrowingTaskGroup(of: T.self) { group in
-        group.addTask { try await operation() }
-        group.addTask { try await Task.sleep(for: .seconds(2)); throw TimedOut() }
-        defer { group.cancelAll() }
-        return try await group.next()!
+    try await withCheckedThrowingContinuation { cont in
+        let race = Race(cont)
+        let work = Task { race.finish(await Result { try await operation() }) }
+        let timer = Task {
+            try? await Task.sleep(for: .seconds(2))
+            if !Task.isCancelled { race.finish(.failure(TimedOut())); work.cancel() }
+        }
+        Task { _ = await work.value; timer.cancel() }
     }
 }
 
