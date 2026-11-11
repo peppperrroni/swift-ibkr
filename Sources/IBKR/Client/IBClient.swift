@@ -244,9 +244,8 @@ public actor IBClient {
 
     /// The whole depth book after every update (12 and 13 both feed it). IB's depth reset (317) empties the book,
     /// yields it and goes on. `smart` is resent on cancel, as IB requires. Ends like `marketData` on a refusal, except
-    /// that without depth permissions IB sends notice 2152 and nothing more, so the stream stays quiet.
-    /// Every element is a whole book,
-    /// so a slow consumer keeps only the newest.
+    /// that without depth permissions IB sends notice 2152 and nothing more, so the stream stays quiet. Every element
+    /// is a whole book, so a slow consumer keeps only the newest.
     public func marketDepth(_ contract: Contract, rows: Int, smart: Bool = true)
         throws(IBClientError) -> AsyncThrowingStream<DepthBook, any Error> {
         try requireConnected()

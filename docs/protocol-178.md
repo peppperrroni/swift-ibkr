@@ -1077,7 +1077,8 @@ No version. `17, reqId, startDate, endDate, numBars`, then `numBars` bars of 8 f
 `date, open, high, low, close, volume, average, barCount`. startDate and endDate are read and dropped. The message is the
 whole batch and its own end marker (there is no in-108 at 178). `average` is `nil` when unset; `volume` keeps IB's `-1`.
 A bar `date` of 8 characters is that day at 00:00 UTC (checked first: daily bars are dates under either formatDate); all
-digits is epoch seconds; anything else (formatDate 1 text) is malformed.
+digits is epoch seconds; anything else (formatDate 1 text) is malformed. A negative count (17's numBars, 79's
+n and m, 10's numSecIds) makes the frame malformed, as everywhere in the decoder.
 
 ### historicalDataUpdate (in 90)
 
@@ -1112,7 +1113,8 @@ permissions - Depth: NASDAQ; ...») and then nothing (paper run 2026-11-11).
 
 ### cancelTickByTickData (out 98)
 
-`98, reqId`; 2 fields. No version.
+`98, reqId`; 2 fields. No version. Sent when the consumer stops the stream, and when IB refuses it for want of
+permission (10189 with a permission text): IB keeps a refused subscription open.
 
 ### tickByTick (in 99)
 
