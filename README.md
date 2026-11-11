@@ -51,6 +51,13 @@ Field orders are documented in `docs/protocol-178.md`; design decisions in `docs
     let details = try await client.contractDetails(Contract(symbol: "AAPL"))   // [ContractDetails]
     let matches = try await client.matchingSymbols("AAP")                      // [ContractDescription]
 
+    // Top-of-book quotes. setMarketDataType (1 real-time ... 4 delayed-frozen) is not kept across reconnects: a new
+    // connection starts at real-time, so set it again after connect. Without a subscription IB sends error 10167
+    // (a notice) and delayed ticks, whose field numbers TickField.live maps to the real-time ones. A refusal ends the
+    // stream with .noMarketDataPermission(code:text:); stopping the stream sends the cancel.
+    try await client.setMarketDataType(.delayed)
+    Task { for try await tick in try await client.marketData(Contract(symbol: "AAPL")) { print(tick) } }
+
     // Orders: placeOrder returns the id once the frame is queued; the outcome arrives through orders().
     let (known, updates) = await client.orders()          // snapshot now, then every change as a whole order
     Task { for await order in updates { print(order.orderID, order.status) } }

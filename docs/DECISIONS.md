@@ -51,12 +51,17 @@
 | One-shot lookups throw `IBClientError.cancelled` when their stream ends without the end marker, which only the calling task's cancellation causes | returning the partial list would look like a complete answer, and `CancellationError` would be a second error type behind a `throws(IBClientError)` signature | returning what had arrived; rethrowing `CancellationError` |
 | `AccountValue.value` stays IB's string | some tags are text (`AccountType`), and the consumer knows which tags it asked for | a `Decimal` value (fails on text tags) or a `Decimal?` beside the string (two fields for one value) |
 | The package is public on GitHub under MIT | it contains no IB code (only field layouts are taken from ib_async, BSD-licensed; IB's ibapi is non-commercial and nothing of it is copied), so nothing stops an open licence | keeping it private; Apache-2.0 (the patent grant buys nothing here) |
+| A fatal IB error for a stream's reqId ends it with `IBClientError.noMarketDataPermission(code:text:)` when `ErrorCode.isNoMarketDataPermission` holds (354, 10089, 10168, 10186, 10197, and 162 only when its text contains `permission`, case-insensitive), else `.ib(code:text:)`; this holds for every stream kind | a UI must tell "not subscribed" from a real failure, and 162 is IB's catch-all for history (pacing, cancels), so the code alone would mislabel them | matching on the code alone (162 pacing becomes a permission error); the consumer parsing `.ib` text |
+| Notices with a reqId are handed to that stream's `route`, which ignores what it does not know; 202 is not routed | a stream may want to react to a notice (the depth reset, 317) without ending; today none does | dropping notices before the registry |
+| 317 (depth reset), 10090 and 10091 (part of the data not subscribed) are notices | data still flows after each, and the depth stream empties its book and goes on; 10225 (bust event) stays fatal: the consumer subscribes again, as `ib_async`'s silent resubscribe is hidden traffic | leaving them fatal (ends a live stream for a harmless message); resubscribing for the consumer |
+| `setMarketDataType` sends 59, requires a connection, and is not remembered across reconnects | the type is per connection on IB's side, and replaying it behind the consumer's back would be hidden traffic; README says to set it after `connect` | storing it and resending it in the sync |
+| `marketData` yields only `.tick` for its reqId; `.tickRequestParameters` (81) is not yielded | the stream's element is `Tick`; 81 carries the minTick and exchange, which a trading UI reads from contract details | a second element case for parameters |
 
 ## Error-code table
 
 | Kind | Codes | Effect |
 |---|---|---|
-| notice | 2100...2199, 10167, 399, 404, 161, 10147, 10148, 165, 1101, 1102 | informational, never fails a request |
+| notice | 2100...2199, 10167, 399, 404, 161, 10147, 10148, 165, 1101, 1102, 317, 10090, 10091 | informational, never fails a request |
 | order cancelled | 202 | the cancel confirmation, not a rejection |
 | fatal | everything else | fails the request it belongs to |
 

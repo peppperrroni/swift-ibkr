@@ -198,6 +198,25 @@ public actor IBClient {
         }).flatMap { $0 }
     }
 
+    /// Sets which kind of data market-data requests get without a subscription. Not remembered: a new connection
+    /// starts at IB's default (real-time), so set it again after `connect`.
+    public func setMarketDataType(_ type: MarketDataType) throws(IBClientError) {
+        try requireConnected()
+        try send(.marketDataType(type))
+    }
+
+    /// Every top-of-book tick IB sends for `contract`. Ends like `accountSummary`, with
+    /// `.noMarketDataPermission` when IB refuses for want of a subscription; stopping it cancels.
+    public func marketData(_ contract: Contract) throws(IBClientError) -> AsyncThrowingStream<Tick, any Error> {
+        try requireConnected()
+        let id = nextRequestID()
+        return try openStream(.marketData(requestID: id, contract: contract), id: id,
+                              cancel: .cancelMarketData(requestID: id)) { message, out in
+            if case .tick(_, let tick) = message { out.yield(tick) }
+            return false
+        }
+    }
+
     /// Reads a self-ending stream to its end. It ends without error only when its end marker came, or when the
     /// calling task was cancelled.
     private func collect<E: Sendable>(_ stream: AsyncThrowingStream<E, any Error>) async throws(IBClientError) -> [E] {
@@ -258,8 +277,14 @@ public actor IBClient {
         case .accountSummary(let id, _), .accountSummaryEnd(let id), .pnlSingle(let id, _),
              .contractData(let id, _), .contractDataEnd(let id), .symbolSamples(let id, _):
             if requestStreams[id]?.route(message) == true { requestStreams[id] = nil }   // before any termination hop
+        case .tick(let id, _):
+            _ = requestStreams[id]?.route(message)
+        case .error(let e) where ErrorCode.kind(e.code) == .notice:
+            if requestStreams[e.requestID]?.route(message) == true { requestStreams[e.requestID] = nil }
         case .error(let e) where ErrorCode.kind(e.code) == .fatal:
-            requestStreams.removeValue(forKey: e.requestID)?.finish(.ib(code: e.code, text: e.text))
+            requestStreams.removeValue(forKey: e.requestID)?.finish(
+                ErrorCode.isNoMarketDataPermission(code: e.code, text: e.text)
+                    ? .noMarketDataPermission(code: e.code, text: e.text) : .ib(code: e.code, text: e.text))
         default: break
         }
     }
