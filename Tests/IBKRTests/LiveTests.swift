@@ -53,6 +53,16 @@ private func firstOrRefusal<T: Sendable>(_ what: String, _ stream: AsyncThrowing
     }
 }
 
+/// Polls up to 2 s for every request stream to close, which proves their cancels went out.
+private func expectNoOpenStreams(_ client: IBClient) async {
+    var open = await client.requestStreamCount
+    for _ in 0..<20 where open != 0 {
+        try? await Task.sleep(for: .milliseconds(100))
+        open = await client.requestStreamCount
+    }
+    #expect(open == 0, "a request stream was not cancelled")
+}
+
 /// What `account` holds of `conID` in a whole position set; 0 when it holds none.
 private func held(_ set: [Position], _ account: String, _ conID: Int) -> Decimal {
     set.filter { $0.account == account && $0.contract.conID == conID }.reduce(0) { $0 + $1.quantity }
@@ -156,39 +166,50 @@ struct LiveTests {
             let matches = try await within("matchingSymbols(AAPL)") { try await client.matchingSymbols("AAPL") }
             #expect(matches.contains { $0.contract.conID == 265598 })
             print("[live] matchingSymbols: \(matches.count) matches")
+            await expectNoOpenStreams(client)
         }
     }
 
     @Test func liveMarketData() async throws {
         try await live("liveMarketData", clientID: 80) { client, _ in
-            // Quotes: leaving the loop cancels the subscription.
+            // Each part has its own scope: leaving it ends its stream, so its cancel goes out before the next part.
             try await client.setMarketDataType(.delayed)
-            let quotes = try await client.marketData(aapl)
-            let seen: (type: MarketDataType?, fields: [Int]) = try await within("a dataType and a price tick") {
-                var type: MarketDataType?, fields: [Int] = []
-                for try await tick in quotes {
-                    if case .dataType(let t) = tick { type = t }
-                    if case .price(let f, let p, _) = tick, p != nil { fields.append(f.rawValue) }
-                    if type != nil && !fields.isEmpty { return (type, fields) }
+            do {
+                let quotes = try await client.marketData(aapl)
+                let seen: (type: MarketDataType?, fields: [Int]) = try await within("a dataType and a price tick") {
+                    var type: MarketDataType?, fields: [Int] = []
+                    for try await tick in quotes {
+                        if case .dataType(let t) = tick { type = t }
+                        if case .price(let f, let p, _) = tick, p != nil { fields.append(f.rawValue) }
+                        if type != nil && !fields.isEmpty { return (type, fields) }
+                    }
+                    throw LiveFailure(description: "quote stream ended before a dataType and a price")
                 }
-                throw LiveFailure(description: "quote stream ended before a dataType and a price")
+                print("[live] marketData: dataType \(seen.type.map { "\($0.rawValue)" } ?? "none"), price fields \(seen.fields)")
             }
-            print("[live] marketData: dataType \(String(describing: seen.type?.rawValue)), price fields \(seen.fields)")
-
             // The three below may be refused for want of a subscription; that is an answer, anything else fails.
-            let bars = try await client.historicalBars(aapl, duration: "1 D", barSize: "5 mins")
-            if let event = try await firstOrRefusal("historicalBars", bars), case .history(let h) = event {
-                #expect(!h.isEmpty)
-                print("[live] historicalBars: \(h.count) bars")
+            do {
+                let bars = try await client.historicalBars(aapl, duration: "1 D", barSize: "5 mins")
+                if let event = try await firstOrRefusal("historicalBars", bars) {
+                    if case .history(let h) = event {
+                        #expect(!h.isEmpty)
+                        print("[live] historicalBars: \(h.count) bars")
+                    } else { print("[live] historicalBars: first event was \(event), not .history") }
+                }
             }
-            let depth = try await client.marketDepth(aapl, rows: 5)
-            if let book = try await firstOrRefusal("marketDepth", depth) {
-                print("[live] marketDepth: yielded, \(book.bids.count) bids, \(book.asks.count) asks")
+            do {
+                let depth = try await client.marketDepth(aapl, rows: 5)
+                if let book = try await firstOrRefusal("marketDepth", depth) {
+                    print("[live] marketDepth: yielded, \(book.bids.count) bids, \(book.asks.count) asks")
+                }
             }
-            let ticks = try await client.tickByTick(aapl, .allLast)
-            if let tick = try await firstOrRefusal("tickByTick", ticks) {
-                print("[live] tickByTick: yielded \(tick)")
+            do {
+                let ticks = try await client.tickByTick(aapl, .allLast)
+                if let tick = try await firstOrRefusal("tickByTick", ticks) {
+                    print("[live] tickByTick: yielded \(tick)")
+                }
             }
+            await expectNoOpenStreams(client)
         }
     }
 
