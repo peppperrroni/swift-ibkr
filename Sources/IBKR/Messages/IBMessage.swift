@@ -30,6 +30,8 @@ public enum IBMessage: Sendable, Equatable {
     case contractDataEnd(requestID: Int)
     case symbolSamples(requestID: Int, [ContractDescription])
     case tick(requestID: Int, Tick)
+    case historicalData(requestID: Int, [Bar])
+    case historicalDataUpdate(requestID: Int, Bar)
     case tickRequestParameters(requestID: Int, minTick: Decimal?, bboExchange: String, snapshotPermissions: Int)
     case unknown(id: Int, fields: [String])
     case malformed(id: Int, fields: [String], reason: String)

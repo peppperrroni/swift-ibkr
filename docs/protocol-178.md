@@ -1057,6 +1057,30 @@ Total: 7 fields.
 
 `81, reqId, minTick, bboExchange, snapshotPermissions`; 5 fields. No version. Decoded, not put into any stream.
 
+### reqHistoricalData (out 20)
+
+No version field. 23 fields: `20, reqId, contract(12), includeExpired (0), endDateTime, barSize, duration, useRTH,
+whatToShow, formatDate, keepUpToDate, chartOptions`. Barsize comes before duration and useRTH before whatToShow.
+`formatDate` is always `2`, `chartOptions` always `""`. `endDateTime` is `yyyyMMdd-HH:mm:ss` in UTC, or `""` for now
+(`keepUpToDate` needs `""`). A BAG contract is refused.
+
+### cancelHistoricalData (out 25)
+
+`25, 1, reqId`; 3 fields. Sent when the consumer stops a stream still registered, including a keepUpToDate one.
+
+### historicalData (in 17)
+
+No version. `17, reqId, startDate, endDate, numBars`, then `numBars` bars of 8 fields in the order O,H,L,C:
+`date, open, high, low, close, volume, average, barCount`. startDate and endDate are read and dropped. The message is the
+whole batch and its own end marker (there is no in-108 at 178). `average` is `nil` when unset; `volume` keeps IB's `-1`.
+A bar `date` of 8 characters is that day at 00:00 UTC (checked first: daily bars are dates under either formatDate); all
+digits is epoch seconds; anything else (formatDate 1 text) is malformed.
+
+### historicalDataUpdate (in 90)
+
+No version. `90, reqId, barCount, date, open, close, high, low, average, volume`; 10 fields. The order is O,C,H,L, unlike 17.
+`date` as above.
+
 ## Disagreements
 
 Cross-check of `placeOrder`, `openOrder`, `completedOrder`, `orderStatus`, `execDetails` and

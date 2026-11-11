@@ -56,6 +56,7 @@
 | 317 (depth reset), 10090 and 10091 (part of the data not subscribed) are notices | data still flows after each, and the depth stream empties its book and goes on; 10225 (bust event) stays fatal: the consumer subscribes again, as `ib_async`'s silent resubscribe is hidden traffic | leaving them fatal (ends a live stream for a harmless message); resubscribing for the consumer |
 | `setMarketDataType` sends 59, requires a connection, and is not remembered across reconnects | the type is per connection on IB's side, and replaying it behind the consumer's back would be hidden traffic; README says to set it after `connect` | storing it and resending it in the sync |
 | `marketData` yields only `.tick` for its reqId; `.tickRequestParameters` (81) is not yielded | the stream's element is `Tick`; 81 carries the minTick and exchange, which a trading UI reads from contract details | a second element case for parameters |
+| `Bar.time` is a `Date`: epoch seconds, or 00:00 UTC for an 8-character `YYYYMMDD` bar; `historicalBars` always sends `formatDate` 2 | one type for every bar size, and no timezone guess: formatDate 1 intraday text carries no zone (only the login zone, unknown to the client), while epoch seconds are exact; daily bars come as dates under either formatDate, and UTC midnight of that day is the least surprising instant | formatDate 1 with a configured zone; a `Bar.date` string or a day/instant enum; local midnight |
 
 ## Error-code table
 

@@ -7,23 +7,6 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
     return client
 }
 
-/// Reads `count` ticks, or until the stream throws. The reader keeps the stream until cancelled, so a test
-/// that wants the consumer to stop cancels `.reader`.
-private func take(_ count: Int, _ stream: AsyncThrowingStream<Tick, any Error>)
-    -> (reader: Task<Void, Never>, result: Task<[Tick], any Error>) {
-    let (seen, out) = AsyncThrowingStream.makeStream(of: Tick.self, throwing: (any Error).self)
-    let reader = Task {
-        do { for try await t in stream { out.yield(t) }; out.finish() } catch { out.finish(throwing: error) }
-    }
-    let result = Task {
-        var got: [Tick] = []
-        if count > 0 { for try await t in seen { got.append(t); if got.count == count { break } } }
-        else { for try await t in seen { got.append(t) } }
-        return got
-    }
-    return (reader, result)
-}
-
 @Test func marketDataYieldsTicks() async throws {
     let gateway = FakeGateway()
     let client = try await connected(gateway)

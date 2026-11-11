@@ -1,3 +1,4 @@
+import Foundation
 public enum ConnectionState: Sendable, Equatable {
     case disconnected(IBClientError?)
     case connecting
@@ -217,6 +218,30 @@ public actor IBClient {
         }
     }
 
+    /// Historical bars as one `.history` batch. Without `keepUpToDate` the stream then ends, with no cancel; with it,
+    /// every IB update follows raw as `.update` (a same-time update replaces the forming bar; the consumer merges).
+    /// `end` nil is now; `duration`, `barSize` and `whatToShow` are IB's strings ("1 D", "5 mins", "TRADES").
+    public func historicalBars(
+        _ contract: Contract, end: Date? = nil, duration: String, barSize: String, whatToShow: String = "TRADES",
+        rth: Bool = true, keepUpToDate: Bool = false
+    ) throws(IBClientError) -> AsyncThrowingStream<BarEvent, any Error> {
+        try requireConnected()
+        let id = nextRequestID()
+        return try openStream(.historicalData(requestID: id, contract: contract, end: end, barSize: barSize,
+                                              duration: duration, rth: rth, whatToShow: whatToShow,
+                                              keepUpToDate: keepUpToDate),
+                              id: id, cancel: .cancelHistoricalData(requestID: id)) { message, out in
+            switch message {
+            case .historicalData(_, let bars):
+                out.yield(.history(bars))
+                if !keepUpToDate { out.finish() }
+                return !keepUpToDate
+            case .historicalDataUpdate(_, let bar): out.yield(.update(bar)); return false
+            default: return false
+            }
+        }
+    }
+
     /// Reads a self-ending stream to its end. It ends without error only when its end marker came, or when the
     /// calling task was cancelled.
     private func collect<E: Sendable>(_ stream: AsyncThrowingStream<E, any Error>) async throws(IBClientError) -> [E] {
@@ -275,7 +300,8 @@ public actor IBClient {
     private func routeToStream(_ message: IBMessage) {
         switch message {
         case .accountSummary(let id, _), .accountSummaryEnd(let id), .pnlSingle(let id, _),
-             .contractData(let id, _), .contractDataEnd(let id), .symbolSamples(let id, _), .tick(let id, _):
+             .contractData(let id, _), .contractDataEnd(let id), .symbolSamples(let id, _), .tick(let id, _),
+             .historicalData(let id, _), .historicalDataUpdate(let id, _):
             if requestStreams[id]?.route(message) == true { requestStreams[id] = nil }   // before any termination hop
         case .error(let e) where ErrorCode.kind(e.code) == .notice:
             if requestStreams[e.requestID]?.route(message) == true { requestStreams[e.requestID] = nil }

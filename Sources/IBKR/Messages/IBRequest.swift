@@ -20,6 +20,9 @@ public enum IBRequest: Sendable, Equatable {
     case marketDataType(MarketDataType)
     case marketData(requestID: Int, contract: Contract)
     case cancelMarketData(requestID: Int)
+    case historicalData(requestID: Int, contract: Contract, end: Date?, barSize: String, duration: String,
+                        rth: Bool, whatToShow: String, keepUpToDate: Bool)
+    case cancelHistoricalData(requestID: Int)
 
     /// Fields only; the caller frames them. Field order is docs/protocol-178.md.
     func body() throws(IBEncodingError) -> [UInt8] {
@@ -68,9 +71,23 @@ public enum IBRequest: Sendable, Equatable {
             w.add(false); try w.add(""); w.add(false); w.add(false); try w.add("")  // delta-neutral, genericTickList, snapshot, regulatorySnapshot, options
         case .cancelMarketData(let reqID):
             w.add(2); w.add(2); w.add(reqID)
+        case .historicalData(let reqID, let c, let end, let barSize, let duration, let rth, let what, let keep):
+            w.add(20); w.add(reqID); try Self.contract(&w, c); w.add(false)  // includeExpired
+            try w.add(end.map { Self.endFormat.string(from: $0) } ?? "")
+            try w.add(barSize); try w.add(duration); w.add(rth); try w.add(what)
+            w.add(2); w.add(keep); try w.add("")  // formatDate (epoch seconds), keepUpToDate, chartOptions
+        case .cancelHistoricalData(let reqID):
+            w.add(25); w.add(1); w.add(reqID)
         }
         return w.body
     }
+
+    private static let endFormat: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX"); f.timeZone = TimeZone(identifier: "UTC")
+        f.dateFormat = "yyyyMMdd-HH:mm:ss"
+        return f
+    }()
 
     /// The 12-field contract block every outgoing request shares (placeOrder rows 2-13).
     private static func contract(_ w: inout FieldWriter, _ c: Contract) throws(IBEncodingError) {

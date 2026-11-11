@@ -46,6 +46,23 @@ public enum IBDecoder {
                 try r.skip(); let id = try r.int(), raw = try r.int()
                 guard let t = MarketDataType(rawValue: raw) else { throw IBProtocolError.badNumber(String(raw), index: r.index - 1) }
                 return .tick(requestID: id, .dataType(t))
+            case 17:
+                let id = try r.int(); try r.skip(2)  // startDate, endDate
+                var bars: [Bar] = []
+                for _ in 0..<(try r.int()) {
+                    let time = try barTime(&r)
+                    bars.append(Bar(time: time, open: try r.decimal(), high: try r.decimal(), low: try r.decimal(),
+                                    close: try r.decimal(), volume: try r.decimal(), average: try r.optionalDecimal(),
+                                    count: try r.int()))
+                }
+                return .historicalData(requestID: id, bars)
+            case 90:
+                let id = try r.int(), count = try r.int(), time = try barTime(&r)
+                let open = try r.decimal(), close = try r.decimal(), high = try r.decimal(), low = try r.decimal()  // O,C,H,L
+                let average = try r.optionalDecimal()
+                return .historicalDataUpdate(requestID: id, Bar(
+                    time: time, open: open, high: high, low: low, close: close, volume: try r.decimal(),
+                    average: average, count: count))
             case 81:
                 return .tickRequestParameters(requestID: try r.int(), minTick: try r.optionalDecimal(),
                                               bboExchange: try r.string(), snapshotPermissions: try r.int())
@@ -102,6 +119,22 @@ public enum IBDecoder {
             price: price, permID: permID, clientID: clientID, orderID: orderID, liquidation: liquidation,
             cumulativeQuantity: cumQty, averagePrice: avgPrice, orderRef: orderRef,
             lastLiquidity: lastLiquidity, pendingPriceRevision: pending))
+    }
+
+    /// 8 characters is a calendar day (checked first, as ib_async does: daily bars are dates under either
+    /// formatDate); all digits is epoch seconds. Anything else, such as formatDate 1 text, is refused.
+    private static func barTime(_ r: inout FieldReader) throws -> Date {
+        let s = try r.string(), at = r.index - 1
+        if s.utf8.count == 8, let day = Int(s) {
+            var c = DateComponents(); c.year = day / 10000; c.month = day / 100 % 100; c.day = day % 100
+            var cal = Calendar(identifier: .gregorian); cal.timeZone = TimeZone(identifier: "UTC")!
+            guard let date = cal.date(from: c) else { throw IBProtocolError.unexpectedValue(s, index: at) }
+            return date
+        }
+        guard !s.isEmpty, s.utf8.allSatisfy({ $0 >= 48 && $0 <= 57 }), let t = Double(s) else {
+            throw IBProtocolError.unexpectedValue(s, index: at)
+        }
+        return Date(timeIntervalSince1970: t)
     }
 
     private static func list(_ s: String) -> [String] { s.split(separator: ",").map(String.init) }

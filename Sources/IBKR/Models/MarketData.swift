@@ -54,6 +54,20 @@ public struct TickField: RawRepresentable, Hashable, Sendable {
     public var live: TickField { TickField(rawValue: Self.delayedTwin[rawValue] ?? rawValue) }
 }
 
+/// One historical bar. `time` is the bar's start: epoch seconds for intraday bars, 00:00 UTC of the calendar day
+/// for daily and longer bars. `volume` keeps IB's `-1` for "not reported".
+public struct Bar: Sendable, Equatable {
+    public var time: Date
+    public var open, high, low, close, volume: Decimal
+    public var average: Decimal?
+    public var count: Int
+}
+
+public enum BarEvent: Sendable, Equatable {
+    case history([Bar])
+    case update(Bar)
+}
+
 public enum Tick: Sendable, Equatable {
     case price(TickField, price: Decimal?, size: Decimal?)
     case size(TickField, Decimal?)

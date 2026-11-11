@@ -58,6 +58,14 @@ Field orders are documented in `docs/protocol-178.md`; design decisions in `docs
     try await client.setMarketDataType(.delayed)
     Task { for try await tick in try await client.marketData(Contract(symbol: "AAPL")) { print(tick) } }
 
+    // Historical bars: one .history batch, then the stream ends (no cancel) unless keepUpToDate, which follows with raw
+    // .update bars until you stop it. A same-time update replaces the forming bar; merge on your side. Bar.time is epoch
+    // seconds, or 00:00 UTC of the day for daily bars. duration, barSize and whatToShow are IB's strings. A refusal
+    // for want of data permission ends the stream with .noMarketDataPermission, as for marketData.
+    for try await event in try await client.historicalBars(Contract(symbol: "AAPL"), duration: "1 D", barSize: "5 mins") {
+        if case .history(let bars) = event { print(bars.count) }
+    }
+
     // Orders: placeOrder returns the id once the frame is queued; the outcome arrives through orders().
     let (known, updates) = await client.orders()          // snapshot now, then every change as a whole order
     Task { for await order in updates { print(order.orderID, order.status) } }

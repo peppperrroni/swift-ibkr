@@ -15,3 +15,20 @@ func within2s<T: Sendable>(_ operation: @escaping @Sendable () async throws -> T
         return try await group.next()!
     }
 }
+
+/// Reads `count` elements, or until the stream throws. The reader keeps the stream until cancelled, so a test
+/// that wants the consumer to stop cancels `.reader`.
+func take<T: Sendable>(_ count: Int, _ stream: AsyncThrowingStream<T, any Error>)
+    -> (reader: Task<Void, Never>, result: Task<[T], any Error>) {
+    let (seen, out) = AsyncThrowingStream.makeStream(of: T.self, throwing: (any Error).self)
+    let reader = Task {
+        do { for try await t in stream { out.yield(t) }; out.finish() } catch { out.finish(throwing: error) }
+    }
+    let result = Task {
+        var got: [T] = []
+        if count > 0 { for try await t in seen { got.append(t); if got.count == count { break } } }
+        else { for try await t in seen { got.append(t) } }
+        return got
+    }
+    return (reader, result)
+}
