@@ -24,6 +24,9 @@ public enum IBMessage: Sendable, Equatable {
     case accountSummary(requestID: Int, AccountValue)
     case accountSummaryEnd(requestID: Int)
     case pnlSingle(requestID: Int, PnL)
+    case contractData(requestID: Int, ContractDetails)
+    case contractDataEnd(requestID: Int)
+    case symbolSamples(requestID: Int, [ContractDescription])
     case unknown(id: Int, fields: [String])
     case malformed(id: Int, fields: [String], reason: String)
 }

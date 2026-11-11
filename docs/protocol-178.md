@@ -378,6 +378,31 @@ Total: 5 fields. No version field.
 
 Total: 2 fields. No version field.
 
+### reqContractDetails (out 9)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `9` |
+| 1 | version | int | `8` |
+| 2 | reqId | int | |
+| 3-14 | contract | | the 12-field contract block (rows 2-13 of placeOrder); `BAG` is refused |
+| 15 | includeExpired | bool | `0` |
+| 16 | secIdType | string | `""` |
+| 17 | secId | string | `""` |
+| 18 | issuerId | string | `""` |
+
+Total: 19 fields.
+
+### reqMatchingSymbols (out 81)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `81` |
+| 1 | reqId | int | |
+| 2 | pattern | string | |
+
+Total: 3 fields. No version.
+
 ### Order condition element
 
 One element of the `placeOrder` / `openOrder` / `completedOrder` conditions group. The same
@@ -890,6 +915,77 @@ Total: 96 fields in the base case (indices 0–95). customerAccount (183), profe
 | 0 | msgId | int | `102` |
 
 Total: 1 field. No version field.
+
+### contractData (in 10)
+
+No version field and no mdSizeMultiplier at 178; field 1 is the reqId.
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `10` |
+| 1 | reqId | int | |
+| 2 | symbol | string | |
+| 3 | secType | string | |
+| 4 | lastTimes | string | kept whole in `lastTradeDateOrContractMonth` (empty for STK), not split |
+| 5 | strike | double | |
+| 6 | right | string | kept as sent (`?` for non-options is possible) |
+| 7 | exchange | string | |
+| 8 | currency | string | |
+| 9 | localSymbol | string | |
+| 10 | marketName | string | |
+| 11 | tradingClass | string | |
+| 12 | conId | int | |
+| 13 | minTick | double | |
+| 14 | multiplier | string | |
+| 15 | orderTypes | string | comma list; `""` is `[]` |
+| 16 | validExchanges | string | comma list; `""` is `[]` |
+| 17 | priceMagnifier | int | |
+| 18 | underConId | int | skipped |
+| 19 | longName | string | not unicode-unescaped |
+| 20 | primaryExchange | string | |
+| 21-24 | contractMonth, industry, category, subcategory | string | skipped |
+| 25 | timeZoneId | string | |
+| 26 | tradingHours | string | raw |
+| 27 | liquidHours | string | raw |
+| 28-29 | evRule, evMultiplier | | skipped |
+| 30 | numSecIds | int | |
+| + | secIdList | | numSecIds x (tag, value), skipped |
+| 31 | aggGroup | int | skipped |
+| 32-35 | underSymbol, underSecType, marketRuleIds, realExpirationDate | string | skipped |
+| 36 | stockType | string | |
+| 37 | minSize | decimal | unset reads as nil |
+| 38 | sizeIncrement | decimal | |
+| 39 | suggestedSizeIncrement | decimal | |
+
+Total: 40 fields plus 2 per secId. Fields past 39 are ignored by position.
+
+### contractDataEnd (in 52)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `52` |
+| 1 | version | int | ignored |
+| 2 | reqId | int | |
+
+Total: 3 fields.
+
+### symbolSamples (in 79)
+
+`79, reqId, n`, then n entries. No version.
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | conId | int | |
+| 1 | symbol | string | |
+| 2 | secType | string | |
+| 3 | primaryExchange | string | the contract's `exchange` stays `""` |
+| 4 | currency | string | |
+| 5 | numDerivativeSecTypes | int | m |
+| 6.. | derivativeSecType | string | m of them |
+| next | description | string | |
+| next | issuerId | string | |
+
+Entry size is 8 + m fields.
 
 ## Disagreements
 

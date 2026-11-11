@@ -25,6 +25,9 @@ public enum IBDecoder {
             case 49: try r.skip(); return .currentTime(try r.int())
             case 53: return .openOrderEnd
             case 55: try r.skip(); return .execDetailsEnd(requestID: try r.int())
+            case 10: return try contractData(&r)
+            case 52: try r.skip(); return .contractDataEnd(requestID: try r.int())
+            case 79: return try symbolSamples(&r)
             case 59:
                 try r.skip()
                 return .commissionReport(CommissionReport(
@@ -78,5 +81,56 @@ public enum IBDecoder {
             price: price, permID: permID, clientID: clientID, orderID: orderID, liquidation: liquidation,
             cumulativeQuantity: cumQty, averagePrice: avgPrice, orderRef: orderRef,
             lastLiquidity: lastLiquidity, pendingPriceRevision: pending))
+    }
+
+    private static func list(_ s: String) -> [String] { s.split(separator: ",").map(String.init) }
+
+    private static func contractData(_ r: inout FieldReader) throws -> IBMessage {
+        let requestID = try r.int()
+        var c = Contract(symbol: try r.string())
+        c.secType = try r.string(); c.lastTradeDateOrContractMonth = try r.string()  // lastTimes, kept whole
+        c.strike = try r.optionalDecimal(); c.right = try r.string(); c.exchange = try r.string()
+        c.currency = try r.string(); c.localSymbol = try r.string()
+        let marketName = try r.string()
+        c.tradingClass = try r.string(); c.conID = try r.int()
+        let minTick = try r.decimal()
+        c.multiplier = try r.string()
+        let orderTypes = list(try r.string()), validExchanges = list(try r.string())
+        let magnifier = try r.int()
+        try r.skip()  // underConId
+        let longName = try r.string()
+        c.primaryExchange = try r.string()
+        try r.skip(3)  // contractMonth, industry, category
+        try r.skip()   // subcategory
+        let tz = try r.string(), trading = try r.string(), liquid = try r.string()
+        try r.skip(2)  // evRule, evMultiplier
+        let secIDs = try r.int()
+        guard secIDs >= 0, secIDs <= r.fields.count else { throw IBProtocolError.badNumber(String(secIDs), index: r.index - 1) }
+        try r.skip(secIDs * 2 + 1)  // secIdList, aggGroup
+        try r.skip(4)  // underSymbol, underSecType, marketRuleIds, realExpirationDate
+        let stockType = try r.string()
+        let details = ContractDetails(
+            contract: c, marketName: marketName, minTick: minTick, priceMagnifier: magnifier, longName: longName,
+            stockType: stockType, orderTypes: orderTypes, validExchanges: validExchanges, timeZoneID: tz,
+            tradingHours: trading, liquidHours: liquid, minSize: try r.optionalDecimal(),
+            sizeIncrement: try r.optionalDecimal(), suggestedSizeIncrement: try r.optionalDecimal())
+        return .contractData(requestID: requestID, details)
+    }
+
+    private static func symbolSamples(_ r: inout FieldReader) throws -> IBMessage {
+        let requestID = try r.int()
+        let n = try r.int()
+        var out: [ContractDescription] = []
+        for _ in 0..<max(n, 0) {  // a short frame throws at the first missing field
+            var c = Contract(symbol: "", exchange: "")
+            c.conID = try r.int(); c.symbol = try r.string(); c.secType = try r.string()
+            c.primaryExchange = try r.string(); c.currency = try r.string()
+            let m = try r.int()
+            var derivatives: [String] = []
+            for _ in 0..<max(m, 0) { derivatives.append(try r.string()) }
+            out.append(ContractDescription(contract: c, derivativeSecTypes: derivatives,
+                                           description: try r.string(), issuerID: try r.string()))
+        }
+        return .symbolSamples(requestID: requestID, out)
     }
 }
