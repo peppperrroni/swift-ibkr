@@ -16,11 +16,12 @@ public actor IBClient {
     private var positionSubscribers = Subscribers<[Position]>()
 
     /// A per-request stream, by reqId: `route` gets what IB sends for it, `finish` ends it, `cancel` is sent
-    /// when the consumer stops it. Every entry belongs to the current connection; `end()` clears them all.
+    /// when the consumer stops it (`nil`: nothing to send). `route` returns true when it finished the stream
+    /// itself, and the entry is then removed. Every entry belongs to the current connection; `end()` clears them all.
     private struct RequestStream {
-        let route: (IBMessage) -> Void
+        let route: (IBMessage) -> Bool
         let finish: (IBClientError) -> Void
-        let cancel: IBRequest
+        let cancel: IBRequest?
     }
     private var requestStreams: [Int: RequestStream] = [:]
 
@@ -152,11 +153,10 @@ public actor IBClient {
                 values.append(v)
                 values.sort { ($0.account, $0.tag, $0.currency) < ($1.account, $1.tag, $1.currency) }
             case .accountSummaryEnd: ended = true
-            default: return
+            default: return false
             }
-            guard ended, values != last else { return }
-            last = values
-            out.yield(values)
+            if ended, values != last { last = values; out.yield(values) }
+            return false
         }
     }
 
@@ -168,7 +168,43 @@ public actor IBClient {
         return try openStream(.pnlSingle(requestID: id, account: account, modelCode: modelCode, conID: conID), id: id,
                               cancel: .cancelPnLSingle(requestID: id)) { message, out in
             if case .pnlSingle(_, let pnl) = message { out.yield(pnl) }
+            return false
         }
+    }
+
+    /// Every contract IB lists for `contract`, in its order, once IB's end marker arrives. Throws like a stream
+    /// ends: a fatal IB error for it (200 when nothing matches), or the connection ending.
+    public func contractDetails(_ contract: Contract) async throws(IBClientError) -> [ContractDetails] {
+        try requireConnected()
+        let id = nextRequestID()
+        return try await collect(try openStream(.contractDetails(requestID: id, contract: contract), id: id,
+                                                cancel: nil) { message, out in
+            switch message {
+            case .contractData(_, let d): out.yield(d); return false
+            case .contractDataEnd: out.finish(); return true
+            default: return false
+            }
+        })
+    }
+
+    /// The instruments whose symbol or name matches `pattern`, as IB samples them. Ends like `contractDetails`.
+    public func matchingSymbols(_ pattern: String) async throws(IBClientError) -> [ContractDescription] {
+        try requireConnected()
+        let id = nextRequestID()
+        return try await collect(try openStream(.matchingSymbols(requestID: id, pattern: pattern), id: id,
+                                                cancel: nil) { message, out in
+            guard case .symbolSamples(_, let list) = message else { return false }
+            out.yield(list); out.finish(); return true
+        }).flatMap { $0 }
+    }
+
+    /// Reads a self-ending stream to its end. It ends without error only when its end marker came, or when the
+    /// calling task was cancelled.
+    private func collect<E: Sendable>(_ stream: AsyncThrowingStream<E, any Error>) async throws(IBClientError) -> [E] {
+        var got: [E] = []
+        do { for try await x in stream { got.append(x) } } catch { throw error as? IBClientError ?? .cancelled }
+        if Task.isCancelled { throw .cancelled }
+        return got
     }
 
     /// Receives the fields of every incoming frame after the server hello, in arrival order, on the actor.
@@ -197,8 +233,8 @@ public actor IBClient {
 
     /// Sends `request`, then registers its stream; nothing is registered when it does not encode.
     private func openStream<Element: Sendable>(
-        _ request: IBRequest, id: Int, cancel: IBRequest,
-        route: @escaping (IBMessage, AsyncThrowingStream<Element, any Error>.Continuation) -> Void
+        _ request: IBRequest, id: Int, cancel: IBRequest?,
+        route: @escaping (IBMessage, AsyncThrowingStream<Element, any Error>.Continuation) -> Bool
     ) throws(IBClientError) -> AsyncThrowingStream<Element, any Error> {
         try send(request)
         let (stream, out) = AsyncThrowingStream.makeStream(of: Element.self, throwing: (any Error).self,
@@ -214,13 +250,14 @@ public actor IBClient {
     /// `gen` keeps a late stop from touching a stream that reuses the reqId on a later connection.
     private func stopped(_ id: Int, _ gen: Int) {
         guard gen == generation, let s = requestStreams.removeValue(forKey: id) else { return }
-        try? send(s.cancel)   // the cancel encodes: it is all integers
+        if let cancel = s.cancel { try? send(cancel) }   // the cancel encodes: it is all integers
     }
 
     private func routeToStream(_ message: IBMessage) {
         switch message {
-        case .accountSummary(let id, _), .accountSummaryEnd(let id), .pnlSingle(let id, _):
-            requestStreams[id]?.route(message)
+        case .accountSummary(let id, _), .accountSummaryEnd(let id), .pnlSingle(let id, _),
+             .contractData(let id, _), .contractDataEnd(let id), .symbolSamples(let id, _):
+            if requestStreams[id]?.route(message) == true { requestStreams[id] = nil }   // before any termination hop
         case .error(let e) where ErrorCode.kind(e.code) == .fatal:
             requestStreams.removeValue(forKey: e.requestID)?.finish(.ib(code: e.code, text: e.text))
         default: break
