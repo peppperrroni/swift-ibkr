@@ -48,3 +48,18 @@ func take<T: Sendable>(_ count: Int, _ stream: AsyncThrowingStream<T, any Error>
     }
     return (reader, result)
 }
+
+struct TimedOutWaiting: Error, CustomStringConvertible { var description: String }
+
+/// `within2s` with a longer limit for live runs: fails with a message naming `what` after `seconds` instead of hanging.
+func within<T: Sendable>(_ what: String, seconds: Int = 15, _ operation: @escaping @Sendable () async throws -> T) async throws -> T {
+    try await withCheckedThrowingContinuation { cont in
+        let race = Race(cont)
+        let work = Task { race.finish(await Result { try await operation() }) }
+        let timer = Task {
+            try? await Task.sleep(for: .seconds(seconds))
+            if !Task.isCancelled { race.finish(.failure(TimedOutWaiting(description: "timed out after \(seconds) s waiting for \(what)"))); work.cancel() }
+        }
+        Task { _ = await work.value; timer.cancel() }
+    }
+}

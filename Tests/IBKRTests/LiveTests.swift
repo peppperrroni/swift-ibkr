@@ -37,6 +37,22 @@ where S.Element: Sendable {
     }
 }
 
+/// The first element of `stream`, or nil when IB refuses it for want of a market-data subscription (printed); another
+/// error fails with its code. Returning ends the loop, so the cancel goes out.
+private func firstOrRefusal<T: Sendable>(_ what: String, _ stream: AsyncThrowingStream<T, any Error>) async throws -> T? {
+    do {
+        return try await within("the first value of \(what)") {
+            for try await x in stream { return x }
+            throw LiveFailure(description: "\(what) ended without a value")
+        }
+    } catch IBClientError.noMarketDataPermission(let code, _) {
+        print("[live] \(what): refused, code \(code)")
+        return nil
+    } catch IBClientError.ib(let code, let text) {
+        throw LiveFailure(description: "\(what): IB error \(code): \(text)")
+    }
+}
+
 /// What `account` holds of `conID` in a whole position set; 0 when it holds none.
 private func held(_ set: [Position], _ account: String, _ conID: Int) -> Decimal {
     set.filter { $0.account == account && $0.contract.conID == conID }.reduce(0) { $0 + $1.quantity }
@@ -124,6 +140,55 @@ struct LiveTests {
                 open = await client.requestStreamCount
             }
             #expect(open == 0, "the account summary subscription was not cancelled")
+        }
+    }
+
+    @Test func liveContractLookups() async throws {
+        try await live("liveContractLookups", clientID: 79) { client, _ in
+            let details = try await within("contractDetails(AAPL)") { try await client.contractDetails(aapl) }
+            #expect(details.count == 1)
+            let first = try #require(details.first)
+            #expect(first.contract.conID == 265598)
+            #expect(first.minTick > 0)
+            #expect(!first.timeZoneID.isEmpty)
+            #expect(!first.tradingHours.isEmpty)
+            print("[live] contractDetails: \(details.count) entry, minTick \(first.minTick), tz \(first.timeZoneID)")
+            let matches = try await within("matchingSymbols(AAPL)") { try await client.matchingSymbols("AAPL") }
+            #expect(matches.contains { $0.contract.conID == 265598 })
+            print("[live] matchingSymbols: \(matches.count) matches")
+        }
+    }
+
+    @Test func liveMarketData() async throws {
+        try await live("liveMarketData", clientID: 80) { client, _ in
+            // Quotes: leaving the loop cancels the subscription.
+            try await client.setMarketDataType(.delayed)
+            let quotes = try await client.marketData(aapl)
+            let seen: (type: MarketDataType?, fields: [Int]) = try await within("a dataType and a price tick") {
+                var type: MarketDataType?, fields: [Int] = []
+                for try await tick in quotes {
+                    if case .dataType(let t) = tick { type = t }
+                    if case .price(let f, let p, _) = tick, p != nil { fields.append(f.rawValue) }
+                    if type != nil && !fields.isEmpty { return (type, fields) }
+                }
+                throw LiveFailure(description: "quote stream ended before a dataType and a price")
+            }
+            print("[live] marketData: dataType \(String(describing: seen.type?.rawValue)), price fields \(seen.fields)")
+
+            // The three below may be refused for want of a subscription; that is an answer, anything else fails.
+            let bars = try await client.historicalBars(aapl, duration: "1 D", barSize: "5 mins")
+            if let event = try await firstOrRefusal("historicalBars", bars), case .history(let h) = event {
+                #expect(!h.isEmpty)
+                print("[live] historicalBars: \(h.count) bars")
+            }
+            let depth = try await client.marketDepth(aapl, rows: 5)
+            if let book = try await firstOrRefusal("marketDepth", depth) {
+                print("[live] marketDepth: yielded, \(book.bids.count) bids, \(book.asks.count) asks")
+            }
+            let ticks = try await client.tickByTick(aapl, .allLast)
+            if let tick = try await firstOrRefusal("tickByTick", ticks) {
+                print("[live] tickByTick: yielded \(tick)")
+            }
         }
     }
 
