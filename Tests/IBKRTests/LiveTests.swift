@@ -38,8 +38,10 @@ where S.Element: Sendable {
 }
 
 /// The first element of `stream`, or nil when IB refuses it for want of a market-data subscription (printed); another
-/// error fails with its code. Returning ends the loop, so the cancel goes out.
-private func firstOrRefusal<T: Sendable>(_ what: String, _ stream: AsyncThrowingStream<T, any Error>) async throws -> T? {
+/// error fails with its code. Returning ends the loop, so the cancel goes out. With `silenceIsAnAnswer`, 15 s of
+/// nothing is printed and accepted too: without depth permissions IB sends notice 2152 and then nothing at all.
+private func firstOrRefusal<T: Sendable>(_ what: String, _ stream: AsyncThrowingStream<T, any Error>,
+                                         silenceIsAnAnswer: Bool = false) async throws -> T? {
     do {
         return try await within("the first value of \(what)") {
             for try await x in stream { return x }
@@ -50,6 +52,9 @@ private func firstOrRefusal<T: Sendable>(_ what: String, _ stream: AsyncThrowing
         return nil
     } catch IBClientError.ib(let code, let text) {
         throw LiveFailure(description: "\(what): IB error \(code): \(text)")
+    } catch let silence as TimedOutWaiting where silenceIsAnAnswer {
+        print("[live] \(what): no answer (\(silence))")
+        return nil
     }
 }
 
@@ -176,16 +181,21 @@ struct LiveTests {
             try await client.setMarketDataType(.delayed)
             do {
                 let quotes = try await client.marketData(aapl)
-                let seen: (type: MarketDataType?, fields: [Int]) = try await within("a dataType and a price tick") {
-                    var type: MarketDataType?, fields: [Int] = []
-                    for try await tick in quotes {
-                        if case .dataType(let t) = tick { type = t }
-                        if case .price(let f, let p, _) = tick, p != nil { fields.append(f.rawValue) }
-                        if type != nil && !fields.isEmpty { return (type, fields) }
+                // A paper account without a data subscription, or with its live login busy elsewhere, is refused (10197).
+                do {
+                    let seen: (type: MarketDataType?, fields: [Int]) = try await within("a dataType and a price tick") {
+                        var type: MarketDataType?, fields: [Int] = []
+                        for try await tick in quotes {
+                            if case .dataType(let t) = tick { type = t }
+                            if case .price(let f, let p, _) = tick, p != nil { fields.append(f.rawValue) }
+                            if type != nil && !fields.isEmpty { return (type, fields) }
+                        }
+                        throw LiveFailure(description: "quote stream ended before a dataType and a price")
                     }
-                    throw LiveFailure(description: "quote stream ended before a dataType and a price")
+                    print("[live] marketData: dataType \(seen.type.map { "\($0.rawValue)" } ?? "none"), price fields \(seen.fields)")
+                } catch IBClientError.noMarketDataPermission(let code, _) {
+                    print("[live] marketData: refused, code \(code)")
                 }
-                print("[live] marketData: dataType \(seen.type.map { "\($0.rawValue)" } ?? "none"), price fields \(seen.fields)")
             }
             // The three below may be refused for want of a subscription; that is an answer, anything else fails.
             do {
@@ -199,13 +209,13 @@ struct LiveTests {
             }
             do {
                 let depth = try await client.marketDepth(aapl, rows: 5)
-                if let book = try await firstOrRefusal("marketDepth", depth) {
+                if let book = try await firstOrRefusal("marketDepth", depth, silenceIsAnAnswer: true) {
                     print("[live] marketDepth: yielded, \(book.bids.count) bids, \(book.asks.count) asks")
                 }
             }
             do {
                 let ticks = try await client.tickByTick(aapl, .allLast)
-                if let tick = try await firstOrRefusal("tickByTick", ticks) {
+                if let tick = try await firstOrRefusal("tickByTick", ticks, silenceIsAnAnswer: true) {
                     print("[live] tickByTick: yielded \(tick)")
                 }
             }

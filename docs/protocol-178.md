@@ -1099,6 +1099,8 @@ A BAG contract is refused.
 
 `13, version, reqId, position, marketMaker, operation, side, price, size, isSmartDepth`; 10 fields. `isSmartDepth` is read
 and dropped. Both 12 and 13 become `.depth`. Error 317 (depth reset, a notice) empties the book; the stream goes on.
+Without depth permissions the gateway answers reqMktDepth with notice 2152 for the reqId («Unknown market data
+permissions - Depth: NASDAQ; ...») and then nothing (paper run 2026-11-11).
 
 ### reqTickByTickData (out 97)
 

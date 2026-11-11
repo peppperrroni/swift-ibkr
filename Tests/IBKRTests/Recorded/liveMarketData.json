@@ -1,0 +1,100 @@
+[
+  [
+    "15",
+    "1",
+    "DU0000001"
+  ],
+  [
+    "9",
+    "1",
+    "1"
+  ],
+  [
+    "4",
+    "2",
+    "-1",
+    "2104",
+    "Market data farm connection is OK:usfarm.nj",
+    ""
+  ],
+  [
+    "4",
+    "2",
+    "-1",
+    "2104",
+    "Market data farm connection is OK:usfarm",
+    ""
+  ],
+  [
+    "4",
+    "2",
+    "-1",
+    "2106",
+    "HMDS data farm connection is OK:ushmds",
+    ""
+  ],
+  [
+    "4",
+    "2",
+    "-1",
+    "2158",
+    "Sec-def data farm connection is OK:secdefil",
+    ""
+  ],
+  [
+    "53",
+    "1"
+  ],
+  [
+    "102"
+  ],
+  [
+    "55",
+    "1",
+    "1"
+  ],
+  [
+    "62",
+    "1"
+  ],
+  [
+    "4",
+    "2",
+    "2",
+    "10197",
+    "No market data during competing live session",
+    ""
+  ],
+  [
+    "4",
+    "2",
+    "3",
+    "162",
+    "Historical Market Data Service error message:Trading TWS session is connected from a different IP address",
+    ""
+  ],
+  [
+    "4",
+    "2",
+    "2",
+    "10197",
+    "No market data during competing live session",
+    ""
+  ],
+  [
+    "4",
+    "2",
+    "4",
+    "2152",
+    "Exchanges - Top: IBEOS; OVERNIGHT; Unknown market data permissions - Depth: NASDAQ; BATS; ARCA; BEX; NYSE; IEX; Top: BYX; AMEX; PEARL; T24X; MEMX; EDGEA; TXSE; CHX; NYSENAT; PSX; LTSE; ISE; DRCTEDGE; ",
+    ""
+  ],
+  [
+    "4",
+    "2",
+    "5",
+    "10189",
+    "Failed to request tick-by-tick data.No market data permissions for ISLAND STK",
+    ""
+  ]
+]

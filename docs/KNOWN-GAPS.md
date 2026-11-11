@@ -1,6 +1,7 @@
-# Known gaps after stage 3
+# Known gaps after stage 4
 
-What stages 1 to 3 (codec and merging; socket, `IBClient`, a live paper run; positions, account summary, P&L) leave open. Delete a line when it
+What stages 1 to 4 (codec and merging; socket, `IBClient`, a live paper run; positions, account summary, P&L; market
+data and contract lookups) leave open. Delete a line when it
 is settled.
 
 ## To confirm against a live gateway
@@ -11,14 +12,25 @@ has `""` there, so that shows no more). The pre-market fill run (marketable limi
 fill and its commission, completedOrder's layout (a cancelled order replayed by the sync, with its 4-field
 delta-neutral group present), and `ExecutionFilter.clientID` nil sent as `"0"`: client 78 saw client 77's fill. The stage-3 runs of 2026-11-10 settled: positions 0 -> 1 -> 0, with IB's 0 row
 for a closed position dropped; the account summary's first set, in GBP; pnlSingle values (all set, none unset);
-and the closing SELL's commission with realized P&L.
+and the closing SELL's commission with realized P&L. The stage-4 run of 2026-11-11 (paper account, no market-data
+subscription) settled contractDetails (AAPL: one entry, conID 265598, minTick 0.01, US/Eastern) and matchingSymbols.
 Still open:
+
+- Market data is unchecked live: the paper account has no data subscription, so every request was refused or
+  silent. Quotes (with `.delayed` set) got 10197 «No market data during competing live session»; history got 162
+  «Trading TWS session is connected from a different IP address»; tick-by-tick got 10189 «... No market data
+  permissions for ISLAND STK». All three end the stream with `.noMarketDataPermission`, though no other session was
+  open: IB's texts for 10197 and 162 name a cause that was not there. The tick, bar, depth and tick-by-tick
+  decoders are checked only against hand-built frames. Rerun `liveMarketData` once there is a subscription.
+- `marketDepth` without depth permissions never yields and never throws: IB sends notice 2152 for the reqId and then
+  nothing. A consumer cannot tell that from a quiet book. Decide in stage 5 whether 2152 on a depth request ends the
+  stream (its text can list exchanges that do have permissions).
 
 - Error text may arrive `\uXXXX`-escaped (IB's client unescapes it from server 153): unescape `text` and
   `advancedOrderRejectJson` if so, with a recorded frame as the test. None of the six recorded errors was escaped.
 - Warning codes missing from the error table (e.g. 10349 «TIF set to DAY by preset»): an unlisted code is fatal,
   and before IB acknowledges an order a fatal error marks it inactive. The live run sent 2104, 2107, 2158 and 399
-  («will not be placed until the open»), all already notices, and 202 on cancel.
+  («will not be placed until the open»), all already notices, and 202 on cancel. The stage-4 run added 2119 («farm is connecting») and 2152, both notices.
 - Whether a rejected order shows up again in `completedOrders` (its tracker snapshot has permID 0, so it would be
   duplicated).
 - Recorded (`Tests/IBKRTests/Recorded/`): the handshake and sync, one limit order placed and cancelled, and one

@@ -166,3 +166,31 @@ func recordedPnLSingleDecodes() throws {
     let e = try #require(cap)
     #expect(e.requestID == 7 && e.text.contains("357.97385"))
 }
+
+/// AAPL's contractData from the paper gateway (2026-11-11): one entry, the stock on SMART.
+@Test func recordedContractDetailsDecodes() throws {
+    let frames = try recording("liveContractLookups").filter { $0.first == "10" }
+    #expect(frames.count == 1)
+    guard let f = frames.first, case .contractData(_, let details) = IBDecoder.decode(body(f)) else {
+        Issue.record("no contractData"); return
+    }
+    #expect(details.contract.conID == 265598)
+    #expect(details.minTick == d("0.01"))
+    #expect(details.timeZoneID == "US/Eastern")
+    #expect(!details.tradingHours.isEmpty)
+}
+
+/// A paper account without a market-data subscription (2026-11-11): quotes 10197, history 162 «different IP»,
+/// tick-by-tick 10189 — all typed refusals; depth gets only notice 2152 and then nothing.
+@Test func recordedMarketDataRefusalsAreTyped() throws {
+    var seen: [Int: Bool] = [:]
+    for f in try recording("liveMarketData") {
+        guard case .error(let e) = IBDecoder.decode(body(f)), e.requestID > 0 else { continue }
+        seen[e.code] = ErrorCode.isNoMarketDataPermission(code: e.code, text: e.text)
+    }
+    #expect(seen[10197] == true)
+    #expect(seen[162] == true)
+    #expect(seen[10189] == true)
+    #expect(seen[2152] == false)
+    #expect(ErrorCode.kind(2152) == .notice)
+}
