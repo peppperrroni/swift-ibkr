@@ -49,7 +49,7 @@ public enum IBDecoder {
             case 17:
                 let id = try r.int(); try r.skip(2)  // startDate, endDate
                 var bars: [Bar] = []
-                for _ in 0..<(try r.int()) {
+                for _ in 0..<(try wireCount(&r)) {
                     let time = try barTime(&r)
                     bars.append(Bar(time: time, open: try r.decimal(), high: try r.decimal(), low: try r.decimal(),
                                     close: try r.decimal(), volume: try r.decimal(), average: try r.optionalDecimal(),
@@ -121,17 +121,27 @@ public enum IBDecoder {
             lastLiquidity: lastLiquidity, pendingPriceRevision: pending))
     }
 
+    /// A repeat count off the wire: a negative one is a corrupt frame, not an empty list (and `0..<n` traps on it).
+    private static func wireCount(_ r: inout FieldReader) throws -> Int {
+        let n = try r.int()
+        guard n >= 0 else { throw IBProtocolError.badNumber(String(n), index: r.index - 1) }
+        return n
+    }
+
     /// 8 characters is a calendar day (checked first, as ib_async does: daily bars are dates under either
     /// formatDate); all digits is epoch seconds. Anything else, such as formatDate 1 text, is refused.
     private static func barTime(_ r: inout FieldReader) throws -> Date {
         let s = try r.string(), at = r.index - 1
+        guard !s.isEmpty, s.utf8.allSatisfy({ $0 >= 48 && $0 <= 57 }) else {
+            throw IBProtocolError.unexpectedValue(s, index: at)
+        }
         if s.utf8.count == 8, let day = Int(s) {
             var c = DateComponents(); c.year = day / 10000; c.month = day / 100 % 100; c.day = day % 100
             var cal = Calendar(identifier: .gregorian); cal.timeZone = TimeZone(identifier: "UTC")!
             guard let date = cal.date(from: c) else { throw IBProtocolError.unexpectedValue(s, index: at) }
             return date
         }
-        guard !s.isEmpty, s.utf8.allSatisfy({ $0 >= 48 && $0 <= 57 }), let t = Double(s) else {
+        guard let t = Double(s) else {
             throw IBProtocolError.unexpectedValue(s, index: at)
         }
         return Date(timeIntervalSince1970: t)
@@ -173,15 +183,15 @@ public enum IBDecoder {
 
     private static func symbolSamples(_ r: inout FieldReader) throws -> IBMessage {
         let requestID = try r.int()
-        let n = try r.int()
+        let n = try wireCount(&r)
         var out: [ContractDescription] = []
-        for _ in 0..<max(n, 0) {  // a short frame throws at the first missing field
+        for _ in 0..<n {  // a short frame throws at the first missing field
             var c = Contract(symbol: "", exchange: "")
             c.conID = try r.int(); c.symbol = try r.string(); c.secType = try r.string()
             c.primaryExchange = try r.string(); c.currency = try r.string()
-            let m = try r.int()
+            let m = try wireCount(&r)
             var derivatives: [String] = []
-            for _ in 0..<max(m, 0) { derivatives.append(try r.string()) }
+            for _ in 0..<m { derivatives.append(try r.string()) }
             out.append(ContractDescription(contract: c, derivativeSecTypes: derivatives,
                                            description: try r.string(), issuerID: try r.string()))
         }

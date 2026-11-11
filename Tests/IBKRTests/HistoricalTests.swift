@@ -43,6 +43,16 @@ private let batch = ["17", "9", "20261110  09:30:00", "20261110  16:00:00", "2",
         #expect(bar.count == 42 && bar.volume == 300 && bar.average == d("351.6"))
     }
 
+    @Test func negativeBarCountIsMalformed() {
+        var f = batch; f[4] = "-1"
+        guard case .malformed = IBDecoder.decode(body(f)) else { Issue.record("not malformed"); return }
+    }
+
+    @Test func signedDayTimeIsMalformed() {
+        var f = batch; f[5] = "-1234567"
+        guard case .malformed = IBDecoder.decode(body(f)) else { Issue.record("not malformed"); return }
+    }
+
     @Test func badBarTimeIsMalformed() {
         var f = batch; f[5] = "yesterday"
         guard case .malformed = IBDecoder.decode(body(f)) else { Issue.record("not malformed"); return }

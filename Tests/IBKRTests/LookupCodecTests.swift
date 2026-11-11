@@ -56,6 +56,13 @@ import Testing
         #expect(IBDecoder.decode(body("52", "1", "5")) == .contractDataEnd(requestID: 5))
     }
 
+    @Test func negativeSymbolCountsAreMalformed() {
+        for f in [["79", "6", "-1"],
+                  ["79", "6", "1", "265598", "AAPL", "STK", "NASDAQ", "USD", "-1", "APPLE INC", ""]] {
+            guard case .malformed = IBDecoder.decode(body(f)) else { Issue.record("not malformed: \(f)"); return }
+        }
+    }
+
     @Test func symbolSamplesDecode() {
         let f = ["79", "6", "2", "265598", "AAPL", "STK", "NASDAQ", "USD", "2", "OPT", "WAR", "APPLE INC", "",
                  "38708077", "AAPL", "STK", "MEXI", "MXN", "0", "APPLE INC", ""]
