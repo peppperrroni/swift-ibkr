@@ -1,3 +1,5 @@
+import Foundation
+
 public struct IBErrorMessage: Sendable, Equatable {
     public var requestID: Int
     public var code: Int
@@ -27,6 +29,8 @@ public enum IBMessage: Sendable, Equatable {
     case contractData(requestID: Int, ContractDetails)
     case contractDataEnd(requestID: Int)
     case symbolSamples(requestID: Int, [ContractDescription])
+    case tick(requestID: Int, Tick)
+    case tickRequestParameters(requestID: Int, minTick: Decimal?, bboExchange: String, snapshotPermissions: Int)
     case unknown(id: Int, fields: [String])
     case malformed(id: Int, fields: [String], reason: String)
 }

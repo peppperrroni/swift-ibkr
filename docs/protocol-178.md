@@ -403,6 +403,42 @@ Total: 19 fields.
 
 Total: 3 fields. No version.
 
+### reqMarketDataType (out 59)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `59` |
+| 1 | version | int | `1` |
+| 2 | marketDataType | int | 1 real-time, 2 frozen, 3 delayed, 4 delayed-frozen |
+
+Total: 3 fields. Session-global, no reqId; not remembered across a reconnect.
+
+### reqMktData (out 1)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `1` |
+| 1 | version | int | `11` |
+| 2 | reqId | int | |
+| 3-14 | contract | | the 12-field contract block; `BAG` is refused |
+| 15 | deltaNeutralContractPresent | bool | `0` |
+| 16 | genericTickList | string | `""` |
+| 17 | snapshot | bool | `0` |
+| 18 | regulatorySnapshot | bool | `0` |
+| 19 | mktDataOptions | string | `""`, always sent |
+
+Total: 20 fields.
+
+### cancelMktData (out 2)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `2` |
+| 1 | version | int | `2` |
+| 2 | reqId | int | |
+
+Total: 3 fields.
+
 ### Order condition element
 
 One element of the `placeOrder` / `openOrder` / `completedOrder` conditions group. The same
@@ -986,6 +1022,40 @@ Total: 3 fields.
 | next | issuerId | string | |
 
 Entry size is 8 + m fields.
+
+### tickPrice (in 1)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `1` |
+| 1 | version | int | ignored |
+| 2 | reqId | int | |
+| 3 | tickType | int | kept whole as a `TickField` |
+| 4 | price | decimal | empty/unset is `nil`; IB's `-1` stays `-1` |
+| 5 | size | decimal | empty/unset is `nil` |
+| 6 | attribMask | int | read and dropped |
+
+Total: 7 fields.
+
+### tickSize (in 2)
+
+`2, version, reqId, tickType, size`; 5 fields. `size` empty/unset is `nil`.
+
+### tickGeneric (in 45)
+
+`45, version, reqId, tickType, value`; 5 fields. `value` is a double on the wire, read as a decimal.
+
+### tickString (in 46)
+
+`46, version, reqId, tickType, value`; 5 fields.
+
+### marketDataType (in 58)
+
+`58, version, reqId, marketDataType`; 4 fields. A value outside 1-4 is malformed.
+
+### tickReqParams (in 81)
+
+`81, reqId, minTick, bboExchange, snapshotPermissions`; 5 fields. No version. Decoded, not put into any stream.
 
 ## Disagreements
 

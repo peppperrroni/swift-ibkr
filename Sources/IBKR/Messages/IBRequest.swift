@@ -17,6 +17,9 @@ public enum IBRequest: Sendable, Equatable {
     case cancelPnLSingle(requestID: Int)
     case contractDetails(requestID: Int, contract: Contract)
     case matchingSymbols(requestID: Int, pattern: String)
+    case marketDataType(MarketDataType)
+    case marketData(requestID: Int, contract: Contract)
+    case cancelMarketData(requestID: Int)
 
     /// Fields only; the caller frames them. Field order is docs/protocol-178.md.
     func body() throws(IBEncodingError) -> [UInt8] {
@@ -58,6 +61,13 @@ public enum IBRequest: Sendable, Equatable {
             w.add(false); try w.add(""); try w.add(""); try w.add("")  // includeExpired, secIdType, secId, issuerId
         case .matchingSymbols(let reqID, let pattern):
             w.add(81); w.add(reqID); try w.add(pattern)
+        case .marketDataType(let t):
+            w.add(59); w.add(1); w.add(t.rawValue)
+        case .marketData(let reqID, let c):
+            w.add(1); w.add(11); w.add(reqID); try Self.contract(&w, c)
+            w.add(false); try w.add(""); w.add(false); w.add(false); try w.add("")  // delta-neutral, genericTickList, snapshot, regulatorySnapshot, options
+        case .cancelMarketData(let reqID):
+            w.add(2); w.add(2); w.add(reqID)
         }
         return w.body
     }

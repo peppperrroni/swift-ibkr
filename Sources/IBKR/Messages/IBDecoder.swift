@@ -28,6 +28,27 @@ public enum IBDecoder {
             case 10: return try contractData(&r)
             case 52: try r.skip(); return .contractDataEnd(requestID: try r.int())
             case 79: return try symbolSamples(&r)
+            case 1:
+                try r.skip(); let id = try r.int(), f = TickField(rawValue: try r.int())
+                let price = try r.optionalDecimal(), size = try r.optionalDecimal()
+                try r.skip()  // attribMask
+                return .tick(requestID: id, .price(f, price: price, size: size))
+            case 2:
+                try r.skip(); let id = try r.int(), f = TickField(rawValue: try r.int())
+                return .tick(requestID: id, .size(f, try r.optionalDecimal()))
+            case 45:
+                try r.skip(); let id = try r.int(), f = TickField(rawValue: try r.int())
+                return .tick(requestID: id, .generic(f, try r.decimal()))
+            case 46:
+                try r.skip(); let id = try r.int(), f = TickField(rawValue: try r.int())
+                return .tick(requestID: id, .string(f, try r.string()))
+            case 58:
+                try r.skip(); let id = try r.int(), raw = try r.int()
+                guard let t = MarketDataType(rawValue: raw) else { throw IBProtocolError.badNumber(String(raw), index: r.index - 1) }
+                return .tick(requestID: id, .dataType(t))
+            case 81:
+                return .tickRequestParameters(requestID: try r.int(), minTick: try r.optionalDecimal(),
+                                              bboExchange: try r.string(), snapshotPermissions: try r.int())
             case 59:
                 try r.skip()
                 return .commissionReport(CommissionReport(
