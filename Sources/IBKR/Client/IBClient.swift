@@ -338,9 +338,13 @@ public actor IBClient {
         case .error(let e) where ErrorCode.kind(e.code) == .notice:
             if requestStreams[e.requestID]?.route(message) == true { requestStreams[e.requestID] = nil }
         case .error(let e) where ErrorCode.kind(e.code) == .fatal:
-            requestStreams.removeValue(forKey: e.requestID)?.finish(
-                ErrorCode.isNoMarketDataPermission(code: e.code, text: e.text)
-                    ? .noMarketDataPermission(code: e.code, text: e.text) : .ib(code: e.code, text: e.text))
+            guard let s = requestStreams.removeValue(forKey: e.requestID) else { break }
+            if ErrorCode.isNoMarketDataPermission(code: e.code, text: e.text) {
+                if let cancel = s.cancel { try? send(cancel) }   // IB keeps a refused subscription open
+                s.finish(.noMarketDataPermission(code: e.code, text: e.text))
+            } else {
+                s.finish(.ib(code: e.code, text: e.text))
+            }
         default: break
         }
     }

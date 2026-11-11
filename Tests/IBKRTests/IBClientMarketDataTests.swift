@@ -51,6 +51,8 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
     await #expect(throws: IBClientError.noMarketDataPermission(code: 354, text: "Requested market data is not subscribed.")) {
         _ = try await within2s { try await result.value }
     }
+    // IB keeps a refused subscription open, so the refusal sends the cancel.
+    #expect(try await gateway.waitForSent(7)[6] == ["2", "2", id])
 }
 
 @Test func otherFatalStaysIB() async throws {
@@ -63,4 +65,6 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
     await #expect(throws: IBClientError.ib(code: 200, text: "No security definition")) {
         _ = try await within2s { try await result.value }
     }
+    try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel
+    #expect(try await gateway.waitForSent(6).count == 6)
 }

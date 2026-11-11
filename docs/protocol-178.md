@@ -439,6 +439,9 @@ Total: 20 fields.
 
 Total: 3 fields.
 
+Sent when the consumer stops the stream, and when IB refuses it for want of permission (354, 10089, 10168, 10186,
+10197): IB keeps a refused subscription open.
+
 ### Order condition element
 
 One element of the `placeOrder` / `openOrder` / `completedOrder` conditions group. The same
@@ -1066,7 +1069,7 @@ whatToShow, formatDate, keepUpToDate, chartOptions`. Barsize comes before durati
 
 ### cancelHistoricalData (out 25)
 
-`25, 1, reqId`; 3 fields. Sent when the consumer stops a stream still registered, including a keepUpToDate one.
+`25, 1, reqId`; 3 fields. Sent when the consumer stops a stream still registered, including a keepUpToDate one. Also sent when IB refuses the stream for want of permission (162 with a permission text): IB keeps a refused subscription open.
 
 ### historicalData (in 17)
 

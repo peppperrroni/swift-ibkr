@@ -106,4 +106,5 @@ private let batch = ["17", "9", "20261110  09:30:00", "20261110  16:00:00", "2",
     await #expect(throws: IBClientError.noMarketDataPermission(code: 162, text: text)) {
         _ = try await within2s { try await result.value }
     }
+    #expect(try await gateway.waitForSent(7)[6] == ["25", "1", id])
 }
