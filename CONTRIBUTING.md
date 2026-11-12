@@ -39,11 +39,12 @@ Every public declaration has a doc comment. The audit lists any that lacks one, 
 one (run from the repository root):
 
 ```bash
-mkdir -p .build/symbol-graphs
+dir="$PWD/.build/symbol-graphs"
+mkdir -p "$dir"
 for t in IBKR IBKRFlex; do
-  swift build --target $t -Xswiftc -emit-symbol-graph -Xswiftc -emit-symbol-graph-dir -Xswiftc .build/symbol-graphs
+  swift build --target $t -Xswiftc -emit-symbol-graph -Xswiftc -emit-symbol-graph-dir -Xswiftc "$dir"
 done
-python3 Scripts/doc-coverage.py .build/symbol-graphs/*.symbols.json
+python3 Scripts/doc-coverage.py "$dir"/*.symbols.json
 ```
 
 On Windows `python3` may be the Microsoft Store stub; use `python` there.
@@ -51,7 +52,7 @@ On Windows `python3` may be the Microsoft Store stub; use `python` there.
 The DocC documentation builds on macOS:
 
 ```bash
-xcodebuild docbuild -scheme swift-ibkr-Package -destination 'generic/platform=macOS'
+xcodebuild docbuild -scheme swift-ibkr-Package -destination 'generic/platform=macOS' \n  OTHER_DOCC_FLAGS=--warnings-as-errors
 ```
 
 ## The example

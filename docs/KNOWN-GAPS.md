@@ -73,7 +73,7 @@ CI (`.github/workflows/ci.yml`) builds and tests on macOS, Linux and Windows and
   runner's Xcode on macOS (6.3 at the time of writing), or any ARM Linux;
 - build the DocC docs anywhere but macOS, or build `Examples/IBKRExample` on Windows;
 - deploy the docs until the owner enables GitHub Pages (Settings → Pages → Source: GitHub Actions): until then the
-  docs workflow's deploy job, which runs only on a push to `main` or a manual dispatch, fails on `main`.
+  docs workflow's deploy job, which runs only on `main` (a push or a manual dispatch from `main`), fails there.
 
 ## Owner steps
 

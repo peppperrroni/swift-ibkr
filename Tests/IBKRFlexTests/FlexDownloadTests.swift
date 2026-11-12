@@ -43,8 +43,8 @@ private func query(_ url: URL) -> [URLQueryItem] {
 /// The task's result, or nil when it has not finished within `limit`. A hung task is left behind, not awaited.
 private func result<T: Sendable>(of task: Task<T, any Error>, within limit: Duration) async -> Result<T, any Error>? {
     let results = AsyncStream<Result<T, any Error>?> { continuation in
-        Task { continuation.yield(await task.result) }
-        Task { try? await Task.sleep(for: limit); continuation.yield(nil) }
+        Task { _ = continuation.yield(await task.result) }
+        Task { try? await Task.sleep(for: limit); _ = continuation.yield(nil) }
     }
     for await first in results { return first }
     return nil

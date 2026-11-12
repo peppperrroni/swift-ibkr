@@ -22,6 +22,7 @@ jobs:
           for t in IBKR IBKRFlex; do
             swift build --target $t -Xswiftc -emit-symbol-graph -Xswiftc -emit-symbol-graph-dir -Xswiftc "$dir"
           done
+          test -f "$dir/IBKR.symbols.json" && test -f "$dir/IBKRFlex.symbols.json"
           python3 Scripts/doc-coverage.py "$dir"/*.symbols.json
       - name: Build the DocC archives
         run: >
@@ -33,6 +34,7 @@ jobs:
             lower=$(echo "$module" | tr '[:upper:]' '[:lower:]')
             archive=$(find .build/docbuild -type d -name "$module.doccarchive" | head -n 1)
             test -n "$archive"
+            mkdir -p "site/$lower"
             xcrun docc process-archive transform-for-static-hosting "$archive" \
               --output-path "site/$lower" --hosting-base-path "swift-ibkr/$lower"
           done
@@ -58,7 +60,7 @@ jobs:
 
   deploy:
     needs: build
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     permissions:
       pages: write
