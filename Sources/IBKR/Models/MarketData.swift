@@ -84,6 +84,14 @@ public struct ContractDescription: Sendable, Equatable {
 /// IB's market-data type: which kind of data `reqMktData` gets without a subscription.
 public enum MarketDataType: Int, Sendable { case realtime = 1, frozen, delayed, delayedFrozen }
 
+/// One entry of reqMktData's generic tick list: IB's number (`233`) or a tagged entry (`"mdoff"`, `"292:BRFG"`).
+public struct GenericTick: RawRepresentable, Hashable, Sendable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral {
+    public var rawValue: String
+    public init(rawValue: String) { self.rawValue = rawValue }
+    public init(integerLiteral value: Int) { rawValue = String(value) }
+    public init(stringLiteral value: String) { rawValue = value }
+}
+
 /// IB's tick field number. A struct, not an enum, so a number this library does not name survives.
 public struct TickField: RawRepresentable, Hashable, Sendable {
     public var rawValue: Int

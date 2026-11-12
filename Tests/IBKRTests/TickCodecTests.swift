@@ -111,6 +111,12 @@ import Testing
             == body(["1", "11", "7"] + aapl + ["0", "100,101,104", "1", "1", ""]))
     }
 
+    @Test func marketDataSendsTaggedGenericTicks() throws {
+        #expect(try IBRequest.marketData(requestID: 7, contract: Contract(symbol: "AAPL"),
+                                         genericTicks: [100, "292:BRFG+DJNL"]).body()
+            == body(["1", "11", "7"] + aapl + ["0", "100,292:BRFG+DJNL", "0", "0", ""]))
+    }
+
     @Test func marketDataSendsTheDeltaNeutralContract() throws {
         var c = Contract(symbol: "AAPL")
         c.deltaNeutralContract = DeltaNeutralContract(conID: 265598, delta: d("0.5"), price: d("187.25"))

@@ -71,6 +71,7 @@ public enum IBMessage: Sendable, Equatable {
     case newsArticle(requestID: Int, NewsArticle)
     case historicalNews(requestID: Int, HistoricalNews)
     case historicalNewsEnd(requestID: Int, hasMore: Bool)
+    case newsBulletin(NewsBulletin)
     case rerouteMarketData(requestID: Int, conID: Int, exchange: String)
     case rerouteMarketDepth(requestID: Int, conID: Int, exchange: String)
     case unknown(id: Int, fields: [String])

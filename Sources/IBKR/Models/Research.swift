@@ -88,3 +88,15 @@ public struct HistoricalNews: Sendable, Equatable {
         self.time = time; self.providerCode = providerCode; self.articleID = articleID; self.headline = headline
     }
 }
+
+/// One news bulletin. `msgType` is IB's: 1 a regular bulletin, 2 an exchange no longer trades, 3 it trades again.
+public struct NewsBulletin: Sendable, Equatable {
+    public var msgID: Int
+    public var msgType: Int
+    public var message: String
+    public var origExchange: String
+
+    public init(msgID: Int, msgType: Int, message: String, origExchange: String) {
+        self.msgID = msgID; self.msgType = msgType; self.message = message; self.origExchange = origExchange
+    }
+}

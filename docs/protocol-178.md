@@ -575,7 +575,7 @@ Total: 3 fields. Session-global, no reqId; not remembered across a reconnect.
 | + | conId, ratio, action, exchange | int, int, string, string | per leg, only for `BAG` |
 | 15 | deltaNeutralContractPresent | bool | `0`, or `1` when `Contract.deltaNeutralContract` is set |
 | + | conId, delta, price | int, double, double | only after a `1` in row 15 |
-| 16 | genericTickList | string | `genericTicks` comma-joined, `""` when none |
+| 16 | genericTickList | string | `genericTicks` comma-joined: IB's numbers or tagged entries (`100,mdoff,292:BRFG`), `""` when none |
 | 17 | snapshot | bool | `snapshot` (`0`/`1`, default `0`) |
 | 18 | regulatorySnapshot | bool | `regulatorySnapshot` (`0`/`1`, default `0`) |
 | 19 | mktDataOptions | string | `""`, always sent |
@@ -1649,6 +1649,23 @@ version. `providerCodes` joins the codes with `+`. The dates are `ib_async`'s te
 ### historicalNewsEnd (in 87)
 
 `87, reqId, hasMore`; 3 fields. Ends `historicalNews`; `hasMore` is dropped, as `ib_async` drops it.
+
+### reqNewsBulletins (out 12)
+
+`12, 1, allMsgs`; 3 fields, no reqId. `allMsgs` is `0`/`1`: `1` also asks for the day's earlier bulletins. Sent by
+`newsBulletins(allMessages:)`. IB holds one bulletin subscription per connection, so a second open stream throws
+`.alreadySubscribed` and sends nothing.
+
+### cancelNewsBulletins (out 13)
+
+`13, 1`; 2 fields. Sent when the consumer stops the `newsBulletins` stream; it cancels the connection's only bulletin
+subscription.
+
+### updateNewsBulletin (in 14)
+
+`14, version, msgId, msgType, message, origExchange`; 6 fields. `msgType` 1 is a regular bulletin, 2 an exchange no
+longer trading, 3 trading again. No reqId: the open `newsBulletins` stream yields every one, and it reaches
+`messages()` too. IB addresses no error to it.
 
 ### reqMktDepth (out 10)
 

@@ -59,4 +59,11 @@ func scan(_ id: String) -> [String] {
         #expect(IBDecoder.decode(body("87", "7", "1")) == .historicalNewsEnd(requestID: 7, hasMore: true))
         guard case .malformed = IBDecoder.decode(body("85", "-1")) else { Issue.record("not malformed"); return }
     }
+
+    @Test func newsBulletinsCodec() throws {
+        #expect(try IBRequest.newsBulletins(allMessages: true).body() == body("12", "1", "1"))
+        #expect(try IBRequest.cancelNewsBulletins.body() == body("13", "1"))
+        #expect(IBDecoder.decode(body("14", "1", "3", "1", "Exchange halted", "NYSE"))
+                == .newsBulletin(NewsBulletin(msgID: 3, msgType: 1, message: "Exchange halted", origExchange: "NYSE")))
+    }
 }

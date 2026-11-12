@@ -122,6 +122,10 @@ public enum IBDecoder {
             case 86:
                 return .historicalNews(requestID: try r.int(), HistoricalNews(
                     time: try r.string(), providerCode: try r.string(), articleID: try r.string(), headline: try r.string()))
+            case 14:
+                try r.skip()
+                return .newsBulletin(NewsBulletin(msgID: try r.int(), msgType: try r.int(), message: try r.string(),
+                                                  origExchange: try r.string()))
             case 87: return .historicalNewsEnd(requestID: try r.int(), hasMore: try r.bool())
             case 75: return try optionChain(&r)
             case 76: return .securityDefinitionOptionParameterEnd(requestID: try r.int())

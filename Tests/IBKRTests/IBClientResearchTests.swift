@@ -128,6 +128,60 @@ private let cancelled = "Historical Market Data Service error message:API scanne
     #expect(await client.requestStreamCount == 0)
 }
 
+private let halted = ["14", "1", "3", "1", "Exchange halted", "NYSE"]
+private let haltedBulletin = NewsBulletin(msgID: 3, msgType: 1, message: "Exchange halted", origExchange: "NYSE")
+
+@Test func newsBulletinsStreamAndCancel() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let bulletins = try await client.newsBulletins()
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames] == ["12", "1", "0"])
+    let (seen, signal) = AsyncStream.makeStream(of: NewsBulletin.self)
+    let reader = Task { do { for try await b in bulletins { signal.yield(b) } } catch {} }
+    gateway.feed(halted)
+    #expect(try await within2s { await seen.first { _ in true } } == haltedBulletin)
+    reader.cancel()
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["13", "1"])
+    #expect(await client.requestStreamCount == 0)
+}
+
+/// Review Focus 5: IB holds one bulletin subscription per connection, so a second stream is refused, not shared.
+@Test func aSecondNewsBulletinsStreamIsRefused() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let first = try await client.newsBulletins()
+    await #expect(throws: IBClientError.alreadySubscribed) { _ = try await client.newsBulletins() }
+    try await Task.sleep(for: .milliseconds(50))   // room for a wrong second 12
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).filter { $0[0] == "12" }.count == 1)
+    let reader = Task { do { for try await _ in first {} } catch {} }
+    reader.cancel()
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["13", "1"])
+    _ = try await client.newsBulletins(allMessages: true)
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 3)[FakeGateway.syncFrames + 2] == ["12", "1", "1"])
+}
+
+@Test func newsBulletinsEndWithTheConnection() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let bulletins = try await client.newsBulletins()
+    _ = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
+    gateway.close()
+    await #expect(throws: IBClientError.connectionClosed) { try await within2s { for try await _ in bulletins {} } }
+}
+
+@Test func newsTicksArriveThroughMarketData() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let ticks = try await client.marketData(Contract(symbol: "BRFG:BRFG_ALL", secType: "NEWS", exchange: "BRFG"),
+                                            genericTicks: ["mdoff", "292"])
+    let f = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames]
+    #expect(f[16] == "mdoff,292")
+    gateway.feed(["84", f[2], "1794321000000", "BRFG", "BRFG$12345", "Apple headline", "A:800015:L:en"])
+    #expect(try await within2s { try await ticks.first { _ in true } }
+            == .news(NewsTick(timeStamp: 1794321000000, providerCode: "BRFG", articleID: "BRFG$12345",
+                              headline: "Apple headline", extraData: "A:800015:L:en")))
+}
+
 @Test func historicalNewsFailsOnItsError() async throws {
     let gateway = FakeGateway()
     let client = try await connected(gateway)

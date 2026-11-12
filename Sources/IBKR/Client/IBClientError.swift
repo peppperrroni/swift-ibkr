@@ -8,4 +8,6 @@ public enum IBClientError: Error, Equatable, Sendable {
     case noMarketDataPermission(code: Int, text: String)
     /// The calling task was cancelled while `connect` or a one-shot request waited.
     case cancelled
+    /// A subscription IB allows once per connection is already open.
+    case alreadySubscribed
 }

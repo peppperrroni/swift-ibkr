@@ -29,6 +29,8 @@ public actor IBClient {
     }
     private var requestStreams: [Int: RequestStream] = [:]
     private var localID = -1
+    /// The open `newsBulletins` stream's key; IB holds one bulletin subscription per connection.
+    var newsBulletinKey: Int?
 
     // The current connection. `generation` changes whenever one starts or ends, so a late event from an old
     // connection's reader, writer or timer is dropped.
@@ -414,9 +416,10 @@ public actor IBClient {
 
     /// Every top-of-book tick IB sends for `contract`. Ends like `accountSummary`, with
     /// `.noMarketDataPermission` when IB refuses for want of a subscription; stopping it cancels. `genericTicks` are
-    /// IB's generic tick type ids. A `snapshot` stream ends by itself at IB's snapshot end, with no cancel.
+    /// IB's generic tick numbers or tagged entries (`"mdoff"`, `"292:BRFG"` for news ticks). A `snapshot` stream
+    /// ends by itself at IB's snapshot end, with no cancel.
     public func marketData(
-        _ contract: Contract, genericTicks: [Int] = [], snapshot: Bool = false, regulatorySnapshot: Bool = false
+        _ contract: Contract, genericTicks: [GenericTick] = [], snapshot: Bool = false, regulatorySnapshot: Bool = false
     ) throws(IBClientError) -> AsyncThrowingStream<Tick, any Error> {
         try requireConnected()
         let id = nextRequestID()
@@ -565,7 +568,7 @@ public actor IBClient {
     /// deduplication; a slow consumer keeps only the newest. `depthRows` adds `marketDepth`'s book; it is opened
     /// first, since it refuses everything `marketData` refuses and BAG too. The first inner error ends the stream with
     /// that error, and however it ends, every request still open is cancelled.
-    public func tickers(_ contract: Contract, genericTicks: [Int] = [], depthRows: Int? = nil, smartDepth: Bool = true)
+    public func tickers(_ contract: Contract, genericTicks: [GenericTick] = [], depthRows: Int? = nil, smartDepth: Bool = true)
         throws(IBClientError) -> AsyncThrowingStream<Ticker, any Error> {
         var depth: AsyncThrowingStream<DepthBook, any Error>?
         if let depthRows { depth = try marketDepth(contract, rows: depthRows, smart: smartDepth) }
@@ -756,6 +759,7 @@ public actor IBClient {
 
     var orderSubscriberCount: Int { orderSubscribers.count }
     var requestStreamCount: Int { requestStreams.count }
+    func hasStream(_ key: Int) -> Bool { requestStreams[key] != nil }
 
     func requireConnected() throws(IBClientError) {
         guard case .connected = state else { throw .notConnected }
@@ -821,7 +825,7 @@ public actor IBClient {
         case .openOrder(let m) where m.order.whatIf:   // whatIfOrder's answer, keyed by the order id it took
             if requestStreams[m.orderID]?.route(message) == true { requestStreams[m.orderID] = nil }
         case .currentTime, .managedAccounts, .nextValidID, .depthExchanges, .marketRule, .familyCodes,
-             .scannerParameters, .newsProviders:   // no reqId: the oldest waiter that takes it gets it
+             .scannerParameters, .newsProviders, .newsBulletin:   // no reqId: the oldest waiter that takes it gets it
             for key in requestStreams.keys.filter({ $0 < -1 }).sorted(by: >) where requestStreams[key]?.route(message) == true {
                 requestStreams[key] = nil
                 break

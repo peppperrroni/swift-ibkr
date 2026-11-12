@@ -47,6 +47,23 @@ extension IBClient {
         return try await answer(.newsProviders) { if case .newsProviders(let list) = $0 { list } else { nil } }
     }
 
+    /// IB's news bulletins; `allMessages` also asks for today's earlier ones. Never ends itself; stopping it sends IB's
+    /// cancel. IB holds one bulletin subscription per connection, so while one stream is open another throws
+    /// `.alreadySubscribed` and sends nothing. IB addresses no error to it.
+    public func newsBulletins(allMessages: Bool = false)
+        throws(IBClientError) -> AsyncThrowingStream<NewsBulletin, any Error> {
+        try requireConnected()
+        if let key = newsBulletinKey, hasStream(key) { throw .alreadySubscribed }
+        let key = nextLocalID()
+        let stream = try openStream(.newsBulletins(allMessages: allMessages), id: key, cancel: .cancelNewsBulletins) {
+            (message, out: AsyncThrowingStream<NewsBulletin, any Error>.Continuation) in
+            if case .newsBulletin(let b) = message { out.yield(b) }
+            return false   // never ends itself, and lets the other id-less waiters see each message
+        }
+        newsBulletinKey = key
+        return stream
+    }
+
     /// One article's text, by the provider code and article id a headline carries.
     public func newsArticle(providerCode: String, articleID: String, options: [TagValue] = [])
         async throws(IBClientError) -> NewsArticle {

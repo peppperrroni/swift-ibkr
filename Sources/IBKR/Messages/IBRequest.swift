@@ -27,7 +27,7 @@ public enum IBRequest: Sendable, Equatable {
     case contractDetails(requestID: Int, contract: Contract)
     case matchingSymbols(requestID: Int, pattern: String)
     case marketDataType(MarketDataType)
-    case marketData(requestID: Int, contract: Contract, genericTicks: [Int] = [], snapshot: Bool = false,
+    case marketData(requestID: Int, contract: Contract, genericTicks: [GenericTick] = [], snapshot: Bool = false,
                     regulatorySnapshot: Bool = false)
     case cancelMarketData(requestID: Int)
     case historicalData(requestID: Int, contract: Contract, end: Date?, barSize: String, duration: String,
@@ -64,6 +64,8 @@ public enum IBRequest: Sendable, Equatable {
     case cancelScannerSubscription(requestID: Int)
     case scannerParameters
     case newsProviders
+    case newsBulletins(allMessages: Bool)
+    case cancelNewsBulletins
     case newsArticle(requestID: Int, providerCode: String, articleID: String, options: [TagValue])
     case historicalNews(requestID: Int, conID: Int, providerCodes: [String], start: Date?, end: Date?,
                         totalResults: Int, options: [TagValue])
@@ -117,6 +119,10 @@ public enum IBRequest: Sendable, Equatable {
             w.add(24); w.add(1)
         case .newsProviders:
             w.add(85)
+        case .newsBulletins(let all):
+            w.add(12); w.add(1); w.add(all)
+        case .cancelNewsBulletins:
+            w.add(13); w.add(1)
         case .newsArticle(let reqID, let provider, let article, let options):
             w.add(84); w.add(reqID); try w.add(provider); try w.add(article); try w.add(Self.tagValues(options))
         case .historicalNews(let reqID, let conID, let providers, let start, let end, let total, let options):
@@ -198,7 +204,7 @@ public enum IBRequest: Sendable, Equatable {
             } else {
                 w.add(false)
             }
-            try w.add(genericTicks.map(String.init).joined(separator: ","))
+            try w.add(genericTicks.map(\.rawValue).joined(separator: ","))
             w.add(snapshot); w.add(regulatorySnapshot); try w.add("")  // options
         case .cancelMarketData(let reqID):
             w.add(2); w.add(2); w.add(reqID)

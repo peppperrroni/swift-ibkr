@@ -53,7 +53,7 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | Market data | quotes with generic ticks and snapshots, `Ticker` streams and batch snapshots, greeks, EFP, news ticks, real-time bars, depth book, depth exchanges, SMART components, tick-by-tick, BAG, typed «no permission» refusal | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
 | History | bars with keepUpToDate, historical ticks, head timestamp, histogram, trading schedule, BAG | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
 | Scanner | scan stream, one-shot scan, scanner parameters | ✅ on the fake gateway; a live run is due in stage 13 |
-| News | providers, article text, historical headlines | ✅ on the fake gateway; a live run is due in stage 13 |
+| News | providers, article text, historical headlines, bulletins, news ticks through `marketData` | ✅ on the fake gateway; a live run is due in stage 13 |
 
 What is still unconfirmed against a live gateway is listed in [`docs/KNOWN-GAPS.md`](docs/KNOWN-GAPS.md).
 There are no tagged releases yet, and the API may still change.
@@ -289,7 +289,8 @@ from a real failure.
 // Quotes. Without a subscription ask for delayed data; it is not kept across reconnects, so set it after connect.
 try await client.setMarketDataType(.delayed)
 Task { for try await tick in try await client.marketData(aapl) { print(tick) } }
-// genericTicks: [Int] adds IB's generic tick types (e.g. [233]); snapshot: true ends the stream at tickSnapshotEnd, no cancel.
+// genericTicks: [GenericTick] adds IB's generic ticks: numbers ([233]) or tagged entries (["mdoff", "292:BRFG"] for news);
+// snapshot: true ends the stream at tickSnapshotEnd, no cancel.
 // .price, .size, .generic, .string, .dataType, .optionComputation, .efp, .requestParameters, .news
 
 // A whole Ticker (bid/ask/last, OHLC, greeks, the rest keyed by field) after every update; depthRows adds the book.
@@ -352,11 +353,17 @@ Both throw `.ib` on IB's error. Filter tags (`filterOptions: [TagValue]`) are th
 let providers = try await client.newsProviders()   // [NewsProvider]: code ("BRFG") and name
 let news = try await client.historicalNews(conID: 265598, providerCodes: providers.map(\.code), totalResults: 10)
 let article = try await client.newsArticle(providerCode: news[0].providerCode, articleID: news[0].articleID)
+// Live headlines: a NEWS contract with the tagged generic ticks; each arrives as Tick.news.
+let feed = try await client.marketData(Contract(symbol: "BRFG:BRFG_ALL", secType: "NEWS", exchange: "BRFG"),
+                                       genericTicks: ["mdoff", "292"])
+// IB's bulletins (exchange halts and notices); allMessages: true also sends the day's earlier ones.
+Task { for try await b in try await client.newsBulletins() { print(b.msgType, b.message) } }
 ```
 
 `historicalNews` reads every headline up to IB's end marker and sends no cancel (IB has none). `start` and `end` are
 optional `Date`s; `HistoricalNews.time` is IB's own text. `newsArticle` and `historicalNews` throw `.ib` on IB's error
-(10172, 10187).
+(10172, 10187). IB holds one bulletin subscription per connection, so a second `newsBulletins()` while one is open
+throws `.alreadySubscribed`; stopping the stream sends IB's cancel, and a new one can then be opened.
 
 ### Errors
 
