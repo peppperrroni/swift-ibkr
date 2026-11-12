@@ -699,7 +699,7 @@ no smart-routing params.
 | 38 | settlingFirm ★ | string | |
 | 39 | shortSaleSlot ★ | int | |
 | 40 | designatedLocation ★ | string | |
-| 41 | exemptCode ★ | int | |
+| 41 | exemptCode ★ | int | `""` → `-1` |
 | 42 | auctionStrategy ★ | int | |
 | 43 | startingPrice ★ | double | |
 | 44 | stockRefPrice ★ | double | |
@@ -760,7 +760,7 @@ no smart-routing params.
 | 83 | solicited ★ | bool | |
 | 84 | whatIf ★ | bool | |
 | 85 | status | string | OrderState.status |
-| 86 | initMarginBefore ★ | string | `OrderState`, `Decimal?`; `""` and the sentinels → nil |
+| 86 | initMarginBefore ★ | string | `OrderState`, `Decimal?`; `""`, the sentinels and unparseable text → nil (`ib_async` keeps it a string) |
 | 87 | maintMarginBefore ★ | string | `OrderState`, as 86 |
 | 88 | equityWithLoanBefore ★ | string | `OrderState`, as 86 |
 | 89 | initMarginChange ★ | string | `OrderState`, as 86 |
@@ -769,9 +769,9 @@ no smart-routing params.
 | 92 | initMarginAfter ★ | string | `OrderState`, as 86 |
 | 93 | maintMarginAfter ★ | string | `OrderState`, as 86 |
 | 94 | equityWithLoanAfter ★ | string | `OrderState`, as 86 |
-| 95 | commission ★ | double | `OrderState`, as 86 |
-| 96 | minCommission ★ | double | `OrderState`, as 86 |
-| 97 | maxCommission ★ | double | `OrderState`, as 86 |
+| 95 | commission ★ | double | `OrderState`, `Decimal?`; `""` and the sentinels → nil |
+| 96 | minCommission ★ | double | `OrderState`, as 95 |
+| 97 | maxCommission ★ | double | `OrderState`, as 95 |
 | 98 | commissionCurrency ★ | string | `OrderState` |
 | 99 | warningText ★ | string | `OrderState`; (the outside-RTH margin block starts at 195 — absent) |
 | 100 | randomizeSize ★ | bool | |
@@ -1151,7 +1151,7 @@ No version field. Base case as for `openOrder`.
 | 35 | settlingFirm ★ | string | |
 | 36 | shortSaleSlot ★ | int | |
 | 37 | designatedLocation ★ | string | |
-| 38 | exemptCode ★ | int | no auctionStrategy here |
+| 38 | exemptCode ★ | int | `""` → `-1`; no auctionStrategy here |
 | 39 | startingPrice ★ | double | |
 | 40 | stockRefPrice ★ | double | |
 | 41 | delta ★ | double | |

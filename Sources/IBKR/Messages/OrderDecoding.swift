@@ -64,7 +64,7 @@ extension IBDecoder {
         o.faGroup = try r.string(); o.faMethod = try r.string(); o.faPercentage = try r.string()
         o.modelCode = try r.string(); o.goodTillDate = try r.string(); o.rule80A = try r.string()
         o.percentOffset = try r.optionalDecimal(); o.settlingFirm = try r.string(); o.shortSaleSlot = try r.int()
-        o.designatedLocation = try r.string(); o.exemptCode = try r.int(); o.auctionStrategy = try r.int()
+        o.designatedLocation = try r.string(); o.exemptCode = try r.optionalInt() ?? -1; o.auctionStrategy = try r.int()
         o.startingPrice = try r.optionalDecimal(); o.stockRefPrice = try r.optionalDecimal()
         o.delta = try r.optionalDecimal(); o.stockRangeLower = try r.optionalDecimal()
         o.stockRangeUpper = try r.optionalDecimal(); o.displaySize = try r.int()
@@ -89,12 +89,12 @@ extension IBDecoder {
         try deltaNeutralContractAndAlgo(&r, &contract, &o)
         o.solicited = try r.bool(); o.whatIf = try r.bool()
         let status = OrderStatus(rawValue: try r.string())
+        func margin() -> Decimal? { try? r.optionalDecimal() }  // unparseable → nil: ib_async keeps margins as strings, IB's format is unconfirmed
         let state = OrderState(
-            initMarginBefore: try r.optionalDecimal(), maintMarginBefore: try r.optionalDecimal(),
-            equityWithLoanBefore: try r.optionalDecimal(), initMarginChange: try r.optionalDecimal(),
-            maintMarginChange: try r.optionalDecimal(), equityWithLoanChange: try r.optionalDecimal(),
-            initMarginAfter: try r.optionalDecimal(), maintMarginAfter: try r.optionalDecimal(),
-            equityWithLoanAfter: try r.optionalDecimal(), commission: try r.optionalDecimal(),
+            initMarginBefore: margin(), maintMarginBefore: margin(), equityWithLoanBefore: margin(),
+            initMarginChange: margin(), maintMarginChange: margin(), equityWithLoanChange: margin(),
+            initMarginAfter: margin(), maintMarginAfter: margin(), equityWithLoanAfter: margin(),
+            commission: try r.optionalDecimal(),
             minCommission: try r.optionalDecimal(), maxCommission: try r.optionalDecimal(),
             commissionCurrency: try r.string(), warningText: try r.string())
         o.randomizeSize = try r.bool(); o.randomizePrice = try r.bool()
@@ -123,7 +123,7 @@ extension IBDecoder {
         o.faGroup = try r.string(); o.faMethod = try r.string(); o.faPercentage = try r.string()
         o.modelCode = try r.string(); o.goodTillDate = try r.string(); o.rule80A = try r.string()
         o.percentOffset = try r.optionalDecimal(); o.settlingFirm = try r.string(); o.shortSaleSlot = try r.int()
-        o.designatedLocation = try r.string(); o.exemptCode = try r.int()
+        o.designatedLocation = try r.string(); o.exemptCode = try r.optionalInt() ?? -1
         o.startingPrice = try r.optionalDecimal(); o.stockRefPrice = try r.optionalDecimal()
         o.delta = try r.optionalDecimal(); o.stockRangeLower = try r.optionalDecimal()
         o.stockRangeUpper = try r.optionalDecimal(); o.displaySize = try r.int()

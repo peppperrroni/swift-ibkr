@@ -42,7 +42,8 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
   `conditionsCancelOrder`, `minTradeQty`, `minCompeteSize`, `competeAgainstBestOffset` and the mid offsets. New types
   `OrderCondition` and `CompeteOffset`.
 - `whatIfOrder(_:_:)` returns IB's margin and commission for an order without placing it, as a new `OrderState`
-  (nine margins and three commissions as `Decimal?`, `commissionCurrency`, `warningText`). openOrder decodes it into
+  (nine margins and three commissions as `Decimal?`, an unparseable margin `nil`, `commissionCurrency`,
+  `warningText`). openOrder decodes it into
   the new `OpenOrderMessage.state`; what-if openOrders never reach `orders()`.
 - `OrderSnapshot.advancedOrderRejectJSON`: the raw advanced-reject JSON of the last error for the order that had one.
 

@@ -267,3 +267,20 @@ private func expectConditionalGroups(_ c: Contract, _ o: Order) {
         maintMarginAfter: d("1000.25"), equityWithLoanAfter: d("9998.5"), commission: d("1.25"), minCommission: 1,
         maxCommission: d("1.5"), commissionCurrency: "USD", warningText: "margin warning"))
 }
+
+@Test func unparseableMarginIsNil() {
+    var f = openFields()
+    f[86] = "N/A"; f[87] = "800"; f[95] = "1.25"
+    let m = openOrder(f)
+    #expect(m?.state.initMarginBefore == nil && m?.state.maintMarginBefore == 800 && m?.state.commission == d("1.25"))
+}
+
+@Test func emptyExemptCodeIsUnset() {
+    var f = openFields()
+    f[41] = ""
+    #expect(openOrder(f)?.order.exemptCode == -1)
+    var c = completedFields()
+    c[38] = ""
+    guard case .completedOrder(let m) = IBDecoder.decode(body(c)) else { Issue.record("not decoded"); return }
+    #expect(m.order.exemptCode == -1)
+}
