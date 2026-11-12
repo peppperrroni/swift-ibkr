@@ -674,6 +674,7 @@ public actor IBClient {
         try? send(.executions(requestID: executionsID, filter: ExecutionFilter()))
         try? send(.positions)
         guard let accounts else { return }
+        if accountTracker.prune(to: accounts) { portfolioSubscribers.yield([]) }   // another login's state is stale
         if accounts.count == 1 {   // reqAccountUpdates: the portfolio too, but for one account at a time
             accountTracker.reload()
             syncEnds?.append(.accountDownloadEnd(account: accounts[0]))

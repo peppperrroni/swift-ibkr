@@ -117,3 +117,28 @@ private func next<T: Sendable>(_ count: Int, _ stream: AsyncStream<T>) async thr
     #expect(try await next(1, updates).map(keys) == [["DU1/2"]])   // never both, never empty
     #expect(keys(await client.portfolio().snapshot) == ["DU1/2"])
 }
+
+@Test func severalAccountsEmptyAnEarlierPortfolio() async throws {
+    let (one, two) = (FakeGateway(), FakeGateway(accounts: "DU1,DU2"))
+    one.onRequest = { $0[0] == "6" ? [item("DU1", "1")] : [] }
+    let client = IBClient(connector: Gateways([one, two]).connector)
+    try await connect(client)
+    let (snapshot, updates) = await client.portfolio()
+    #expect(keys(snapshot) == ["DU1/1"])
+    await client.disconnect()
+    try await connect(client)
+    #expect(try await next(1, updates) == [[]])   // IB sends no portfolio for several accounts: the old one is frozen
+    #expect(await client.portfolio().snapshot.isEmpty)
+}
+
+@Test func valuesOfAnAccountNoLongerManagedAreDropped() async throws {
+    let (one, two) = (FakeGateway(), FakeGateway(accounts: "DU2"))
+    one.onRequest = { $0[0] == "6" ? [value("100", "DU1")] : [] }
+    two.onRequest = { $0[0] == "6" ? [value("200", "DU2")] : [] }
+    let client = IBClient(connector: Gateways([one, two]).connector)
+    try await connect(client)
+    #expect(await client.accountValues().snapshot == [netLiq("100", "DU1")])
+    await client.disconnect()
+    try await connect(client)
+    #expect(await client.accountValues().snapshot == [netLiq("200", "DU2")])
+}

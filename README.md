@@ -109,7 +109,8 @@ await client.disconnect()
 - **When `connect` returns.** It returns once the handshake is done and the open orders, completed orders,
   executions, positions, portfolio and account values are all synced. One timeout covers all of that.
 - **Accounts.** With one managed account, `connect` subscribes to its account updates (portfolio and values). With
-  several, it subscribes to each account's values only, and `portfolio()` stays empty: use `positions()`.
+  several, it subscribes to each account's values only, and `portfolio()` stays empty: use `positions()`. Each
+  connect drops the values of accounts the login no longer manages, and with several accounts the portfolio too.
 - **What it throws.** On failure it throws an `IBClientError`:
   - `.timeout`;
   - `.connectionClosed`;
