@@ -48,9 +48,9 @@ private func lastRequestID(_ gateway: FakeGateway, _ count: Int, at index: Int) 
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     let stream = try await client.accountSummary(tags: tags)
-    let sent = try await gateway.waitForSent(6)
-    let id = sent[5][2]
-    #expect(sent[5] == ["62", "1", id, "All", "NetLiquidation,BuyingPower"])
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
+    let id = sent[FakeGateway.syncFrames][2]
+    #expect(sent[FakeGateway.syncFrames] == ["62", "1", id, "All", "NetLiquidation,BuyingPower"])
     gateway.feed(value(id, "NetLiquidation", "100000"))
     gateway.feed(value(id, "BuyingPower", "400000"))
     gateway.feed(end(id))
@@ -63,7 +63,7 @@ private func lastRequestID(_ gateway: FakeGateway, _ count: Int, at index: Int) 
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     let stream = try await client.accountSummary(tags: ["NetLiquidation"])
-    let id = try await lastRequestID(gateway, 6, at: 2)
+    let id = try await lastRequestID(gateway, FakeGateway.syncFrames + 1, at: 2)
     gateway.feed(value(id, "NetLiquidation", "100"))
     gateway.feed(end(id))
     gateway.feed(value(id, "NetLiquidation", "101"))
@@ -78,22 +78,22 @@ private func lastRequestID(_ gateway: FakeGateway, _ count: Int, at index: Int) 
     let client = try await connected(gateway)
     let one = try await client.accountSummary(tags: tags)
     let two = try await client.accountSummary(tags: tags)
-    let sent = try await gateway.waitForSent(7)
-    let (id1, id2) = (sent[5][2], sent[6][2])
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
+    let (id1, id2) = (sent[FakeGateway.syncFrames][2], sent[FakeGateway.syncFrames + 1][2])
     let text = "Maximum number of account summary requests exceeded"
     gateway.feed(["4", "2", id1, "322", text, ""])
     gateway.feed(value(id2, "NetLiquidation", "100"))
     gateway.feed(end(id2))
     #expect(try await ending(one) == .ib(code: 322, text: text))
     #expect(pairs(try await take(1, two)[0]) == ["DU1/NetLiquidation=100"])
-    #expect(!(try await gateway.waitForSent(7)).contains { $0 == ["63", "1", id1] })
+    #expect(!(try await gateway.waitForSent(FakeGateway.syncFrames + 2)).contains { $0 == ["63", "1", id1] })
 }
 
 @Test func noticeDoesNotEndAStream() async throws {
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     let stream = try await client.accountSummary(tags: ["NetLiquidation"])
-    let id = try await lastRequestID(gateway, 6, at: 2)
+    let id = try await lastRequestID(gateway, FakeGateway.syncFrames + 1, at: 2)
     gateway.feed(["4", "2", id, "2104", "Market data farm connection is OK:usfarm", ""])
     gateway.feed(value(id, "NetLiquidation", "100"))
     gateway.feed(end(id))
@@ -113,12 +113,12 @@ private func lastRequestID(_ gateway: FakeGateway, _ count: Int, at index: Int) 
     let messages = await client.messages()
 
     _ = try await take(1, client.accountSummary(tags: ["NetLiquidation"]))
-    let id = try await gateway.waitForSent(6)[5][2]
-    #expect(try await gateway.waitForSent(7)[6] == ["63", "1", id])
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][2]
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["63", "1", id])
 
     _ = try await take(1, client.pnlSingle(account: "DU1", conID: 265598))
-    let pid = try await gateway.waitForSent(8)[7][1]
-    #expect(try await gateway.waitForSent(9)[8] == ["95", pid])
+    let pid = try await gateway.waitForSent(FakeGateway.syncFrames + 3)[FakeGateway.syncFrames + 2][1]
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 4)[FakeGateway.syncFrames + 3] == ["95", pid])
     #expect(await client.requestStreamCount == 0)
 
     gateway.feed(value(id, "NetLiquidation", "101"))   // late, for the stopped reqIds
@@ -132,16 +132,16 @@ private func lastRequestID(_ gateway: FakeGateway, _ count: Int, at index: Int) 
         }
     }
     #expect(await client.requestStreamCount == 0)
-    #expect(try await gateway.waitForSent(9).count == 9)
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 4).count == FakeGateway.syncFrames + 4)
 }
 
 @Test func pnlSingleYieldsEachUpdate() async throws {
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     let stream = try await client.pnlSingle(account: "DU1", conID: 265598)
-    let sent = try await gateway.waitForSent(6)
-    let id = sent[5][1]
-    #expect(sent[5] == ["94", id, "DU1", "", "265598"])
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
+    let id = sent[FakeGateway.syncFrames][1]
+    #expect(sent[FakeGateway.syncFrames] == ["94", id, "DU1", "", "265598"])
     gateway.feed(pnl(id, "1.5"))
     gateway.feed(["95", id, "100", "2.5", "1.7976931348623157E308", "0", "18725"])
     let updates = try await take(2, stream)
@@ -155,13 +155,13 @@ func disconnectEndsRequestStreams(peerCloses: Bool) async throws {
     let client = try await connected(gateway)
     let summary = try await client.accountSummary(tags: ["NetLiquidation"])
     let p = try await client.pnlSingle(account: "DU1", conID: 265598)
-    _ = try await gateway.waitForSent(7)
+    _ = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
     if peerCloses { gateway.close() } else { await client.disconnect() }
     #expect(try await ending(summary) == .connectionClosed)
     #expect(try await ending(p) == .connectionClosed)
     #expect(await client.requestStreamCount == 0)
     try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel from the streams' termination
-    #expect(try await gateway.waitForSent(7).count == 7)
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2).count == FakeGateway.syncFrames + 2)
 }
 
 @Test func requestStreamsNeedAConnection() async throws {
@@ -179,15 +179,15 @@ func disconnectEndsRequestStreams(peerCloses: Bool) async throws {
     }
     #expect(await client.requestStreamCount == 0)
     try await client.cancelOrder(1)   // the next frame out is this one
-    let sent = try await gateway.waitForSent(6)
-    #expect(sent.count == 6 && sent[5][0] == "4")
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
+    #expect(sent.count == FakeGateway.syncFrames + 1 && sent[FakeGateway.syncFrames][0] == "4")
 }
 
 @Test func warningEndsARequestStream() async throws {
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     let stream = try await client.accountSummary(tags: ["NetLiquidation"])
-    let id = try await lastRequestID(gateway, 6, at: 2)
+    let id = try await lastRequestID(gateway, FakeGateway.syncFrames + 1, at: 2)
     gateway.feed(["4", "2", id, "321", "Error validating request", ""])
     #expect(try await ending(stream) == .ib(code: 321, text: "Error validating request"))
 }

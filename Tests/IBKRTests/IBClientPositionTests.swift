@@ -18,12 +18,6 @@ private func firstUpdate(_ stream: AsyncStream<[Position]>) async throws -> [Pos
     }
 }
 
-private actor Gateways {
-    private var list: [FakeGateway]
-    init(_ list: [FakeGateway]) { self.list = list }
-    func next() -> FakeGateway { list.removeFirst() }
-}
-
 @Test func syncedPositionsAreInSnapshot() async throws {
     let gateway = FakeGateway()
     gateway.onRequest = { $0[0] == "61" ? [position("DU1", "265598")] : [] }

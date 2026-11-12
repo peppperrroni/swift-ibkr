@@ -15,6 +15,8 @@ public actor IBClient {
     private var orderSubscribers = Subscribers<OrderSnapshot>()
     private var fillSubscribers = Subscribers<Fill>()
     private var positionSubscribers = Subscribers<[Position]>()
+    private var portfolioSubscribers = Subscribers<[PortfolioItem]>()
+    private var accountValueSubscribers = Subscribers<AccountValue>()
 
     /// A per-request stream, by reqId: `route` gets what IB sends for it, `finish` ends it, `cancel` is sent
     /// when the consumer stops it (`nil`: nothing to send). `route` returns true when it finished the stream
@@ -40,6 +42,8 @@ public actor IBClient {
     private var orderTracker = OrderTracker(clientID: 0)
     private var executionTracker = ExecutionTracker()
     private var positionTracker = PositionTracker()
+    private var accountTracker = AccountTracker()
+    private var accountSyncIDs: Set<Int> = []   // the sync's reqAccountUpdatesMulti ids; only these feed accountTracker
     private var frameTap: (@Sendable ([String]) -> Void)?
 
     // While `connect` waits: its continuation, its deadline timer, and the sync's end markers still due
@@ -56,7 +60,8 @@ public actor IBClient {
 
     init(connector: @escaping Connector) { self.connector = connector }
 
-    /// Returns once the handshake is done and open orders, completed orders, executions and positions are synced.
+    /// Returns once the handshake is done and open orders, completed orders, executions, positions, the portfolio
+    /// and the account values are synced.
     /// `timeout` covers all of it.
     public func connect(host: String = "127.0.0.1", port: Int = 4002, clientID: Int,
                         timeout: Duration = .seconds(10)) async throws(IBClientError) {
@@ -66,7 +71,7 @@ public actor IBClient {
         let gen = generation
         self.clientID = clientID
         frames = FrameReader()
-        (serverVersion, accounts, nextID, syncEnds) = (nil, nil, nil, nil)
+        (serverVersion, accounts, nextID, syncEnds, accountSyncIDs) = (nil, nil, nil, nil, [])
         orderTracker = OrderTracker(clientID: clientID)   // fills are kept: the sync's replay of them publishes nothing
         positionTracker.reload()   // the set is kept too, and replaced whole at the sync's positionEnd
         setState(.connecting)
@@ -137,6 +142,20 @@ public actor IBClient {
     /// they stream for the whole connection.
     public func positions() -> (snapshot: [Position], updates: AsyncStream<[Position]>) {
         (positionTracker.positions, positionSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(position: id) } })
+    }
+
+    /// The portfolio known now, then every whole new set from now on. Always on, like `positions()`: `connect`
+    /// subscribes with reqAccountUpdates when the login has one account (with several, IB sends no portfolio).
+    public func portfolio() -> (snapshot: [PortfolioItem], updates: AsyncStream<[PortfolioItem]>) {
+        (accountTracker.portfolio,
+         portfolioSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(portfolio: id) } })
+    }
+
+    /// The account values known now, then every changed value from now on. Always on: `connect` subscribes with
+    /// reqAccountUpdates for one account, or reqAccountUpdatesMulti per account when there are several.
+    public func accountValues() -> (snapshot: [AccountValue], updates: AsyncStream<AccountValue>) {
+        (accountTracker.values,
+         accountValueSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(accountValue: id) } })
     }
 
     /// The account summary for `tags`: the whole set, keyed and sorted by account, tag and currency, at
@@ -477,14 +496,22 @@ public actor IBClient {
         for snapshot in orderTracker.apply(message) { orderSubscribers.yield(snapshot) }
         for fill in executionTracker.apply(message) { fillSubscribers.yield(fill) }
         if let set = positionTracker.apply(message) { positionSubscribers.yield(set) }
+        let foreign = if case .accountUpdateMulti(let id, _) = message { !accountSyncIDs.contains(id) } else { false }
+        switch foreign ? nil : accountTracker.apply(message) {
+        case .portfolio(let set)?: portfolioSubscribers.yield(set)
+        case .value(let v)?: accountValueSubscribers.yield(v)
+        case nil: break
+        }
         routeToStream(message)
         switch message {
         case .nextValidID(let n): nextID = max(nextID ?? n, n)
         case .managedAccounts(let a): accounts = a
         case .error(let e) where pendingConnect != nil
                 && ((e.requestID == -1 && ErrorCode.kind(e.code) == .fatal)
-                    || (ErrorCode.kind(e.code).failsRequest && syncEnds?.contains(.execDetailsEnd(requestID: e.requestID)) == true)):
-            return end(.ib(code: e.code, text: e.text))   // -1: the connection itself; else the sync's reqExecutions
+                    || (ErrorCode.kind(e.code).failsRequest
+                        && (syncEnds?.contains(.execDetailsEnd(requestID: e.requestID)) == true
+                            || accountSyncIDs.contains(e.requestID)))):
+            return end(.ib(code: e.code, text: e.text))   // -1: the connection itself; else a sync request
         default: break
         }
         guard pendingConnect != nil else { return }
@@ -500,10 +527,23 @@ public actor IBClient {
     private func sync() {
         let executionsID = nextRequestID()
         syncEnds = [.openOrderEnd, .completedOrdersEnd, .execDetailsEnd(requestID: executionsID), .positionEnd]
-        try? send(.allOpenOrders)   // none of the four can fail to encode
+        try? send(.allOpenOrders)   // none of these can fail to encode: IB account ids are ASCII
         try? send(.completedOrders(apiOnly: false))
         try? send(.executions(requestID: executionsID, filter: ExecutionFilter()))
         try? send(.positions)
+        guard let accounts else { return }
+        if accounts.count == 1 {   // reqAccountUpdates: the portfolio too, but for one account at a time
+            accountTracker.reload()
+            syncEnds?.append(.accountDownloadEnd(account: accounts[0]))
+            try? send(.accountUpdates(subscribe: true, account: accounts[0]))
+            return
+        }
+        for account in accounts {   // values only; IB has no Multi portfolio
+            let id = nextRequestID()
+            accountSyncIDs.insert(id)
+            syncEnds?.append(.accountUpdateMultiEnd(requestID: id))
+            try? send(.accountUpdatesMulti(requestID: id, account: account, modelCode: "", ledgerAndNLV: false))
+        }
     }
 
     private func connected() {
@@ -550,4 +590,6 @@ public actor IBClient {
     private func unsubscribe(order id: Int) { orderSubscribers.remove(id) }
     private func unsubscribe(fill id: Int) { fillSubscribers.remove(id) }
     private func unsubscribe(position id: Int) { positionSubscribers.remove(id) }
+    private func unsubscribe(portfolio id: Int) { portfolioSubscribers.remove(id) }
+    private func unsubscribe(accountValue id: Int) { accountValueSubscribers.remove(id) }
 }

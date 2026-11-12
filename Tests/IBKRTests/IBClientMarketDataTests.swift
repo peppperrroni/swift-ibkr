@@ -11,9 +11,9 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     let stream = try await client.marketData(Contract(symbol: "AAPL"))
-    let sent = try await gateway.waitForSent(6)
-    let id = sent[5][2]
-    #expect(sent[5][0] == "1")
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
+    let id = sent[FakeGateway.syncFrames][2]
+    #expect(sent[FakeGateway.syncFrames][0] == "1")
     let (reader, result) = take(3, stream)
     gateway.feed(["1", "6", id, "1", "351.5", "200", "0"])
     gateway.feed(["2", "6", id, "0", "300"])
@@ -21,7 +21,7 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
     #expect(try await within2s { try await result.value } == [
         .price(.bid, price: d("351.5"), size: d("200")), .size(.bidSize, d("300")), .dataType(.realtime)])
     reader.cancel()   // the consumer stops
-    #expect(try await gateway.waitForSent(7)[6] == ["2", "2", id])
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["2", "2", id])
 }
 
 @Test func delayedNoticeKeepsTheStreamAndMapsFields() async throws {
@@ -29,9 +29,9 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
     let client = try await connected(gateway)
     try await client.setMarketDataType(.delayed)
     let stream = try await client.marketData(Contract(symbol: "AAPL"))
-    let sent = try await gateway.waitForSent(7)
-    #expect(sent[5] == ["59", "1", "3"])
-    let id = sent[6][2]
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
+    #expect(sent[FakeGateway.syncFrames] == ["59", "1", "3"])
+    let id = sent[FakeGateway.syncFrames + 1][2]
     let (_, result) = take(1, stream)
     gateway.feed(["4", "2", id, "10167", "Requested market data is not subscribed. Displaying delayed market data.", ""])
     gateway.feed(["1", "6", id, "66", "351.4", "100", "0"])
@@ -45,26 +45,26 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     let stream = try await client.marketData(Contract(symbol: "AAPL"))
-    let id = try await gateway.waitForSent(6)[5][2]
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][2]
     gateway.feed(["4", "2", id, "354", "Requested market data is not subscribed.", ""])
     let (_, result) = take(0, stream)
     await #expect(throws: IBClientError.noMarketDataPermission(code: 354, text: "Requested market data is not subscribed.")) {
         _ = try await within2s { try await result.value }
     }
     // IB keeps a refused subscription open, so the refusal sends the cancel.
-    #expect(try await gateway.waitForSent(7)[6] == ["2", "2", id])
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["2", "2", id])
 }
 
 @Test func otherFatalStaysIB() async throws {
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     let stream = try await client.marketData(Contract(symbol: "AAPL"))
-    let id = try await gateway.waitForSent(6)[5][2]
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][2]
     gateway.feed(["4", "2", id, "200", "No security definition", ""])
     let (_, result) = take(0, stream)
     await #expect(throws: IBClientError.ib(code: 200, text: "No security definition")) {
         _ = try await within2s { try await result.value }
     }
     try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel
-    #expect(try await gateway.waitForSent(6).count == 6)
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).count == FakeGateway.syncFrames + 1)
 }

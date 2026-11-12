@@ -106,7 +106,9 @@ await client.disconnect()
 ```
 
 - **When `connect` returns.** It returns once the handshake is done and the open orders, completed orders,
-  executions and positions are all synced. One timeout covers all of that.
+  executions, positions, portfolio and account values are all synced. One timeout covers all of that.
+- **Accounts.** With one managed account, `connect` subscribes to its account updates (portfolio and values). With
+  several, it subscribes to each account's values only, and `portfolio()` stays empty: use `positions()`.
 - **What it throws.** On failure it throws an `IBClientError`:
   - `.timeout`;
   - `.connectionClosed`;
@@ -115,9 +117,9 @@ await client.disconnect()
   can listen.
 - **No automatic reconnect.** A lost connection turns the state to `.disconnected(error)`, and nothing
   reconnects for you: call `connect` again.
-- **Across a reconnect.** Subscribers of `orders()`, `executions()` and `positions()` stay subscribed. Per-request
-  streams such as `accountSummary` and `pnlSingle` end with the connection's error instead, so subscribe to
-  them again.
+- **Across a reconnect.** Subscribers of `orders()`, `executions()`, `positions()`, `portfolio()` and
+  `accountValues()` stay subscribed. Per-request streams such as `accountSummary` and `pnlSingle` end with the
+  connection's error instead, so subscribe to them again.
 - **Always call `disconnect()`** when you are done. A connected client is kept alive by its reader and writer
   tasks, and its streams never finish on their own.
 
@@ -155,12 +157,16 @@ _ = try await client.placeOrder(aapl, stop)
 Outgoing text must be printable ASCII. This is the same rule as IB's own client, and anything else throws
 `IBEncodingError.nonASCII(field:)`.
 
-### Executions and positions
+### Executions, positions and portfolio
 
 ```swift
 let (fills, fillUpdates) = await client.executions()   // a fill is published once its commission is in
 let (positions, changes) = await client.positions()    // always on: the whole set after every change
 Task { for await set in changes { print(set.map { "\($0.contract.symbol) \($0.quantity)" }) } }
+
+let (items, itemSets) = await client.portfolio()       // always on, one account only: whole sets, with market value
+let (values, valueChanges) = await client.accountValues()   // always on: each changed tag, e.g. NetLiquidation
+Task { for await v in valueChanges where v.tag == "NetLiquidation" { print(v.account, v.value, v.currency) } }
 ```
 
 ### Account summary and P&L

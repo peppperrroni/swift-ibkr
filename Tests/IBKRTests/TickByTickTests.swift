@@ -45,7 +45,7 @@ private let aapl = ["0", "AAPL", "STK", "", "0.0", "", "", "SMART", "", "USD", "
     let client = IBClient(connector: gateway.connector)
     try await within2s { try await client.connect(clientID: 7) }
     let stream = try await client.tickByTick(Contract(symbol: "AAPL"), .allLast)
-    let sent = try await gateway.waitForSent(6)[5]
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames]
     #expect(sent == ["97", sent[1]] + aapl + ["AllLast", "0", "0"])
     let id = sent[1]
     gateway.feed(["99", id, "2", "1794321000", "351.5", "100", "0", "NASDAQ", ""])
@@ -54,5 +54,5 @@ private let aapl = ["0", "AAPL", "STK", "", "0.0", "", "", "SMART", "", "USD", "
     let ticks = try await within2s { try await result.value }
     #expect(ticks[1] == .midPoint(time: Date(timeIntervalSince1970: 1794321001), price: d("351.55")))
     reader.cancel()
-    #expect(try await gateway.waitForSent(7)[6] == ["98", id])
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["98", id])
 }

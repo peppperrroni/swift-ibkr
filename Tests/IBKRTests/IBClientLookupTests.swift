@@ -18,9 +18,9 @@ private func contractData(_ id: String, conID: String) -> [String] {
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     let result = Task<[ContractDetails], any Error> { try await client.contractDetails(Contract(symbol: "AAPL")) }
-    let sent = try await gateway.waitForSent(6)
-    let id = sent[5][2]
-    #expect(sent[5][0...1] == ["9", "8"])
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
+    let id = sent[FakeGateway.syncFrames][2]
+    #expect(sent[FakeGateway.syncFrames][0...1] == ["9", "8"])
     gateway.feed(contractData(id, conID: "265598"))
     gateway.feed(contractData(id, conID: "265599"))
     gateway.feed(["52", "1", id])
@@ -33,14 +33,14 @@ private func contractData(_ id: String, conID: String) -> [String] {
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     let result = Task<[ContractDescription], any Error> { try await client.matchingSymbols("AAP") }
-    let sent = try await gateway.waitForSent(6)
-    let id = sent[5][1]
-    #expect(sent[5] == ["81", id, "AAP"])
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
+    let id = sent[FakeGateway.syncFrames][1]
+    #expect(sent[FakeGateway.syncFrames] == ["81", id, "AAP"])
     gateway.feed(["79", id, "1", "265598", "AAPL", "STK", "NASDAQ", "USD", "1", "OPT", "APPLE INC", ""])
     let got = try await within2s { try await result.value }
     #expect(got.map(\.contract.symbol) == ["AAPL"])
     try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel
-    #expect(try await gateway.waitForSent(6).count == 6)
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).count == FakeGateway.syncFrames + 1)
     #expect(await client.requestStreamCount == 0)
 }
 
@@ -48,7 +48,7 @@ private func contractData(_ id: String, conID: String) -> [String] {
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     let result = Task<[ContractDetails], any Error> { try await client.contractDetails(Contract(symbol: "ZZZZ")) }
-    let id = try await gateway.waitForSent(6)[5][2]
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][2]
     let text = "No security definition has been found for the request"
     gateway.feed(["4", "2", id, "200", text, ""])
     await #expect(throws: IBClientError.ib(code: 200, text: text)) { try await within2s { try await result.value } }
@@ -58,7 +58,7 @@ private func contractData(_ id: String, conID: String) -> [String] {
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     let result = Task<[ContractDescription], any Error> { try await client.matchingSymbols("AAP") }
-    _ = try await gateway.waitForSent(6)
+    _ = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
     gateway.close()
     await #expect(throws: IBClientError.connectionClosed) { try await within2s { try await result.value } }
 }
@@ -69,12 +69,12 @@ private func contractData(_ id: String, conID: String) -> [String] {
     let task = Task<IBClientError?, Never> {
         do { _ = try await client.contractDetails(Contract(symbol: "AAPL")); return nil } catch { return error as? IBClientError }
     }
-    _ = try await gateway.waitForSent(6)
+    _ = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
     task.cancel()
     #expect(try await within2s { await task.value } == .cancelled)
     try await within2s { while await client.requestStreamCount != 0 { try await Task.sleep(for: .milliseconds(5)) } }
     try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel
-    #expect(try await gateway.waitForSent(6).count == 6)
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).count == FakeGateway.syncFrames + 1)
 }
 
 @Test func lookupsNeedAConnection() async throws {

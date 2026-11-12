@@ -78,9 +78,9 @@ private func until(_ condition: @escaping @Sendable () async -> Bool) async thro
     let client = try await connected(gateway)
     let id = try await client.placeOrder(aapl, buy)
     try await client.cancelOrder(id)
-    let sent = try await gateway.waitForSent(7)
-    #expect(Array(sent[5].prefix(2)) == ["3", "101"])
-    #expect(sent[6] == ["4", "1", "101", ""])
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
+    #expect(Array(sent[FakeGateway.syncFrames].prefix(2)) == ["3", "101"])
+    #expect(sent[FakeGateway.syncFrames + 1] == ["4", "1", "101", ""])
 }
 
 @Test func modifyResendsPlaceOrderWithSameID() async throws {
@@ -90,8 +90,8 @@ private func until(_ condition: @escaping @Sendable () async -> Bool) async thro
     var changed = buy
     changed.limitPrice = d("2")
     try await client.modifyOrder(id, aapl, changed)
-    let sent = try await gateway.waitForSent(7)
-    #expect(Array(sent[6].prefix(2)) == ["3", "101"] && sent[6][19] == "2" && sent[5][19] == "1")
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
+    #expect(Array(sent[FakeGateway.syncFrames + 1].prefix(2)) == ["3", "101"] && sent[FakeGateway.syncFrames + 1][19] == "2" && sent[FakeGateway.syncFrames][19] == "1")
 }
 
 @Test func encodingErrorThrowsAndSendsNothing() async throws {
@@ -101,8 +101,8 @@ private func until(_ condition: @escaping @Sendable () async -> Bool) async thro
     bad.orderRef = "Купить"
     await #expect(throws: IBClientError.encoding(.nonASCII(field: "Купить"))) { try await client.placeOrder(aapl, bad) }
     try await client.cancelOrder(1)   // the next frame out is this one
-    let sent = try await gateway.waitForSent(6)
-    #expect(sent.count == 6 && sent[5][0] == "4")
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
+    #expect(sent.count == FakeGateway.syncFrames + 1 && sent[FakeGateway.syncFrames][0] == "4")
 }
 
 @Test func errorRejectsOwnPendingOrder() async throws {
@@ -145,7 +145,7 @@ private func until(_ condition: @escaping @Sendable () async -> Bool) async thro
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     for i in 1...50 { try await client.cancelOrder(i) }
-    let sent = try await gateway.waitForSent(55, timeout: .seconds(3))   // 5 sync frames + 50 cancels
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 50, timeout: .seconds(3))   // + 50 cancels
     #expect(sent.filter { $0[0] == "4" }.map { $0[2] } == (1...50).map(String.init))
 }
 

@@ -7,7 +7,7 @@ final class FakeGateway: Transport, @unchecked Sendable {
     let incoming: AsyncThrowingStream<[UInt8], any Error>
     private let continuation: AsyncThrowingStream<[UInt8], any Error>.Continuation
     private let serverVersion: String, nextValidID: Int, accounts: String, answersStartAPI: Bool
-    private let answersPositions: Bool
+    private let answersPositions: Bool, answersAccountUpdates: Bool
     private let lock = NSLock()
     private var sawHello = false
     private var sent: [[String]] = []
@@ -15,14 +15,18 @@ final class FakeGateway: Transport, @unchecked Sendable {
     private var _onRequest: (@Sendable ([String]) -> [[String]])?
 
     init(serverVersion: String = "178", nextValidID: Int = 1, accounts: String = "DU1", answersStartAPI: Bool = true,
-         answersPositions: Bool = true) {
+         answersPositions: Bool = true, answersAccountUpdates: Bool = true) {
         (incoming, continuation) = AsyncThrowingStream.makeStream()
         self.serverVersion = serverVersion
         self.nextValidID = nextValidID
         self.accounts = accounts
         self.answersStartAPI = answersStartAPI
         self.answersPositions = answersPositions
+        self.answersAccountUpdates = answersAccountUpdates
     }
+
+    /// What `connect` sends with one account: 71, 16, 99, 7, 61, 6.
+    static let syncFrames = 6
 
     var connector: Connector { { _, _, _ in self } }
 
@@ -63,6 +67,8 @@ final class FakeGateway: Transport, @unchecked Sendable {
         case "99": feed(["102"])
         case "7": feed(["55", "1", fields[2]])
         case "61" where answersPositions: feed(["62", "1"])
+        case "6" where answersAccountUpdates && fields[2] == "1": feed(["54", "1", fields[3]])
+        case "76" where answersAccountUpdates: feed(["74", "1", fields[2]])
         default: break
         }
     }
@@ -77,4 +83,11 @@ final class FakeGateway: Transport, @unchecked Sendable {
             try await Task.sleep(for: .milliseconds(5))
         }
     }
+}
+
+/// Hands out one gateway per connect, in order.
+actor Gateways {
+    private var list: [FakeGateway]
+    init(_ list: [FakeGateway]) { self.list = list }
+    func next() -> FakeGateway { list.removeFirst() }
 }

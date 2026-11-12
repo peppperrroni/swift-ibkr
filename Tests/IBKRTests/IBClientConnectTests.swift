@@ -30,9 +30,10 @@ private let ready = ConnectionState.connected(serverVersion: 178, accounts: ["DU
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     #expect(try await first(client.states()) == ready)
-    let sent = try await gateway.waitForSent(5)
-    #expect(sent.map { $0[0] } == ["71", "16", "99", "7", "61"])
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames)
+    #expect(sent.map { $0[0] } == ["71", "16", "99", "7", "61", "6"])
     #expect(sent.first == ["71", "2", "7", ""])
+    #expect(sent[5] == ["6", "2", "1", "DU1"])
 }
 
 @Test func connectRejectsOtherServerVersion() async throws {
@@ -78,13 +79,6 @@ private let ready = ConnectionState.connected(serverVersion: 178, accounts: ["DU
     #expect(try await first(states, where: isDisconnected) == .disconnected(.connectionClosed))
 }
 
-/// Hands out one gateway per connect, in order.
-private actor Gateways {
-    private var list: [FakeGateway]
-    init(_ list: [FakeGateway]) { self.list = list }
-    func next() -> FakeGateway { list.removeFirst() }
-}
-
 @Test func disconnectReportsNoError() async throws {
     let (one, two) = (FakeGateway(), FakeGateway())
     let gateways = Gateways([one, two])
@@ -96,7 +90,7 @@ private actor Gateways {
 
     try await connect(client)
     #expect(try await first(client.states()) == ready)
-    #expect(try await two.waitForSent(5).count == 5)
+    #expect(try await two.waitForSent(FakeGateway.syncFrames).count == FakeGateway.syncFrames)
 }
 
 @Test func reconnectDoesNotRepublishFills() async throws {

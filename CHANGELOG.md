@@ -5,6 +5,8 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 ## [Unreleased]
 
 ### Added
+- `portfolio()` and `accountValues()`, always on: `connect` subscribes to the account updates of a single account,
+  or to each account's values through `Multi` when there are several, and waits for them.
 - Wire codec for the account stream: account values, portfolio items, account time, the `Multi` position and account
   updates, and account-level P&L, with their requests. `Position` and `AccountValue` gain `modelCode`.
 - Session requests: `currentTime()`, `managedAccounts()`, `nextOrderID()`, `userInfo()`, `setServerLogLevel(_:)`,
@@ -15,6 +17,8 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 - A `SwiftIBKR.podspec` (pod `SwiftIBKR`, module `IBKR`), linted in CI; trunk publication is pending.
 
 ### Changed
+- `connect` sends one more sync request (reqAccountUpdates, or one reqAccountUpdatesMulti per account) and returns
+  only after its end marker.
 - `ErrorKind.warning` for 105, 321, 329, 434 and 492, as in `ib_async`: it ends the request stream it names, but never
   marks an unacknowledged order inactive. Error `text` has its `\uXXXX` escapes decoded.
 - A write that finds the peer gone throws `.connectionClosed`, not `.transport("send: ...")`, whether or not the

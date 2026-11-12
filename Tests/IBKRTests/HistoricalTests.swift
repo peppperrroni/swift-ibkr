@@ -63,16 +63,16 @@ private let batch = ["17", "9", "20261110  09:30:00", "20261110  16:00:00", "2",
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     let stream = try await client.historicalBars(Contract(symbol: "AAPL"), duration: "1 D", barSize: "5 mins")
-    let sent = try await gateway.waitForSent(6)
-    #expect(sent[5][0] == "20")
-    var f = batch; f[1] = sent[5][1]
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
+    #expect(sent[FakeGateway.syncFrames][0] == "20")
+    var f = batch; f[1] = sent[FakeGateway.syncFrames][1]
     gateway.feed(f)
     let (_, result) = take(0, stream)
     let events = try await within2s { try await result.value }
     guard events.count == 1, case .history(let bars) = events[0] else { Issue.record("expected one history"); return }
     #expect(bars.count == 2)
     try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel
-    #expect(try await gateway.waitForSent(6).count == 6)
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).count == FakeGateway.syncFrames + 1)
     #expect(await client.requestStreamCount == 0)
 }
 
@@ -81,7 +81,7 @@ private let batch = ["17", "9", "20261110  09:30:00", "20261110  16:00:00", "2",
     let client = try await connected(gateway)
     let stream = try await client.historicalBars(Contract(symbol: "AAPL"), duration: "1 D", barSize: "5 mins",
                                                  keepUpToDate: true)
-    let id = try await gateway.waitForSent(6)[5][1]
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][1]
     var f = batch; f[1] = id
     gateway.feed(f)
     gateway.feed(["90", id, "42", "1794321300", "351.5", "351.7", "351.9", "351.4", "351.6", "300"])
@@ -93,19 +93,19 @@ private let batch = ["17", "9", "20261110  09:30:00", "20261110  16:00:00", "2",
     }
     #expect(a.close == d("351.7") && b.close == d("351.8"))
     reader.cancel()
-    #expect(try await gateway.waitForSent(7)[6] == ["25", "1", id])
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["25", "1", id])
 }
 
 @Test func historyPermissionErrorIsTyped() async throws {
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     let stream = try await client.historicalBars(Contract(symbol: "AAPL"), duration: "1 D", barSize: "5 mins")
-    let id = try await gateway.waitForSent(6)[5][1]
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][1]
     let text = "Historical Market Data Service error message:No market data permissions for NASDAQ STK"
     gateway.feed(["4", "2", id, "162", text, ""])
     let (_, result) = take(0, stream)
     await #expect(throws: IBClientError.noMarketDataPermission(code: 162, text: text)) {
         _ = try await within2s { try await result.value }
     }
-    #expect(try await gateway.waitForSent(7)[6] == ["25", "1", id])
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["25", "1", id])
 }

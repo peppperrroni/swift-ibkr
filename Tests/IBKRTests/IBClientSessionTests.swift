@@ -17,7 +17,7 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
     let client = try await connected(gateway)
     let time = try await within2s { try await client.currentTime() }
     #expect(time == Date(timeIntervalSince1970: 1_700_000_000))
-    #expect(try await gateway.waitForSent(6)[5] == ["49", "1"])
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames] == ["49", "1"])
 }
 
 @Test func managedAccountsAsks() async throws {
@@ -61,7 +61,7 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     let call = Task { try await client.currentTime() }
-    _ = try await gateway.waitForSent(6)
+    _ = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
     gateway.close()
     do {
         _ = try await within2s { try await call.value }
@@ -76,7 +76,7 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     let call = Task { try await client.currentTime() }
-    _ = try await gateway.waitForSent(6)
+    _ = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
     call.cancel()
     do {
         _ = try await within2s { try await call.value }
@@ -92,9 +92,9 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     let one = Task { try await client.currentTime() }
-    _ = try await gateway.waitForSent(6)
+    _ = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
     let two = Task { try await client.currentTime() }
-    _ = try await gateway.waitForSent(7)
+    _ = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
     gateway.feed(["49", "1", "1700000000"])
     gateway.feed(["49", "1", "1700000001"])
     let a = try await within2s { try await one.value }, b = try await within2s { try await two.value }
@@ -107,8 +107,8 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
     try await client.setServerLogLevel(.detail)
     try await client.setAutoOpenOrders(true)
     try await client.cancelAllOrders()
-    let sent = try await gateway.waitForSent(8)
-    #expect(Array(sent[5...7]) == [["14", "1", "5"], ["15", "1", "1"], ["58", "1"]])
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 3)
+    #expect(Array(sent[FakeGateway.syncFrames...FakeGateway.syncFrames + 2]) == [["14", "1", "5"], ["15", "1", "1"], ["58", "1"]])
 }
 
 @Test func sessionCallsNeedAConnection() async throws {

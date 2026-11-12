@@ -85,21 +85,21 @@ private func oneBookPerFrame(_ gateway: FakeGateway, _ stream: AsyncThrowingStre
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     let stream = try await client.marketDepth(Contract(symbol: "AAPL"), rows: 10)
-    let id = try await gateway.waitForSent(6)[5][2]
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][2]
     let (reader, result) = oneBookPerFrame(gateway, stream, [["12", "1", id, "0", "0", "1", "351.5", "100"],
                                                               ["13", "1", id, "0", "NSDQ", "0", "0", "351.6", "50", "1"]])
     let books = try await within2s { try await result.value }
     #expect(books[0].bids.count == 1 && books[0].asks.isEmpty)
     #expect(books[1].bids.count == 1 && books[1].asks == [DepthLevel(price: d("351.6"), size: d("50"), marketMaker: "NSDQ")])
     reader.cancel()
-    #expect(try await gateway.waitForSent(7)[6] == ["11", "1", id, "1"])
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["11", "1", id, "1"])
 }
 
 @Test func depthResetEmptiesTheBookAndGoesOn() async throws {
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     let stream = try await client.marketDepth(Contract(symbol: "AAPL"), rows: 10)
-    let id = try await gateway.waitForSent(6)[5][2]
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][2]
     let (reader, result) = oneBookPerFrame(gateway, stream, [
         ["12", "1", id, "0", "0", "1", "351.5", "100"],
         ["12", "1", id, "1", "0", "1", "351.4", "100"],
@@ -117,7 +117,7 @@ private func oneBookPerFrame(_ gateway: FakeGateway, _ stream: AsyncThrowingStre
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     let stream = try await client.marketDepth(Contract(symbol: "AAPL"), rows: 10)
-    let id = try await gateway.waitForSent(6)[5][2]
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][2]
     gateway.feed(["12", "1", id, "0", "0", "1", "351.5", "100"])
     gateway.feed(["12", "1", id, "1", "0", "1", "351.4", "100"])
     gateway.feed(["12", "1", id, "2", "0", "1", "351.3", "100"])
