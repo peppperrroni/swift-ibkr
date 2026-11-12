@@ -61,6 +61,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 - `OrderSnapshot.advancedOrderRejectJSON`: the raw advanced-reject JSON of the last error for the order that had one.
 
 ### Changed
+- `marketDepth` ends with `.noMarketDataPermission(code: 2152, text:)` and sends its cancel when IB's 2152 grants no `Depth:` exchange, instead of staying silent; a 2152 that grants some depth keeps the book open.
 - tickReqParams (81) is a tick, `Tick.requestParameters`, and `marketData` yields it.
 - `marketData` sends `Contract.deltaNeutralContract`. `IBRequest.marketData` gains three associated values
   (`genericTicks`, `snapshot`, `regulatorySnapshot`) whose defaults keep construction compiling; a `switch`/`case` on

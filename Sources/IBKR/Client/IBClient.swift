@@ -471,9 +471,10 @@ public actor IBClient {
     }
 
     /// The whole depth book after every update (12 and 13 both feed it). IB's depth reset (317) empties the book,
-    /// yields it and goes on. `smart` is resent on cancel, as IB requires. Ends like `marketData` on a refusal, except
-    /// that without depth permissions IB sends notice 2152 and nothing more, so the stream stays quiet. Every element
-    /// is a whole book, so a slow consumer keeps only the newest.
+    /// yields it and goes on. `smart` is resent on cancel, as IB requires. Ends like `marketData` on a refusal. IB
+    /// refuses depth with notice 2152 and nothing else, so a 2152 whose granted part names no `Depth:` exchange ends
+    /// the stream with `.noMarketDataPermission(code: 2152, …)`; one that grants some depth leaves the book open.
+    /// Every element is a whole book, so a slow consumer keeps only the newest.
     public func marketDepth(_ contract: Contract, rows: Int, smart: Bool = true)
         throws(IBClientError) -> AsyncThrowingStream<DepthBook, any Error> {
         try requireConnected()
@@ -485,6 +486,8 @@ public actor IBClient {
             switch message {
             case .depth(_, let u): book.apply(u); out.yield(book)
             case .error(let e) where e.code == 317: book.reset(); out.yield(book)
+            case .error(let e) where e.code == 2152 && ErrorCode.grantsNoDepth(e.text):
+                out.finish(throwing: IBClientError.noMarketDataPermission(code: 2152, text: e.text))
             default: break
             }
             return false

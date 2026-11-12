@@ -28,3 +28,10 @@ import Testing
     for c in [105, 321, 329, 434, 492] { #expect(ErrorCode.kind(c) == .warning) }
     #expect(ErrorCode.kind(110) == .fatal)
 }
+
+@Test func grantsNoDepthReadsTheGrantedPart() {
+    #expect(ErrorCode.grantsNoDepth("Exchanges - Top: IBEOS; OVERNIGHT; Unknown market data permissions - Depth: NASDAQ; BATS; ARCA; BEX; NYSE; IEX; Top: BYX; AMEX; PEARL; T24X; MEMX; EDGEA; TXSE; CHX; NYSENAT; PSX; LTSE; ISE; DRCTEDGE; "))
+    #expect(ErrorCode.grantsNoDepth("Exchanges - Top: IBEOS; "))
+    #expect(!ErrorCode.grantsNoDepth("Exchanges - Depth: ISLAND; Top: BYX; Unknown market data permissions - Depth: BATS; "))
+    #expect(!ErrorCode.grantsNoDepth("Exchanges - Depth: ISLAND; "))
+}

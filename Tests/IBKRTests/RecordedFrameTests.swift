@@ -195,7 +195,8 @@ func recordedPnLSingleDecodes() throws {
 }
 
 /// A paper account without a market-data subscription (2026-11-11): quotes 10197, history 162 «different IP»,
-/// tick-by-tick 10189 — all typed refusals; depth gets only notice 2152 and then nothing.
+/// tick-by-tick 10189 — all typed refusals; depth gets only notice 2152 and then nothing (which
+/// `recordedDepth2152EndsTheDepthStream` turns into a typed end).
 @Test func recordedMarketDataRefusalsAreTyped() throws {
     var seen: [Int: Bool] = [:]
     for f in try recording("liveMarketData") {
@@ -207,4 +208,27 @@ func recordedPnLSingleDecodes() throws {
     #expect(seen[10189] == true)
     #expect(seen[2152] == false)
     #expect(ErrorCode.kind(2152) == .notice)
+}
+
+private func connected(_ gateway: FakeGateway) async throws -> IBClient {
+    let client = IBClient(connector: gateway.connector)
+    try await within2s { try await client.connect(clientID: 7) }
+    return client
+}
+
+/// The recorded 2152 grants `Top:` only, so the book ends with a typed refusal and the cancel goes out.
+@Test func recordedDepth2152EndsTheDepthStream() async throws {
+    guard let frame = try recording("liveMarketData").first(where: { $0.first == "4" && $0.count > 3 && $0[3] == "2152" }) else {
+        Issue.record("no 2152 frame"); return
+    }
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.marketDepth(Contract(symbol: "AAPL"), rows: 5)
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][2]
+    gateway.feed(replacing(frame, [2: id]))
+    await #expect(throws: IBClientError.noMarketDataPermission(code: 2152, text: frame[4])) {
+        _ = try await within2s { try await stream.first { _ in true } }
+    }
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["11", "1", id, "1"])
+    try await within2s { while await client.requestStreamCount != 0 { try await Task.sleep(for: .milliseconds(5)) } }
 }

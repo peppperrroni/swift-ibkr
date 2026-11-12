@@ -39,7 +39,7 @@ where S.Element: Sendable {
 
 /// The first element of `stream`, or nil when IB refuses it for want of a market-data subscription (printed); another
 /// error fails with its code. Returning ends the loop, so the cancel goes out. With `silenceIsAnAnswer`, 15 s of
-/// nothing is printed and accepted too: without depth permissions IB sends notice 2152 and then nothing at all.
+/// nothing is printed and accepted too; only tick-by-tick may stay silent (depth ends on its 2152).
 private func firstOrRefusal<T: Sendable>(_ what: String, _ stream: AsyncThrowingStream<T, any Error>,
                                          silenceIsAnAnswer: Bool = false) async throws -> T? {
     do {
@@ -209,7 +209,7 @@ struct LiveTests {
             }
             do {
                 let depth = try await client.marketDepth(aapl, rows: 5)
-                if let book = try await firstOrRefusal("marketDepth", depth, silenceIsAnAnswer: true) {
+                if let book = try await firstOrRefusal("marketDepth", depth) {
                     print("[live] marketDepth: yielded, \(book.bids.count) bids, \(book.asks.count) asks")
                 }
             }

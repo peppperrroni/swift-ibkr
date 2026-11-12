@@ -29,4 +29,11 @@ public enum ErrorCode {
         default: false
         }
     }
+
+    /// Whether a 2152 grants no depth: the part before «Unknown market data permissions» (the whole text without it)
+    /// lists what the login holds, and none of it is `Depth:`.
+    static func grantsNoDepth(_ text: String) -> Bool {
+        let granted = text.range(of: "Unknown market data permissions").map { text[..<$0.lowerBound] } ?? text[...]
+        return !granted.contains("Depth:")
+    }
 }

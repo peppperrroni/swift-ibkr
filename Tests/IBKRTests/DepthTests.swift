@@ -125,3 +125,15 @@ private func oneBookPerFrame(_ gateway: FakeGateway, _ stream: AsyncThrowingStre
     let first = try await within2s { try await stream.first { _ in true } }
     #expect(first?.bids.count == 3)
 }
+
+/// A 2152 that grants `Depth:` somewhere is no refusal: only an account with no depth at all ends the book.
+@Test func depthGoesOnWhen2152GrantsSomeDepth() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.marketDepth(Contract(symbol: "AAPL"), rows: 10)
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][2]
+    gateway.feed(["4", "2", id, "2152", "Exchanges - Depth: ISLAND; Top: BYX; Unknown market data permissions - Depth: BATS; ", ""])
+    gateway.feed(["12", "1", id, "0", "0", "1", "351.5", "100"])
+    let first = try await within2s { try await stream.first { _ in true } }
+    #expect(first?.bids.count == 1)
+}

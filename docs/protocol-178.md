@@ -1457,7 +1457,11 @@ A BAG contract is refused.
 `13, version, reqId, position, marketMaker, operation, side, price, size, isSmartDepth`; 10 fields. `isSmartDepth` is read
 and dropped. Both 12 and 13 become `.depth`. Error 317 (depth reset, a notice) empties the book; the stream goes on.
 Without depth permissions the gateway answers reqMktDepth with notice 2152 for the reqId («Unknown market data
-permissions - Depth: NASDAQ; ...») and then nothing (paper run 2026-11-11).
+permissions - Depth: NASDAQ; ...») and then nothing (paper run 2026-11-11). The client ends the depth stream with
+`.noMarketDataPermission(code: 2152, text:)` and sends the cancel when the text before "Unknown market data
+permissions" (the whole text without it) names no `Depth:` exchange; a 2152 that grants `Depth:` leaves the book open.
+A typed end is recoverable, silence is not. The recorded grant (`Top: IBEOS; OVERNIGHT`) covers only venues closed in
+regular hours, so a `Depth:` grant and a `Top:` grant on regular venues are both unseen live.
 
 ### reqTickByTickData (out 97)
 
