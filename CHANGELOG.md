@@ -5,6 +5,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 ## [Unreleased]
 
 ### Added
+- `historicalSchedule(_:days:end:rth:)`, a contract's trading sessions, with `HistoricalSchedule` and `HistoricalSession`, and `IBMessage.historicalSchedule` (in 106); BAG history: `historicalBars` sends a `BAG`'s legs. A new case in a public enum: an exhaustive `switch` over `IBMessage` needs a new branch.
 - `tickers(_:genericTicks:depthRows:smartDepth:)`, a stream of whole `Ticker`s folding `marketData` and, with `depthRows`, `marketDepth`; the newest is kept for a slow consumer, the first inner error ends it, and any end cancels both requests.
 - `tickers(for:regulatorySnapshot:)`, one snapshot `Ticker` per contract in input order, every request sent before any is read; the first error is thrown and the requests still open are cancelled.
 - `Ticker`, a contract's market data as one value, with `apply(_:)` folding each `Tick` into it after `ib_async`'s wrapper: named bid, ask, last, OHLC, volume, last timestamp, greeks and request parameters; every other tick in `prices`, `sizes`, `generics`, `strings` or `efp` by its live field; and a `DepthBook`.
@@ -52,7 +53,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 - BAG combos, delta-neutral orders and contracts, scale and hedge orders: `placeOrder` sends and openOrder /
   completedOrder decode `Contract.comboLegs` and `deltaNeutralContract`, and the `Order` combo-leg prices, smart
   routing params, delta-neutral, scale and hedge fields. New value types `ComboLeg`, `OrderComboLeg` and
-  `DeltaNeutralContract`. Every request other than `placeOrder` and `marketData` still refuses a `BAG` contract.
+  `DeltaNeutralContract`. Every request other than `placeOrder`, `marketData` and `historicalBars` still refuses a `BAG` contract.
 - Algos, PEG BENCH, BEST and MID, conditions and IBKRATS: `placeOrder` sends and openOrder / completedOrder decode
   `algoStrategy` / `algoParams`, the PEG BENCH reference fields, `conditions` with `conditionsIgnoreRTH` /
   `conditionsCancelOrder`, `minTradeQty`, `minCompeteSize`, `competeAgainstBestOffset` and the mid offsets. New types
@@ -64,6 +65,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 - `OrderSnapshot.advancedOrderRejectJSON`: the raw advanced-reject JSON of the last error for the order that had one.
 
 ### Changed
+- `historicalBars` accepts a `BAG` and refuses `whatToShow` "SCHEDULE" (`.encoding(.unsupported)`): use `historicalSchedule`.
 - `marketDepth` ends with `.noMarketDataPermission(code: 2152, text:)` and sends its cancel when IB's 2152 grants no `Depth:` exchange, instead of staying silent; a 2152 that grants some depth keeps the book open.
 - tickReqParams (81) is a tick, `Tick.requestParameters`, and `marketData` yields it.
 - `marketData` sends `Contract.deltaNeutralContract`. `IBRequest.marketData` gains three associated values

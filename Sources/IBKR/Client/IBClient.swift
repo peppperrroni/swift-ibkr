@@ -435,11 +435,13 @@ public actor IBClient {
     /// Historical bars as one `.history` batch. Without `keepUpToDate` the stream then ends, with no cancel; with it,
     /// every IB update follows raw as `.update` (a same-time update replaces the forming bar; the consumer merges).
     /// `end` nil is now; `duration`, `barSize` and `whatToShow` are IB's strings ("1 D", "5 mins", "TRADES").
+    /// A BAG sends its legs. `whatToShow` "SCHEDULE" is refused: use `historicalSchedule`.
     public func historicalBars(
         _ contract: Contract, end: Date? = nil, duration: String, barSize: String, whatToShow: String = "TRADES",
         rth: Bool = true, keepUpToDate: Bool = false
     ) throws(IBClientError) -> AsyncThrowingStream<BarEvent, any Error> {
         try requireConnected()
+        if whatToShow == "SCHEDULE" { throw .encoding(.unsupported("whatToShow SCHEDULE")) }
         let id = nextRequestID()
         return try openStream(.historicalData(requestID: id, contract: contract, end: end, barSize: barSize,
                                               duration: duration, rth: rth, whatToShow: whatToShow,
@@ -454,6 +456,23 @@ public actor IBClient {
             default: return false
             }
         }
+    }
+
+    /// The trading sessions of `contract` over the last `days` days up to `end` (nil is now), as IB's history request
+    /// with `whatToShow` SCHEDULE. Throws like `contractDetails` when IB refuses it; a missing permission sends the cancel.
+    public func historicalSchedule(_ contract: Contract, days: Int, end: Date? = nil, rth: Bool = true)
+        async throws(IBClientError) -> HistoricalSchedule {
+        try requireConnected()
+        let id = nextRequestID()
+        let stream = try openStream(.historicalData(requestID: id, contract: contract, end: end, barSize: "1 day",
+                                                    duration: "\(days) D", rth: rth, whatToShow: "SCHEDULE",
+                                                    keepUpToDate: false),
+                                    id: id, cancel: .cancelHistoricalData(requestID: id)) { (message, out: AsyncThrowingStream<HistoricalSchedule, any Error>.Continuation) in
+            guard case .historicalSchedule(_, let schedule) = message else { return false }
+            out.yield(schedule); out.finish(); return true
+        }
+        guard let schedule = try await collect(stream).first else { throw .cancelled }
+        return schedule
     }
 
     /// IB's five-second bars for `contract`, one per bar, never ending itself; ends like `marketData` on a refusal.
@@ -738,7 +757,7 @@ public actor IBClient {
         switch message {
         case .accountSummary(let id, _), .accountSummaryEnd(let id), .pnlSingle(let id, _),
              .contractData(let id, _), .contractDataEnd(let id), .symbolSamples(let id, _), .tick(let id, _),
-             .historicalData(let id, _), .historicalDataUpdate(let id, _), .realTimeBar(let id, _), .depth(let id, _),
+             .historicalData(let id, _), .historicalDataUpdate(let id, _), .historicalSchedule(let id, _), .realTimeBar(let id, _), .depth(let id, _),
              .tickByTick(let id, _), .tickSnapshotEnd(let id), .userInfo(let id, _), .positionMulti(let id, _), .positionMultiEnd(let id),
              .accountUpdateMulti(let id, _), .accountUpdateMultiEnd(let id), .pnl(let id, _), .smartComponents(let id, _):
             if requestStreams[id]?.route(message) == true { requestStreams[id] = nil }   // before any termination hop

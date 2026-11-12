@@ -93,7 +93,7 @@ Total: 3 fields.
 No version field at 178 (it stopped at server version 145). Base case: not `BAG`, no delta-neutral
 order type, no scale increment, no hedge, no algo, not PEG BENCH / PEG BEST / PEG MID, no
 conditions, exchange not `IBKRATS`. Every group `ib_async` sends is sent and no layout is refused;
-the legs come from `contract.comboLegs`. Only marketData also sends a `BAG`'s legs (reqMktData); every other request refuses a `BAG` contract.
+the legs come from `contract.comboLegs`. Only marketData (reqMktData) and historicalData (reqHistoricalData) also send a `BAG`'s legs; every other request refuses a `BAG` contract.
 
 | # | Field | Type | Default sent | Notes |
 |---|---|---|---|---|
@@ -1383,8 +1383,10 @@ Same layout as 91 (`92, reqId, conId, exchange`), for `reqMktDepth`; it reaches 
 
 No version field. 23 fields: `20, reqId, contract(12), includeExpired (0), endDateTime, barSize, duration, useRTH,
 whatToShow, formatDate, keepUpToDate, chartOptions`. Barsize comes before duration and useRTH before whatToShow.
-`formatDate` is always `2`, `chartOptions` always `""`. `endDateTime` is `yyyyMMdd-HH:mm:ss` in UTC, or `""` for now
-(`keepUpToDate` needs `""`). A BAG contract is refused.
+`formatDate` is `1` for `whatToShow` `SCHEDULE` (text times) and `2` otherwise; `chartOptions` always `""`.
+`endDateTime` is `yyyyMMdd-HH:mm:ss` in UTC, or `""` for now (`keepUpToDate` needs `""`). A `BAG` adds
+`comboLegsCount` and 4 fields per leg (`conId, ratio, action, exchange`) after `formatDate`, before `keepUpToDate`.
+`historicalBars` refuses `SCHEDULE` (its answer is 106, not 17); use `historicalSchedule`.
 
 ### cancelHistoricalData (out 25)
 
@@ -1398,6 +1400,13 @@ whole batch and its own end marker (there is no in-108 at 178). `average` is `ni
 A bar `date` of 8 characters is that day at 00:00 UTC (checked first: daily bars are dates under either formatDate); all
 digits is epoch seconds; anything else (formatDate 1 text) is malformed. A negative count (17's numBars, 79's
 n and m, 10's numSecIds) makes the frame malformed, as everywhere in the decoder.
+
+### historicalSchedule (in 106)
+
+No version. `106, reqId, startDateTime, endDateTime, timeZone, count`, then `count` sessions of 3 fields:
+`startDateTime, endDateTime, refDate`. All are kept as IB's text (`yyyyMMdd-HH:mm:ss`, `refDate` `yyyyMMdd`). It is the
+answer to reqHistoricalData with `whatToShow` `SCHEDULE`, `barSize` `1 day` and `duration` `"N D"`; a refusal is the
+usual error, and a permission refusal needs the cancel (25). A negative count makes the frame malformed.
 
 ### historicalDataUpdate (in 90)
 

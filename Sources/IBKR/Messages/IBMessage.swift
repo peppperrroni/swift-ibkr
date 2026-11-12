@@ -49,6 +49,7 @@ public enum IBMessage: Sendable, Equatable {
     case tick(requestID: Int, Tick)
     case historicalData(requestID: Int, [Bar])
     case historicalDataUpdate(requestID: Int, Bar)
+    case historicalSchedule(requestID: Int, HistoricalSchedule)
     case realTimeBar(requestID: Int, Bar)
     case depth(requestID: Int, DepthUpdate)
     case tickByTick(requestID: Int, TickByTick)

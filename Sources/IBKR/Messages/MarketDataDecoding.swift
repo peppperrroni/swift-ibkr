@@ -42,6 +42,15 @@ extension IBDecoder {
         })
     }
 
+    /// historicalSchedule (106): no version.
+    static func historicalSchedule(_ r: inout FieldReader) throws -> IBMessage {
+        let id = try r.int(), start = try r.string(), end = try r.string(), zone = try r.string()
+        return .historicalSchedule(requestID: id, HistoricalSchedule(
+            startDateTime: start, endDateTime: end, timeZone: zone, sessions: try (0..<wireCount(&r)).map { _ in
+                HistoricalSession(startDateTime: try r.string(), endDateTime: try r.string(), refDate: try r.string())
+            }))
+    }
+
     /// tickNews (84), no version.
     static func news(_ r: inout FieldReader) throws -> IBMessage {
         let id = try r.int()

@@ -139,10 +139,12 @@ public enum IBRequest: Sendable, Equatable {
         case .cancelMarketData(let reqID):
             w.add(2); w.add(2); w.add(reqID)
         case .historicalData(let reqID, let c, let end, let barSize, let duration, let rth, let what, let keep):
-            w.add(20); w.add(reqID); try Self.contract(&w, c); w.add(false)  // includeExpired
+            w.add(20); w.add(reqID); try Self.contract(&w, c, allowBag: true); w.add(false)  // includeExpired
             try w.add(end.map { Self.endFormat.string(from: $0) } ?? "")
             try w.add(barSize); try w.add(duration); w.add(rth); try w.add(what)
-            w.add(2); w.add(keep); try w.add("")  // formatDate (epoch seconds), keepUpToDate, chartOptions
+            w.add(what == "SCHEDULE" ? 1 : 2)  // formatDate: epoch seconds, but SCHEDULE wants text
+            try Self.comboLegs(&w, c)
+            w.add(keep); try w.add("")  // keepUpToDate, chartOptions
         case .realTimeBars(let reqID, let c, let what, let rth):
             w.add(50); w.add(3); w.add(reqID); try Self.contract(&w, c)
             w.add(5); try w.add(what); w.add(rth); try w.add("")  // barSize (IB supports only 5), useRTH, options
@@ -179,8 +181,8 @@ public enum IBRequest: Sendable, Equatable {
         for l in c.comboLegs { w.add(l.conID); w.add(l.ratio); try w.add(l.action.rawValue); try w.add(l.exchange) }
     }
 
-    /// The 12-field contract block every outgoing request shares (placeOrder rows 2-13). Only placeOrder and
-    /// marketData pass `allowBag: true` (they send a `BAG`'s legs), so every other request refuses one.
+    /// The 12-field contract block every outgoing request shares (placeOrder rows 2-13). Only placeOrder,
+    /// marketData and historicalData pass `allowBag: true` (they send a `BAG`'s legs), so every other request refuses one.
     static func contract(_ w: inout FieldWriter, _ c: Contract, allowBag: Bool = false) throws(IBEncodingError) {
         if c.secType == "BAG" && !allowBag { throw .unsupported("secType BAG") }
         w.add(c.conID); try w.add(c.symbol); try w.add(c.secType); try w.add(c.lastTradeDateOrContractMonth)
