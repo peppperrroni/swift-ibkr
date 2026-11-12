@@ -236,10 +236,21 @@ private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT"
 
 @Test func heldFilledOpenOrderShowsThroughCompletedOrder() {
     var t = OrderTracker(clientID: 1)
+    #expect(t.apply(open(status: "Filled", parentID: 5)).isEmpty)
+    let r = t.apply(completed(permID: 918273001, filledQuantity: "100"))
+    #expect(r.count == 1 && r[0].status == .filled && r[0].filled == d("100") && r[0].remaining == 0)
+    #expect(r.first?.orderID == 12 && r.first?.clientID == 1)
+    #expect(r.first?.order.limitPrice == d("187.25") && r.first?.order.parentID == 5, "the held open's order")
+    _ = t.apply(status(.filled, filled: "100", remaining: "0"))
+    #expect(t.orders.count == 1)
+}
+
+@Test func completedOrderCarriesTheFillOfAKnownOrder() {
+    var t = OrderTracker(clientID: 1)
+    _ = t.apply(open())
     #expect(t.apply(open(status: "Filled")).isEmpty)
     let r = t.apply(completed(permID: 918273001, filledQuantity: "100"))
-    #expect(r.count == 1 && r[0].status == .filled && r[0].filled == d("100"))
-    _ = t.apply(status(.filled, filled: "100", remaining: "0"))
+    #expect(r.count == 1 && r[0].status == .filled && r[0].filled == d("100") && r[0].remaining == 0)
     #expect(t.orders.count == 1)
 }
 

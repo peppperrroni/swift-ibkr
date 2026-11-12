@@ -103,10 +103,15 @@ public struct OrderTracker: Sendable {
                 Self.merge(m, into: &s)
             }
         case .completedOrder(let m):
-            var fresh = Self.blank(m.contract, m.order)
+            let open = takeHeldOpen(.permanent(m.permID), m.permID)   // the held Filled openOrder has the ids and the full order
+            var fresh = open.map { Self.blank($0.contract, $0.order) } ?? Self.blank(m.contract, m.order)
             fresh.permID = m.permID
-            fresh.filled = m.filledQuantity; fresh.remaining = max(0, m.order.totalQuantity - m.filledQuantity)  // a filled one arrives with totalQuantity 0
-            return upsert(.permanent(m.permID), m.permID, new: fresh) { s in
+            let key = open.map { Self.key($0.orderID, $0.clientID, $0.permID) } ?? .permanent(m.permID)
+            return upsert(key, m.permID, new: fresh) { s in
+                if let o = open { Self.applyOpen(o, into: &s) }
+                if m.filledQuantity > s.filled {   // a filled one arrives with totalQuantity 0: the remaining uses the snapshot's
+                    s.filled = m.filledQuantity; s.remaining = max(0, s.order.totalQuantity - s.filled)
+                }
                 s.status = m.status; s.completedTime = m.completedTime  // a joined order keeps its own order/contract: v178 completedOrder lacks parentID etc.
                 s.order.parentPermID = m.order.parentPermID
             }
