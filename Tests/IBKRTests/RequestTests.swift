@@ -68,6 +68,9 @@ private let opt: Contract = {
         #expect(throws: IBEncodingError.unsupported("secType BAG")) {
             try IBRequest.tickByTick(requestID: 1, contract: bagContract, type: .last).body()
         }
+        #expect(throws: IBEncodingError.unsupported("secType BAG")) {
+            try IBRequest.realTimeBars(requestID: 1, contract: bagContract, whatToShow: "TRADES", rth: true).body()
+        }
     }
     @Test func contractDetailsSendsSecID() throws {
         var c = Contract(symbol: "AAPL")

@@ -33,6 +33,8 @@ public enum IBRequest: Sendable, Equatable {
     case historicalData(requestID: Int, contract: Contract, end: Date?, barSize: String, duration: String,
                         rth: Bool, whatToShow: String, keepUpToDate: Bool)
     case cancelHistoricalData(requestID: Int)
+    case realTimeBars(requestID: Int, contract: Contract, whatToShow: String, rth: Bool)
+    case cancelRealTimeBars(requestID: Int)
     case marketDepth(requestID: Int, contract: Contract, rows: Int, smart: Bool)
     case cancelMarketDepth(requestID: Int, smart: Bool)
     case tickByTick(requestID: Int, contract: Contract, type: TickByTickType)
@@ -135,6 +137,11 @@ public enum IBRequest: Sendable, Equatable {
             try w.add(end.map { Self.endFormat.string(from: $0) } ?? "")
             try w.add(barSize); try w.add(duration); w.add(rth); try w.add(what)
             w.add(2); w.add(keep); try w.add("")  // formatDate (epoch seconds), keepUpToDate, chartOptions
+        case .realTimeBars(let reqID, let c, let what, let rth):
+            w.add(50); w.add(3); w.add(reqID); try Self.contract(&w, c)
+            w.add(5); try w.add(what); w.add(rth); try w.add("")  // barSize (IB supports only 5), useRTH, options
+        case .cancelRealTimeBars(let reqID):
+            w.add(51); w.add(1); w.add(reqID)
         case .cancelHistoricalData(let reqID):
             w.add(25); w.add(1); w.add(reqID)
         case .marketDepth(let reqID, let c, let rows, let smart):

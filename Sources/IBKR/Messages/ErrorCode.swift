@@ -22,6 +22,7 @@ public enum ErrorCode {
     public static func isNoMarketDataPermission(code: Int, text: String) -> Bool {
         switch code {
         case 354, 10089, 10168, 10186, 10197: true
+        case 420: text.range(of: "permission", options: .caseInsensitive) != nil   // real-time bars refused
         case 162: text.range(of: "permission", options: .caseInsensitive) != nil
             || text.range(of: "different IP", options: .caseInsensitive) != nil
         case 10189: text.range(of: "permission", options: .caseInsensitive) != nil   // tick-by-tick's catch-all

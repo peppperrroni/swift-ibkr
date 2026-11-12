@@ -94,7 +94,8 @@ public struct TickField: RawRepresentable, Hashable, Sendable {
 }
 
 /// One historical bar. `time` is the bar's start: epoch seconds for intraday bars, 00:00 UTC of the calendar day
-/// for daily and longer bars. `volume` keeps IB's `-1` for "not reported".
+/// for daily and longer bars. `volume` keeps IB's `-1` for "not reported", as do `average` and `count` on real-time
+/// MIDPOINT, BID and ASK bars.
 public struct Bar: Sendable, Equatable {
     public var time: Date
     public var open, high, low, close, volume: Decimal

@@ -16,6 +16,8 @@ import Testing
     #expect(ErrorCode.isNoMarketDataPermission(code: 162, text: "Historical Market Data Service error message:Trading TWS session is connected from a different IP address"))
     #expect(ErrorCode.isNoMarketDataPermission(code: 10189, text: "Failed to request tick-by-tick data.No market data permissions for ISLAND STK"))
     #expect(!ErrorCode.isNoMarketDataPermission(code: 10189, text: "Failed to request tick-by-tick data."))
+    #expect(ErrorCode.isNoMarketDataPermission(code: 420, text: "Invalid Real-time Query:No market data permissions for NYSE STK"))
+    #expect(!ErrorCode.isNoMarketDataPermission(code: 420, text: "Invalid Real-time Query:Historical data request pacing violation"))
 }
 
 @Test func kindTableAdditions() {

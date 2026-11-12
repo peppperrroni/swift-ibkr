@@ -456,6 +456,20 @@ public actor IBClient {
         }
     }
 
+    /// IB's five-second bars for `contract`, one per bar, never ending itself; ends like `marketData` on a refusal.
+    /// `whatToShow` is "TRADES", "MIDPOINT", "BID" or "ASK". MIDPOINT/BID/ASK bars carry -1 volume, average and
+    /// count, as historical bars do. 10225 (bust event) ends the stream; the consumer subscribes again.
+    public func realTimeBars(_ contract: Contract, whatToShow: String = "TRADES", rth: Bool = true)
+        throws(IBClientError) -> AsyncThrowingStream<Bar, any Error> {
+        try requireConnected()
+        let id = nextRequestID()
+        return try openStream(.realTimeBars(requestID: id, contract: contract, whatToShow: whatToShow, rth: rth), id: id,
+                              cancel: .cancelRealTimeBars(requestID: id)) { message, out in
+            if case .realTimeBar(_, let bar) = message { out.yield(bar) }
+            return false
+        }
+    }
+
     /// The whole depth book after every update (12 and 13 both feed it). IB's depth reset (317) empties the book,
     /// yields it and goes on. `smart` is resent on cancel, as IB requires. Ends like `marketData` on a refusal, except
     /// that without depth permissions IB sends notice 2152 and nothing more, so the stream stays quiet. Every element
@@ -617,7 +631,7 @@ public actor IBClient {
         switch message {
         case .accountSummary(let id, _), .accountSummaryEnd(let id), .pnlSingle(let id, _),
              .contractData(let id, _), .contractDataEnd(let id), .symbolSamples(let id, _), .tick(let id, _),
-             .historicalData(let id, _), .historicalDataUpdate(let id, _), .depth(let id, _),
+             .historicalData(let id, _), .historicalDataUpdate(let id, _), .realTimeBar(let id, _), .depth(let id, _),
              .tickByTick(let id, _), .tickSnapshotEnd(let id), .userInfo(let id, _), .positionMulti(let id, _), .positionMultiEnd(let id),
              .accountUpdateMulti(let id, _), .accountUpdateMultiEnd(let id), .pnl(let id, _):
             if requestStreams[id]?.route(message) == true { requestStreams[id] = nil }   // before any termination hop

@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import IBKR
 
@@ -111,5 +112,14 @@ import Testing
 
     @Test func shortTickFramesAreMalformed() {
         guard case .malformed = IBDecoder.decode(body("1", "6", "7", "1")) else { Issue.record("not malformed"); return }
+    }
+
+    @Test func realTimeBarsEncodeAndDecode() throws {
+        #expect(try IBRequest.realTimeBars(requestID: 7, contract: Contract(symbol: "AAPL"), whatToShow: "TRADES", rth: true).body()
+            == body(["50", "3", "7"] + aapl + ["5", "TRADES", "1", ""]))
+        #expect(try IBRequest.cancelRealTimeBars(requestID: 7).body() == body("51", "1", "7"))
+        #expect(IBDecoder.decode(body("50", "3", "7", "1794321000", "351.0", "352.0", "350.5", "351.5", "1000", "351.2", "42"))
+            == .realTimeBar(requestID: 7, Bar(time: Date(timeIntervalSince1970: 1794321000), open: d("351.0"), high: d("352.0"),
+                                             low: d("350.5"), close: d("351.5"), volume: 1000, average: d("351.2"), count: 42)))
     }
 }

@@ -23,6 +23,7 @@ Still open:
   permissions for ISLAND STK». All three end the stream with `.noMarketDataPermission`, though no other session was
   open: IB's texts for 10197 and 162 name a cause that was not there. The tick, bar, depth and tick-by-tick
   decoders are checked only against hand-built frames. Rerun `liveMarketData` once there is a subscription.
+  Error 420 («Invalid Real-time Query:No market data permissions ...») for `realTimeBars` is typed from ib_async's text and unseen live.
 - The depth book uses `ib_async`'s set-at-position model; IB's own sample shifts rows on insert and delete. Check a
   mid-book insert and delete on the first live depth run with a subscription.
 - `marketDepth` without depth permissions never yields and never throws: IB sends notice 2152 for the reqId and then

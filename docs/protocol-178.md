@@ -1404,6 +1404,22 @@ n and m, 10's numSecIds) makes the frame malformed, as everywhere in the decoder
 No version. `90, reqId, barCount, date, open, close, high, low, average, volume`; 10 fields. The order is O,C,H,L, unlike 17.
 `date` as above.
 
+### reqRealTimeBars (out 50)
+
+`50, 3, reqId, contract(12), barSize, whatToShow, useRTH, realTimeBarsOptions`; 19 fields. `barSize` is always `5` (the
+only size IB offers), `realTimeBarsOptions` always `""`. A BAG contract is refused.
+
+### cancelRealTimeBars (out 51)
+
+`51, 1, reqId`; 3 fields. Sent when the consumer stops the stream, and when IB refuses it for want of permission (420
+with a permission text): IB keeps a refused subscription open.
+
+### realtimeBar (in 50)
+
+`50, version, reqId, time, open, high, low, close, volume, wap, count`; 11 fields, order O,H,L,C. `time` is epoch
+seconds; `wap` becomes `Bar.average` (`nil` when unset). MIDPOINT, BID and ASK bars carry -1 volume, wap and count,
+kept as historical bars keep them. The reqId routes it to its stream; the stream never ends itself.
+
 ### reqMktDepth (out 10)
 
 `10, 5, reqId, contract(12), numRows, isSmartDepth, mktDepthOptions`; 18 fields. `mktDepthOptions` is always `""`.

@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import IBKR
 
@@ -117,4 +118,34 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
     }
     try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel
     #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).count == FakeGateway.syncFrames + 1)
+}
+
+@Test func realTimeBarsStreamAndCancel() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.realTimeBars(Contract(symbol: "AAPL"), whatToShow: "MIDPOINT", rth: false)
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
+    let id = sent[FakeGateway.syncFrames][2]
+    #expect(Array(sent[FakeGateway.syncFrames].suffix(4)) == ["5", "MIDPOINT", "0", ""])
+    let (reader, result) = take(1, stream)
+    gateway.feed(["50", "3", id, "1794321000", "351.0", "352.0", "350.5", "351.5", "1000", "351.2", "42"])
+    #expect(try await within2s { try await result.value } == [
+        Bar(time: Date(timeIntervalSince1970: 1794321000), open: d("351.0"), high: d("352.0"), low: d("350.5"),
+            close: d("351.5"), volume: 1000, average: d("351.2"), count: 42)])
+    reader.cancel()
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["51", "1", id])
+}
+
+@Test func realTimeBarsRefusalIsTyped() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.realTimeBars(Contract(symbol: "AAPL"))
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][2]
+    let text = "Invalid Real-time Query:No market data permissions for NYSE STK"
+    gateway.feed(["4", "2", id, "420", text, ""])
+    let (_, result) = take(0, stream)
+    await #expect(throws: IBClientError.noMarketDataPermission(code: 420, text: text)) {
+        _ = try await within2s { try await result.value }
+    }
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["51", "1", id])
 }

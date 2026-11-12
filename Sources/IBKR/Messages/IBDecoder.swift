@@ -64,6 +64,11 @@ public enum IBDecoder {
                 return .historicalDataUpdate(requestID: id, Bar(
                     time: time, open: open, high: high, low: low, close: close, volume: try r.decimal(),
                     average: average, count: count))
+            case 50:
+                try r.skip(); let id = try r.int(), time = Date(timeIntervalSince1970: Double(try r.int()))
+                return .realTimeBar(requestID: id, Bar(
+                    time: time, open: try r.decimal(), high: try r.decimal(), low: try r.decimal(), close: try r.decimal(),
+                    volume: try r.decimal(), average: try r.optionalDecimal(), count: try r.int()))
             case 12:
                 try r.skip(); let id = try r.int(), pos = try r.int(), op = try r.int(), side = try r.int()
                 return .depth(requestID: id, try depthUpdate(pos, "", op, side, &r))
