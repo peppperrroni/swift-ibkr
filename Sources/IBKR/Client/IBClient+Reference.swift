@@ -1,3 +1,5 @@
+import Foundation
+
 extension IBClient {
     /// Every option chain IB lists for `underlying` (one per exchange and trading class), once IB's end marker
     /// arrives. `underlying` needs its `conID`; `futFopExchange` is for futures options only. IB has no cancel for it.
@@ -14,6 +16,38 @@ extension IBClient {
             default: return false
             }
         })
+    }
+
+    /// IB's implied volatility (and greeks) of option `contract` at `optionPrice` with the underlying at `underPrice`.
+    /// The first computation answers; IB's cancel follows it, as `ib_async` sends. Throws like `marketData` on a refusal.
+    public func calculateImpliedVolatility(_ contract: Contract, optionPrice: Decimal, underPrice: Decimal,
+                                           options: [TagValue] = []) async throws(IBClientError) -> OptionComputation {
+        try requireConnected()
+        let id = nextRequestID()
+        return try await calculation(.calculateImpliedVolatility(requestID: id, contract: contract, optionPrice: optionPrice,
+                                                                 underPrice: underPrice, options: options),
+                                     id: id, cancel: .cancelCalculateImpliedVolatility(requestID: id))
+    }
+
+    /// IB's price (and greeks) of option `contract` at `volatility` with the underlying at `underPrice`; answers,
+    /// cancels and throws like `calculateImpliedVolatility`.
+    public func calculateOptionPrice(_ contract: Contract, volatility: Decimal, underPrice: Decimal,
+                                     options: [TagValue] = []) async throws(IBClientError) -> OptionComputation {
+        try requireConnected()
+        let id = nextRequestID()
+        return try await calculation(.calculateOptionPrice(requestID: id, contract: contract, volatility: volatility,
+                                                           underPrice: underPrice, options: options),
+                                     id: id, cancel: .cancelCalculateOptionPrice(requestID: id))
+    }
+
+    /// The answer is tick 21 under the calculation's own reqId, so a quote stream's 21 never reaches it.
+    private func calculation(_ request: IBRequest, id: Int, cancel: IBRequest) async throws(IBClientError) -> OptionComputation {
+        let stream = try openStream(request, id: id, cancel: cancel) { (message, out: AsyncThrowingStream<OptionComputation, any Error>.Continuation) in
+            guard case .tick(_, .optionComputation(_, let c)) = message else { return false }
+            out.yield(c); out.finish(); return false   // false: the termination hop sends the cancel
+        }
+        guard let c = try await collect(stream).first else { throw .cancelled }
+        return c
     }
 
     /// One `ContractQualification` per input, in input order; every lookup runs at once, as `ib_async` gathers them.

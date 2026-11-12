@@ -1385,7 +1385,9 @@ Total: 7 fields.
 No version. 12 fields: `21, reqId, tickType, tickAttrib, impliedVol, delta, optPrice, pvDividend, gamma, vega,
 theta, undPrice`. Every value is a double on the wire, read as an optional decimal (empty/unset is `nil`). IB's
 "not computed" is `nil` too: `-1` for impliedVol, optPrice, pvDividend and undPrice, `-2` for delta, gamma, vega and
-theta. The delayed greek fields 80-83 map to 10-13 through `TickField.live`.
+theta. The delayed greek fields 80-83 map to 10-13 through `TickField.live`. It also answers
+calculateImpliedVolatility (54) and calculateOptionPrice (55), under their own reqId (tickType 53, the custom
+computation), so it never mixes with a quote stream's.
 
 ### tickEFP (in 47)
 
@@ -1535,6 +1537,26 @@ One frame per exchange and trading class; the reqId routes it to `optionChains(f
 ### securityDefinitionOptionParameterEnd (in 76)
 
 `76, reqId`; ends the `optionChains(for:futFopExchange:)` call.
+
+### calculateImpliedVolatility (out 54)
+
+`54, 3, reqId, contract(12), optionPrice, underPrice, n, implVolOptions`; 19 fields. `n` is the option count and
+`implVolOptions` the list as one `"tag=value;"` field (`""` when empty). The prices go out as `Decimal.description`
+(`"6.1"`), where `ib_async` writes `str(float)`. A BAG contract is refused. IB answers with tickOptionComputation (21)
+under the reqId.
+
+### calculateOptionPrice (out 55)
+
+`55, 3, reqId, contract(12), volatility, underPrice, n, optPrcOptions`; 19 fields, laid out and answered like 54.
+
+### cancelCalculateImpliedVolatility (out 56)
+
+`56, 1, reqId`; 3 fields. Sent after the first answer (as `ib_async`'s `finally` does) and when IB refuses the
+request for want of permission; not after any other IB error.
+
+### cancelCalculateOptionPrice (out 57)
+
+`57, 1, reqId`; 3 fields. Sent as 56 is.
 
 ### reqMktDepth (out 10)
 

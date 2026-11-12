@@ -141,3 +141,76 @@ private func chainFrame(_ id: String, _ exchange: String) -> [String] {
         try await within2s { try await client.optionChains(for: .stock("AAPL")) }
     }
 }
+
+private let comp = OptionComputation(tickAttrib: 1, impliedVol: d("0.25"), delta: d("0.55"), optPrice: d("6.1"),
+                                     pvDividend: 0, gamma: d("0.03"), vega: d("0.12"), theta: d("-0.05"),
+                                     undPrice: d("187.2"))
+
+/// A tickOptionComputation (21) frame of field 53 (custom option computation) under reqId `id`.
+private func t21(_ id: String, _ iv: String) -> [String] {
+    ["21", id, "53", "1", iv, "0.55", "6.1", "0", "0.03", "0.12", "-0.05", "187.2"]
+}
+
+@Test func calculateImpliedVolatilityAnswersThenCancels() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in f[0] == "54" ? [t21(f[2], "0.25")] : [] }
+    let got = try await within2s {
+        try await client.calculateImpliedVolatility(aaplCall, optionPrice: d("6.1"), underPrice: d("187.2"))
+    }
+    #expect(got == comp)
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
+    let f = sent[FakeGateway.syncFrames]
+    #expect(Array(f[15...18]) == ["6.1", "187.2", "0", ""])
+    #expect(sent[FakeGateway.syncFrames + 1] == ["56", "1", f[2]])
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func calculateOptionPriceRefusedForPermissionSendsItsCancel() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in f[0] == "55" ? [ibError(f[2], "354", "Requested market data is not subscribed.")] : [] }
+    await #expect(throws: IBClientError.noMarketDataPermission(code: 354, text: "Requested market data is not subscribed.")) {
+        _ = try await within2s {
+            try await client.calculateOptionPrice(aaplCall, volatility: d("0.25"), underPrice: d("187.2"))
+        }
+    }
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
+    #expect(sent[FakeGateway.syncFrames + 1] == ["57", "1", sent[FakeGateway.syncFrames][2]])
+}
+
+@Test func calculateFailsOnItsErrorWithoutCancel() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in
+        f[0] == "54" ? [ibError(f[2], "200", "No security definition has been found for the request")] : []
+    }
+    await #expect(throws: IBClientError.ib(code: 200, text: "No security definition has been found for the request")) {
+        _ = try await within2s {
+            try await client.calculateImpliedVolatility(aaplCall, optionPrice: d("6.1"), underPrice: d("187.2"))
+        }
+    }
+    try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).count == FakeGateway.syncFrames + 1)
+    #expect(await client.requestStreamCount == 0)
+}
+
+/// Review Focus 2: a quote stream's 21 never answers a calculation, and the calculation's 21 never reaches the quotes.
+@Test func calculationTakesOnlyItsOwnTick() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let quotes = try await client.marketData(Contract(symbol: "AAPL"))
+    let q = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][2]
+    let calc = Task {
+        try await client.calculateImpliedVolatility(aaplCall, optionPrice: d("6.1"), underPrice: d("187.2"))
+    }
+    let c = try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1][2]
+    gateway.feed(t21(q, "0.25"))
+    gateway.feed(t21(c, "0.3"))
+    let got = try await within2s { try await calc.value }
+    #expect(got.impliedVol == d("0.3"))
+    gateway.feed(["1", "6", q, "1", "351.5", "200", "0"])
+    let (_, result) = take(2, quotes)
+    #expect(try await within2s { try await result.value }
+        == [.optionComputation(TickField(rawValue: 53), comp), .price(.bid, price: d("351.5"), size: d("200"))])
+}

@@ -81,6 +81,14 @@ private let opt: Contract = {
         #expect(throws: IBEncodingError.unsupported("secType BAG")) {
             try IBRequest.histogramData(requestID: 1, contract: bagContract, rth: true, period: "3 days").body()
         }
+        #expect(throws: IBEncodingError.unsupported("secType BAG")) {
+            try IBRequest.calculateImpliedVolatility(requestID: 1, contract: bagContract, optionPrice: 1, underPrice: 1,
+                                                     options: []).body()
+        }
+        #expect(throws: IBEncodingError.unsupported("secType BAG")) {
+            try IBRequest.calculateOptionPrice(requestID: 1, contract: bagContract, volatility: 1, underPrice: 1,
+                                               options: []).body()
+        }
     }
     @Test func contractDetailsSendsSecID() throws {
         var c = Contract(symbol: "AAPL")

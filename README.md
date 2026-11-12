@@ -49,7 +49,7 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | Positions | synced at connect, whole sets on every change | ✅ live-checked |
 | Session | current time, accounts, next id, user info, log level, auto-bind, global cancel, opt-in reconnect | ✅ on the fake gateway; a live run is due in stage 13 |
 | Account | account summary, per-position P&L, portfolio, account values, Multi, account P&L | ✅ summary and per-position P&L live-checked; the rest on the fake gateway, a live run is due in stage 13 |
-| Contract lookup | contract details, matching symbols, qualification, option chains | ✅ details and symbols live-checked; qualification and option chains on the fake gateway, a live run is due in stage 13 |
+| Contract lookup | contract details, matching symbols, qualification, option chains, option calculations | ✅ details and symbols live-checked; qualification, option chains and option calculations on the fake gateway, a live run is due in stage 13 |
 | Market data | quotes with generic ticks and snapshots, `Ticker` streams and batch snapshots, greeks, EFP, news ticks, real-time bars, depth book, depth exchanges, SMART components, tick-by-tick, BAG, typed «no permission» refusal | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
 | History | bars with keepUpToDate, historical ticks, head timestamp, histogram, trading schedule, BAG | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
 
@@ -259,6 +259,9 @@ let checked = try await client.qualifyContracts([.stock("AAPL", exchange: "SMART
 // [ContractQualification], one per input: .qualified(Contract), .ambiguous([Contract]) or .notFound
 var aapl = Contract.stock("AAPL", exchange: "SMART", currency: "USD"); aapl.conID = 265598
 let chains = try await client.optionChains(for: aapl)       // [OptionChain]: exchange, tradingClass, multiplier, expirations, strikes
+let call = Contract.option("AAPL", lastTradeDateOrContractMonth: "20261218", strike: 200, right: "C", exchange: "SMART", currency: "USD")
+let iv = try await client.calculateImpliedVolatility(call, optionPrice: 6.5, underPrice: 187.25)  // OptionComputation
+let price = try await client.calculateOptionPrice(call, volatility: 0.25, underPrice: 187.25)     // OptionComputation
 ```
 
 `qualifyContracts` sends every lookup at once. IB's 200 is `.notFound` rather than an error. With several matches,
@@ -267,6 +270,9 @@ them, possibly none. Any other error throws, and a `BAG` is refused before anyth
 
 `optionChains(for:futFopExchange:)` needs the underlying's `conID` (qualify it first). It returns one `OptionChain` per
 exchange and trading class once IB's end marker arrives; IB has no cancel for it.
+
+`calculateImpliedVolatility` and `calculateOptionPrice` return IB's first computation (volatility, greeks, price) and
+then send IB's cancel. Without a data subscription they throw `.noMarketDataPermission`, like `marketData`.
 
 ### Market data
 

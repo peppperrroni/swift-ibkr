@@ -16,4 +16,16 @@ import Testing
             Issue.record("not malformed"); return
         }
     }
+
+    @Test func calculationsEncode() throws {
+        #expect(try IBRequest.calculateImpliedVolatility(requestID: 7, contract: aaplCall, optionPrice: d("6.1"),
+                                                         underPrice: d("187.2"), options: []).body()
+            == body(["54", "3", "7"] + aaplCallBlock + ["6.1", "187.2", "0", ""]))
+        #expect(try IBRequest.calculateOptionPrice(requestID: 7, contract: aaplCall, volatility: d("0.25"),
+                                                   underPrice: d("187.2"),
+                                                   options: [TagValue(tag: "a", value: "1"), TagValue(tag: "b", value: "2")]).body()
+            == body(["55", "3", "7"] + aaplCallBlock + ["0.25", "187.2", "2", "a=1;b=2;"]))
+        #expect(try IBRequest.cancelCalculateImpliedVolatility(requestID: 7).body() == body("56", "1", "7"))
+        #expect(try IBRequest.cancelCalculateOptionPrice(requestID: 7).body() == body("57", "1", "7"))
+    }
 }

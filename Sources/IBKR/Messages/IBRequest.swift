@@ -50,6 +50,12 @@ public enum IBRequest: Sendable, Equatable {
     case smartComponents(requestID: Int, bboExchange: String)
     case secDefOptParams(requestID: Int, underlyingSymbol: String, futFopExchange: String, underlyingSecType: String,
                          underlyingConID: Int)
+    case calculateImpliedVolatility(requestID: Int, contract: Contract, optionPrice: Decimal, underPrice: Decimal,
+                                    options: [TagValue])
+    case calculateOptionPrice(requestID: Int, contract: Contract, volatility: Decimal, underPrice: Decimal,
+                              options: [TagValue])
+    case cancelCalculateImpliedVolatility(requestID: Int)
+    case cancelCalculateOptionPrice(requestID: Int)
     case managedAccounts
     case userInfo(requestID: Int)
     case serverLogLevel(ServerLogLevel)
@@ -69,6 +75,16 @@ public enum IBRequest: Sendable, Equatable {
             w.add(83); w.add(reqID); try w.add(bbo)
         case .secDefOptParams(let reqID, let symbol, let exchange, let secType, let conID):
             w.add(78); w.add(reqID); try w.add(symbol); try w.add(exchange); try w.add(secType); w.add(conID)
+        case .calculateImpliedVolatility(let reqID, let c, let price, let under, let options):
+            w.add(54); w.add(3); w.add(reqID); try Self.contract(&w, c)
+            w.add(price); w.add(under); w.add(options.count); try w.add(Self.tagValues(options))
+        case .calculateOptionPrice(let reqID, let c, let vol, let under, let options):
+            w.add(55); w.add(3); w.add(reqID); try Self.contract(&w, c)
+            w.add(vol); w.add(under); w.add(options.count); try w.add(Self.tagValues(options))
+        case .cancelCalculateImpliedVolatility(let reqID):
+            w.add(56); w.add(1); w.add(reqID)
+        case .cancelCalculateOptionPrice(let reqID):
+            w.add(57); w.add(1); w.add(reqID)
         case .managedAccounts:
             w.add(17); w.add(1)
         case .userInfo(let reqID):
@@ -194,6 +210,9 @@ public enum IBRequest: Sendable, Equatable {
         f.dateFormat = "yyyyMMdd-HH:mm:ss"
         return f
     }()
+
+    /// A tag-value list as IB takes it: `tag=value;` per pair, with no separator.
+    static func tagValues(_ list: [TagValue]) -> String { list.map { "\($0.tag)=\($0.value);" }.joined() }
 
     /// A `BAG`'s legs as a request sends them: the count, then conID, ratio, action and exchange per leg. Nothing for
     /// any other secType.
