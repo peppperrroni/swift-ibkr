@@ -104,3 +104,40 @@ private func details(_ id: String, _ symbol: String, conID: String, secType: Str
     try await Task.sleep(for: .milliseconds(50))   // room for a wrong send
     #expect(try await gateway.waitForSent(FakeGateway.syncFrames).count == FakeGateway.syncFrames)
 }
+
+private func chainFrame(_ id: String, _ exchange: String) -> [String] {
+    ["75", id, exchange, "265598", "AAPL", "100", "2", "20261218", "20270115", "3", "190", "195", "200"]
+}
+
+@Test func optionChainsCollectUntilEnd() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in
+        guard f[0] == "78" else { return [] }
+        return [chainFrame(f[1], "SMART"), chainFrame(f[1], "CBOE"), ["76", f[1]]]
+    }
+    var base = Contract.stock("AAPL", exchange: "SMART", currency: "USD")
+    base.conID = 265598
+    let u = base
+    let chains = try await within2s { try await client.optionChains(for: u) }
+    #expect(chains.map(\.exchange) == ["SMART", "CBOE"])
+    #expect(chains[0].strikes == [190, 195, 200])
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
+    #expect(sent[FakeGateway.syncFrames].dropFirst(2) == ["AAPL", "", "STK", "265598"])
+    #expect(sent[FakeGateway.syncFrames].first == "78")
+    try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).count == FakeGateway.syncFrames + 1)
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func optionChainsFailOnTheirError() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in
+        guard f[0] == "78" else { return [] }
+        return [ibError(f[1], "200", "No security definition has been found for the request")]
+    }
+    await #expect(throws: IBClientError.ib(code: 200, text: "No security definition has been found for the request")) {
+        try await within2s { try await client.optionChains(for: .stock("AAPL")) }
+    }
+}

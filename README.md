@@ -49,7 +49,7 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | Positions | synced at connect, whole sets on every change | ✅ live-checked |
 | Session | current time, accounts, next id, user info, log level, auto-bind, global cancel, opt-in reconnect | ✅ on the fake gateway; a live run is due in stage 13 |
 | Account | account summary, per-position P&L, portfolio, account values, Multi, account P&L | ✅ summary and per-position P&L live-checked; the rest on the fake gateway, a live run is due in stage 13 |
-| Contract lookup | contract details, matching symbols, qualification | ✅ details and symbols live-checked; qualification on the fake gateway, a live run is due in stage 13 |
+| Contract lookup | contract details, matching symbols, qualification, option chains | ✅ details and symbols live-checked; qualification and option chains on the fake gateway, a live run is due in stage 13 |
 | Market data | quotes with generic ticks and snapshots, `Ticker` streams and batch snapshots, greeks, EFP, news ticks, real-time bars, depth book, depth exchanges, SMART components, tick-by-tick, BAG, typed «no permission» refusal | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
 | History | bars with keepUpToDate, historical ticks, head timestamp, histogram, trading schedule, BAG | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
 
@@ -257,11 +257,16 @@ let details = try await client.contractDetails(Contract(symbol: "AAPL"))   // [C
 let matches = try await client.matchingSymbols("AAP")                      // [ContractDescription]
 let checked = try await client.qualifyContracts([.stock("AAPL", exchange: "SMART", currency: "USD")])
 // [ContractQualification], one per input: .qualified(Contract), .ambiguous([Contract]) or .notFound
+var aapl = Contract.stock("AAPL", exchange: "SMART", currency: "USD"); aapl.conID = 265598
+let chains = try await client.optionChains(for: aapl)       // [OptionChain]: exchange, tradingClass, multiplier, expirations, strikes
 ```
 
 `qualifyContracts` sends every lookup at once. IB's 200 is `.notFound` rather than an error. With several matches,
 only those of the input's secType count; one left is `.qualified` (keeping `SMART`), otherwise `.ambiguous` lists
 them, possibly none. Any other error throws, and a `BAG` is refused before anything is sent.
+
+`optionChains(for:futFopExchange:)` needs the underlying's `conID` (qualify it first). It returns one `OptionChain` per
+exchange and trading class once IB's end marker arrives; IB has no cancel for it.
 
 ### Market data
 

@@ -48,6 +48,8 @@ public enum IBRequest: Sendable, Equatable {
     case currentTime
     case depthExchanges
     case smartComponents(requestID: Int, bboExchange: String)
+    case secDefOptParams(requestID: Int, underlyingSymbol: String, futFopExchange: String, underlyingSecType: String,
+                         underlyingConID: Int)
     case managedAccounts
     case userInfo(requestID: Int)
     case serverLogLevel(ServerLogLevel)
@@ -65,6 +67,8 @@ public enum IBRequest: Sendable, Equatable {
             w.add(82)
         case .smartComponents(let reqID, let bbo):
             w.add(83); w.add(reqID); try w.add(bbo)
+        case .secDefOptParams(let reqID, let symbol, let exchange, let secType, let conID):
+            w.add(78); w.add(reqID); try w.add(symbol); try w.add(exchange); try w.add(secType); w.add(conID)
         case .managedAccounts:
             w.add(17); w.add(1)
         case .userInfo(let reqID):

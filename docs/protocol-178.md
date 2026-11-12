@@ -1520,6 +1520,22 @@ kept as historical bars keep them. The reqId routes it to its stream; the stream
 `82, reqId, n, n x (bitNumber, exchange, exchangeLetter)`; no version. A negative `n` is malformed. The reqId routes
 it to `smartComponents(_:)`.
 
+### reqSecDefOptParams (out 78)
+
+`78, reqId, underlyingSymbol, futFopExchange, underlyingSecType, underlyingConId`; 6 fields, no version.
+`optionChains(for:futFopExchange:)` fills them from the underlying `Contract` (`symbol`, `secType`, `conID`). IB has no
+cancel for it.
+
+### securityDefinitionOptionParameter (in 75)
+
+`75, reqId, exchange, underlyingConId, tradingClass, multiplier, nExp, nExp x expiration, nStrikes, nStrikes x strike`;
+no version. Expirations stay `yyyyMMdd` strings; strikes are `Decimal`. A negative `nExp` or `nStrikes` is malformed.
+One frame per exchange and trading class; the reqId routes it to `optionChains(for:futFopExchange:)`.
+
+### securityDefinitionOptionParameterEnd (in 76)
+
+`76, reqId`; ends the `optionChains(for:futFopExchange:)` call.
+
 ### reqMktDepth (out 10)
 
 `10, 5, reqId, contract(12), numRows, isSmartDepth, mktDepthOptions`; 18 fields. `mktDepthOptions` is always `""`.

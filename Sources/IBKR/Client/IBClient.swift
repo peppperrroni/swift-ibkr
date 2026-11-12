@@ -813,7 +813,8 @@ public actor IBClient {
              .realTimeBar(let id, _), .depth(let id, _), .tickByTick(let id, _), .historicalTicks(let id, _, _),
              .headTimeStamp(let id, _), .histogramData(let id, _), .tickSnapshotEnd(let id), .userInfo(let id, _),
              .positionMulti(let id, _), .positionMultiEnd(let id), .accountUpdateMulti(let id, _),
-             .accountUpdateMultiEnd(let id), .pnl(let id, _), .smartComponents(let id, _):
+             .accountUpdateMultiEnd(let id), .pnl(let id, _), .smartComponents(let id, _),
+             .securityDefinitionOptionParameter(let id, _), .securityDefinitionOptionParameterEnd(let id):
             if requestStreams[id]?.route(message) == true { requestStreams[id] = nil }   // before any termination hop
         case .openOrder(let m) where m.order.whatIf:   // whatIfOrder's answer, keyed by the order id it took
             if requestStreams[m.orderID]?.route(message) == true { requestStreams[m.orderID] = nil }

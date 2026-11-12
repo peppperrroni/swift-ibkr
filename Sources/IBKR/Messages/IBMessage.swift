@@ -60,6 +60,8 @@ public enum IBMessage: Sendable, Equatable {
     case deltaNeutralValidation(requestID: Int, DeltaNeutralContract)
     case depthExchanges([DepthMarketDataDescription])
     case smartComponents(requestID: Int, [SmartComponent])
+    case securityDefinitionOptionParameter(requestID: Int, OptionChain)
+    case securityDefinitionOptionParameterEnd(requestID: Int)
     case rerouteMarketData(requestID: Int, conID: Int, exchange: String)
     case rerouteMarketDepth(requestID: Int, conID: Int, exchange: String)
     case unknown(id: Int, fields: [String])

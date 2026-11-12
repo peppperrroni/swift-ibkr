@@ -42,6 +42,17 @@ extension IBDecoder {
         })
     }
 
+    /// securityDefinitionOptionParameter (75): no version.
+    static func optionChain(_ r: inout FieldReader) throws -> IBMessage {
+        let id = try r.int(), exchange = try r.string(), conID = try r.int(), tradingClass = try r.string()
+        let multiplier = try r.string()
+        let expirations = try (0..<wireCount(&r)).map { _ in try r.string() }
+        let strikes = try (0..<wireCount(&r)).map { _ in try r.decimal() }
+        return .securityDefinitionOptionParameter(requestID: id, OptionChain(
+            exchange: exchange, underlyingConID: conID, tradingClass: tradingClass, multiplier: multiplier,
+            expirations: expirations, strikes: strikes))
+    }
+
     /// historicalSchedule (106): no version.
     static func historicalSchedule(_ r: inout FieldReader) throws -> IBMessage {
         let id = try r.int(), start = try r.string(), end = try r.string(), zone = try r.string()

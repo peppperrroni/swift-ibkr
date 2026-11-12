@@ -5,6 +5,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 ## [Unreleased]
 
 ### Added
+- `optionChains(for:futFopExchange:)`, every option chain IB lists for an underlying (one `OptionChain` per exchange and trading class), with `IBRequest.secDefOptParams` (out 78) and `IBMessage.securityDefinitionOptionParameter` / `.securityDefinitionOptionParameterEnd` (in 75/76). New cases in public enums: an exhaustive `switch` over `IBRequest` or `IBMessage` needs new branches.
 - `qualifyContracts(_:)`, every lookup at once, with `ContractQualification` (`.qualified`, `.ambiguous` with every candidate, `.notFound`) per input in input order; IB's 200 is `.notFound`, any other error throws, and a `BAG` is refused before sending.
 - `ContractDetails` carries every field `ib_async` decodes (`underConID`, `contractMonth`, `industry`, `category`, `subcategory`, `evRule`, `evMultiplier`, `secIDList`, `aggGroup`, `underSymbol`, `underSecType`, `marketRuleIDs`, `realExpirationDate`, `lastTradeTime`), and bond details (in 18) come back through `contractDetails` with `cusip`, `coupon`, `maturity`, `issueDate`, `ratings`, `bondType`, `couponType`, `convertible`, `callable`, `putable`, `descAppend`, `nextOptionDate`, `nextOptionType`, `nextOptionPartial` and `notes`.
 - `Contract.stock`, `.option`, `.futuresOption`, `.future`, `.contFuture`, `.forex`, `.index`, `.cfd`, `.commodity`, `.crypto`, `.mutualFund`, `.warrant`, `.bond` and `.bag`, `ib_async`'s contract factories, with its defaults (`""` for exchange and currency, `IDEALPRO` for forex).

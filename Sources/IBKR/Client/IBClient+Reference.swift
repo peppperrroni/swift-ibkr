@@ -1,4 +1,21 @@
 extension IBClient {
+    /// Every option chain IB lists for `underlying` (one per exchange and trading class), once IB's end marker
+    /// arrives. `underlying` needs its `conID`; `futFopExchange` is for futures options only. IB has no cancel for it.
+    public func optionChains(for underlying: Contract, futFopExchange: String = "") async throws(IBClientError) -> [OptionChain] {
+        try requireConnected()
+        let id = nextRequestID()
+        return try await collect(try openStream(
+            .secDefOptParams(requestID: id, underlyingSymbol: underlying.symbol, futFopExchange: futFopExchange,
+                             underlyingSecType: underlying.secType, underlyingConID: underlying.conID),
+            id: id, cancel: nil) { message, out in
+            switch message {
+            case .securityDefinitionOptionParameter(_, let chain): out.yield(chain); return false
+            case .securityDefinitionOptionParameterEnd: out.finish(); return true
+            default: return false
+            }
+        })
+    }
+
     /// One `ContractQualification` per input, in input order; every lookup runs at once, as `ib_async` gathers them.
     /// Refuses a `BAG` before sending anything. IB's 200 is `.notFound`; any other error throws, and the lookups
     /// still open are dropped (contract details have no cancel message).
