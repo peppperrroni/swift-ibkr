@@ -188,6 +188,10 @@ Task {
 }
 ```
 
+`accountUpdatesMulti(account:modelCode:ledgerAndNLV:)` and `positionsMulti(account:modelCode:)` stream the whole set at
+IB's end marker and again on every change; `pnl(account:modelCode:)` streams each account P&L update. They use their
+own request ids, so they do not feed `accountValues()` or `portfolio()`.
+
 ### Session
 
 ```swift

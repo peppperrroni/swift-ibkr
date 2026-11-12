@@ -176,9 +176,72 @@ public actor IBClient {
             case .accountSummaryEnd: ended = true
             default: return false
             }
-            if ended, values != last { last = values; out.yield(values) }
+            Self.yieldSet(values, ended: ended, last: &last, out)
             return false
         }
+    }
+
+    /// The account values of `account` and `modelCode` ("" for all models) through reqAccountUpdatesMulti: the
+    /// whole set, keyed and sorted by account, model, tag and currency, at IB's first end marker, then again on
+    /// every change. Ends like `accountSummary`. It has its own reqId, so it does not feed `accountValues()`.
+    public func accountUpdatesMulti(account: String, modelCode: String = "", ledgerAndNLV: Bool = false)
+        throws(IBClientError) -> AsyncThrowingStream<[AccountValue], any Error> {
+        try requireConnected()
+        let id = nextRequestID()
+        var tracker = AccountTracker(), ended = false, last: [AccountValue]?   // the tracker keys and sorts the set
+        return try openStream(.accountUpdatesMulti(requestID: id, account: account, modelCode: modelCode,
+                                                   ledgerAndNLV: ledgerAndNLV), id: id,
+                              cancel: .cancelAccountUpdatesMulti(requestID: id)) { message, out in
+            switch message {
+            case .accountUpdateMulti: _ = tracker.apply(message)
+            case .accountUpdateMultiEnd: ended = true
+            default: return false
+            }
+            Self.yieldSet(tracker.values, ended: ended, last: &last, out)
+            return false
+        }
+    }
+
+    /// The positions of `account` and `modelCode` through reqPositionsMulti: the whole set, keyed by account,
+    /// model and conID (quantity 0 removes) and sorted the same way, at IB's first end marker, then on every
+    /// change. Ends like `accountSummary`.
+    public func positionsMulti(account: String, modelCode: String = "") throws(IBClientError)
+        -> AsyncThrowingStream<[Position], any Error> {
+        try requireConnected()
+        let id = nextRequestID()
+        var positions: [Position] = [], ended = false, last: [Position]?
+        return try openStream(.positionsMulti(requestID: id, account: account, modelCode: modelCode), id: id,
+                              cancel: .cancelPositionsMulti(requestID: id)) { message, out in
+            switch message {
+            case .positionMulti(_, let p):
+                positions.removeAll { ($0.account, $0.modelCode, $0.contract.conID) == (p.account, p.modelCode, p.contract.conID) }
+                if p.quantity != 0 { positions.append(p) }
+                positions.sort { ($0.account, $0.modelCode, $0.contract.conID) < ($1.account, $1.modelCode, $1.contract.conID) }
+            case .positionMultiEnd: ended = true
+            default: return false
+            }
+            Self.yieldSet(positions, ended: ended, last: &last, out)
+            return false
+        }
+    }
+
+    /// Every account-level P&L update IB sends, as it comes. Ends like `accountSummary`.
+    public func pnl(account: String, modelCode: String = "") throws(IBClientError)
+        -> AsyncThrowingStream<AccountPnL, any Error> {
+        try requireConnected()
+        let id = nextRequestID()
+        return try openStream(.pnl(requestID: id, account: account, modelCode: modelCode), id: id,
+                              cancel: .cancelPnL(requestID: id)) { message, out in
+            if case .pnl(_, let pnl) = message { out.yield(pnl) }
+            return false
+        }
+    }
+
+    /// The «set at the end marker, then on change» rule of the set-valued streams.
+    private static func yieldSet<T: Equatable & Sendable>(
+        _ set: T, ended: Bool, last: inout T?, _ out: AsyncThrowingStream<T, any Error>.Continuation
+    ) {
+        if ended, set != last { last = set; out.yield(set) }
     }
 
     /// Every P&L update IB sends for one position, as it comes. Ends like `accountSummary`.
@@ -415,7 +478,8 @@ public actor IBClient {
         case .accountSummary(let id, _), .accountSummaryEnd(let id), .pnlSingle(let id, _),
              .contractData(let id, _), .contractDataEnd(let id), .symbolSamples(let id, _), .tick(let id, _),
              .historicalData(let id, _), .historicalDataUpdate(let id, _), .depth(let id, _),
-             .tickByTick(let id, _), .userInfo(let id, _):
+             .tickByTick(let id, _), .userInfo(let id, _), .positionMulti(let id, _), .positionMultiEnd(let id),
+             .accountUpdateMulti(let id, _), .accountUpdateMultiEnd(let id), .pnl(let id, _):
             if requestStreams[id]?.route(message) == true { requestStreams[id] = nil }   // before any termination hop
         case .currentTime, .managedAccounts, .nextValidID:   // no reqId: the oldest waiter that takes it gets it
             for key in requestStreams.keys.filter({ $0 < -1 }).sorted(by: >) where requestStreams[key]?.route(message) == true {

@@ -5,6 +5,8 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 ## [Unreleased]
 
 ### Added
+- `accountUpdatesMulti`, `positionsMulti` and `pnl` request streams (account values and positions per account and
+  model code, and account-level P&L).
 - `portfolio()` and `accountValues()`, always on: `connect` subscribes to the account updates of a single account,
   or to each account's values through `Multi` when there are several, and waits for them.
 - Wire codec for the account stream: account values, portfolio items, account time, the `Multi` position and account

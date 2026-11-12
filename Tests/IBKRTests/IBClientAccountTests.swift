@@ -168,6 +168,9 @@ func disconnectEndsRequestStreams(peerCloses: Bool) async throws {
     let client = IBClient(connector: FakeGateway().connector)
     await #expect(throws: IBClientError.notConnected) { try await client.accountSummary(tags: tags) }
     await #expect(throws: IBClientError.notConnected) { try await client.pnlSingle(account: "DU1", conID: 1) }
+    await #expect(throws: IBClientError.notConnected) { try await client.accountUpdatesMulti(account: "DU1") }
+    await #expect(throws: IBClientError.notConnected) { try await client.positionsMulti(account: "DU1") }
+    await #expect(throws: IBClientError.notConnected) { try await client.pnl(account: "DU1") }
     #expect(await client.requestStreamCount == 0)
 }
 
@@ -190,4 +193,104 @@ func disconnectEndsRequestStreams(peerCloses: Bool) async throws {
     let id = try await lastRequestID(gateway, FakeGateway.syncFrames + 1, at: 2)
     gateway.feed(["4", "2", id, "321", "Error validating request", ""])
     #expect(try await ending(stream) == .ib(code: 321, text: "Error validating request"))
+}
+
+private func multiValue(_ id: String, _ tag: String, _ value: String, model: String = "") -> [String] {
+    ["73", "1", id, "DU1", model, tag, value, "USD"]
+}
+
+private func multiPosition(_ id: String, _ conID: String, _ quantity: String) -> [String] {
+    ["71", "1", id, "DU1", conID, "AAPL", "STK", "", "0", "", "", "SMART", "USD", "AAPL", "NMS", quantity, "10", ""]
+}
+
+private func accountPnL(_ id: String, _ daily: String, realized: String = "0") -> [String] {
+    ["94", id, daily, "5", realized]
+}
+
+@Test func accountUpdatesMultiYieldsTheSetAtEnd() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.accountUpdatesMulti(account: "DU1")
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
+    let id = sent[FakeGateway.syncFrames][2]
+    #expect(sent[FakeGateway.syncFrames] == ["76", "1", id, "DU1", "", "0"])
+    gateway.feed(multiValue(id, "NetLiquidation", "100"))
+    gateway.feed(multiValue(id, "BuyingPower", "400"))
+    gateway.feed(["74", "1", id])
+    // FakeGateway answers every 76 with an end marker at once, so the empty set comes first, then one set per change.
+    #expect(pairs(try await take(3, stream)[2]) == ["DU1/BuyingPower=400", "DU1/NetLiquidation=100"])
+}
+
+@Test func positionsMultiYieldsTheSetAtEndAndDropsZero() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.positionsMulti(account: "DU1")
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
+    let id = sent[FakeGateway.syncFrames][2]
+    #expect(sent[FakeGateway.syncFrames] == ["74", "1", id, "DU1", ""])
+    gateway.feed(multiPosition(id, "1", "5"))
+    gateway.feed(multiPosition(id, "2", "7"))
+    gateway.feed(["72", "1", id])
+    gateway.feed(multiPosition(id, "1", "0"))
+    let sets = try await take(2, stream)
+    #expect(sets[0].map(\.contract.conID) == [1, 2])
+    #expect(sets[1].map(\.contract.conID) == [2])
+}
+
+@Test func pnlYieldsEachUpdate() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.pnl(account: "DU1")
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
+    let id = sent[FakeGateway.syncFrames][1]
+    #expect(sent[FakeGateway.syncFrames] == ["92", id, "DU1", ""])
+    gateway.feed(accountPnL(id, "1.5"))
+    gateway.feed(accountPnL(id, "2.5", realized: "1.7976931348623157E308"))
+    let updates = try await take(2, stream)
+    #expect(updates.map(\.daily) == [d("1.5"), d("2.5")])
+    #expect(updates[0].realized == d("0") && updates[1].realized == nil)
+}
+
+@Test func stoppingMultiStreamsSendsTheirCancels() async throws {
+    let gateway = FakeGateway()
+    gateway.onRequest = { r in
+        switch r[0] {
+        case "76": [multiValue(r[2], "NetLiquidation", "1"), ["74", "1", r[2]]]
+        case "74" where r.count == 5: [multiPosition(r[2], "1", "5"), ["72", "1", r[2]]]
+        case "92": [accountPnL(r[1], "1")]
+        default: []
+        }
+    }
+    let client = try await connected(gateway)
+    let n = FakeGateway.syncFrames
+    _ = try await take(1, client.accountUpdatesMulti(account: "DU1"))
+    let a = try await gateway.waitForSent(n + 1)[n][2]
+    #expect(try await gateway.waitForSent(n + 2)[n + 1] == ["77", "1", a])
+    _ = try await take(1, client.positionsMulti(account: "DU1"))
+    let p = try await gateway.waitForSent(n + 3)[n + 2][2]
+    #expect(try await gateway.waitForSent(n + 4)[n + 3] == ["75", "1", p])
+    _ = try await take(1, client.pnl(account: "DU1"))
+    let q = try await gateway.waitForSent(n + 5)[n + 4][1]
+    #expect(try await gateway.waitForSent(n + 6)[n + 5] == ["93", q])
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func accountPnLErrorEndsItsStream() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.pnl(account: "DU1")
+    let id = try await lastRequestID(gateway, FakeGateway.syncFrames + 1, at: 1)
+    gateway.feed(["4", "2", id, "322", "Error processing request", ""])
+    #expect(try await ending(stream) == .ib(code: 322, text: "Error processing request"))
+}
+
+@Test func consumerMultiStreamDoesNotTouchAccountValues() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.accountUpdatesMulti(account: "DU1", modelCode: "M1")
+    let id = try await lastRequestID(gateway, FakeGateway.syncFrames + 1, at: 2)
+    gateway.feed(multiValue(id, "NetLiquidation", "100", model: "M1"))
+    gateway.feed(["74", "1", id])
+    #expect(try await take(2, stream)[1].map(\.modelCode) == ["M1"])   // [0] is the fake's instant end
+    #expect(await client.accountValues().snapshot.allSatisfy { $0.modelCode != "M1" })
 }
