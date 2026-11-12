@@ -36,6 +36,25 @@ private func connect(_ client: IBClient, _ policy: ReconnectPolicy) async throws
     #expect(set.map(\.contract.conID) == [265598])
 }
 
+@Test func ordersSurviveTheReconnectWindow() async throws {
+    let order = Fixtures.openOrderFields(
+        orderID: 3, permID: 900, clientID: 7, symbol: "AAPL", action: "BUY", quantity: "1", orderType: "LMT",
+        limitPrice: "1", auxPrice: "1.7976931348623157E308", tif: "DAY", parentID: "0", outsideRTH: "0", orderRef: "",
+        status: "Submitted")
+    let (one, two) = (FakeGateway(), FakeGateway())
+    for g in [one, two] { g.onRequest = { $0[0] == "16" ? [order] : [] } }
+    let gateways = Gateways([one, nil, two])   // the first attempt is refused
+    let client = IBClient(connector: gateways.connector)
+    try await connect(client, ReconnectPolicy(delays: [.milliseconds(10), .milliseconds(300)], probeAfter: nil))
+    let states = await client.states()
+    one.close()
+    try await within2s { while await gateways.connects < 2 { try await Task.sleep(for: .milliseconds(5)) } }
+    #expect(try await next(1, client.states()) == [.connecting])   // in the pause after the refused attempt
+    #expect(await client.orders().snapshot.map(\.orderID) == [3])
+    #expect(try await next(4, states) == [ready, .disconnected(.connectionClosed), .connecting, ready])
+    #expect(await client.orders().snapshot.map(\.orderID) == [3])
+}
+
 @Test func requestStreamsEndAndAreNotReplayed() async throws {
     let (one, two) = (FakeGateway(), FakeGateway())
     let gateways = Gateways([one, two])

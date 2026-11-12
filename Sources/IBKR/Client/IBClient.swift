@@ -91,7 +91,9 @@ public actor IBClient {
         self.clientID = clientID
         frames = FrameReader()
         (serverVersion, accounts, nextID, syncEnds, accountSyncIDs) = (nil, nil, nil, nil, [])
-        orderTracker = OrderTracker(clientID: clientID)   // fills are kept: the sync's replay of them publishes nothing
+        // A reconnect attempt keeps the orders (same client id) so they stay visible while it retries. Fills are
+        // always kept: the sync's replay of them publishes nothing.
+        if reconnectTask == nil { orderTracker = OrderTracker(clientID: clientID) }
         positionTracker.reload()   // the set is kept too, and replaced whole at the sync's positionEnd
         setState(.connecting)
 

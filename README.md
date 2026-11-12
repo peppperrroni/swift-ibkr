@@ -132,8 +132,9 @@ await client.disconnect()
   the connection with `.timeout` and reconnects. A reconnect resends only the sync: request streams end at the drop,
   and `setMarketDataType` must be set again.
 - **Across a reconnect.** Subscribers of `orders()`, `executions()`, `positions()`, `portfolio()` and
-  `accountValues()` stay subscribed. Per-request streams such as `accountSummary` and `pnlSingle` end with the
-  connection's error instead, so subscribe to them again.
+  `accountValues()` stay subscribed, and their snapshots keep the last known state while it retries. Per-request
+  streams such as `accountSummary` and `pnlSingle` end with the connection's error instead, so subscribe to them
+  again.
 - **What `disconnect()` does.** From `.connected` it sends cancelPositions behind every request already queued
   (an order placed just before still goes out), then closes the socket, within 2 s at the latest. The state turns
   `.disconnected(nil)` and per-request streams end at once.

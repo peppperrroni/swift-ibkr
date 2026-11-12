@@ -7,7 +7,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 ### Added
 - Opt-in reconnect: `connect(reconnect: ReconnectPolicy)` retries a dropped connection with paused attempts until
   `disconnect()` or `maxAttempts`, and probes a silent connection with reqCurrentTime, dropping it with `.timeout`
-  when the probe goes unanswered.
+  when the probe goes unanswered. The order, position and portfolio snapshots stay visible while it retries.
 - `accountUpdatesMulti`, `positionsMulti` and `pnl` request streams (account values and positions per account and
   model code, and account-level P&L).
 - `portfolio()` and `accountValues()`, always on: `connect` subscribes to the account updates of a single account,
