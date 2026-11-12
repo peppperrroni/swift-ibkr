@@ -100,7 +100,6 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 ## [0.4.0] - 2026-11-11
 
 ### Added
-- `headTimeStamp(_:whatToShow:rth:)` (the earliest data date) and `histogramData(_:period:rth:)` (trade counts by price), with `HistogramData`, `IBRequest.headTimeStamp`, `.cancelHeadTimeStamp`, `.histogramData`, `.cancelHistogramData` (out 87, 90, 88, 89) and `IBMessage.headTimeStamp`, `.histogramData` (in 88, 89). New cases in public enums: an exhaustive `switch` over `IBRequest` or `IBMessage` needs new branches.
 - Connection: handshake, server-version gating, request throttle.
 - Orders: place, modify and cancel, brackets, open and completed orders merged.
 - Executions with commissions.
