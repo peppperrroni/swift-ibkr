@@ -35,14 +35,6 @@ Still open:
   a bracket's three openOrders, an execution correction.
 - `accountSummaryEnd` repeats? Whether it repeats after IB's 3-minute updates is unknown: the live test ends
   after the first set.
-- A 202 can carry a refusal. IB's price cap cancels an over-aggressive limit with code 202 and the reason in the
-  text («We cannot accept an order at a limit price at or more aggressive than ...»). The tracker marks the order
-  `.cancelled` and drops the text, so a consumer cannot tell a refusal from a user cancel. Fix later: keep a 202's
-  text as the snapshot's reason.
-- A `Filled` snapshot can come with `filled` 0. The gateway sends openOrder with status Filled before the
-  orderStatus that carries filled / avgFillPrice, so `orders()` first publishes `.filled` with `filled` 0 and
-  `averageFillPrice` 0, then the full one (seen live: orders 9, 15, 17). A consumer must read fill numbers from the
-  orderStatus-backed update, or the tracker should keep the status until orderStatus arrives. Decide in stage 7 (the spec: not published until orderStatus arrives).
 - IB's price cap is about 1.8% from the market in regular hours. The live fill test uses +-1% and prices the SELL
   off the BUY's fill.
 - openOrder gives a plain stock LMT order contract `right` `?` and auxPrice `0.0`; the decoder keeps them as `"?"`
@@ -82,8 +74,6 @@ CI (`.github/workflows/ci.yml`) builds and tests on macOS, Linux and Windows and
 - `frameAfterDisconnectIsIgnored` cannot catch a removed generation guard, because FakeGateway closes its stream;
   it needs a mode that stays open after close. The same goes for the generation guard in `IBClient`'s request-stream
   `stopped(...)`, which stops a late consumer-stop from an old connection cancelling a reused reqId.
-- completedOrder's `parentPermId` is skipped when the completedOrder joins an existing snapshot (only a fresh one
-  keeps it, in `order.parentPermID`), and the tracker links nothing by it.
 - `rejectReason` is never cleared once set.
 - A fatal error on one of the sync's reqAccountUpdatesMulti ids after `connect` returned goes only to `messages()`:
   `accountValues()` then silently stops updating for that account until the next connect.

@@ -41,6 +41,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 - `whatIfOrder(_:_:)` returns IB's margin and commission for an order without placing it, as a new `OrderState`
   (nine margins and three commissions as `Decimal?`, `commissionCurrency`, `warningText`). openOrder decodes it into
   the new `OpenOrderMessage.state`; what-if openOrders never reach `orders()`.
+- `OrderSnapshot.advancedOrderRejectJSON`: the raw advanced-reject JSON of the last error for the order that had one.
 
 ### Changed
 - `contractDetails` sends the contract's `secIDType` and `secID` instead of empty fields.
@@ -55,6 +56,10 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
   reader has seen the close yet. A peer reset seen by the reader is `.connectionClosed` too.
 - `placeOrder` and `modifyOrder` refuse an order with `whatIf` set (`.encoding(.unsupported("whatIf"))`): use
   `whatIfOrder`.
+- A 202 keeps its reason: when IB cancels an order with text after `reason:` (its price cap), that text becomes the
+  snapshot's `rejectReason`. A plain cancel still leaves it `nil`.
+- A Filled openOrder waits for its orderStatus: `orders()` no longer publishes `.filled` with `filled` 0 first. A
+  completedOrder joined to a known order also copies `order.parentPermID`.
 
 ### Removed
 - `OrderKey` is no longer public; the public API never used it.

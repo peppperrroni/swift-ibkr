@@ -276,7 +276,8 @@ table, which is in [`docs/DECISIONS.md`](docs/DECISIONS.md):
   and 399.
 - **Warnings** (105, 321, 329, 434, 492, the codes `ib_async` treats as warnings) end the request they name, but do
   not reject an order that has not been acknowledged yet.
-- **202** confirms a cancel.
+- **202** confirms a cancel. When IB cancelled the order itself (its price cap), the text after `reason:` becomes the
+  order's `rejectReason`.
 - **Everything else** is fatal to the request it belongs to.
 
 All of them, notices included, are still visible on `messages()`.

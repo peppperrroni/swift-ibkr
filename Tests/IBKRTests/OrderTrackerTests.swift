@@ -12,11 +12,12 @@ private func open(_ orderID: Int = 12, permID: Int = 918273001, clientID: Int = 
         orderRef: "r", status: status)))
 }
 
-private func completed(permID: Int, status: String = "Filled", filledQuantity: String = "0") -> IBMessage {
+private func completed(permID: Int, status: String = "Filled", filledQuantity: String = "0",
+                       parentPermID: String = "") -> IBMessage {
     IBDecoder.decode(body(Fixtures.completedOrderFields(
         orderID: 0, permID: permID, clientID: 0, symbol: "AAPL", action: "BUY", quantity: "100", orderType: "LMT",
         limitPrice: "187.25", auxPrice: unset, tif: "DAY", parentID: "0", outsideRTH: "0", orderRef: "r", status: status,
-        completedTime: "20261109 15:59:01", filledQuantity: filledQuantity)))
+        completedTime: "20261109 15:59:01", filledQuantity: filledQuantity, parentPermID: parentPermID)))
 }
 
 private func status(_ s: OrderStatus, id orderID: Int = 12, filled: String = "0", remaining: String = "100",
@@ -26,8 +27,8 @@ private func status(_ s: OrderStatus, id orderID: Int = 12, filled: String = "0"
                                     clientID: clientID, whyHeld: "", marketCapPrice: nil))
 }
 
-private func error(_ id: Int, _ code: Int, _ text: String = "boom") -> IBMessage {
-    .error(IBErrorMessage(requestID: id, code: code, text: text, advancedOrderRejectJSON: ""))
+private func error(_ id: Int, _ code: Int, _ text: String = "boom", json: String = "") -> IBMessage {
+    .error(IBErrorMessage(requestID: id, code: code, text: text, advancedOrderRejectJSON: json))
 }
 
 private let aapl = Contract(symbol: "AAPL")
@@ -97,6 +98,7 @@ private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT"
 @Test func cancelRejectionKeepsTheOrder() {
     var t = OrderTracker(clientID: 1)
     _ = t.apply(open(status: "Filled"))
+    _ = t.apply(status(.filled, filled: "100", remaining: "0"))
     #expect(t.apply(error(12, 10148)).isEmpty)
     #expect(t.orders[0].status == .filled && t.orders[0].rejectReason == nil)
 }
@@ -104,6 +106,7 @@ private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT"
 @Test func fatalErrorKeepsAFinalStatus() throws {
     var t = OrderTracker(clientID: 1)
     _ = t.apply(open(status: "Filled"))
+    _ = t.apply(status(.filled, filled: "100", remaining: "0"))
     let r = t.apply(error(12, 201, "late"))
     try #require(r.count == 1)
     #expect(r[0].status == .filled && r[0].rejectReason == "late")
@@ -126,6 +129,7 @@ private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT"
 @Test func openOrderDoesNotReviveAFinalStatus() {
     var t = OrderTracker(clientID: 1)
     _ = t.apply(open(status: "Filled"))
+    _ = t.apply(status(.filled, filled: "100", remaining: "0"))
     #expect(t.apply(open(status: "Submitted")).isEmpty)
     #expect(t.orders[0].status == .filled)
 }
@@ -186,4 +190,76 @@ private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT"
     var t = OrderTracker(clientID: 1)
     #expect(t.apply(IBDecoder.decode(body(f))).isEmpty)
     #expect(t.orders.isEmpty)
+}
+
+@Test func cancelReasonOf202IsKept() {
+    var t = OrderTracker(clientID: 1)
+    _ = t.apply(open())
+    let text = "Order Canceled - reason:We cannot accept an order at a limit price at or more aggressive than 357.97385."
+    let r = t.apply(error(12, 202, text))
+    #expect(r.count == 1 && r[0].status == .cancelled && r[0].rejectReason == text)
+}
+
+@Test func bareCancelHasNoReason() {
+    var t = OrderTracker(clientID: 1)
+    _ = t.apply(open())
+    let r = t.apply(error(12, 202, "Order Canceled - reason:"))
+    #expect(r.count == 1 && r[0].status == .cancelled && r[0].rejectReason == nil)
+}
+
+@Test func filledOpenOrderWaitsForOrderStatus() throws {
+    var t = OrderTracker(clientID: 1)
+    #expect(t.apply(open(status: "Filled")).isEmpty)
+    #expect(t.orders.isEmpty)
+    let r = t.apply(status(.filled, filled: "100", remaining: "0", avg: "187.20"))
+    try #require(r.count == 1)
+    #expect(r[0].status == .filled && r[0].filled == d("100") && r[0].averageFillPrice == d("187.20"))
+    #expect(r[0].order.limitPrice == d("187.25") && r[0].contract.symbol == "AAPL")
+}
+
+@Test func filledOpenOrderOfAKnownOrderWaits() {
+    var t = OrderTracker(clientID: 1)
+    _ = t.apply(open())
+    #expect(t.apply(open(status: "Filled")).isEmpty)
+    #expect(t.orders[0].status == .submitted)
+    let r = t.apply(status(.filled, filled: "100", remaining: "0"))
+    #expect(r.count == 1 && r[0].status == .filled && r[0].filled == d("100"))
+}
+
+@Test func filledOpenOrderAfterTheFillPublishes() {
+    var t = OrderTracker(clientID: 1)
+    _ = t.apply(open())
+    _ = t.apply(status(.filled, filled: "100", remaining: "0"))
+    let r = t.apply(open(status: "Filled", parentID: 5))
+    #expect(r.count == 1 && r[0].filled == d("100") && r[0].order.parentID == 5)
+}
+
+@Test func heldFilledOpenOrderShowsThroughCompletedOrder() {
+    var t = OrderTracker(clientID: 1)
+    #expect(t.apply(open(status: "Filled")).isEmpty)
+    let r = t.apply(completed(permID: 918273001, filledQuantity: "100"))
+    #expect(r.count == 1 && r[0].status == .filled && r[0].filled == d("100"))
+    _ = t.apply(status(.filled, filled: "100", remaining: "0"))
+    #expect(t.orders.count == 1)
+}
+
+@Test func advancedRejectIsKept() {
+    var t = OrderTracker(clientID: 1)
+    t.sent(orderID: 12, clientID: 1, contract: aapl, order: sentOrder)
+    let r = t.apply(error(12, 201, "Order rejected", json: "{\"r\":1}"))
+    #expect(r.count == 1 && r[0].advancedOrderRejectJSON == "{\"r\":1}")
+    var u = OrderTracker(clientID: 1)
+    u.sent(orderID: 12, clientID: 1, contract: aapl, order: sentOrder)
+    let n = u.apply(error(12, 201, "Order rejected"))
+    #expect(n.count == 1 && n[0].advancedOrderRejectJSON == nil)
+}
+
+@Test func completedOrderCarriesParentPermID() {
+    var t = OrderTracker(clientID: 1)
+    let a = t.apply(completed(permID: 918273001, parentPermID: "918273000"))
+    #expect(a.count == 1 && a[0].order.parentPermID == 918273000)
+    var u = OrderTracker(clientID: 1)
+    _ = u.apply(open(13, parentID: 12))
+    let b = u.apply(completed(permID: 918273001, parentPermID: "918273000"))
+    #expect(b.count == 1 && b[0].order.parentPermID == 918273000 && b[0].order.parentID == 12)
 }

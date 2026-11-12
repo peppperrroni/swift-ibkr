@@ -50,6 +50,7 @@ func everyRecordedFrameDecodes(_ name: String) throws {
     #expect(orders.count == 1)
     #expect(orders.first?.order.limitPrice == d("1"))
     #expect(orders.first?.status == .cancelled)
+    #expect(orders.first?.rejectReason == nil)
 }
 
 private let fillRecorded = FileManager.default.fileExists(atPath: URL(fileURLWithPath: #filePath)
@@ -165,7 +166,7 @@ func recordedPnLSingleDecodes() throws {
     let last = try #require(snapshots.last { $0.orderID == 7 })
     #expect(last.status == .cancelled)
     #expect(last.order.action == .buy && last.order.totalQuantity == 1 && last.order.limitPrice == d("358.53"))
-    #expect(last.rejectReason == nil)
+    #expect(last.rejectReason?.contains("357.97385") == true)
     let e = try #require(cap)
     #expect(e.requestID == 7 && e.text.contains("357.97385"))
 }
