@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name         = 'SwiftIBKR'
   s.module_name  = 'IBKR'
-  s.version      = '0.5.0'
+  s.version      = '1.0.0'
   s.summary      = 'Pure-Swift client for Interactive Brokers IB Gateway and TWS (TWS API socket protocol).'
   s.homepage     = 'https://github.com/peppperrroni/swift-ibkr'
   s.license      = { :type => 'MIT', :file => 'LICENSE' }

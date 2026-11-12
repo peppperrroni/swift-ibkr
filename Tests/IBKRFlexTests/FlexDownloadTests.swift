@@ -40,6 +40,15 @@ private func download(_ fake: FakeFlexService, token: String = fakeToken,
 private func query(_ url: URL) -> [URLQueryItem] {
     URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
 }
+/// The task's result, or nil when it has not finished within `limit`. A hung task is left behind, not awaited.
+private func result<T: Sendable>(of task: Task<T, any Error>, within limit: Duration) async -> Result<T, any Error>? {
+    let results = AsyncStream<Result<T, any Error>?> { continuation in
+        Task { continuation.yield(await task.result) }
+        Task { try? await Task.sleep(for: limit); continuation.yield(nil) }
+    }
+    for await first in results { return first }
+    return nil
+}
 private func isMalformed(_ error: any Error) -> Bool {
     if case .malformedXML? = error as? FlexError { true } else { false }
 }
@@ -123,9 +132,16 @@ private func isMalformed(_ error: any Error) -> Bool {
     @Test func cancellingStopsThePolling() async throws {
         let fake = FakeFlexService([.success(sendSuccess)] + Array(repeating: .success(inProgress), count: 10))
         let task = Task { try await download(fake, pollInterval: .seconds(60)) }
-        while await fake.urls.isEmpty { await Task.yield() }
+        let deadline = ContinuousClock.now + .seconds(10)
+        while await fake.urls.isEmpty {
+            guard ContinuousClock.now < deadline else { task.cancel(); Issue.record("no SendRequest in 10 s"); return }
+            await Task.yield()
+        }
         task.cancel()
-        await #expect(throws: CancellationError.self) { try await task.value }
+        guard let outcome = await result(of: task, within: .seconds(10)) else {
+            Issue.record("still polling 10 s after the cancel"); return
+        }
+        #expect(throws: CancellationError.self) { try outcome.get() }
         #expect(await fake.urls.count == 1)
     }
 

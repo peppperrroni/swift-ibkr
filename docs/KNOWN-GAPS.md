@@ -1,9 +1,9 @@
-# Known gaps after stage 12
+# Known gaps after stage 13
 
-What stages 1 to 12 (codec and merging; socket, `IBClient`, a live paper run; positions, account summary, P&L; market
+What stages 1 to 13 (codec and merging; socket, `IBClient`, a live paper run; positions, account summary, P&L; market
 data and contract lookups; session requests, the account stream and reconnect; the full order field set, what-if
-and exercise; market data and history in full; options, reference data, scanner, news and research; Flex reports)
-leave open. Delete a line when it is settled.
+and exercise; market data and history in full; options, reference data, scanner, news and research; Flex reports;
+the 1.0 release: doc comments, DocC, the example) leave open. Delete a line when it is settled.
 
 ## To confirm against a live gateway
 
@@ -17,6 +17,10 @@ and the closing SELL's commission with realized P&L. The stage-4 run of 2026-11-
 subscription) settled contractDetails (AAPL: one entry, conID 265598, minTick 0.01, US/Eastern) and matchingSymbols.
 Still open:
 
+- The end-of-stage-13 live run did not happen: no paper IB Gateway was listening on 127.0.0.1:4002. It would have
+  rerun `LiveTests` (connect and sync, a limit order placed and cancelled, the account summary, the contract lookups,
+  the market data refusals) and been the first live sight of the stage 5–11 calls README's Status marks «not yet run
+  live».
 - Market data is unchecked live: the paper account has no data subscription, so every request was refused or
   silent. Quotes (with `.delayed` set) got 10197 «No market data during competing live session»; history got 162
   «Trading TWS session is connected from a different IP address»; tick-by-tick got 10189 «... No market data
@@ -66,7 +70,20 @@ CI (`.github/workflows/ci.yml`) builds and tests on macOS, Linux and Windows and
 - run the live tests: `IBKR_LIVE`, `IBKR_FLEX_TOKEN` and `IBKR_FLEX_QUERY` are never set, so nothing in CI talks to a
   gateway or to IB's Flex Web Service;
 - try other Swift versions than 6.0 and the latest image on Linux (Ubuntu, x86_64), 6.4.2 on Windows, and the
-  runner's Xcode on macOS (6.3 at the time of writing), or any ARM Linux.
+  runner's Xcode on macOS (6.3 at the time of writing), or any ARM Linux;
+- build the DocC docs anywhere but macOS, or build `Examples/IBKRExample` on Windows;
+- deploy the docs until the owner enables GitHub Pages (Settings → Pages → Source: GitHub Actions): until then the
+  docs workflow's deploy job, which runs only on a push to `main` or a manual dispatch, fails on `main`.
+
+## Owner steps
+
+These need the owner's accounts:
+
+- Enable GitHub Pages with GitHub Actions as the source; the docs then appear at https://peppperrroni.github.io/swift-ibkr/.
+- `pod trunk push SwiftIBKR.podspec` from the 1.0.0 tag (needs a CocoaPods trunk registration; trunk is announced
+  to turn read-only on 2 December 2026, after which the pod installs from the git tag only).
+- Submit the package to the Swift Package Index (a pull request to its package list); `.spi.yml` is ready.
+- Live checks: market data once there is a subscription, `IBKRFlex` with a real token.
 
 ## Sockets
 

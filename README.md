@@ -1,9 +1,13 @@
 # swift-ibkr
 
 [![CI](https://github.com/peppperrroni/swift-ibkr/actions/workflows/ci.yml/badge.svg)](https://github.com/peppperrroni/swift-ibkr/actions/workflows/ci.yml)
+[![Docs](https://github.com/peppperrroni/swift-ibkr/actions/workflows/docs.yml/badge.svg)](https://peppperrroni.github.io/swift-ibkr/)
 
 A pure-Swift client for **Interactive Brokers' IB Gateway and TWS**, speaking the TWS API socket protocol
 directly. One actor, async streams, no dependencies, and it runs on **macOS, iOS, Linux and Windows**.
+
+Documentation, with articles on getting started, orders, market data and migrating from `ib_async`:
+<https://peppperrroni.github.io/swift-ibkr/>.
 
 ```swift
 import IBKR
@@ -44,23 +48,26 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | Area | What you get | State |
 |---|---|---|
 | Connection | handshake, request throttle, `states()`, the raw `messages()` feed | ✅ live-checked |
-| Orders | place, modify, cancel, every placeOrder field (conditions, algos, pegged, combos, delta neutral), brackets, OCA, what-if, exercise, open and completed orders merged | ✅ plain orders live-checked; the rest on hand-built frames, a live run is due in stage 13 |
+| Orders | place, modify, cancel, every placeOrder field (conditions, algos, pegged, combos, delta neutral), brackets, OCA, what-if, exercise, open and completed orders merged | ✅ plain orders live-checked; the rest on hand-built frames, not yet run live (see KNOWN-GAPS) |
 | Executions | fills joined with commissions, corrections applied | ✅ live-checked |
 | Positions | synced at connect, whole sets on every change | ✅ live-checked |
-| Session | current time, accounts, next id, user info, log level, auto-bind, global cancel, opt-in reconnect | ✅ on the fake gateway; a live run is due in stage 13 |
-| Account | account summary, per-position P&L, portfolio, account values, Multi, account P&L | ✅ summary and per-position P&L live-checked; the rest on the fake gateway, a live run is due in stage 13 |
-| Contract lookup | contract details with bonds, matching symbols, factories, qualifyContracts | ✅ details (not bonds) and symbols live-checked; the rest on the fake gateway, a live run is due in stage 13 |
-| Options and reference | option chains, option calculations, market rules, family codes, soft-dollar tiers | ✅ on hand-built frames and the fake gateway; a live run is due in stage 13 |
+| Session | current time, accounts, next id, user info, log level, auto-bind, global cancel, opt-in reconnect | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
+| Account | account summary, per-position P&L, portfolio, account values, Multi, account P&L | ✅ summary and per-position P&L live-checked; the rest on the fake gateway, not yet run live (see KNOWN-GAPS) |
+| Contract lookup | contract details with bonds, matching symbols, factories, qualifyContracts | ✅ details (not bonds) and symbols live-checked; the rest on the fake gateway, not yet run live (see KNOWN-GAPS) |
+| Options and reference | option chains, option calculations, market rules, family codes, soft-dollar tiers | ✅ on hand-built frames and the fake gateway; not yet run live (see KNOWN-GAPS) |
 | Market data | quotes with generic ticks and snapshots, `Ticker` streams and batch snapshots, greeks, EFP, news ticks, real-time bars, depth book, depth exchanges, SMART components, tick-by-tick, BAG, typed «no permission» refusal | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
 | History | bars with keepUpToDate, historical ticks, head timestamp, histogram, trading schedule, BAG | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
-| Scanner | scan stream, one-shot scan, scanner parameters | ✅ on the fake gateway; a live run is due in stage 13 |
-| News | providers, article text, historical headlines, bulletins, news ticks through `marketData` | ✅ on the fake gateway; a live run is due in stage 13 |
-| Fundamentals and Wall Street Horizon | fundamentals report XML, WSH metadata and event JSON, all as IB's text | ✅ on the fake gateway; a live run is due in stage 13 |
-| FA, display groups and verify | FA XML read and replace, TWS display groups (list, follow, update), the vendor verify handshake | ✅ on the fake gateway; a live run is due in stage 13 |
+| Scanner | scan stream, one-shot scan, scanner parameters | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
+| News | providers, article text, historical headlines, bulletins, news ticks through `marketData` | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
+| Fundamentals and Wall Street Horizon | fundamentals report XML, WSH metadata and event JSON, all as IB's text | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
+| FA, display groups and verify | FA XML read and replace, TWS display groups (list, follow, update), the vendor verify handshake | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
 | Flex reports | download by token and query id, topics, records as IB's strings with a strict Decimal accessor (the separate product IBKRFlex, SwiftPM only) | ✅ on hand-written XML and a fake HTTP layer; never run against IB's service |
 
 What is still unconfirmed against a live gateway is listed in [`docs/KNOWN-GAPS.md`](docs/KNOWN-GAPS.md).
-There are no tagged releases yet, and the API may still change.
+Releases follow [Semantic Versioning](https://semver.org/): from 1.0.0 on, a change that breaks the public API
+comes only with a new major version. New cases in the protocol enums (`IBRequest`, `IBMessage`, `Tick`,
+`IBClientError` and the like) follow IB's protocol and arrive in minor versions, so an exhaustive `switch` over
+one may need a new branch after an update.
 
 ## Installation
 
@@ -77,7 +84,7 @@ Add the package with Swift Package Manager:
 ```swift
 // Package.swift
 dependencies: [
-    .package(url: "https://github.com/peppperrroni/swift-ibkr.git", branch: "main"),
+    .package(url: "https://github.com/peppperrroni/swift-ibkr.git", from: "1.0.0"),
 ],
 targets: [
     .target(name: "MyApp", dependencies: [.product(name: "IBKR", package: "swift-ibkr")]),
@@ -89,10 +96,10 @@ Flex reports are a separate product, `.product(name: "IBKRFlex", package: "swift
 Or with CocoaPods:
 
 ```ruby
-pod 'SwiftIBKR', :git => 'https://github.com/peppperrroni/swift-ibkr.git', :tag => '<version>'
+pod 'SwiftIBKR', :git => 'https://github.com/peppperrroni/swift-ibkr.git', :tag => '1.0.0'
 ```
 
-The module is still `IBKR`, so `import IBKR` is the same under both. Publication to the CocoaPods trunk is pending. `IBKRFlex` is Swift Package Manager only; the pod ships `IBKR` alone.
+The module is still `IBKR`, so `import IBKR` is the same under both. Publication to the CocoaPods trunk is pending, so install the pod from the tag as above. `IBKRFlex` is Swift Package Manager only; the pod ships `IBKR` alone.
 
 These are the default ports:
 
@@ -100,6 +107,10 @@ These are the default ports:
 |---|---|---|
 | IB Gateway | 4002 | 4001 |
 | TWS | 7497 | 7496 |
+
+A runnable, read-only example is in [`Examples/IBKRExample`](Examples/IBKRExample):
+`swift run --package-path Examples/IBKRExample ibkr-example [port] [clientID]` prints the server time, accounts,
+positions and an account summary.
 
 ## Guide
 
@@ -438,14 +449,53 @@ table, which is in [`docs/DECISIONS.md`](docs/DECISIONS.md):
 
 All of them, notices included, are still visible on `messages()`.
 
-## ib_async names
+## ib_async → swift-ibkr
 
-Calls keep `ib_async`'s names, minus a leading `req`, with `Id` written `ID`, except `faData`, `optionChains`,
-`displayGroups` and `displayGroupUpdates` (DECISIONS). This table covers the stage 10–12 calls; stage 13 extends it to
-every call.
+Every `ib_async` call that reaches the socket has a counterpart below. Names are `ib_async`'s minus a leading
+`req`, with `Id` written `ID`, except `faData`, `optionChains`, `displayGroups` and `displayGroupUpdates`
+(DECISIONS). There is no `cancel…` call: leaving a stream's `for await` sends IB's cancel. «none» marks what the
+library leaves out.
 
 | ib_async | swift-ibkr |
 |---|---|
+| `connect` / `connectAsync` (with `startApi`) | `connect(host:port:clientID:timeout:reconnect:)` |
+| `disconnect` | `disconnect()` |
+| `isConnected`, `connectedEvent`, `disconnectedEvent` | `states()` (the current state first) |
+| `Watchdog` | `ReconnectPolicy`, passed as `connect(…, reconnect:)` |
+| `IBC` | none |
+| `sleep`, `waitOnUpdate`, `loopUntil`, `setTimeout` | none: `async`/`await` |
+| `errorEvent` and the other raw events | thrown `IBClientError`s, the streams below, and `messages()` for every decoded frame |
+| `reqCurrentTime` | `currentTime()` |
+| `managedAccounts` / `reqManagedAccts` | `managedAccounts()` |
+| `reqIds` | `nextOrderID()` |
+| `reqUserInfo` | `userInfo()` |
+| `setServerLogLevel` | `setServerLogLevel(_:)` |
+| `reqAutoOpenOrders` | `setAutoOpenOrders(_:)` |
+| `reqMarketDataType` | `setMarketDataType(_:)` |
+| `placeOrder` (a new order) | `placeOrder(_:_:)`, which returns the order id |
+| `placeOrder` (an existing order) | `modifyOrder(_:_:_:)` |
+| `cancelOrder` | `cancelOrder(_:manualCancelOrderTime:)` |
+| `reqGlobalCancel` | `cancelAllOrders()` |
+| `whatIfOrder` | `whatIfOrder(_:_:)` |
+| `exerciseOptions` | `exerciseOptions(_:action:quantity:account:override:)` |
+| `trades`, `openTrades`, `orders`, `openOrders`, `reqOpenOrders`, `reqAllOpenOrders`, `reqCompletedOrders` | `orders()` (open and completed orders, synced at connect) |
+| `Trade` | `OrderSnapshot` |
+| `fills`, `executions`, `reqExecutions` | `executions()` (synced at connect) |
+| `Fill` | `Fill` |
+| `MarketOrder`, `LimitOrder`, `StopOrder`, `StopLimitOrder` | `Order.market(_:quantity:)`, `.limit(_:quantity:price:)`, `.stop(_:quantity:stopPrice:)`, `.stopLimit(_:quantity:limitPrice:stopPrice:)` |
+| `bracketOrder` | `Order.bracket(_:quantity:limitPrice:takeProfitPrice:stopLossPrice:)`, placed with `placeBracket(_:_:)` |
+| `oneCancelsAll` | `Order.oneCancelsAll(_:group:type:)` |
+| `PriceCondition`, `TimeCondition`, `MarginCondition`, `ExecutionCondition`, `VolumeCondition`, `PercentChangeCondition` | `OrderCondition.price`, `.time`, `.margin`, `.execution`, `.volume`, `.percentChange` |
+| `positions`, `reqPositions` | `positions()` |
+| `portfolio`, `reqAccountUpdates` | `portfolio()` (synced at connect, one managed account only) |
+| `accountValues` | `accountValues()` |
+| `accountSummary` / `reqAccountSummary` | `accountSummary(tags:group:)` (a stream) |
+| `reqAccountUpdatesMulti` | `accountUpdatesMulti(account:modelCode:ledgerAndNLV:)` (a stream) |
+| `reqPositionsMulti` | `positionsMulti(account:modelCode:)` (a stream) |
+| `pnl` / `reqPnL` | `pnl(account:modelCode:)` (a stream) |
+| `pnlSingle` / `reqPnLSingle` | `pnlSingle(account:conID:modelCode:)` (a stream) |
+| `reqContractDetails` | `contractDetails(_:)` |
+| `reqMatchingSymbols` | `matchingSymbols(_:)` |
 | `qualifyContracts` | `qualifyContracts(_:)` |
 | `Stock`, `Option`, `Future`, `ContFuture`, `Forex`, `Index`, `CFD`, `Commodity`, `Bond`, `FuturesOption`, `MutualFund`, `Warrant`, `Bag`, `Crypto` | `Contract.stock`, `.option`, `.future`, `.contFuture`, `.forex`, `.index`, `.cfd`, `.commodity`, `.bond`, `.futuresOption`, `.mutualFund`, `.warrant`, `.bag`, `.crypto` |
 | `reqSecDefOptParams` | `optionChains(for:futFopExchange:)` |
@@ -454,6 +504,22 @@ every call.
 | `reqMarketRule` | `marketRule(_:)` |
 | `reqFamilyCodes` | `familyCodes()` |
 | `reqSoftDollarTiers` | `softDollarTiers()` |
+| `reqMktData`, `ticker` | `marketData(_:genericTicks:snapshot:regulatorySnapshot:)` (raw ticks) or `tickers(_:genericTicks:depthRows:smartDepth:)` (whole `Ticker`s), both streams |
+| `reqTickers` | `tickers(for:regulatorySnapshot:)` |
+| `pendingTickers` | none: each `tickers` stream yields its own `Ticker` |
+| `Ticker` | `Ticker` |
+| `Ticker.marketPrice`, `Ticker.midpoint`, the tick filters and bar builders | none |
+| `newsTicks` | `Tick.news` from `marketData` with the news generic ticks |
+| `reqMktDepth` | `marketDepth(_:rows:smart:)` (whole `DepthBook`s), or `tickers` with `depthRows` |
+| `reqMktDepthExchanges` | `depthExchanges()` |
+| `reqSmartComponents` | `smartComponents(_:)` |
+| `reqTickByTickData` | `tickByTick(_:_:)` |
+| `reqRealTimeBars`, `realtimeBars` | `realTimeBars(_:whatToShow:rth:)` |
+| `reqHistoricalData` | `historicalBars(_:end:duration:barSize:whatToShow:rth:keepUpToDate:)` |
+| `reqHistoricalTicks` | `historicalTicks(_:start:end:count:whatToShow:rth:ignoreSize:)` |
+| `reqHeadTimeStamp` | `headTimeStamp(_:whatToShow:rth:)` |
+| `reqHistogramData` | `histogramData(_:period:rth:)` |
+| `reqHistoricalSchedule` | `historicalSchedule(_:days:end:rth:)` |
 | `reqScannerSubscription` | `scannerSubscription(_:options:filterOptions:)` (a stream) |
 | `reqScannerData` | `scannerData(_:options:filterOptions:)` |
 | `reqScannerParameters` | `scannerParameters()` |
@@ -520,6 +586,7 @@ IBKR_FLEX_TOKEN=<token> IBKR_FLEX_QUERY=<query id> swift test --filter FlexLiveT
 | [`docs/DECISIONS.md`](docs/DECISIONS.md) | design decisions, why each was taken and what was rejected |
 | [`docs/KNOWN-GAPS.md`](docs/KNOWN-GAPS.md) | what is still open or unconfirmed live |
 | [`docs/superpowers/`](docs/superpowers/) | the design spec and the plan for each stage |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | how to build, test, check doc coverage and send a change |
 
 ## License
 

@@ -4,7 +4,14 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-12
+
 ### Added
+- Doc comments on every public declaration of `IBKR` and `IBKRFlex`, checked by `Scripts/doc-coverage.py`, which reads the compiler's symbol graph.
+- DocC catalogs for `IBKR` (articles: Getting Started, Orders, Market Data, Migrating from ib_async) and `IBKRFlex`, built with warnings as errors on every push by `.github/workflows/docs.yml` and published to GitHub Pages from `main` at <https://peppperrroni.github.io/swift-ibkr/>.
+- `.spi.yml`, so the Swift Package Index builds the documentation of both modules.
+- `Examples/IBKRExample`, a read-only console example (server time, accounts, positions, account summary), built by CI on macOS and Linux.
+- `CONTRIBUTING.md` and GitHub issue templates for bug reports and feature requests.
 - `FlexReport.download(token:queryID:url:pollInterval:transport:)`, IB's two-step Flex Web Service request polling until the statement is ready (an already-cancelled caller sends nothing), with `FlexTransport`, `FlexReport.urlSession` and `FlexReport.defaultURL`.
 - `IBKRFlex`, a new library product (Swift Package Manager only): `FlexReport(data:)` parses a Flex Web Service report, `topics` and `extract(_:)` give its elements as `FlexRecord`s (IB's attribute strings, with `decimal(_:)` for numbers), and `FlexError`.
 - `faData(_:)`, an FA configuration as IB's XML text (each call takes only the answer of its own type), `replaceFA(_:xml:)`, which waits for IB's confirmation text, `FADataType`, `displayGroups()`, IB's raw group list, `displayGroupUpdates(_:)`, a stream of a display group's `contractInfo` with its reqId (70 sent when stopped), `updateDisplayGroup(_:contractInfo:)`, and the send-only `verifyRequest(apiName:apiVersion:)`, `verifyMessage(_:)`, `verifyAndAuthRequest(apiName:apiVersion:opaqueISVKey:)` and `verifyAndAuthMessage(_:xyzResponse:)`, with `IBRequest.requestFA`, `.replaceFA`, `.queryDisplayGroups`, `.subscribeToGroupEvents`, `.updateDisplayGroup`, `.unsubscribeFromGroupEvents`, `.verifyRequest`, `.verifyMessage`, `.verifyAndAuthRequest`, `.verifyAndAuthMessage` (out 18, 19, 65-70, 72, 73) and `IBMessage.receiveFA`, `.replaceFAEnd`, `.displayGroupList`, `.displayGroupUpdated`, `.verifyMessageAPI`, `.verifyCompleted`, `.verifyAndAuthMessageAPI`, `.verifyAndAuthCompleted` (in 16, 103, 65-70). New cases in public enums: an exhaustive `switch` over `IBRequest` or `IBMessage` needs new branches.
@@ -80,6 +87,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 - `OrderSnapshot.advancedOrderRejectJSON`: the raw advanced-reject JSON of the last error for the order that had one.
 
 ### Changed
+- The podspec version is 1.0.0, and README installs from the 1.0.0 tag.
 - `genericTicks` is `[GenericTick]` in `marketData`, `tickers` and `IBRequest.marketData`, so a news tick list (`["mdoff", "292:BRFG"]`) can be sent. Integer and string literals both still compile; a `[Int]` variable needs `.map(GenericTick.init(integerLiteral:))`.
 - An option's or future's `lastTradeDateOrContractMonth` in `contractDetails` keeps only the date (`20261218`), and the time goes to the new `ContractDetails.lastTradeTime`; before, the whole lastTimes text was kept.
 - A third lastTimes part in contractData (10) and bond details (18), IB's time zone, now replaces `ContractDetails.timeZoneID`.
