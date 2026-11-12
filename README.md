@@ -158,20 +158,15 @@ try await client.cancelOrder(id)                 // cancelOrder(id, manualCancel
 try await client.exerciseOptions(option, action: .exercise, quantity: 1, account: "DU0000001")
 ```
 
-To place a bracket, hold the parent back with `transmit = false` and point the children at it by `parentID`.
-The last child transmits the whole group:
+`Order.market`, `.limit`, `.stop` and `.stopLimit` build the common orders. `placeBracket` places an entry with a
+take-profit and a stop-loss: it links the children to the parent and transmits the group with the last leg. If any
+leg fails to encode, nothing is sent.
 
 ```swift
-var parent = Order(action: .buy, quantity: 100, orderType: "LMT", limitPrice: 180); parent.transmit = false
-let parentID = try await client.placeOrder(aapl, parent)
+let bracket = Order.bracket(.buy, quantity: 100, limitPrice: 180, takeProfitPrice: 190, stopLossPrice: 175)
+let ids = try await client.placeBracket(aapl, bracket)      // (parent:, takeProfit:, stopLoss:)
 
-var profit = Order(action: .sell, quantity: 100, orderType: "LMT", limitPrice: 190)
-profit.parentID = parentID; profit.transmit = false
-var stop = Order(action: .sell, quantity: 100, orderType: "STP", auxPrice: 175)
-stop.parentID = parentID; stop.transmit = true
-
-_ = try await client.placeOrder(aapl, profit)
-_ = try await client.placeOrder(aapl, stop)
+let pair = Order.oneCancelsAll([a, b], group: "exit", type: 1)   // IB cancels the other when one fills
 ```
 
 `try await client.whatIfOrder(aapl, order)` returns IB's margin and commission for an order without placing it.

@@ -194,6 +194,28 @@ public actor IBClient {
         return id
     }
 
+    /// Queues a parent and its two children, linked and transmitted last, and returns their ids. All three encode
+    /// before any is queued, so a `whatIf` leg or an encoding error sends nothing.
+    public func placeBracket(_ contract: Contract, _ bracket: BracketOrder)
+        throws(IBClientError) -> (parent: Int, takeProfit: Int, stopLoss: Int) {
+        try requireConnected()
+        let ids = (parent: nextRequestID(), takeProfit: nextRequestID(), stopLoss: nextRequestID())
+        var legs = [(ids.parent, bracket.parent), (ids.takeProfit, bracket.takeProfit), (ids.stopLoss, bracket.stopLoss)]
+        for i in legs.indices {
+            if i > 0 { legs[i].1.parentID = ids.parent }
+            legs[i].1.transmit = i == 2
+        }
+        let frames = try legs.map { (id, order) throws(IBClientError) -> [UInt8] in
+            if order.whatIf { throw .encoding(.unsupported("whatIf")) }
+            return try encode(.placeOrder(orderID: id, contract: contract, order: order))
+        }
+        for (i, leg) in legs.enumerated() {
+            try enqueue(frames[i])
+            orderTracker.sent(orderID: leg.0, clientID: clientID, contract: contract, order: leg.1)
+        }
+        return ids
+    }
+
     /// Re-sends the order under its id; IB treats that as a modification.
     public func modifyOrder(_ orderID: Int, _ contract: Contract, _ order: Order) throws(IBClientError) {
         try requireConnected()
@@ -548,10 +570,16 @@ public actor IBClient {
 
     /// Encodes, frames and queues; throws before queuing when the request does not encode.
     func send(_ request: IBRequest) throws(IBClientError) {
+        try enqueue(encode(request))
+    }
+
+    private func encode(_ request: IBRequest) throws(IBClientError) -> [UInt8] {
+        do { return Frame.encode(try request.body()) } catch { throw .encoding(error) }
+    }
+
+    private func enqueue(_ frame: [UInt8]) throws(IBClientError) {
         guard let outbox else { throw .notConnected }
-        let body: [UInt8]
-        do { body = try request.body() } catch { throw .encoding(error) }
-        outbox.yield(Frame.encode(body))
+        outbox.yield(frame)
     }
 
     /// Sends `request`, then registers its stream; nothing is registered when it does not encode.

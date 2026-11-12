@@ -215,3 +215,39 @@ private func until(_ condition: @escaping @Sendable () async -> Bool) async thro
     #expect(last.orderID == 41 && last.status == .filled)
     #expect(await client.orders().snapshot.count == 1)
 }
+
+@Test func placeBracketLinksAndTransmitsLast() async throws {
+    let gateway = FakeGateway(nextValidID: 100)
+    let client = try await connected(gateway)
+    let ids = try await client.placeBracket(aapl, Order.bracket(.buy, quantity: 100, limitPrice: 180, takeProfitPrice: 190, stopLossPrice: 175))
+    #expect(ids == (101, 102, 103))
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 3)
+    let legs = Array(sent[FakeGateway.syncFrames...])
+    #expect(legs.map { Array($0.prefix(2)) } == [["3", "101"], ["3", "102"], ["3", "103"]])
+    #expect(legs.map { $0[28] } == ["0", "101", "101"])
+    #expect(legs.map { $0[27] } == ["0", "0", "1"])
+}
+
+@Test func placeBracketSendsNothingWhenALegFailsToEncode() async throws {
+    let gateway = FakeGateway(nextValidID: 100)
+    let client = try await connected(gateway)
+    var b = Order.bracket(.buy, quantity: 100, limitPrice: 180, takeProfitPrice: 190, stopLossPrice: 175)
+    b.stopLoss.orderRef = "Стоп"
+    await #expect(throws: IBClientError.encoding(.nonASCII(field: "Стоп"))) { try await client.placeBracket(aapl, b) }
+    try await client.cancelOrder(1)
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
+    #expect(sent.count == FakeGateway.syncFrames + 1 && sent[FakeGateway.syncFrames][0] == "4")
+    #expect(await client.orders().snapshot.isEmpty)
+}
+
+@Test func placeBracketRefusesWhatIfAndSendsNothing() async throws {
+    let gateway = FakeGateway(nextValidID: 100)
+    let client = try await connected(gateway)
+    var b = Order.bracket(.buy, quantity: 100, limitPrice: 180, takeProfitPrice: 190, stopLossPrice: 175)
+    b.takeProfit.whatIf = true
+    await #expect(throws: IBClientError.encoding(.unsupported("whatIf"))) { try await client.placeBracket(aapl, b) }
+    try await client.cancelOrder(1)
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
+    #expect(sent.count == FakeGateway.syncFrames + 1 && sent[FakeGateway.syncFrames][0] == "4")
+    #expect(await client.orders().snapshot.isEmpty)
+}

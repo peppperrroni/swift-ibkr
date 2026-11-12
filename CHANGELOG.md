@@ -5,6 +5,8 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 ## [Unreleased]
 
 ### Added
+- Order factories `Order.market/limit/stop/stopLimit`, `Order.bracket` (a `BracketOrder`), `Order.oneCancelsAll` and
+  `IBClient.placeBracket`, which links and transmits the three legs and sends none if any fails to encode.
 - `exerciseOptions` and `cancelOrder(_:manualCancelOrderTime:)`.
 - Opt-in reconnect: `connect(reconnect: ReconnectPolicy)` retries a dropped connection with paused attempts until
   `disconnect()` or `maxAttempts`, and probes a silent connection with reqCurrentTime, dropping it with `.timeout`
