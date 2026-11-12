@@ -1598,7 +1598,8 @@ filter options first, as `ib_async` sends them. Both `scannerSubscription(_:opti
 ### cancelScannerSubscription (out 23)
 
 `23, 1, reqId`; 3 fields. Sent when the consumer stops the scanner stream, and by `scannerData` after its first scan
-(as `ib_async`'s `reqScannerDataAsync` does). Not sent after IB's error for the reqId.
+(as `ib_async`'s `reqScannerDataAsync` does). Not sent after IB's error for the reqId, except a permission refusal,
+which sends 23 and throws `.noMarketDataPermission`.
 
 ### reqScannerParameters (out 24)
 
@@ -1745,7 +1746,8 @@ fails the call.
 ### updateDisplayGroup (out 69)
 
 `69, 1, reqId, contractInfo`; 4 fields. The reqId is the open `displayGroupUpdates` stream's. Sent by
-`updateDisplayGroup(_:contractInfo:)`.
+`updateDisplayGroup(_:contractInfo:)`. IB's error for a 69 carries the stream's reqId, so it ends `displayGroupUpdates`
+with `.ib` and sends no 70.
 
 ### unsubscribeFromGroupEvents (out 70)
 

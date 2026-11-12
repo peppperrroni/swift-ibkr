@@ -65,7 +65,7 @@ extension IBRequest {
             for p in o.algoParams { try w.add(p.tag); try w.add(p.value) }
         }
         try w.add(o.algoID); w.add(o.whatIf)                                              // 83-84
-        try w.add(tagValues(o.orderMiscOptions))           // 85
+        try w.add(tagValues(o.orderMiscOptions))                                          // 85
         w.add(o.solicited); w.add(o.randomizeSize); w.add(o.randomizePrice)               // 86-88
         if o.orderType == "PEG BENCH" || o.orderType == "PEGBENCH" {
             w.add(o.referenceContractID); w.add(o.isPeggedChangeAmountDecrease)

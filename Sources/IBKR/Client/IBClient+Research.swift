@@ -1,7 +1,8 @@
 import Foundation
 
 extension IBClient {
-    /// A market scan, yielded whole each time IB refreshes it. Never ends itself; IB's error ends it with `.ib`.
+    /// A market scan, yielded whole each time IB refreshes it. Never ends itself; IB's error ends it with `.ib` and
+    /// sends no 23, except a permission refusal, which sends 23 and throws `.noMarketDataPermission`.
     /// Every element is a whole scan, so a slow consumer keeps only the newest. Stopping it sends IB's cancel.
     /// `filterOptions` are the scanner's filter tags (from `scannerParameters()`), `options` IB's scanner options.
     public func scannerSubscription(_ subscription: ScannerSubscription, options: [TagValue] = [],
@@ -19,7 +20,8 @@ extension IBClient {
     }
 
     /// The first scan IB sends for `subscription`, then IB's cancel, as `ib_async`'s `reqScannerDataAsync` does.
-    /// IB's error throws `.ib` and sends no cancel.
+    /// IB's error throws `.ib` and sends no cancel, except a permission refusal, which sends 23 and throws
+    /// `.noMarketDataPermission`.
     public func scannerData(_ subscription: ScannerSubscription, options: [TagValue] = [],
                             filterOptions: [TagValue] = []) async throws(IBClientError) -> [ScanData] {
         try requireConnected()
@@ -46,7 +48,8 @@ extension IBClient {
 
     /// IB's news bulletins; `allMessages` also asks for today's earlier ones. Never ends itself; stopping it sends IB's
     /// cancel. IB holds one bulletin subscription per connection, so while one stream is open another throws
-    /// `.alreadySubscribed` and sends nothing. IB addresses no error to it.
+    /// `.alreadySubscribed` and sends nothing. A call made after the consumer stops the stream but before that stop's
+    /// termination hop has run still throws `.alreadySubscribed`; the caller may retry. IB addresses no error to it.
     public func newsBulletins(allMessages: Bool = false)
         throws(IBClientError) -> AsyncThrowingStream<NewsBulletin, any Error> {
         try requireConnected()
@@ -176,7 +179,8 @@ extension IBClient {
     }
 
     /// Shows `contractInfo` (`"265598@SMART"`, or `"none"`) in the group the `displayGroupUpdates` stream of `requestID`
-    /// follows.
+    /// follows. IB's error for a 69 carries the stream's reqId, so it ends `displayGroupUpdates` with `.ib` and sends
+    /// no 70.
     public func updateDisplayGroup(_ requestID: Int, contractInfo: String) throws(IBClientError) {
         try requireConnected()
         try send(.updateDisplayGroup(requestID: requestID, contractInfo: contractInfo))
@@ -190,16 +194,19 @@ extension IBClient {
         try send(.verifyRequest(apiName: apiName, apiVersion: apiVersion))
     }
 
+    /// Answers IB's `.verifyMessageAPI` with the vendor's `apiData`.
     public func verifyMessage(_ apiData: String) throws(IBClientError) {
         try requireConnected()
         try send(.verifyMessage(apiData: apiData))
     }
 
+    /// Starts the verify-and-authenticate handshake with the vendor's opaque ISV key.
     public func verifyAndAuthRequest(apiName: String, apiVersion: String, opaqueISVKey: String) throws(IBClientError) {
         try requireConnected()
         try send(.verifyAndAuthRequest(apiName: apiName, apiVersion: apiVersion, opaqueISVKey: opaqueISVKey))
     }
 
+    /// Answers IB's `.verifyAndAuthMessageAPI` with the vendor's `apiData` and its `xyzResponse` to IB's challenge.
     public func verifyAndAuthMessage(_ apiData: String, xyzResponse: String) throws(IBClientError) {
         try requireConnected()
         try send(.verifyAndAuthMessage(apiData: apiData, xyzResponse: xyzResponse))

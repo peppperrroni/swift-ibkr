@@ -89,5 +89,7 @@ CI (`.github/workflows/ci.yml`) builds and tests on macOS, Linux and Windows and
 - Test gaps: the 0xFFFFFF frame boundary; `int()` / `decimal()` of `""`; `bool()`, `double()`, `skip()`; the 2 s close bound of a
   draining disconnect (FakeGateway's write never blocks).
 - `exerciseOptions` is unchecked live: the paper account holds no options.
-- `faData` on a login that is not an FA account waits until cancelled: IB's refusal carries no reqId.
+- The id-less one-shots (`faData`, `marketRule`, `familyCodes`, `scannerParameters`, `newsProviders`, like the older
+  `depthExchanges`) wait until cancelled if IB refuses them with an error that names no request, such as `faData` on a
+  login that is not an FA account.
 - The verify requests go out after startApi, which `connect` sends itself; IB documents them before it.

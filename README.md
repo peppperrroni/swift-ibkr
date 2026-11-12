@@ -49,7 +49,7 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | Positions | synced at connect, whole sets on every change | ✅ live-checked |
 | Session | current time, accounts, next id, user info, log level, auto-bind, global cancel, opt-in reconnect | ✅ on the fake gateway; a live run is due in stage 13 |
 | Account | account summary, per-position P&L, portfolio, account values, Multi, account P&L | ✅ summary and per-position P&L live-checked; the rest on the fake gateway, a live run is due in stage 13 |
-| Contract lookup | contract details with bonds, matching symbols, factories, qualifyContracts | ✅ details and symbols live-checked; the rest on the fake gateway, a live run is due in stage 13 |
+| Contract lookup | contract details with bonds, matching symbols, factories, qualifyContracts | ✅ details (not bonds) and symbols live-checked; the rest on the fake gateway, a live run is due in stage 13 |
 | Options and reference | option chains, option calculations, market rules, family codes, soft-dollar tiers | ✅ on hand-built frames and the fake gateway; a live run is due in stage 13 |
 | Market data | quotes with generic ticks and snapshots, `Ticker` streams and batch snapshots, greeks, EFP, news ticks, real-time bars, depth book, depth exchanges, SMART components, tick-by-tick, BAG, typed «no permission» refusal | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
 | History | bars with keepUpToDate, historical ticks, head timestamp, histogram, trading schedule, BAG | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
@@ -273,8 +273,9 @@ let tiers = try await client.softDollarTiers()                             // [S
 ```
 
 `qualifyContracts` sends every lookup at once. IB's 200 is `.notFound` rather than an error. With several matches,
-only those of the input's secType count; one left is `.qualified` (keeping `SMART`), otherwise `.ambiguous` lists
-them, possibly none. Any other error throws, and a `BAG` is refused before anything is sent.
+only those of the input's secType count; one left is `.qualified`, otherwise `.ambiguous` lists them, possibly none.
+A `.qualified` contract keeps `SMART` when the input asked for it. Any other error throws, and a `BAG` is refused
+before anything is sent.
 
 `optionChains(for:futFopExchange:)` needs the underlying's `conID` (qualify it first). It returns one `OptionChain` per
 exchange and trading class once IB's end marker arrives; IB has no cancel for it.
@@ -348,7 +349,8 @@ Task { for try await scan in try await client.scannerSubscription(top) { print(s
 
 `scannerSubscription` yields each whole scan as IB refreshes it and keeps only the newest for a slow consumer; it
 never ends by itself, and stopping it sends IB's cancel. `scannerData` returns the first scan and then cancels.
-Both throw `.ib` on IB's error. Filter tags (`filterOptions: [TagValue]`) are those `scannerParameters()` lists.
+Both throw `.ib` on IB's error and send no cancel, except a permission refusal, which sends 23 and throws
+`.noMarketDataPermission`. Filter tags (`filterOptions: [TagValue]`) are those `scannerParameters()` lists.
 
 ### News
 
@@ -366,7 +368,8 @@ Task { for try await b in try await client.newsBulletins() { print(b.msgType, b.
 `historicalNews` reads every headline up to IB's end marker and sends no cancel (IB has none). `start` and `end` are
 optional `Date`s; `HistoricalNews.time` is IB's own text. `newsArticle` and `historicalNews` throw `.ib` on IB's error
 (10172, 10187). IB holds one bulletin subscription per connection, so a second `newsBulletins()` while one is open
-throws `.alreadySubscribed`; stopping the stream sends IB's cancel, and a new one can then be opened.
+throws `.alreadySubscribed`; stopping the stream sends IB's cancel and frees the slot once its termination has run,
+so a call made just after the stop may still throw `.alreadySubscribed` and can be retried.
 
 ### Fundamentals and Wall Street Horizon
 
@@ -416,8 +419,9 @@ All of them, notices included, are still visible on `messages()`.
 
 ## ib_async names
 
-Calls keep `ib_async`'s names, minus a leading `req`, with `Id` written `ID`. This table covers the stage 10–11 calls;
-stage 13 extends it to every call.
+Calls keep `ib_async`'s names, minus a leading `req`, with `Id` written `ID`, except `faData`, `optionChains`,
+`displayGroups` and `displayGroupUpdates` (DECISIONS). This table covers the stage 10–11 calls; stage 13 extends it to
+every call.
 
 | ib_async | swift-ibkr |
 |---|---|
@@ -437,8 +441,8 @@ stage 13 extends it to every call.
 | `reqHistoricalNews` | `historicalNews(conID:providerCodes:start:end:totalResults:options:)` |
 | `reqNewsBulletins` | `newsBulletins(allMessages:)` (a stream) |
 | `reqFundamentalData` | `fundamentalData(_:reportType:options:)` |
-| `reqWshMetaData` | `wshMetaData()` |
-| `reqWshEventData` | `wshEventData(_:)` |
+| `reqWshMetaData` / `getWshMetaData` | `wshMetaData()` |
+| `reqWshEventData` / `getWshEventData` | `wshEventData(_:)` |
 | `requestFA` | `faData(_:)` |
 | `replaceFA` | `replaceFA(_:xml:)` |
 | `queryDisplayGroups` | `displayGroups()` |

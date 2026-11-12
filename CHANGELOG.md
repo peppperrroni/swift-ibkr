@@ -80,6 +80,8 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 ### Changed
 - `genericTicks` is `[GenericTick]` in `marketData`, `tickers` and `IBRequest.marketData`, so a news tick list (`["mdoff", "292:BRFG"]`) can be sent. Integer and string literals both still compile; a `[Int]` variable needs `.map(GenericTick.init(integerLiteral:))`.
 - An option's or future's `lastTradeDateOrContractMonth` in `contractDetails` keeps only the date (`20261218`), and the time goes to the new `ContractDetails.lastTradeTime`; before, the whole lastTimes text was kept.
+- A third lastTimes part in contractData (10) and bond details (18), IB's time zone, now replaces `ContractDetails.timeZoneID`.
+- `ContractDetails.longName` from contractData (10) has its `\uXXXX` escapes decoded, as `ib_async` does; bond details keep it raw.
 - `historicalBars` accepts a `BAG` and refuses `whatToShow` "SCHEDULE" (`.encoding(.unsupported)`): use `historicalSchedule`.
 - `marketDepth` ends with `.noMarketDataPermission(code: 2152, text:)` and sends its cancel when IB's 2152 lists its unknown permissions and grants no `Depth:` exchange, instead of staying silent; a 2152 that grants some depth keeps the book open.
 - tickReqParams (81) is a tick, `Tick.requestParameters`, and `marketData` yields it.
