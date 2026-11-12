@@ -730,7 +730,7 @@ public actor IBClient {
 
     /// Sends `request` and waits for the first message `pick` takes. Without `id` the waiter is keyed by a local
     /// negative id and `routeToStream` offers it the id-less messages, oldest waiter first.
-    private func answer<T: Sendable>(_ request: IBRequest, id: Int? = nil, pick: @escaping @Sendable (IBMessage) -> T?)
+    func answer<T: Sendable>(_ request: IBRequest, id: Int? = nil, pick: @escaping @Sendable (IBMessage) -> T?)
         async throws(IBClientError) -> T {
         let key = id ?? nextLocalID()
         let stream = try openStream(request, id: key, cancel: nil) { (message, out: AsyncThrowingStream<T, any Error>.Continuation) in
@@ -743,7 +743,7 @@ public actor IBClient {
 
     /// Reads a self-ending stream to its end. It ends without error only when its end marker came, or when the
     /// calling task was cancelled.
-    private func collect<E: Sendable>(_ stream: AsyncThrowingStream<E, any Error>) async throws(IBClientError) -> [E] {
+    func collect<E: Sendable>(_ stream: AsyncThrowingStream<E, any Error>) async throws(IBClientError) -> [E] {
         var got: [E] = []
         do { for try await x in stream { got.append(x) } } catch { throw error as? IBClientError ?? .cancelled }
         if Task.isCancelled { throw .cancelled }
@@ -757,7 +757,7 @@ public actor IBClient {
     var orderSubscriberCount: Int { orderSubscribers.count }
     var requestStreamCount: Int { requestStreams.count }
 
-    private func requireConnected() throws(IBClientError) {
+    func requireConnected() throws(IBClientError) {
         guard case .connected = state else { throw .notConnected }
     }
 
@@ -783,7 +783,7 @@ public actor IBClient {
     }
 
     /// Sends `request`, then registers its stream; nothing is registered when it does not encode.
-    private func openStream<Element: Sendable>(
+    func openStream<Element: Sendable>(
         _ request: IBRequest, id: Int, cancel: IBRequest?,
         buffering: AsyncThrowingStream<Element, any Error>.Continuation.BufferingPolicy = .unbounded,
         route: @escaping (IBMessage, AsyncThrowingStream<Element, any Error>.Continuation) -> Bool
@@ -844,7 +844,7 @@ public actor IBClient {
     }
 
     /// Keys for waiters with no reqId: -2, -3, ... (-1 is IB's "no request" in errors).
-    private func nextLocalID() -> Int {
+    func nextLocalID() -> Int {
         localID -= 1
         return localID
     }

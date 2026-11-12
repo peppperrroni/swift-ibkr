@@ -68,5 +68,6 @@ import Testing
     #expect(HistogramData(price: 1, count: 2).count == 2)
     #expect(OrderCondition.margin(isMore: true, percent: 30) != .margin(isMore: false, percent: 30))
     #expect(CompeteOffset.upToMid != .offset(0))
+    #expect(ContractQualification.notFound != .ambiguous([]))
     #expect(BracketOrder(parent: order, takeProfit: order, stopLoss: order).parent == order)
 }
