@@ -1,5 +1,25 @@
 import Foundation
 
+/// What `wshEventData(_:)` asks Wall Street Horizon for (`ib_async`'s `WshEventData`). `filter` is IB's JSON text;
+/// dates are IB's `yyyyMMdd`. A `nil` `conID` or `totalLimit` goes out as `2147483647`, as `ib_async` sends it.
+public struct WshEventData: Sendable, Equatable {
+    public var conID: Int?
+    public var filter: String
+    public var fillWatchlist: Bool
+    public var fillPortfolio: Bool
+    public var fillCompetitors: Bool
+    public var startDate: String
+    public var endDate: String
+    public var totalLimit: Int?
+
+    public init(conID: Int? = nil, filter: String = "", fillWatchlist: Bool = false, fillPortfolio: Bool = false,
+                fillCompetitors: Bool = false, startDate: String = "", endDate: String = "", totalLimit: Int? = nil) {
+        self.conID = conID; self.filter = filter; self.fillWatchlist = fillWatchlist
+        self.fillPortfolio = fillPortfolio; self.fillCompetitors = fillCompetitors
+        self.startDate = startDate; self.endDate = endDate; self.totalLimit = totalLimit
+    }
+}
+
 /// What a market scan looks for (`ib_async`'s `ScannerSubscription`). `instrument`, `locationCode` and `scanCode`
 /// come from `scannerParameters()`; every other filter is unset by default. A `nil` `numberOfRows` asks for IB's default.
 public struct ScannerSubscription: Sendable, Equatable {

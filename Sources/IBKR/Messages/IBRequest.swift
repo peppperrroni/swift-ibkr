@@ -69,6 +69,12 @@ public enum IBRequest: Sendable, Equatable {
     case newsArticle(requestID: Int, providerCode: String, articleID: String, options: [TagValue])
     case historicalNews(requestID: Int, conID: Int, providerCodes: [String], start: Date?, end: Date?,
                         totalResults: Int, options: [TagValue])
+    case fundamentalData(requestID: Int, contract: Contract, reportType: String, options: [TagValue])
+    case cancelFundamentalData(requestID: Int)
+    case wshMetaData(requestID: Int)
+    case cancelWshMetaData(requestID: Int)
+    case wshEventData(requestID: Int, data: WshEventData)
+    case cancelWshEventData(requestID: Int)
     case managedAccounts
     case userInfo(requestID: Int)
     case serverLogLevel(ServerLogLevel)
@@ -129,6 +135,25 @@ public enum IBRequest: Sendable, Equatable {
             w.add(86); w.add(reqID); w.add(conID); try w.add(providers.joined(separator: "+"))
             try w.add(start.map { Self.newsFormat.string(from: $0) } ?? ""); try w.add(end.map { Self.newsFormat.string(from: $0) } ?? "")
             w.add(total); try w.add(Self.tagValues(options))
+        case .fundamentalData(let reqID, let c, let reportType, let options):
+            // the contract block minus strike, right and multiplier, as ib_async sends it
+            if c.secType == "BAG" { throw .unsupported("secType BAG") }
+            w.add(52); w.add(2); w.add(reqID); w.add(c.conID); try w.add(c.symbol); try w.add(c.secType)
+            try w.add(c.exchange); try w.add(c.primaryExchange); try w.add(c.currency); try w.add(c.localSymbol)
+            try w.add(reportType); w.add(options.count); try w.add(Self.tagValues(options))
+        case .cancelFundamentalData(let reqID):
+            w.add(53); w.add(1); w.add(reqID)
+        case .wshMetaData(let reqID):
+            w.add(100); w.add(reqID)
+        case .cancelWshMetaData(let reqID):
+            w.add(101); w.add(reqID)
+        case .wshEventData(let reqID, let d):
+            // makeEmpty=False in ib_async: an unset conID or totalLimit is IB's UNSET_INTEGER, not empty
+            w.add(102); w.add(reqID); w.add(d.conID ?? Int(Int32.max)); try w.addPayload(d.filter)
+            w.add(d.fillWatchlist); w.add(d.fillPortfolio); w.add(d.fillCompetitors)
+            try w.add(d.startDate); try w.add(d.endDate); w.add(d.totalLimit ?? Int(Int32.max))
+        case .cancelWshEventData(let reqID):
+            w.add(103); w.add(reqID)
         case .managedAccounts:
             w.add(17); w.add(1)
         case .userInfo(let reqID):

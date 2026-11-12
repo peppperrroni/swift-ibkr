@@ -54,6 +54,7 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | History | bars with keepUpToDate, historical ticks, head timestamp, histogram, trading schedule, BAG | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
 | Scanner | scan stream, one-shot scan, scanner parameters | ✅ on the fake gateway; a live run is due in stage 13 |
 | News | providers, article text, historical headlines, bulletins, news ticks through `marketData` | ✅ on the fake gateway; a live run is due in stage 13 |
+| Fundamentals and Wall Street Horizon | fundamentals report XML, WSH metadata and event JSON, all as IB's text | ✅ on the fake gateway; a live run is due in stage 13 |
 
 What is still unconfirmed against a live gateway is listed in [`docs/KNOWN-GAPS.md`](docs/KNOWN-GAPS.md).
 There are no tagged releases yet, and the API may still change.
@@ -364,6 +365,19 @@ Task { for try await b in try await client.newsBulletins() { print(b.msgType, b.
 optional `Date`s; `HistoricalNews.time` is IB's own text. `newsArticle` and `historicalNews` throw `.ib` on IB's error
 (10172, 10187). IB holds one bulletin subscription per connection, so a second `newsBulletins()` while one is open
 throws `.alreadySubscribed`; stopping the stream sends IB's cancel, and a new one can then be opened.
+
+### Fundamentals and Wall Street Horizon
+
+```swift
+let xml = try await client.fundamentalData(aapl, reportType: "ReportSnapshot")   // IB's XML, never parsed
+let meta = try await client.wshMetaData()                                         // IB's JSON text
+let events = try await client.wshEventData(WshEventData(conID: 265598, startDate: "20261101", endDate: "20261201"))
+```
+
+All three return IB's text as a `String` and throw `.ib` on IB's error (430 when a report is not available). A
+`WshEventData` field left unset goes out as IB's `2147483647`. Ask for `wshMetaData()` before `wshEventData(_:)`, as IB
+requires; the library does not enforce it. A cancelled `fundamentalData` sends IB's cancel; the WSH calls cancel after
+their answer.
 
 ### Errors
 

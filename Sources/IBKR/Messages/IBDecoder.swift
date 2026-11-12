@@ -126,6 +126,9 @@ public enum IBDecoder {
                 try r.skip()
                 return .newsBulletin(NewsBulletin(msgID: try r.int(), msgType: try r.int(), message: try r.string(),
                                                   origExchange: try r.string()))
+            case 51: try r.skip(); return .fundamentalData(requestID: try r.int(), try r.string())
+            case 104: return .wshMetaData(requestID: try r.int(), try r.string())
+            case 105: return .wshEventData(requestID: try r.int(), try r.string())
             case 87: return .historicalNewsEnd(requestID: try r.int(), hasMore: try r.bool())
             case 75: return try optionChain(&r)
             case 76: return .securityDefinitionOptionParameterEnd(requestID: try r.int())

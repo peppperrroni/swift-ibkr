@@ -1667,6 +1667,50 @@ subscription.
 longer trading, 3 trading again. No reqId: the open `newsBulletins` stream yields every one, and it reaches
 `messages()` too. IB addresses no error to it.
 
+### reqFundamentalData (out 52)
+
+`52, 2, reqId, conId, symbol, secType, exchange, primaryExchange, currency, localSymbol, reportType, n, options`; 13
+fields. `options` is the tag-value text for the `n` pairs (`""` for none). A BAG contract is refused. Sent by
+`fundamentalData(_:reportType:options:)`.
+
+### cancelFundamentalData (out 53)
+
+`53, 1, reqId`; 3 fields. Sent only when the calling task is cancelled before the answer; neither the answer nor IB's
+error sends it.
+
+### fundamentalData (in 51)
+
+`51, version, reqId, data`; 4 fields. `data` is IB's report XML, kept as a `String`. Error 430 (not available) for the
+reqId fails the call.
+
+### reqWshMetaData (out 100)
+
+`100, reqId`; 2 fields. Sent by `wshMetaData()`.
+
+### cancelWshMetaData (out 101)
+
+`101, reqId`; 2 fields. Sent after the answer, as `ib_async` cancels before the next request; not sent after IB's error.
+
+### reqWshEventData (out 102)
+
+`102, reqId, conId, filter, fillWatchlist, fillPortfolio, fillCompetitors, startDate, endDate, totalLimit`; 10 fields
+at 178 (`ib_async` sends the last seven from server versions 171 and 173). It sends them with `makeEmpty=False`, so a
+`nil` `conID` or `totalLimit` is `2147483647`, not empty. `filter` is IB's JSON text and may hold line breaks (tab,
+LF and CR pass; other control characters and non-ASCII are refused). Meta-before-event is IB's rule and is not
+enforced. Sent by `wshEventData(_:)`.
+
+### cancelWshEventData (out 103)
+
+`103, reqId`; 2 fields. Sent after the answer, as `ib_async` does; not sent after IB's error.
+
+### wshMetaData (in 104)
+
+`104, reqId, dataJson`; 3 fields, no version. The JSON stays a `String`.
+
+### wshEventData (in 105)
+
+`105, reqId, dataJson`; 3 fields, no version. The JSON stays a `String`.
+
 ### reqMktDepth (out 10)
 
 `10, 5, reqId, contract(12), numRows, isSmartDepth, mktDepthOptions`; 18 fields. `mktDepthOptions` is always `""`.

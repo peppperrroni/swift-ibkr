@@ -90,4 +90,48 @@ extension IBClient {
         }
         return try await collect(stream)
     }
+
+    /// One fundamentals report as IB's XML text (`ReportSnapshot`, `ReportsFinSummary`, ...), never parsed. IB's error
+    /// throws `.ib`. Cancelling the calling task sends IB's cancel; an answer or an error sends none.
+    public func fundamentalData(_ contract: Contract, reportType: String, options: [TagValue] = [])
+        async throws(IBClientError) -> String {
+        try requireConnected()
+        let id = nextRequestID()
+        let stream = try openStream(.fundamentalData(requestID: id, contract: contract, reportType: reportType, options: options),
+                                    id: id, cancel: .cancelFundamentalData(requestID: id)) { (message, out: AsyncThrowingStream<String, any Error>.Continuation) in
+            guard case .fundamentalData(_, let xml) = message else { return false }
+            out.yield(xml); out.finish(); return true   // true: the answer ends it, so no 53
+        }
+        guard let xml = try await collect(stream).first else { throw .cancelled }
+        return xml
+    }
+
+    /// Wall Street Horizon's metadata as IB's JSON text, then IB's cancel (101), as `ib_async` does. IB's error throws
+    /// `.ib` and sends no cancel.
+    public func wshMetaData() async throws(IBClientError) -> String {
+        try await wshText(request: { .wshMetaData(requestID: $0) }, cancel: { .cancelWshMetaData(requestID: $0) }) {
+            if case .wshMetaData(_, let json) = $0 { json } else { nil }
+        }
+    }
+
+    /// Wall Street Horizon's events for `data` as IB's JSON text, then IB's cancel (103). IB's error throws `.ib` and
+    /// sends no cancel.
+    public func wshEventData(_ data: WshEventData) async throws(IBClientError) -> String {
+        try await wshText(request: { .wshEventData(requestID: $0, data: data) }, cancel: { .cancelWshEventData(requestID: $0) }) {
+            if case .wshEventData(_, let json) = $0 { json } else { nil }
+        }
+    }
+
+    /// The shared one-answer shape of the WSH calls: yield, finish, return `false`, so the termination hop sends the cancel.
+    private func wshText(request: (Int) -> IBRequest, cancel: (Int) -> IBRequest,
+                         pick: @escaping @Sendable (IBMessage) -> String?) async throws(IBClientError) -> String {
+        try requireConnected()
+        let id = nextRequestID()
+        let stream = try openStream(request(id), id: id, cancel: cancel(id)) { (message, out: AsyncThrowingStream<String, any Error>.Continuation) in
+            guard let json = pick(message) else { return false }
+            out.yield(json); out.finish(); return false
+        }
+        guard let json = try await collect(stream).first else { throw .cancelled }
+        return json
+    }
 }

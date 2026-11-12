@@ -19,6 +19,16 @@ import Testing
     #expect(throws: IBEncodingError.nonASCII(field: "a\u{7}")) { try w.add("a\u{7}") }
 }
 
+/// addPayload carries IB's XML and JSON text, which spans lines; add still refuses a control character.
+@Test func payloadKeepsLineBreaksAndTabs() throws {
+    var w = FieldWriter()
+    try w.addPayload("<a>\r\n\t<b/>\n</a>")
+    #expect(w.body == Array("<a>\r\n\t<b/>\n</a>\0".utf8))
+    #expect(throws: IBEncodingError.nonASCII(field: "a\u{7}")) { try w.addPayload("a\u{7}") }
+    #expect(throws: IBEncodingError.nonASCII(field: "é")) { try w.addPayload("é") }
+    #expect(throws: IBEncodingError.nonASCII(field: "a\n")) { var v = FieldWriter(); try v.add("a\n") }
+}
+
 @Test func everyOptionalReaderMapsEverySentinel() throws {
     let sentinels = ["", "2147483647", "9223372036854775807", "1.7976931348623157E308", "-9223372036854775808"]
     for s in sentinels {

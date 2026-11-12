@@ -192,3 +192,81 @@ private let haltedBulletin = NewsBulletin(msgID: 3, msgType: 1, message: "Exchan
     }
     #expect(await client.requestStreamCount == 0)
 }
+
+private let reportSnapshot = "<ReportSnapshot/>"
+
+@Test func fundamentalDataAnswers() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in f[0] == "52" ? [["51", "1", f[2], reportSnapshot]] : [] }
+    #expect(try await within2s { try await client.fundamentalData(Contract(symbol: "AAPL"), reportType: "ReportSnapshot") }
+            == reportSnapshot)
+    try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel: the answer ends it
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).contains { $0[0] == "53" } == false)
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func fundamentalDataFailsOnItsError() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let text = "We are sorry, but fundamentals data for the security specified is not available."
+    gateway.onRequest = { f in f[0] == "52" ? [ibError(f[2], "430", text)] : [] }
+    await #expect(throws: IBClientError.ib(code: 430, text: text)) {
+        _ = try await within2s { try await client.fundamentalData(Contract(symbol: "AAPL"), reportType: "ReportSnapshot") }
+    }
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func fundamentalDataCancelledSendsItsCancel() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let call = Task { try await client.fundamentalData(Contract(symbol: "AAPL"), reportType: "ReportSnapshot") }
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][2]
+    call.cancel()
+    await #expect(throws: IBClientError.cancelled) { try await call.value }
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["53", "1", id])
+}
+
+@Test func wshMetaDataAnswersThenCancels() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in f[0] == "100" ? [["104", f[1], "{\"m\":1}"]] : [] }
+    #expect(try await within2s { try await client.wshMetaData() } == "{\"m\":1}")
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
+    #expect(sent[FakeGateway.syncFrames + 1] == ["101", sent[FakeGateway.syncFrames][1]])
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func wshMetaDataFailsOnItsError() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in f[0] == "100" ? [ibError(f[1], "321", "Error validating request")] : [] }
+    await #expect(throws: IBClientError.ib(code: 321, text: "Error validating request")) {
+        _ = try await within2s { try await client.wshMetaData() }
+    }
+    try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).contains { $0[0] == "101" } == false)
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func wshEventDataAnswersThenCancels() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in f[0] == "102" ? [["105", f[1], "{\"m\":1}"]] : [] }
+    #expect(try await within2s { try await client.wshEventData(WshEventData(conID: 8314)) } == "{\"m\":1}")
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
+    #expect(sent[FakeGateway.syncFrames + 1] == ["103", sent[FakeGateway.syncFrames][1]])
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func wshEventDataFailsOnItsError() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in f[0] == "102" ? [ibError(f[1], "321", "Error validating request")] : [] }
+    await #expect(throws: IBClientError.ib(code: 321, text: "Error validating request")) {
+        _ = try await within2s { try await client.wshEventData(WshEventData(conID: 8314)) }
+    }
+    try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).contains { $0[0] == "103" } == false)
+    #expect(await client.requestStreamCount == 0)
+}

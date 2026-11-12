@@ -9,6 +9,14 @@ struct FieldWriter {
         guard value.utf8.allSatisfy({ (0x20...0x7E).contains($0) }) else { throw .nonASCII(field: value) }
         put(value)
     }
+    /// Text IB's own payloads carry (a filter's JSON, FA XML): `add`'s ASCII plus tab, LF and CR, which they hold as
+    /// line breaks. `ib_async` sends them as they are; any other control character or non-ASCII still throws.
+    mutating func addPayload(_ value: String) throws(IBEncodingError) {
+        guard value.utf8.allSatisfy({ (0x20...0x7E).contains($0) || $0 == 0x09 || $0 == 0x0A || $0 == 0x0D }) else {
+            throw .nonASCII(field: value)
+        }
+        put(value)
+    }
     mutating func add(_ value: Int?) { put(value.map(String.init) ?? "") }
     mutating func add(_ value: Decimal?) { put(value.map { $0.description } ?? "") }
     mutating func add(_ value: Bool) { put(value ? "1" : "0") }

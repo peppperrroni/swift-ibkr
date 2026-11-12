@@ -820,7 +820,8 @@ public actor IBClient {
              .accountUpdateMultiEnd(let id), .pnl(let id, _), .smartComponents(let id, _),
              .securityDefinitionOptionParameter(let id, _), .securityDefinitionOptionParameterEnd(let id),
              .softDollarTiers(let id, _), .scannerData(let id, _), .newsArticle(let id, _), .historicalNews(let id, _),
-             .historicalNewsEnd(let id, _):
+             .historicalNewsEnd(let id, _), .fundamentalData(let id, _), .wshMetaData(let id, _),
+             .wshEventData(let id, _):
             if requestStreams[id]?.route(message) == true { requestStreams[id] = nil }   // before any termination hop
         case .openOrder(let m) where m.order.whatIf:   // whatIfOrder's answer, keyed by the order id it took
             if requestStreams[m.orderID]?.route(message) == true { requestStreams[m.orderID] = nil }

@@ -60,6 +60,28 @@ func scan(_ id: String) -> [String] {
         guard case .malformed = IBDecoder.decode(body("85", "-1")) else { Issue.record("not malformed"); return }
     }
 
+    @Test func fundamentalsAndWshCodec() throws {
+        #expect(try IBRequest.fundamentalData(requestID: 7, contract: Contract(symbol: "AAPL"), reportType: "ReportSnapshot",
+                                              options: []).body()
+                == body("52", "2", "7", "0", "AAPL", "STK", "SMART", "", "USD", "", "ReportSnapshot", "0", ""))
+        #expect(try IBRequest.cancelFundamentalData(requestID: 7).body() == body("53", "1", "7"))
+        #expect(try IBRequest.wshMetaData(requestID: 7).body() == body("100", "7"))
+        #expect(try IBRequest.cancelWshMetaData(requestID: 7).body() == body("101", "7"))
+        #expect(try IBRequest.wshEventData(requestID: 7, data: WshEventData(conID: 8314, startDate: "20261101",
+                                                                           endDate: "20261201", totalLimit: 10)).body()
+                == body("102", "7", "8314", "", "0", "0", "0", "20261101", "20261201", "10"))
+        #expect(try IBRequest.wshEventData(requestID: 7, data: WshEventData(filter: "{\"watchlist\":[\"8314\"]}",
+                                                                           fillWatchlist: true)).body()
+                == body("102", "7", "2147483647", "{\"watchlist\":[\"8314\"]}", "1", "0", "0", "", "", "2147483647"))
+        // a filter spans lines as IB's own JSON does
+        #expect(try IBRequest.wshEventData(requestID: 7, data: WshEventData(conID: 1, filter: "{\n \"a\":1}")).body()
+                == body("102", "7", "1", "{\n \"a\":1}", "0", "0", "0", "", "", "2147483647"))
+        #expect(try IBRequest.cancelWshEventData(requestID: 7).body() == body("103", "7"))
+        #expect(IBDecoder.decode(body("51", "1", "7", "<ReportSnapshot/>")) == .fundamentalData(requestID: 7, "<ReportSnapshot/>"))
+        #expect(IBDecoder.decode(body("104", "7", "{\"m\":1}")) == .wshMetaData(requestID: 7, "{\"m\":1}"))
+        #expect(IBDecoder.decode(body("105", "7", "{}")) == .wshEventData(requestID: 7, "{}"))
+    }
+
     @Test func newsBulletinsCodec() throws {
         #expect(try IBRequest.newsBulletins(allMessages: true).body() == body("12", "1", "1"))
         #expect(try IBRequest.cancelNewsBulletins.body() == body("13", "1"))

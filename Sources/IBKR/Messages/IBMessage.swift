@@ -72,6 +72,10 @@ public enum IBMessage: Sendable, Equatable {
     case historicalNews(requestID: Int, HistoricalNews)
     case historicalNewsEnd(requestID: Int, hasMore: Bool)
     case newsBulletin(NewsBulletin)
+    /// IB's fundamentals report XML, Wall Street Horizon's metadata JSON and event JSON: text, never parsed.
+    case fundamentalData(requestID: Int, String)
+    case wshMetaData(requestID: Int, String)
+    case wshEventData(requestID: Int, String)
     case rerouteMarketData(requestID: Int, conID: Int, exchange: String)
     case rerouteMarketDepth(requestID: Int, conID: Int, exchange: String)
     case unknown(id: Int, fields: [String])
