@@ -1585,6 +1585,37 @@ negative `n` is malformed. Answers `familyCodes()`, oldest waiter first.
 `77, reqId, n, n x (name, val, displayName)`; no version. A negative `n` is malformed. The reqId routes it to
 `softDollarTiers()`, which fails on an IB error for that reqId.
 
+### reqScannerSubscription (out 22)
+
+`22, reqId, numberOfRows, instrument, locationCode, scanCode, abovePrice, belowPrice, aboveVolume, marketCapAbove,
+marketCapBelow, moodyRatingAbove, moodyRatingBelow, spRatingAbove, spRatingBelow, maturityDateAbove, maturityDateBelow,
+couponRateAbove, couponRateBelow, excludeConvertible, averageOptionVolumeAbove, scannerSettingPairs, stockTypeFilter,
+filterOptions, options`; 25 fields, no version. A `nil` `numberOfRows` goes out as `-1` (IB's default); any other
+`nil` number is `""`, and `excludeConvertible` is `0`/`1`. The two lists go out as one `"tag=value;"` field each, the
+filter options first, as `ib_async` sends them. Both `scannerSubscription(_:options:filterOptions:)` and
+`scannerData(_:options:filterOptions:)` send it.
+
+### cancelScannerSubscription (out 23)
+
+`23, 1, reqId`; 3 fields. Sent when the consumer stops the scanner stream, and by `scannerData` after its first scan
+(as `ib_async`'s `reqScannerDataAsync` does). Not sent after IB's error for the reqId.
+
+### reqScannerParameters (out 24)
+
+`24, 1`; 2 fields, no reqId.
+
+### scannerParameters (in 19)
+
+`19, version, xml`; IB's XML stays a `String`. No reqId: answers `scannerParameters()`, oldest waiter first; IB
+addresses no error to it.
+
+### scannerData (in 20)
+
+`20, version, reqId, n, n x (rank, conId, symbol, secType, lastTradeDateOrContractMonth, strike, right, exchange,
+currency, localSymbol, marketName, tradingClass, distance, benchmark, projection, legsStr)`; 16 fields per row. The
+strike is an optional decimal; a negative `n` is malformed. One message is one whole scan (`ib_async` ends each with
+its own scannerDataEnd); the reqId routes it to the scanner stream or call.
+
 ### reqMktDepth (out 10)
 
 `10, 5, reqId, contract(12), numRows, isSmartDepth, mktDepthOptions`; 18 fields. `mktDepthOptions` is always `""`.

@@ -52,6 +52,7 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | Contract lookup | contract details, matching symbols, qualification, option chains, option calculations, market rules, family codes, soft-dollar tiers | ✅ details and symbols live-checked; qualification, option chains, option calculations, market rules, family codes and soft-dollar tiers on the fake gateway, a live run is due in stage 13 |
 | Market data | quotes with generic ticks and snapshots, `Ticker` streams and batch snapshots, greeks, EFP, news ticks, real-time bars, depth book, depth exchanges, SMART components, tick-by-tick, BAG, typed «no permission» refusal | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
 | History | bars with keepUpToDate, historical ticks, head timestamp, histogram, trading schedule, BAG | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
+| Scanner | scan stream, one-shot scan, scanner parameters | ✅ on the fake gateway; a live run is due in stage 13 |
 
 What is still unconfirmed against a live gateway is listed in [`docs/KNOWN-GAPS.md`](docs/KNOWN-GAPS.md).
 There are no tagged releases yet, and the API may still change.
@@ -330,6 +331,19 @@ let sched = try await client.historicalSchedule(aapl, days: 5)                 /
   permissions» (the phrase must be there) names no `Depth:` exchange, the depth stream ends with `.noMarketDataPermission(code: 2152, …)` and
   sends its cancel; otherwise it stays open. The rule rests on one recorded frame (see `docs/DECISIONS.md` and
   [`docs/KNOWN-GAPS.md`](docs/KNOWN-GAPS.md)).
+
+### Scanner
+
+```swift
+let xml = try await client.scannerParameters()   // IB's XML: instruments, locations, scan codes, filters
+let top = ScannerSubscription(instrument: "STK", locationCode: "STK.US.MAJOR", scanCode: "TOP_PERC_GAIN", numberOfRows: 10)
+let rows = try await client.scannerData(top)     // [ScanData]: rank, contract, marketName ...
+Task { for try await scan in try await client.scannerSubscription(top) { print(scan.map(\.contract.symbol)) } }
+```
+
+`scannerSubscription` yields each whole scan as IB refreshes it and keeps only the newest for a slow consumer; it
+never ends by itself, and stopping it sends IB's cancel. `scannerData` returns the first scan and then cancels.
+Both throw `.ib` on IB's error. Filter tags (`filterOptions: [TagValue]`) are those `scannerParameters()` lists.
 
 ### Errors
 

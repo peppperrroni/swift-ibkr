@@ -59,6 +59,10 @@ public enum IBRequest: Sendable, Equatable {
     case marketRule(marketRuleID: Int)
     case familyCodes
     case softDollarTiers(requestID: Int)
+    case scannerSubscription(requestID: Int, subscription: ScannerSubscription, options: [TagValue],
+                             filterOptions: [TagValue])
+    case cancelScannerSubscription(requestID: Int)
+    case scannerParameters
     case managedAccounts
     case userInfo(requestID: Int)
     case serverLogLevel(ServerLogLevel)
@@ -94,6 +98,19 @@ public enum IBRequest: Sendable, Equatable {
             w.add(80)
         case .softDollarTiers(let reqID):
             w.add(79); w.add(reqID)
+        case .scannerSubscription(let reqID, let s, let options, let filterOptions):
+            w.add(22); w.add(reqID); w.add(s.numberOfRows ?? -1)  // -1: IB's default row count
+            try w.add(s.instrument); try w.add(s.locationCode); try w.add(s.scanCode)
+            w.add(s.abovePrice); w.add(s.belowPrice); w.add(s.aboveVolume); w.add(s.marketCapAbove); w.add(s.marketCapBelow)
+            try w.add(s.moodyRatingAbove); try w.add(s.moodyRatingBelow); try w.add(s.spRatingAbove)
+            try w.add(s.spRatingBelow); try w.add(s.maturityDateAbove); try w.add(s.maturityDateBelow)
+            w.add(s.couponRateAbove); w.add(s.couponRateBelow); w.add(s.excludeConvertible)
+            w.add(s.averageOptionVolumeAbove); try w.add(s.scannerSettingPairs); try w.add(s.stockTypeFilter)
+            try w.add(Self.tagValues(filterOptions)); try w.add(Self.tagValues(options))  // filter options go first
+        case .cancelScannerSubscription(let reqID):
+            w.add(23); w.add(1); w.add(reqID)
+        case .scannerParameters:
+            w.add(24); w.add(1)
         case .managedAccounts:
             w.add(17); w.add(1)
         case .userInfo(let reqID):

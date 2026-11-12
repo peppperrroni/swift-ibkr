@@ -65,6 +65,8 @@ public enum IBMessage: Sendable, Equatable {
     case marketRule(marketRuleID: Int, [PriceIncrement])
     case familyCodes([FamilyCode])
     case softDollarTiers(requestID: Int, [SoftDollarTier])
+    case scannerParameters(String)
+    case scannerData(requestID: Int, [ScanData])
     case rerouteMarketData(requestID: Int, conID: Int, exchange: String)
     case rerouteMarketDepth(requestID: Int, conID: Int, exchange: String)
     case unknown(id: Int, fields: [String])

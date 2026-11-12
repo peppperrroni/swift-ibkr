@@ -34,6 +34,9 @@ import Testing
                         expirations: ["20261218"], strikes: [190]).strikes == [190])
     #expect(PriceIncrement(lowEdge: 0, increment: 1).increment == 1)
     #expect(FamilyCode(accountID: "DU1", familyCodeStr: "F").familyCodeStr == "F")
+    #expect(ScannerSubscription().numberOfRows == nil)
+    #expect(ScanData(rank: 0, contract: contract, marketName: "NMS", distance: "", benchmark: "", projection: "",
+                     legsStr: "").rank == 0)
     #expect(Bar(time: Date(timeIntervalSince1970: 0), open: 1, high: 2, low: 0, close: 1, volume: 5, count: 1).high == 2)
     #expect(DepthLevel(price: 1, size: 2, marketMaker: "").marketMaker == "")
     #expect(OptionComputation(tickAttrib: 0).delta == nil)

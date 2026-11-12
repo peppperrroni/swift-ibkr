@@ -115,6 +115,8 @@ public enum IBDecoder {
             case 93: return try marketRule(&r)
             case 78: return try familyCodes(&r)
             case 77: return try softDollarTiers(&r)
+            case 19: try r.skip(); return .scannerParameters(try r.string())
+            case 20: return try scannerData(&r)
             case 75: return try optionChain(&r)
             case 76: return .securityDefinitionOptionParameterEnd(requestID: try r.int())
             case 96, 97, 98: return try historicalTicks(&r, id)
@@ -206,6 +208,23 @@ public enum IBDecoder {
             price: price, permID: permID, clientID: clientID, orderID: orderID, liquidation: liquidation,
             cumulativeQuantity: cumQty, averagePrice: avgPrice, orderRef: orderRef,
             lastLiquidity: lastLiquidity, pendingPriceRevision: pending))
+    }
+
+    /// scannerData (20): one whole scan, 16 fields per row.
+    private static func scannerData(_ r: inout FieldReader) throws -> IBMessage {
+        try r.skip()
+        let id = try r.int()
+        return .scannerData(requestID: id, try (0..<wireCount(&r)).map { _ in
+            let rank = try r.int()
+            var c = Contract(symbol: "")
+            c.conID = try r.int(); c.symbol = try r.string(); c.secType = try r.string()
+            c.lastTradeDateOrContractMonth = try r.string(); c.strike = try r.optionalDecimal(); c.right = try r.string()
+            c.exchange = try r.string(); c.currency = try r.string(); c.localSymbol = try r.string()
+            let marketName = try r.string()
+            c.tradingClass = try r.string()
+            return ScanData(rank: rank, contract: c, marketName: marketName, distance: try r.string(),
+                            benchmark: try r.string(), projection: try r.string(), legsStr: try r.string())
+        })
     }
 
     private static func depthUpdate(_ pos: Int, _ mm: String, _ op: Int, _ side: Int, _ r: inout FieldReader) throws -> DepthUpdate {
