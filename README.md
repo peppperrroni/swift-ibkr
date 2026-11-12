@@ -1,7 +1,9 @@
 # swift-ibkr
 
+[![CI](https://github.com/peppperrroni/swift-ibkr/actions/workflows/ci.yml/badge.svg)](https://github.com/peppperrroni/swift-ibkr/actions/workflows/ci.yml)
+
 A pure-Swift client for **Interactive Brokers' IB Gateway and TWS**, speaking the TWS API socket protocol
-directly. One actor, async streams, no dependencies, and it runs on **Windows and macOS**.
+directly. One actor, async streams, no dependencies, and it runs on **macOS, iOS, Linux and Windows**.
 
 ```swift
 import IBKR
@@ -57,7 +59,8 @@ There are no tagged releases yet, and the API may still change.
 **Requirements**
 
 - Swift 6.0 or later.
-- macOS 13+ or Windows. Linux is not tried yet.
+- macOS 13+, iOS 16+, Linux or Windows. CI tests macOS, Linux (Swift 6.0 and the latest) and Windows on every
+  push and builds for iOS; what it leaves out is in [`docs/KNOWN-GAPS.md`](docs/KNOWN-GAPS.md).
 - IB Gateway or TWS running, with *Enable ActiveX and Socket Clients* switched on. To place orders, also switch
   *Read-Only API* off.
 

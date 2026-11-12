@@ -57,10 +57,17 @@ Still open:
 - execDetails `time` comes in two formats: `20261110-11:56:31` (UTC, no zone) on a live fill and
   `20261110 06:56:31 US/Eastern` in the reqExecutions reply. It stays a raw string; a consumer parses both.
 
-## To confirm on a Mac
+## Not covered by CI
 
-- `TCPSocket`'s POSIX branch (Darwin) was written on Windows and has never been compiled or run: build and run
-  `swift test` on macOS (the Mac build of the Darwin branch is unverified).
+CI (`.github/workflows/ci.yml`) builds and tests on macOS, Linux and Windows and builds for iOS. It does not:
+
+- run any test on iOS: the package is only compiled for it, so the socket's Darwin branch is tested on macOS only;
+- run the live tests: `IBKR_LIVE` is never set, so nothing in CI talks to a gateway;
+- try other Swift versions than 6.0 and the latest image on Linux (Ubuntu, x86_64), 6.4.2 on Windows, and the
+  runner's Xcode on macOS (6.3 at the time of writing), or any ARM Linux.
+
+## Sockets
+
 - EINTR from `poll` / `send` / `recv` is treated as a failure, not retried.
 
 ## To build later
