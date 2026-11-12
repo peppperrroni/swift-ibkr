@@ -3,27 +3,42 @@ import Foundation
 /// A contract's market data folded into one value, as `ib_async`'s `Ticker`. `apply(_:)` keys every tick by its live
 /// field, so delayed ticks land where real-time ones do. Bid, ask, last, OHLC, volume, the last timestamp, the five
 /// greeks and the request parameters are named fields; every other tick goes into `prices`, `sizes`, `generics`,
-/// `strings` or `efp` (RT volume, fundamental ratios and dividends stay raw strings; RT volume (48, 77) does not move `last` or `lastSize`, unlike `ib_async`: `last` comes from tick 4
-/// only). A bid or ask with size 0 has its
+/// `strings` or `efp` (RT volume, fundamental ratios and dividends stay raw strings; RT volume (48, 77) does not
+/// move `last` or `lastSize`, unlike `ib_async`: `last` comes from tick 4 only). A bid or ask with size 0 has its
 /// price `nil`. News ticks are not kept.
 public struct Ticker: Sendable, Equatable {
+    /// The contract the ticks are for.
     public var contract: Contract
+    /// The kind of data the request gets now (marketDataType 58); `.realtime` until IB says otherwise.
     public var marketDataType: MarketDataType
+    /// The minimum tick from tickReqParams (81); `nil` until it arrives.
     public var minTick: Decimal?
+    /// The BBO exchange code from tickReqParams (81); empty until it arrives.
     public var bboExchange: String
+    /// The snapshot permissions from tickReqParams (81); `0` until it arrives.
     public var snapshotPermissions: Int
+    /// The bid, bid size, ask, ask size, last trade and last trade size; `nil` until a tick sets them.
     public var bid, bidSize, ask, askSize, last, lastSize: Decimal?
+    /// The day's open, high and low, the previous close and the day's volume; `nil` until a tick sets them.
     public var open, high, low, close, volume: Decimal?
+    /// The time of the last trade (tick 45); `nil` until a tick sets it.
     public var lastTimestamp: Date?
+    /// The option greeks computed on the bid, the ask, the last trade, the model price and the customer's inputs.
     public var bidGreeks, askGreeks, lastGreeks, modelGreeks, custGreeks: OptionComputation?
     /// Every other price tick, keyed by its live field.
     public var prices: [TickField: Decimal]
+    /// Every other size tick, keyed by its live field.
     public var sizes: [TickField: Decimal]
+    /// Every generic tick (45), keyed by its live field.
     public var generics: [TickField: Decimal]
+    /// Every string tick (46) except the last timestamp, keyed by its live field.
     public var strings: [TickField: String]
+    /// Every EFP quote (47), keyed by its live field.
     public var efp: [TickField: EFPData]
+    /// The depth book when `depthRows` was asked for; empty otherwise.
     public var depth: DepthBook
 
+    /// Creates a ticker with every field given.
     public init(
         contract: Contract,
         marketDataType: MarketDataType = .realtime,
