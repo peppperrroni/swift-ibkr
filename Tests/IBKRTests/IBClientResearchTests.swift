@@ -78,3 +78,63 @@ private let cancelled = "Historical Market Data Service error message:API scanne
     #expect(try await within2s { try await client.scannerParameters() } == "<xml/>")
     #expect(await client.requestStreamCount == 0)
 }
+
+@Test func newsProvidersAnswer() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in
+        f == ["85"] ? [["85", "2", "BRFG", "Briefing.com General Market Columns", "DJNL", "Dow Jones Newsletters"]] : []
+    }
+    let providers = try await within2s { try await client.newsProviders() }
+    #expect(providers == [NewsProvider(code: "BRFG", name: "Briefing.com General Market Columns"),
+                          NewsProvider(code: "DJNL", name: "Dow Jones Newsletters")])
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func newsArticleAnswers() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in f[0] == "84" ? [["83", f[1], "0", "Apple beats estimates"]] : [] }
+    let article = try await within2s { try await client.newsArticle(providerCode: "BRFG", articleID: "BRFG$12345") }
+    #expect(article == NewsArticle(articleType: 0, articleText: "Apple beats estimates"))
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
+    #expect(sent[FakeGateway.syncFrames] == ["84", sent[FakeGateway.syncFrames][1], "BRFG", "BRFG$12345", ""])
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func newsArticleFailsOnItsError() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let text = "Failed to request news article: No data available"
+    gateway.onRequest = { f in f[0] == "84" ? [ibError(f[1], "10172", text)] : [] }
+    await #expect(throws: IBClientError.ib(code: 10172, text: text)) {
+        _ = try await within2s { try await client.newsArticle(providerCode: "BRFG", articleID: "X") }
+    }
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func historicalNewsCollectsUntilEnd() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in
+        f[0] == "86" ? [["86", f[1], "2026-11-10 14:30:00.0", "BRFG", "A1", "First"],
+                        ["86", f[1], "2026-11-10 14:20:00.0", "BRFG", "A2", "Second"], ["87", f[1], "0"]] : []
+    }
+    let news = try await within2s { try await client.historicalNews(conID: 265598, providerCodes: ["BRFG"], totalResults: 10) }
+    #expect(news.map(\.articleID) == ["A1", "A2"])
+    #expect(news.map(\.headline) == ["First", "Second"])
+    try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel: IB has none
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).count == FakeGateway.syncFrames + 1)
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func historicalNewsFailsOnItsError() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let text = "Failed to request historical news:Unknown provider codes"
+    gateway.onRequest = { f in f[0] == "86" ? [ibError(f[1], "10187", text)] : [] }
+    await #expect(throws: IBClientError.ib(code: 10187, text: text)) {
+        _ = try await within2s { try await client.historicalNews(conID: 265598, providerCodes: ["NOPE"], totalResults: 10) }
+    }
+    #expect(await client.requestStreamCount == 0)
+}

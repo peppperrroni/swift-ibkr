@@ -60,3 +60,31 @@ public struct ScanData: Sendable, Equatable {
         self.benchmark = benchmark; self.projection = projection; self.legsStr = legsStr
     }
 }
+
+/// A news provider IB offers: its code (`BRFG`) and display name.
+public struct NewsProvider: Sendable, Equatable {
+    public var code: String
+    public var name: String
+
+    public init(code: String, name: String) { self.code = code; self.name = name }
+}
+
+/// One news article: IB's type code (0 plain text, 1 binary or HTML) and its text.
+public struct NewsArticle: Sendable, Equatable {
+    public var articleType: Int
+    public var articleText: String
+
+    public init(articleType: Int, articleText: String) { self.articleType = articleType; self.articleText = articleText }
+}
+
+/// One historical headline. `time` is IB's raw text (`2026-11-10 14:30:00.0`).
+public struct HistoricalNews: Sendable, Equatable {
+    public var time: String
+    public var providerCode: String
+    public var articleID: String
+    public var headline: String
+
+    public init(time: String, providerCode: String, articleID: String, headline: String) {
+        self.time = time; self.providerCode = providerCode; self.articleID = articleID; self.headline = headline
+    }
+}

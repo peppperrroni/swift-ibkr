@@ -53,6 +53,7 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | Market data | quotes with generic ticks and snapshots, `Ticker` streams and batch snapshots, greeks, EFP, news ticks, real-time bars, depth book, depth exchanges, SMART components, tick-by-tick, BAG, typed «no permission» refusal | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
 | History | bars with keepUpToDate, historical ticks, head timestamp, histogram, trading schedule, BAG | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
 | Scanner | scan stream, one-shot scan, scanner parameters | ✅ on the fake gateway; a live run is due in stage 13 |
+| News | providers, article text, historical headlines | ✅ on the fake gateway; a live run is due in stage 13 |
 
 What is still unconfirmed against a live gateway is listed in [`docs/KNOWN-GAPS.md`](docs/KNOWN-GAPS.md).
 There are no tagged releases yet, and the API may still change.
@@ -344,6 +345,18 @@ Task { for try await scan in try await client.scannerSubscription(top) { print(s
 `scannerSubscription` yields each whole scan as IB refreshes it and keeps only the newest for a slow consumer; it
 never ends by itself, and stopping it sends IB's cancel. `scannerData` returns the first scan and then cancels.
 Both throw `.ib` on IB's error. Filter tags (`filterOptions: [TagValue]`) are those `scannerParameters()` lists.
+
+### News
+
+```swift
+let providers = try await client.newsProviders()   // [NewsProvider]: code ("BRFG") and name
+let news = try await client.historicalNews(conID: 265598, providerCodes: providers.map(\.code), totalResults: 10)
+let article = try await client.newsArticle(providerCode: news[0].providerCode, articleID: news[0].articleID)
+```
+
+`historicalNews` reads every headline up to IB's end marker and sends no cancel (IB has none). `start` and `end` are
+optional `Date`s; `HistoricalNews.time` is IB's own text. `newsArticle` and `historicalNews` throw `.ib` on IB's error
+(10172, 10187).
 
 ### Errors
 

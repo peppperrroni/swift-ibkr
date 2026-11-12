@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import IBKR
 
@@ -36,5 +37,26 @@ func scan(_ id: String) -> [String] {
         }
         #expect(IBDecoder.decode(body(scan("7"))) == .scannerData(requestID: 7, [row(0, "AAPL", 265598), row(1, "MSFT", 272093)]))
         guard case .malformed = IBDecoder.decode(body("20", "3", "7", "-1")) else { Issue.record("not malformed"); return }
+    }
+
+    @Test func newsLookupsCodec() throws {
+        #expect(try IBRequest.newsProviders.body() == body("85"))
+        #expect(try IBRequest.newsArticle(requestID: 7, providerCode: "BRFG", articleID: "BRFG$12345", options: []).body()
+                == body("84", "7", "BRFG", "BRFG$12345", ""))
+        // ib_async's text date, `yyyyMMdd HH:mm:ss UTC`, not the `-` form history uses
+        #expect(try IBRequest.historicalNews(requestID: 7, conID: 265598, providerCodes: ["BRFG", "DJNL"],
+                                             start: Date(timeIntervalSince1970: 1794321000), end: nil, totalResults: 10,
+                                             options: []).body()
+                == body("86", "7", "265598", "BRFG+DJNL", "20261110 14:30:00 UTC", "", "10", ""))
+        #expect(IBDecoder.decode(body("85", "2", "BRFG", "Briefing.com General Market Columns", "DJNL", "Dow Jones Newsletters"))
+                == .newsProviders([NewsProvider(code: "BRFG", name: "Briefing.com General Market Columns"),
+                                   NewsProvider(code: "DJNL", name: "Dow Jones Newsletters")]))
+        #expect(IBDecoder.decode(body("83", "7", "0", "Apple beats estimates"))
+                == .newsArticle(requestID: 7, NewsArticle(articleType: 0, articleText: "Apple beats estimates")))
+        #expect(IBDecoder.decode(body("86", "7", "2026-11-10 14:30:00.0", "BRFG", "BRFG$12345", "Apple headline"))
+                == .historicalNews(requestID: 7, HistoricalNews(time: "2026-11-10 14:30:00.0", providerCode: "BRFG",
+                                                                articleID: "BRFG$12345", headline: "Apple headline")))
+        #expect(IBDecoder.decode(body("87", "7", "1")) == .historicalNewsEnd(requestID: 7, hasMore: true))
+        guard case .malformed = IBDecoder.decode(body("85", "-1")) else { Issue.record("not malformed"); return }
     }
 }

@@ -37,6 +37,9 @@ import Testing
     #expect(ScannerSubscription().numberOfRows == nil)
     #expect(ScanData(rank: 0, contract: contract, marketName: "NMS", distance: "", benchmark: "", projection: "",
                      legsStr: "").rank == 0)
+    #expect(NewsProvider(code: "BRFG", name: "Briefing").code == "BRFG")
+    #expect(NewsArticle(articleType: 0, articleText: "t").articleText == "t")
+    #expect(HistoricalNews(time: "", providerCode: "BRFG", articleID: "A", headline: "h").headline == "h")
     #expect(Bar(time: Date(timeIntervalSince1970: 0), open: 1, high: 2, low: 0, close: 1, volume: 5, count: 1).high == 2)
     #expect(DepthLevel(price: 1, size: 2, marketMaker: "").marketMaker == "")
     #expect(OptionComputation(tickAttrib: 0).delta == nil)

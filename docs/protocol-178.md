@@ -1616,6 +1616,40 @@ currency, localSymbol, marketName, tradingClass, distance, benchmark, projection
 strike is an optional decimal; a negative `n` is malformed. One message is one whole scan (`ib_async` ends each with
 its own scannerDataEnd); the reqId routes it to the scanner stream or call.
 
+### reqNewsProviders (out 85)
+
+`85`; 1 field, no version and no reqId.
+
+### newsProviders (in 85)
+
+`85, n, n x (code, name)`; a negative `n` is malformed. No reqId: answers `newsProviders()`, oldest waiter first; IB
+addresses no error to it.
+
+### reqNewsArticle (out 84)
+
+`84, reqId, providerCode, articleId, newsArticleOptions`; 5 fields, no version. `newsArticleOptions` is the tag-value
+text (`""` for none). Sent by `newsArticle(providerCode:articleID:options:)`.
+
+### newsArticle (in 83)
+
+`83, reqId, articleType, articleText`; 4 fields, no version. Type 0 is plain text, 1 binary or HTML. Error 10172 («Failed
+to request news article») for the reqId fails the call.
+
+### reqHistoricalNews (out 86)
+
+`86, reqId, conId, providerCodes, startDateTime, endDateTime, totalResults, historicalNewsOptions`; 8 fields, no
+version. `providerCodes` joins the codes with `+`. The dates are `ib_async`'s text `yyyyMMdd HH:mm:ss UTC` (util.py:581),
+`""` for none, not the `yyyyMMdd-HH:mm:ss` form history uses. IB has no cancel for it.
+
+### historicalNews (in 86)
+
+`86, reqId, time, providerCode, articleId, headline`; 6 fields, no version. `time` stays IB's text
+(`2026-11-10 14:30:00.0`). Error 10187 (unknown provider codes) for the reqId fails the call.
+
+### historicalNewsEnd (in 87)
+
+`87, reqId, hasMore`; 3 fields. Ends `historicalNews`; `hasMore` is dropped, as `ib_async` drops it.
+
 ### reqMktDepth (out 10)
 
 `10, 5, reqId, contract(12), numRows, isSmartDepth, mktDepthOptions`; 18 fields. `mktDepthOptions` is always `""`.

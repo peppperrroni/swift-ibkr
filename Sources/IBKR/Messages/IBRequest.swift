@@ -63,6 +63,10 @@ public enum IBRequest: Sendable, Equatable {
                              filterOptions: [TagValue])
     case cancelScannerSubscription(requestID: Int)
     case scannerParameters
+    case newsProviders
+    case newsArticle(requestID: Int, providerCode: String, articleID: String, options: [TagValue])
+    case historicalNews(requestID: Int, conID: Int, providerCodes: [String], start: Date?, end: Date?,
+                        totalResults: Int, options: [TagValue])
     case managedAccounts
     case userInfo(requestID: Int)
     case serverLogLevel(ServerLogLevel)
@@ -111,6 +115,14 @@ public enum IBRequest: Sendable, Equatable {
             w.add(23); w.add(1); w.add(reqID)
         case .scannerParameters:
             w.add(24); w.add(1)
+        case .newsProviders:
+            w.add(85)
+        case .newsArticle(let reqID, let provider, let article, let options):
+            w.add(84); w.add(reqID); try w.add(provider); try w.add(article); try w.add(Self.tagValues(options))
+        case .historicalNews(let reqID, let conID, let providers, let start, let end, let total, let options):
+            w.add(86); w.add(reqID); w.add(conID); try w.add(providers.joined(separator: "+"))
+            try w.add(start.map { Self.newsFormat.string(from: $0) } ?? ""); try w.add(end.map { Self.newsFormat.string(from: $0) } ?? "")
+            w.add(total); try w.add(Self.tagValues(options))
         case .managedAccounts:
             w.add(17); w.add(1)
         case .userInfo(let reqID):
@@ -229,6 +241,14 @@ public enum IBRequest: Sendable, Equatable {
         }
         return w.body
     }
+
+    /// ib_async's text for a news date (util.py formatIBDatetime), unlike the `-` form history requests use.
+    private static let newsFormat: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX"); f.timeZone = TimeZone(identifier: "UTC")
+        f.dateFormat = "yyyyMMdd HH:mm:ss 'UTC'"
+        return f
+    }()
 
     private static let endFormat: DateFormatter = {
         let f = DateFormatter()

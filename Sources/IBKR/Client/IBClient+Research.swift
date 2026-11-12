@@ -40,4 +40,37 @@ extension IBClient {
         try requireConnected()
         return try await answer(.scannerParameters) { if case .scannerParameters(let xml) = $0 { xml } else { nil } }
     }
+
+    /// The news providers this account may read. IB addresses no error to it.
+    public func newsProviders() async throws(IBClientError) -> [NewsProvider] {
+        try requireConnected()
+        return try await answer(.newsProviders) { if case .newsProviders(let list) = $0 { list } else { nil } }
+    }
+
+    /// One article's text, by the provider code and article id a headline carries.
+    public func newsArticle(providerCode: String, articleID: String, options: [TagValue] = [])
+        async throws(IBClientError) -> NewsArticle {
+        try requireConnected()
+        let id = nextRequestID()
+        return try await answer(.newsArticle(requestID: id, providerCode: providerCode, articleID: articleID, options: options),
+                                id: id) { if case .newsArticle(_, let article) = $0 { article } else { nil } }
+    }
+
+    /// Headlines for `conID` from the `+`-joined `providerCodes`, in IB's order, up to `totalResults`. Reads to IB's
+    /// end marker and sends no cancel (IB has none); like `ib_async`, drops the marker's `hasMore`.
+    public func historicalNews(conID: Int, providerCodes: [String], start: Date? = nil, end: Date? = nil,
+                               totalResults: Int, options: [TagValue] = []) async throws(IBClientError) -> [HistoricalNews] {
+        try requireConnected()
+        let id = nextRequestID()
+        let stream = try openStream(.historicalNews(requestID: id, conID: conID, providerCodes: providerCodes, start: start,
+                                                    end: end, totalResults: totalResults, options: options),
+                                    id: id, cancel: nil) { (message, out: AsyncThrowingStream<HistoricalNews, any Error>.Continuation) in
+            switch message {
+            case .historicalNews(_, let item): out.yield(item); return false
+            case .historicalNewsEnd: out.finish(); return true
+            default: return false
+            }
+        }
+        return try await collect(stream)
+    }
 }

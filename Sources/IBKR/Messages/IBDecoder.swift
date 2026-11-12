@@ -117,6 +117,12 @@ public enum IBDecoder {
             case 77: return try softDollarTiers(&r)
             case 19: try r.skip(); return .scannerParameters(try r.string())
             case 20: return try scannerData(&r)
+            case 85: return .newsProviders(try (0..<wireCount(&r)).map { _ in NewsProvider(code: try r.string(), name: try r.string()) })
+            case 83: return .newsArticle(requestID: try r.int(), NewsArticle(articleType: try r.int(), articleText: try r.string()))
+            case 86:
+                return .historicalNews(requestID: try r.int(), HistoricalNews(
+                    time: try r.string(), providerCode: try r.string(), articleID: try r.string(), headline: try r.string()))
+            case 87: return .historicalNewsEnd(requestID: try r.int(), hasMore: try r.bool())
             case 75: return try optionChain(&r)
             case 76: return .securityDefinitionOptionParameterEnd(requestID: try r.int())
             case 96, 97, 98: return try historicalTicks(&r, id)
