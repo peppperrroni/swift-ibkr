@@ -113,6 +113,8 @@ public enum IBDecoder {
             case 82: return try smartComponents(&r)
             case 96, 97, 98: return try historicalTicks(&r, id)
             case 106: return try historicalSchedule(&r)
+            case 88: return .headTimeStamp(requestID: try r.int(), try barTime(&r))
+            case 89: return try histogramData(&r)
             case 59:
                 try r.skip()
                 return .commissionReport(CommissionReport(
@@ -215,7 +217,7 @@ public enum IBDecoder {
 
     /// 8 characters is a calendar day (checked first, as ib_async does: daily bars are dates under either
     /// formatDate); all digits is epoch seconds. Anything else, such as formatDate 1 text, is refused.
-    private static func barTime(_ r: inout FieldReader) throws -> Date {
+    static func barTime(_ r: inout FieldReader) throws -> Date {
         let s = try r.string(), at = r.index - 1
         guard !s.isEmpty, s.utf8.allSatisfy({ $0 >= 48 && $0 <= 57 }) else {
             throw IBProtocolError.unexpectedValue(s, index: at)

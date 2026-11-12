@@ -1,3 +1,5 @@
+import Foundation
+
 /// One trading session of a `HistoricalSchedule`; the times are IB's `yyyyMMdd-HH:mm:ss` text in the schedule's zone.
 public struct HistoricalSession: Sendable, Equatable {
     public var startDateTime: String
@@ -23,5 +25,16 @@ public struct HistoricalSchedule: Sendable, Equatable {
         self.endDateTime = endDateTime
         self.timeZone = timeZone
         self.sessions = sessions
+    }
+}
+
+/// One price bucket of a histogram: how many trades happened at `price` over the requested period.
+public struct HistogramData: Sendable, Equatable {
+    public var price: Decimal
+    public var count: Int
+
+    public init(price: Decimal, count: Int) {
+        self.price = price
+        self.count = count
     }
 }

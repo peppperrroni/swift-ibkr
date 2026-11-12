@@ -83,3 +83,13 @@ extension IBDecoder {
             extraData: try r.string())))
     }
 }
+
+extension IBDecoder {
+    /// histogramData (89): no version.
+    static func histogramData(_ r: inout FieldReader) throws -> IBMessage {
+        let id = try r.int()
+        return .histogramData(requestID: id, try (0..<wireCount(&r)).map { _ in
+            HistogramData(price: try r.decimal(), count: try wireCount(&r))
+        })
+    }
+}

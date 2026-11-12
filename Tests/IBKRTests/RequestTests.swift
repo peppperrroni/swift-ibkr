@@ -75,6 +75,12 @@ private let opt: Contract = {
             try IBRequest.historicalTicks(requestID: 1, contract: bagContract, start: nil, end: nil, count: 10,
                                           whatToShow: "TRADES", rth: true, ignoreSize: false).body()
         }
+        #expect(throws: IBEncodingError.unsupported("secType BAG")) {
+            try IBRequest.headTimeStamp(requestID: 1, contract: bagContract, whatToShow: "TRADES", rth: true).body()
+        }
+        #expect(throws: IBEncodingError.unsupported("secType BAG")) {
+            try IBRequest.histogramData(requestID: 1, contract: bagContract, rth: true, period: "3 days").body()
+        }
     }
     @Test func contractDetailsSendsSecID() throws {
         var c = Contract(symbol: "AAPL")

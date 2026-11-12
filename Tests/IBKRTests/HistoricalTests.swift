@@ -100,6 +100,21 @@ private let expectedSchedule = HistoricalSchedule(
             == .historicalTicks(requestID: 7, [.trade(time: t, price: d("351.5"), size: 100, exchange: "ISLAND", conditions: "T", pastLimit: false, unreported: true)], done: false))
         guard case .malformed = IBDecoder.decode(body("98", "7", "-1", "0")) else { Issue.record("not malformed"); return }
     }
+
+    @Test func headTimeStampAndHistogramCodec() throws {
+        let c = Contract(symbol: "AAPL")
+        #expect(try IBRequest.headTimeStamp(requestID: 7, contract: c, whatToShow: "TRADES", rth: true).body()
+            == body(["87", "7"] + aapl + ["0", "1", "TRADES", "2"]))
+        #expect(try IBRequest.cancelHeadTimeStamp(requestID: 7).body() == body("90", "7"))
+        #expect(try IBRequest.histogramData(requestID: 7, contract: c, rth: true, period: "3 days").body()
+            == body(["88", "7"] + aapl + ["0", "1", "3 days"]))
+        #expect(try IBRequest.cancelHistogramData(requestID: 7).body() == body("89", "7"))
+        #expect(IBDecoder.decode(body("88", "7", "1104503400")) == .headTimeStamp(requestID: 7, Date(timeIntervalSince1970: 1104503400)))
+        #expect(IBDecoder.decode(body("88", "7", "20050103")) == .headTimeStamp(requestID: 7, Date(timeIntervalSince1970: 1104710400)))
+        guard case .malformed = IBDecoder.decode(body("88", "7", "20050103  09:30:00")) else { Issue.record("not malformed"); return }
+        #expect(IBDecoder.decode(body("89", "7", "2", "351.5", "100", "351.6", "250"))
+            == .histogramData(requestID: 7, [HistogramData(price: d("351.5"), count: 100), HistogramData(price: d("351.6"), count: 250)]))
+    }
 }
 
 @Test func historyWithoutUpdatesEndsWithoutCancel() async throws {
@@ -222,4 +237,64 @@ private let expectedSchedule = HistoricalSchedule(
     try await Task.sleep(for: .milliseconds(50))
     #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).count == FakeGateway.syncFrames + 1)
     #expect(await client.requestStreamCount == 0)
+}
+
+private let hmdsNoData = "Historical Market Data Service error message:HMDS query returned no data"
+
+@Test func headTimeStampAnswersThenCancels() async throws {
+    let gateway = FakeGateway()
+    gateway.onRequest = { f in f.first == "87" ? [["88", f[1], "1104503400"]] : [] }
+    let client = try await connected(gateway)
+    let got = try await within2s { try await client.headTimeStamp(Contract(symbol: "AAPL")) }
+    #expect(got == Date(timeIntervalSince1970: 1104503400))
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
+    #expect(sent[FakeGateway.syncFrames + 1] == ["90", sent[FakeGateway.syncFrames][1]])
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func headTimeStampFailsOnItsError() async throws {
+    let gateway = FakeGateway()
+    gateway.onRequest = { f in f.first == "87" ? [["4", "2", f[1], "162", hmdsNoData, ""]] : [] }
+    let client = try await connected(gateway)
+    await #expect(throws: IBClientError.ib(code: 162, text: hmdsNoData)) {
+        _ = try await within2s { try await client.headTimeStamp(Contract(symbol: "AAPL")) }
+    }
+    try await Task.sleep(for: .milliseconds(50))
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).count == FakeGateway.syncFrames + 1)
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func histogramDataAnswers() async throws {
+    let gateway = FakeGateway()
+    gateway.onRequest = { f in f.first == "88" ? [["89", f[1], "2", "351.5", "100", "351.6", "250"]] : [] }
+    let client = try await connected(gateway)
+    let got = try await within2s { try await client.histogramData(Contract(symbol: "AAPL"), period: "3 days") }
+    #expect(got == [HistogramData(price: d("351.5"), count: 100), HistogramData(price: d("351.6"), count: 250)])
+    try await Task.sleep(for: .milliseconds(50))
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).count == FakeGateway.syncFrames + 1)
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func histogramDataFailsOnItsError() async throws {
+    let gateway = FakeGateway()
+    gateway.onRequest = { f in f.first == "88" ? [["4", "2", f[1], "162", hmdsNoData, ""]] : [] }
+    let client = try await connected(gateway)
+    await #expect(throws: IBClientError.ib(code: 162, text: hmdsNoData)) {
+        _ = try await within2s { try await client.histogramData(Contract(symbol: "AAPL"), period: "3 days") }
+    }
+    try await Task.sleep(for: .milliseconds(50))
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).count == FakeGateway.syncFrames + 1)
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func histogramDataCancelledSendsItsCancel() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let task = Task<IBClientError?, Never> {
+        do { _ = try await client.histogramData(Contract(symbol: "AAPL"), period: "3 days"); return nil } catch { return error as? IBClientError }
+    }
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][1]
+    task.cancel()
+    #expect(try await within2s { await task.value } == .cancelled)
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["89", id])
 }

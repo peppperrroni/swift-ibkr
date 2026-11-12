@@ -54,6 +54,8 @@ public enum IBMessage: Sendable, Equatable {
     case depth(requestID: Int, DepthUpdate)
     case tickByTick(requestID: Int, TickByTick)
     case historicalTicks(requestID: Int, [TickByTick], done: Bool)
+    case headTimeStamp(requestID: Int, Date)
+    case histogramData(requestID: Int, [HistogramData])
     case tickSnapshotEnd(requestID: Int)
     case deltaNeutralValidation(requestID: Int, DeltaNeutralContract)
     case depthExchanges([DepthMarketDataDescription])

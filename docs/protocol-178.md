@@ -1421,6 +1421,32 @@ Rows: 96 (midpoint) `time, unused, price, size`; 97 (bid/ask) `time, mask, bidPr
 98 (last) `time, mask, price, size, exchange, specialConditions`. `time` is Unix seconds. The 96 size and the 97 mask are
 read and dropped; the 98 mask is bit 0 pastLimit, bit 1 unreported. A negative `n` makes the frame malformed.
 
+### reqHeadTimeStamp (out 87)
+
+No version. 18 fields: `87, reqId, contract(12), includeExpired (0), useRth, whatToShow, formatDate (2)`. A BAG
+contract is refused.
+
+### cancelHeadTimeStamp (out 90)
+
+`90, reqId`. Sent after the answer too (as `ib_async` does), and when the caller is cancelled first.
+
+### headTimestamp (in 88)
+
+No version. `88, reqId, headTimestamp`: epoch seconds, or an 8-character `yyyyMMdd` day (00:00 UTC). Any other text
+(formatDate 1 style, `yyyyMMdd  HH:mm:ss`) makes the frame malformed.
+
+### reqHistogramData (out 88)
+
+No version. 17 fields: `88, reqId, contract(12), includeExpired (0), useRth, timePeriod`. A BAG contract is refused.
+
+### cancelHistogramData (out 89)
+
+`89, reqId`. Sent only when the caller is cancelled before the answer.
+
+### histogramData (in 89)
+
+No version. `89, reqId, n, n x (price, count)`; `count` is an integer. A negative `n` or `count` makes the frame malformed.
+
 ### historicalDataUpdate (in 90)
 
 No version. `90, reqId, barCount, date, open, close, high, low, average, volume`; 10 fields. The order is O,C,H,L, unlike 17.

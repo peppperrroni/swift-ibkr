@@ -64,6 +64,7 @@ import Testing
     #expect(SmartComponent(bitNumber: 0, exchange: "NYSE", exchangeLetter: "N").bitNumber == 0)
     #expect(HistoricalSchedule(startDateTime: "a", endDateTime: "b", timeZone: "UTC",
                                sessions: [HistoricalSession(startDateTime: "a", endDateTime: "b", refDate: "c")]).sessions.count == 1)
+    #expect(HistogramData(price: 1, count: 2).count == 2)
     #expect(OrderCondition.margin(isMore: true, percent: 30) != .margin(isMore: false, percent: 30))
     #expect(CompeteOffset.upToMid != .offset(0))
     #expect(BracketOrder(parent: order, takeProfit: order, stopLoss: order).parent == order)

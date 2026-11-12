@@ -41,6 +41,10 @@ public enum IBRequest: Sendable, Equatable {
     case cancelTickByTick(requestID: Int)
     case historicalTicks(requestID: Int, contract: Contract, start: Date?, end: Date?, count: Int, whatToShow: String,
                          rth: Bool, ignoreSize: Bool)
+    case headTimeStamp(requestID: Int, contract: Contract, whatToShow: String, rth: Bool)
+    case cancelHeadTimeStamp(requestID: Int)
+    case histogramData(requestID: Int, contract: Contract, rth: Bool, period: String)
+    case cancelHistogramData(requestID: Int)
     case currentTime
     case depthExchanges
     case smartComponents(requestID: Int, bboExchange: String)
@@ -164,6 +168,14 @@ public enum IBRequest: Sendable, Equatable {
             try w.add(type.rawValue); w.add(0); w.add(false)  // numberOfTicks (unlimited), ignoreSize
         case .cancelTickByTick(let reqID):
             w.add(98); w.add(reqID)
+        case .headTimeStamp(let reqID, let c, let what, let rth):
+            w.add(87); w.add(reqID); try Self.contract(&w, c); w.add(false); w.add(rth); try w.add(what); w.add(2)  // includeExpired, useRTH, whatToShow, formatDate
+        case .cancelHeadTimeStamp(let reqID):
+            w.add(90); w.add(reqID)
+        case .histogramData(let reqID, let c, let rth, let period):
+            w.add(88); w.add(reqID); try Self.contract(&w, c); w.add(false); w.add(rth); try w.add(period)  // includeExpired, useRTH, timePeriod
+        case .cancelHistogramData(let reqID):
+            w.add(89); w.add(reqID)
         case .historicalTicks(let reqID, let c, let start, let end, let count, let what, let rth, let ignoreSize):
             w.add(96); w.add(reqID); try Self.contract(&w, c); w.add(false)  // includeExpired
             try w.add(start.map { Self.endFormat.string(from: $0) } ?? ""); try w.add(end.map { Self.endFormat.string(from: $0) } ?? "")

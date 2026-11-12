@@ -494,6 +494,34 @@ public actor IBClient {
         return try await collect(stream)
     }
 
+    /// The date of the earliest data IB has for `contract` and `whatToShow`. Throws like `contractDetails` when IB refuses it.
+    /// IB's cancel goes out after the answer, as `ib_async` does.
+    public func headTimeStamp(_ contract: Contract, whatToShow: String = "TRADES", rth: Bool = true)
+        async throws(IBClientError) -> Date {
+        try requireConnected()
+        let id = nextRequestID()
+        let stream = try openStream(.headTimeStamp(requestID: id, contract: contract, whatToShow: whatToShow, rth: rth),
+                                    id: id, cancel: .cancelHeadTimeStamp(requestID: id)) { (message, out: AsyncThrowingStream<Date, any Error>.Continuation) in
+            guard case .headTimeStamp(_, let date) = message else { return false }
+            out.yield(date); out.finish(); return false   // false: the termination hop sends the cancel
+        }
+        guard let date = try await collect(stream).first else { throw .cancelled }
+        return date
+    }
+
+    /// The histogram of trade counts by price over `period` ("3 days"). Throws like `contractDetails` when IB refuses
+    /// it; the cancel goes out only when the calling task is cancelled before the answer.
+    public func histogramData(_ contract: Contract, period: String, rth: Bool = true)
+        async throws(IBClientError) -> [HistogramData] {
+        try requireConnected()
+        let id = nextRequestID()
+        return try await collect(try openStream(.histogramData(requestID: id, contract: contract, rth: rth, period: period),
+                                                id: id, cancel: .cancelHistogramData(requestID: id)) { (message, out: AsyncThrowingStream<[HistogramData], any Error>.Continuation) in
+            guard case .histogramData(_, let list) = message else { return false }
+            out.yield(list); out.finish(); return true
+        }).flatMap { $0 }
+    }
+
     /// IB's five-second bars for `contract`, one per bar, never ending itself; ends like `marketData` on a refusal.
     /// `whatToShow` is "TRADES", "MIDPOINT", "BID" or "ASK". MIDPOINT/BID/ASK bars carry -1 volume, average and
     /// count, as historical bars do. 10225 (bust event) ends the stream; the consumer subscribes again.
@@ -777,7 +805,7 @@ public actor IBClient {
         case .accountSummary(let id, _), .accountSummaryEnd(let id), .pnlSingle(let id, _),
              .contractData(let id, _), .contractDataEnd(let id), .symbolSamples(let id, _), .tick(let id, _),
              .historicalData(let id, _), .historicalDataUpdate(let id, _), .historicalSchedule(let id, _), .realTimeBar(let id, _), .depth(let id, _),
-             .tickByTick(let id, _), .historicalTicks(let id, _, _), .tickSnapshotEnd(let id), .userInfo(let id, _), .positionMulti(let id, _), .positionMultiEnd(let id),
+             .tickByTick(let id, _), .historicalTicks(let id, _, _), .headTimeStamp(let id, _), .histogramData(let id, _), .tickSnapshotEnd(let id), .userInfo(let id, _), .positionMulti(let id, _), .positionMultiEnd(let id),
              .accountUpdateMulti(let id, _), .accountUpdateMultiEnd(let id), .pnl(let id, _), .smartComponents(let id, _):
             if requestStreams[id]?.route(message) == true { requestStreams[id] = nil }   // before any termination hop
         case .openOrder(let m) where m.order.whatIf:   // whatIfOrder's answer, keyed by the order id it took
