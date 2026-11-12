@@ -86,3 +86,22 @@ private func acceptHandle(_ h: TCPSocket.Handle) -> TCPSocket.Handle { Glibc.acc
     #expect(try await drain(peer.incoming) == Array("hello".utf8))   // bytes, then end of stream
     peer.close()
 }
+
+/// A peer that hangs up must cost a write an error, not the process a SIGPIPE.
+@Test func writeAfterPeerCloseThrowsConnectionClosed() async throws {
+    let listener = Listener()
+    let client = try await TCPSocket.connect(host: "127.0.0.1", port: listener.port, timeout: .seconds(2))
+    let peer = listener.accept()
+    peer.close()
+
+    // The first writes may still fit in the send buffer. Then either send meets the peer's reset, or our reader has
+    // seen the close first: the error must be the same either way.
+    let error = try await within2s { () async throws -> IBClientError in
+        while true {
+            do throws(IBClientError) { try client.write([1]) } catch { return error }
+            await Task.yield()
+        }
+    }
+    #expect(error == .connectionClosed)
+    client.close()
+}

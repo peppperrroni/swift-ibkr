@@ -43,7 +43,8 @@ final class TCPSocket: Transport, @unchecked Sendable {
             let n = bytes.withUnsafeBytes { sendBytes(handle, $0.baseAddress! + sent, $0.count - sent) }
             guard n > 0 else {
                 let code = lastError()
-                throw isOpen ? .transport("send: \(code)") : .connectionClosed
+                // A peer that hung up is a closed connection whether or not our reader has noticed yet.
+                throw isOpen && !peerGone.contains(code) ? .transport("send: \(code)") : .connectionClosed
             }
             sent += n
         }
@@ -138,6 +139,7 @@ extension TCPSocket {
 private typealias AddrInfo = ADDRINFOA
 private let invalidHandle = SOCKET.max   // INVALID_SOCKET, a cast macro that does not import
 private let connectPending = WSAEWOULDBLOCK
+private let peerGone = [WSAECONNRESET, WSAECONNABORTED]
 private let fionbio = Int32(bitPattern: 0x8004_667E)   // FIONBIO, a function-like macro that does not import
 
 private func lastError() -> Int32 { WSAGetLastError() }
@@ -215,6 +217,7 @@ extension TCPSocket {
 private typealias AddrInfo = addrinfo
 private let invalidHandle: Int32 = -1
 private let connectPending = EINPROGRESS
+private let peerGone = [EPIPE, ECONNRESET]
 #if canImport(Glibc)
 private let sendFlags = Int32(MSG_NOSIGNAL)
 #else
