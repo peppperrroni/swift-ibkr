@@ -1,14 +1,23 @@
 import Foundation
 
+/// IB's openOrder message (in 5): an order as IB holds it, with the margin and commission it works out.
 public struct OpenOrderMessage: Sendable, Equatable {
+    /// The order's id on this API; `0` for a manual order.
     public var orderID: Int
+    /// The client id the order belongs to.
     public var clientID: Int
+    /// IB's permanent id for the order.
     public var permID: Int
+    /// The order's contract.
     public var contract: Contract
+    /// The order as IB reports it.
     public var order: Order
+    /// The order's status.
     public var status: OrderStatus
+    /// The margin and commission IB works out for the order.
     public var state: OrderState
 
+    /// A message with these values; `state` defaults to an empty one.
     public init(orderID: Int, clientID: Int, permID: Int, contract: Contract, order: Order, status: OrderStatus,
                 state: OrderState = OrderState()) {
         self.orderID = orderID
@@ -21,16 +30,25 @@ public struct OpenOrderMessage: Sendable, Equatable {
     }
 }
 
+/// IB's completedOrder message (in 101): an order that finished, as `reqCompletedOrders` returns it.
 /// `orderId` and `clientId` are not on the wire at version 178: the key is `permID`.
 public struct CompletedOrderMessage: Sendable, Equatable {
+    /// IB's permanent id for the order.
     public var permID: Int
+    /// The order's contract.
     public var contract: Contract
+    /// The order as IB reports it.
     public var order: Order
+    /// The order's status.
     public var status: OrderStatus
+    /// When the order finished, as IB's text.
     public var completedTime: String
+    /// IB's text for how the order finished.
     public var completedStatus: String
+    /// Shares or contracts filled.
     public var filledQuantity: Decimal
 
+    /// A message with these values.
     public init(
         permID: Int,
         contract: Contract,
@@ -89,7 +107,8 @@ extension IBDecoder {
         try deltaNeutralContractAndAlgo(&r, &contract, &o)
         o.solicited = try r.bool(); o.whatIf = try r.bool()
         let status = OrderStatus(rawValue: try r.string())
-        func margin() -> Decimal? { try? r.optionalDecimal() }  // unparseable → nil: ib_async keeps margins as strings, IB's format is unconfirmed
+        // unparseable → nil: ib_async keeps margins as strings, IB's format is unconfirmed
+        func margin() -> Decimal? { try? r.optionalDecimal() }
         let state = OrderState(
             initMarginBefore: margin(), maintMarginBefore: margin(), equityWithLoanBefore: margin(),
             initMarginChange: margin(), maintMarginChange: margin(), equityWithLoanChange: margin(),
@@ -201,12 +220,14 @@ extension IBDecoder {
             let at = r.index
             let a = try r.string()
             guard let action = OrderAction(rawValue: a) else { throw IBProtocolError.unexpectedValue(a, index: at) }
-            return ComboLeg(conID: conID, ratio: ratio, action: action, exchange: try r.string(), openClose: try r.int(),
-                            shortSaleSlot: try r.int(), designatedLocation: try r.string(),
+            return ComboLeg(conID: conID, ratio: ratio, action: action, exchange: try r.string(),
+                            openClose: try r.int(), shortSaleSlot: try r.int(), designatedLocation: try r.string(),
                             exemptCode: try r.optionalInt() ?? -1)
         }
         o.orderComboLegs = try (0..<count(&r)).map { _ in OrderComboLeg(price: try r.optionalDecimal()) }
-        o.smartComboRoutingParams = try (0..<count(&r)).map { _ in TagValue(tag: try r.string(), value: try r.string()) }
+        o.smartComboRoutingParams = try (0..<count(&r)).map { _ in
+            TagValue(tag: try r.string(), value: try r.string())
+        }
         o.scaleInitLevelSize = try r.optionalInt(); o.scaleSubsLevelSize = try r.optionalInt()
         o.scalePriceIncrement = try r.optionalDecimal()
         if let increment = o.scalePriceIncrement, increment > 0 {
@@ -220,9 +241,11 @@ extension IBDecoder {
     }
 
     /// The delta-neutral contract, then algoStrategy and its params.
-    private static func deltaNeutralContractAndAlgo(_ r: inout FieldReader, _ c: inout Contract, _ o: inout Order) throws {
+    private static func deltaNeutralContractAndAlgo(_ r: inout FieldReader, _ c: inout Contract,
+                                                    _ o: inout Order) throws {
         if try r.bool() {
-            c.deltaNeutralContract = DeltaNeutralContract(conID: try r.int(), delta: try r.decimal(), price: try r.decimal())
+            c.deltaNeutralContract = DeltaNeutralContract(conID: try r.int(), delta: try r.decimal(),
+                                                          price: try r.decimal())
         }
         o.algoStrategy = try r.string()
         if !o.algoStrategy.isEmpty {
@@ -247,7 +270,9 @@ extension IBDecoder {
         let type = try r.int()
         let at = r.index
         let j = try r.string()
-        guard let conjunction = OrderCondition.Conjunction(rawValue: j) else { throw IBProtocolError.unexpectedValue(j, index: at) }
+        guard let conjunction = OrderCondition.Conjunction(rawValue: j) else {
+            throw IBProtocolError.unexpectedValue(j, index: at)
+        }
         switch type {
         case 1:
             let isMore = try r.bool(), price = try r.decimal(), conID = try r.int(), exchange = try r.string()
@@ -270,7 +295,8 @@ extension IBDecoder {
         }
     }
 
-    /// minTradeQty, minCompeteSize, competeAgainstBestOffset (`Infinite` is `upToMid`), midOffsetAtWhole, midOffsetAtHalf.
+    /// minTradeQty, minCompeteSize, competeAgainstBestOffset (`Infinite` is `upToMid`), midOffsetAtWhole,
+    /// midOffsetAtHalf.
     private static func tail(_ r: inout FieldReader, _ o: inout Order) throws {
         o.minTradeQty = try r.optionalInt(); o.minCompeteSize = try r.optionalInt()
         let at = r.index

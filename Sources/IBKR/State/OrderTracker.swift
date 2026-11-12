@@ -1,21 +1,37 @@
 import Foundation
 
+/// One order as the tracker has merged it from openOrder, orderStatus, completedOrder and order errors.
 public struct OrderSnapshot: Sendable, Equatable {
+    /// The order's id on this API; `0` for a manual or completed order that has none.
     public var orderID: Int
+    /// The client id the order belongs to.
     public var clientID: Int
+    /// IB's permanent id for the order.
     public var permID: Int
+    /// The order's contract.
     public var contract: Contract
+    /// The order as IB last reported it.
     public var order: Order
+    /// The order's status.
     public var status: OrderStatus
+    /// Shares or contracts filled so far.
     public var filled: Decimal
+    /// Shares or contracts still open.
     public var remaining: Decimal
+    /// The average price of the fills so far; `nil` before the first.
     public var averageFillPrice: Decimal?
+    /// The price of the latest fill; `nil` before the first.
     public var lastFillPrice: Decimal?
+    /// Why IB holds the order, from orderStatus; empty when it does not.
     public var whyHeld: String
+    /// IB's text from a warning or error on the order, or from a 202 cancellation that names a reason; `nil` otherwise.
     public var rejectReason: String?
+    /// IB's text for when a completed order finished, from completedOrder; `nil` for a live order.
     public var completedTime: String?
+    /// The advanced-reject JSON IB attaches to an order error; `nil` when it sent none.
     public var advancedOrderRejectJSON: String?
 
+    /// A snapshot of these values; the prices, reject reason, completed time and reject JSON default to `nil`.
     public init(
         orderID: Int,
         clientID: Int,
@@ -62,20 +78,25 @@ public struct OrderTracker: Sendable {
     private var keyIndex: [OrderKey: Int] = [:]
     private var permIndex: [Int: Int] = [:]
     private var held: [OrderKey: OrderStatusMessage] = [:]
-    private var heldOpen: [OrderKey: OpenOrderMessage] = [:]   // Filled openOrders that came before their fill's orderStatus
+    // Filled openOrders that came before their fill's orderStatus
+    private var heldOpen: [OrderKey: OpenOrderMessage] = [:]
     private var sentOrders: [OrderKey: (contract: Contract, order: Order)] = [:]
     private let ownClientID: Int
 
-    /// `clientID` is this connection's: IB sends order errors only to the owning client, so errors match its orders only.
+    /// `clientID` is this connection's: IB sends order errors only to the owning client, so errors match its
+    /// orders only.
     public init(clientID: Int) { ownClientID = clientID }
 
-    /// First-seen order.
+    /// Every order seen so far, in the order each was first seen.
     public var orders: [OrderSnapshot] { snaps }
 
+    /// Remembers an order this client sent, so an error or status for its id finds its contract and order.
     public mutating func sent(orderID: Int, clientID: Int, contract: Contract, order: Order) {
         sentOrders[.api(clientID: clientID, orderID: orderID)] = (contract, order)
     }
 
+    /// Folds in openOrder, orderStatus, completedOrder, the order-bound notice or an order error; returns the
+    /// snapshot it changed, or nothing. Other messages, and what-if openOrders, change nothing.
     public mutating func apply(_ message: IBMessage) -> [OrderSnapshot] {
         switch message {
         case .openOrder(let m) where m.order.whatIf:
@@ -87,10 +108,14 @@ public struct OrderTracker: Sendable {
                 Self.applyOpen(m, into: &s)
                 if let h = heldStatus { Self.merge(h, into: &s) }
             }
-            if m.status == .filled {   // IB sends a fill's openOrder before its orderStatus: don't publish Filled with filled 0
+            if m.status == .filled {
+                // IB sends a fill's openOrder before its orderStatus: don't publish Filled with filled 0
                 var s = index(key, m.permID).map { snaps[$0] } ?? Self.blank(m.contract, m.order)
                 edit(&s)
-                if s.filled == 0 || s.remaining > 0 { heldOpen[key] = m; return [] }   // a part-filled order waits for its last fill too
+                if s.filled == 0 || s.remaining > 0 {
+                    heldOpen[key] = m   // a part-filled order waits for its last fill too
+                    return []
+                }
             }
             heldOpen[key] = nil
             return upsert(key, m.permID, new: Self.blank(m.contract, m.order), edit)
@@ -98,21 +123,25 @@ public struct OrderTracker: Sendable {
             let key = Self.key(m.orderID, m.clientID, m.permID)
             let open = takeHeldOpen(key, m.permID)
             guard index(key, m.permID) != nil || open != nil || sentOrders[key] != nil else { held[key] = m; return [] }
-            return upsert(key, m.permID, new: open.map { Self.blank($0.contract, $0.order) } ?? sentSnapshot(key)) { s in
+            let start = open.map { Self.blank($0.contract, $0.order) } ?? sentSnapshot(key)
+            return upsert(key, m.permID, new: start) { s in
                 if let o = open { Self.applyOpen(o, into: &s) }
                 Self.merge(m, into: &s)
             }
         case .completedOrder(let m):
-            let open = takeHeldOpen(.permanent(m.permID), m.permID)   // the held Filled openOrder has the ids and the full order
+            // the held Filled openOrder has the ids and the full order
+            let open = takeHeldOpen(.permanent(m.permID), m.permID)
             var fresh = open.map { Self.blank($0.contract, $0.order) } ?? Self.blank(m.contract, m.order)
             fresh.permID = m.permID
             let key = open.map { Self.key($0.orderID, $0.clientID, $0.permID) } ?? .permanent(m.permID)
             return upsert(key, m.permID, new: fresh) { s in
                 if let o = open { Self.applyOpen(o, into: &s) }
-                if m.filledQuantity > s.filled {   // a filled one arrives with totalQuantity 0: the remaining uses the snapshot's
+                if m.filledQuantity > s.filled {
+                    // a filled one arrives with totalQuantity 0: the remaining uses the snapshot's
                     s.filled = m.filledQuantity; s.remaining = max(0, s.order.totalQuantity - s.filled)
                 }
-                s.status = m.status; s.completedTime = m.completedTime  // a joined order keeps its own order/contract: v178 completedOrder lacks parentID etc.
+                // a joined order keeps its own order/contract: v178 completedOrder lacks parentID etc.
+                s.status = m.status; s.completedTime = m.completedTime
                 s.order.parentPermID = m.order.parentPermID
             }
         case .orderBound(let permID, let clientID, let orderID):
@@ -136,11 +165,14 @@ public struct OrderTracker: Sendable {
             if kind == .orderCancelled {
                 s.status = .cancelled
                 if let r = e.text.range(of: "reason:"),
-                   !e.text[r.upperBound...].trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { s.rejectReason = e.text }
+                   !e.text[r.upperBound...].trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    s.rejectReason = e.text
+                }
                 return
             }
             s.rejectReason = e.text
-            if kind == .fatal, s.status == .apiPending { s.status = .inactive }  // once IB acknowledged the order, its own status wins
+            // once IB acknowledged the order, its own status wins
+            if kind == .fatal, s.status == .apiPending { s.status = .inactive }
         }
     }
 

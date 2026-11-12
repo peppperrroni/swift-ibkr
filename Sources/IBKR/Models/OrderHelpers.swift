@@ -2,26 +2,37 @@ import Foundation
 
 /// A parent with its take-profit and stop-loss; place it with `IBClient.placeBracket`.
 public struct BracketOrder: Sendable, Equatable {
-    public var parent, takeProfit, stopLoss: Order
+    /// The limit entry order.
+    public var parent: Order
+    /// The limit order that takes profit, on the reverse side.
+    public var takeProfit: Order
+    /// The stop order that limits the loss, on the reverse side.
+    public var stopLoss: Order
+    /// A bracket of these three orders.
     public init(parent: Order, takeProfit: Order, stopLoss: Order) {
         self.parent = parent; self.takeProfit = takeProfit; self.stopLoss = stopLoss
     }
 }
 
 extension Order {
+    /// A market (`MKT`) order.
     public static func market(_ action: OrderAction, quantity: Decimal) -> Order {
         Order(action: action, quantity: quantity, orderType: "MKT")
     }
 
+    /// A limit (`LMT`) order at `price`.
     public static func limit(_ action: OrderAction, quantity: Decimal, price: Decimal) -> Order {
         Order(action: action, quantity: quantity, orderType: "LMT", limitPrice: price)
     }
 
+    /// A stop (`STP`) order triggered at `stopPrice`.
     public static func stop(_ action: OrderAction, quantity: Decimal, stopPrice: Decimal) -> Order {
         Order(action: action, quantity: quantity, orderType: "STP", auxPrice: stopPrice)
     }
 
-    public static func stopLimit(_ action: OrderAction, quantity: Decimal, limitPrice: Decimal, stopPrice: Decimal) -> Order {
+    /// A stop-limit (`STP LMT`) order: a limit order at `limitPrice` once `stopPrice` trades.
+    public static func stopLimit(_ action: OrderAction, quantity: Decimal, limitPrice: Decimal,
+                                 stopPrice: Decimal) -> Order {
         Order(action: action, quantity: quantity, orderType: "STP LMT", limitPrice: limitPrice, auxPrice: stopPrice)
     }
 

@@ -23,7 +23,8 @@ extension FlexReport {
         }
     }
 
-    static func urlSessionResult(_ data: Data?, _ response: URLResponse?, _ error: (any Error)?) -> Result<Data, any Error> {
+    static func urlSessionResult(_ data: Data?, _ response: URLResponse?,
+                                 _ error: (any Error)?) -> Result<Data, any Error> {
         if let error {
             // corelibs reports an NSError that does not bridge to URLError; either way the code is all that is kept.
             let ns = error as NSError
@@ -46,16 +47,19 @@ extension FlexReport {
                                 transport: FlexTransport = FlexReport.urlSession) async throws -> FlexReport {
         try Task.checkCancellation()   // SendRequest starts generation at IB and counts against the token's rate limit
         let sent = try FlexReport(data: await transport(requestURL(url, [
-            URLQueryItem(name: "t", value: token), URLQueryItem(name: "q", value: queryID), URLQueryItem(name: "v", value: "3"),
+            URLQueryItem(name: "t", value: token), URLQueryItem(name: "q", value: queryID),
+            URLQueryItem(name: "v", value: "3"),
         ])))
         guard sent.value("Status") == "Success" else {
             throw FlexError.request(code: sent.value("ErrorCode") ?? "", message: sent.value("ErrorMessage") ?? "")
         }
-        guard let reference = sent.value("ReferenceCode"), let statement = sent.value("Url").flatMap(URL.init(string:)) else {
+        guard let reference = sent.value("ReferenceCode"),
+              let statement = sent.value("Url").flatMap(URL.init(string:)) else {
             throw FlexError.malformedXML("SendRequest answered Success without a ReferenceCode or a Url")
         }
         let statementURL = try requestURL(statement, [
-            URLQueryItem(name: "q", value: reference), URLQueryItem(name: "t", value: token), URLQueryItem(name: "v", value: "3"),
+            URLQueryItem(name: "q", value: reference), URLQueryItem(name: "t", value: token),
+            URLQueryItem(name: "v", value: "3"),
         ])
         while true {
             try await Task.sleep(for: pollInterval)   // ib_async sleeps before every GetStatement, the first included
