@@ -67,12 +67,15 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
 @Test func rerouteLeavesTheStreamOpen() async throws {
     let gateway = FakeGateway()
     let client = try await connected(gateway)
+    let messages = await client.messages()
     let stream = try await client.marketData(Contract(symbol: "AAPL"))
     let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][2]
     let (_, result) = take(1, stream)
     gateway.feed(["91", id, "12087792", "IDEALPRO"])
     gateway.feed(["1", "6", id, "1", "351.5", "200", "0"])
     #expect(try await within2s { try await result.value } == [.price(.bid, price: d("351.5"), size: d("200"))])
+    let reroute = try await within2s { await messages.first { if case .rerouteMarketData = $0 { true } else { false } } }
+    #expect(reroute == .rerouteMarketData(requestID: Int(id)!, conID: 12087792, exchange: "IDEALPRO"))
 }
 
 @Test func delayedNoticeKeepsTheStreamAndMapsFields() async throws {
@@ -299,6 +302,24 @@ private let aapl = Contract(symbol: "AAPL")
     let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
     #expect(sent[FakeGateway.syncFrames + 1] == ["2", "2", sent[FakeGateway.syncFrames][2]])
     try await noStreamsLeft(client)
+}
+
+@Test func tickersForAlreadyCancelledSendsNothing() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let call = Task { () async throws -> [Ticker] in
+        withUnsafeCurrentTask { $0?.cancel() }
+        return try await client.tickers(for: [Contract(symbol: "AAPL"), Contract(symbol: "MSFT")])
+    }
+    await #expect(throws: IBClientError.cancelled) { _ = try await within2s { try await call.value } }
+    try await Task.sleep(for: .milliseconds(50))
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames).count == FakeGateway.syncFrames)
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func tickersForNeedsAConnection() async throws {
+    let client = IBClient(connector: FakeGateway().connector)
+    await #expect(throws: IBClientError.notConnected) { _ = try await client.tickers(for: []) }
 }
 
 @Test func tickersForCancelledSendsEveryCancel() async throws {

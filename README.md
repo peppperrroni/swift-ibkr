@@ -286,7 +286,7 @@ let parts = try await client.smartComponents("a6")      // [SmartComponent], by 
 Task { for try await t in try await client.tickByTick(aapl, .allLast) { print(t) } }
 ```
 
-A BAG (combo) contract is accepted by `marketData` (so by `tickers` and `tickers(for:)`), by historical bars and by
+A BAG (combo) contract is accepted by `marketData` (so by `tickers` without `depthRows`, and by `tickers(for:)`), by historical bars and by
 the schedule. Real-time bars, depth, tick-by-tick, historical ticks, the head timestamp and the histogram refuse it.
 
 #### History

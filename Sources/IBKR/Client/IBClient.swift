@@ -580,7 +580,11 @@ public actor IBClient {
     /// One snapshot `Ticker` per contract, in the order of `contracts`, each read to IB's snapshot end. Every request
     /// is sent before any is read, as `ib_async`'s `reqTickers`. The first error is thrown and every request still open
     /// is cancelled, where `ib_async` returns partial tickers; a cancelled calling task throws `.cancelled`.
+    /// There is no timeout: a request IB never ends keeps the call waiting until the calling task is cancelled, as
+    /// with `ib_async`'s default `RequestTimeout` 0. An already-cancelled caller sends nothing.
     public func tickers(for contracts: [Contract], regulatorySnapshot: Bool = false) async throws(IBClientError) -> [Ticker] {
+        try requireConnected()
+        if Task.isCancelled { throw .cancelled }
         var streams: [AsyncThrowingStream<Tick, any Error>] = []
         do throws(IBClientError) {
             for c in contracts { streams.append(try marketData(c, snapshot: true, regulatorySnapshot: regulatorySnapshot)) }
@@ -805,9 +809,11 @@ public actor IBClient {
         switch message {
         case .accountSummary(let id, _), .accountSummaryEnd(let id), .pnlSingle(let id, _),
              .contractData(let id, _), .contractDataEnd(let id), .symbolSamples(let id, _), .tick(let id, _),
-             .historicalData(let id, _), .historicalDataUpdate(let id, _), .historicalSchedule(let id, _), .realTimeBar(let id, _), .depth(let id, _),
-             .tickByTick(let id, _), .historicalTicks(let id, _, _), .headTimeStamp(let id, _), .histogramData(let id, _), .tickSnapshotEnd(let id), .userInfo(let id, _), .positionMulti(let id, _), .positionMultiEnd(let id),
-             .accountUpdateMulti(let id, _), .accountUpdateMultiEnd(let id), .pnl(let id, _), .smartComponents(let id, _):
+             .historicalData(let id, _), .historicalDataUpdate(let id, _), .historicalSchedule(let id, _),
+             .realTimeBar(let id, _), .depth(let id, _), .tickByTick(let id, _), .historicalTicks(let id, _, _),
+             .headTimeStamp(let id, _), .histogramData(let id, _), .tickSnapshotEnd(let id), .userInfo(let id, _),
+             .positionMulti(let id, _), .positionMultiEnd(let id), .accountUpdateMulti(let id, _),
+             .accountUpdateMultiEnd(let id), .pnl(let id, _), .smartComponents(let id, _):
             if requestStreams[id]?.route(message) == true { requestStreams[id] = nil }   // before any termination hop
         case .openOrder(let m) where m.order.whatIf:   // whatIfOrder's answer, keyed by the order id it took
             if requestStreams[m.orderID]?.route(message) == true { requestStreams[m.orderID] = nil }

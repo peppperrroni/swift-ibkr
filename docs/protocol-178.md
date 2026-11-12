@@ -576,8 +576,8 @@ Total: 3 fields. Session-global, no reqId; not remembered across a reconnect.
 | 15 | deltaNeutralContractPresent | bool | `0`, or `1` when `Contract.deltaNeutralContract` is set |
 | + | conId, delta, price | int, double, double | only after a `1` in row 15 |
 | 16 | genericTickList | string | `genericTicks` comma-joined, `""` when none |
-| 17 | snapshot | bool | `0` |
-| 18 | regulatorySnapshot | bool | `0` |
+| 17 | snapshot | bool | `snapshot` (`0`/`1`, default `0`) |
+| 18 | regulatorySnapshot | bool | `regulatorySnapshot` (`0`/`1`, default `0`) |
 | 19 | mktDataOptions | string | `""`, always sent |
 
 Row numbers are for a plain contract: 20 fields. A `BAG` adds the count and 4 fields per leg after row 14, and a
