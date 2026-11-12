@@ -44,7 +44,7 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | Area | What you get | State |
 |---|---|---|
 | Connection | handshake, request throttle, `states()`, the raw `messages()` feed | ✅ live-checked |
-| Orders | place, modify, cancel, brackets, open and completed orders merged | ✅ live-checked |
+| Orders | place, modify, cancel, every placeOrder field (conditions, algos, pegged, combos, delta neutral), brackets, OCA, what-if, exercise, open and completed orders merged | ✅ plain orders live-checked; the rest on hand-built frames, a live run is due in stage 13 |
 | Executions | fills joined with commissions, corrections applied | ✅ live-checked |
 | Positions | synced at connect, whole sets on every change | ✅ live-checked |
 | Session | current time, accounts, next id, user info, log level, auto-bind, global cancel, opt-in reconnect | ✅ on the fake gateway; a live run is due in stage 13 |
@@ -145,17 +145,17 @@ await client.disconnect()
 ### Orders
 
 `placeOrder` returns the order id as soon as the frame is queued. The outcome arrives through `orders()`.
-`orderType` and `tif` are IB's own strings (`"LMT"`, `"STP"`, `"DAY"`, `"GTC"` and so on).
+`orderType` and `tif` stay IB's own strings (`"LMT"`, `"STP"`, `"DAY"`, `"GTC"` and so on), so an order type IB adds
+needs no library change.
 
 ```swift
 let (known, updates) = await client.orders()     // snapshot now, then every change as a whole order
 Task { for await order in updates { print(order.orderID, order.status, order.filled) } }
 
 let aapl = Contract(symbol: "AAPL")              // stock, SMART routing, USD by default
-let id = try await client.placeOrder(aapl, Order(action: .buy, quantity: 1, orderType: "LMT", limitPrice: 180))
-try await client.modifyOrder(id, aapl, Order(action: .buy, quantity: 1, orderType: "LMT", limitPrice: 181))
+let id = try await client.placeOrder(aapl, .limit(.buy, quantity: 1, price: 180))
+try await client.modifyOrder(id, aapl, .limit(.buy, quantity: 1, price: 181))
 try await client.cancelOrder(id)                 // cancelOrder(id, manualCancelOrderTime: "20261112-15:00:00") records a hand cancel
-try await client.exerciseOptions(option, action: .exercise, quantity: 1, account: "DU0000001")
 ```
 
 `Order.market`, `.limit`, `.stop` and `.stopLimit` build the common orders. `placeBracket` places an entry with a
@@ -169,7 +169,27 @@ let ids = try await client.placeBracket(aapl, bracket)      // (parent:, takePro
 let pair = Order.oneCancelsAll([a, b], group: "exit", type: 1)   // IB cancels the other when one fills
 ```
 
-`try await client.whatIfOrder(aapl, order)` returns IB's margin and commission for an order without placing it.
+Every other `placeOrder` field is a property of `Order` and `Contract`: conditions, algos, pegged orders, combos,
+delta-neutral, scale, hedge and so on.
+
+```swift
+var order = Order.limit(.buy, quantity: 100, price: 180)
+order.conditions = [.price(conID: 265598, exchange: "SMART", isMore: true, price: 185)]   // only once AAPL trades above 185
+order.conditionsCancelOrder = false                                                       // true cancels instead of submitting
+
+var twap = Order.limit(.buy, quantity: 1000, price: 180)
+twap.algoStrategy = "Twap"
+twap.algoParams = [TagValue(tag: "startTime", value: "09:30:00 US/Eastern")]
+```
+
+`try await client.whatIfOrder(aapl, order)` returns IB's margin and commission for an order without placing it, as
+an `OrderState`. To exercise or lapse an option:
+
+```swift
+var option = Contract(symbol: "AAPL", secType: "OPT")
+option.lastTradeDateOrContractMonth = "20261218"; option.strike = 200; option.right = "C"; option.multiplier = "100"
+try await client.exerciseOptions(option, action: .exercise, quantity: 1, account: "DU0000001")
+```
 
 Outgoing text must be printable ASCII. This is the same rule as IB's own client, and anything else throws
 `IBEncodingError.nonASCII(field:)`.

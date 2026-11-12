@@ -1,7 +1,8 @@
-# Known gaps after stage 6
+# Known gaps after stage 7
 
-What stages 1 to 6 (codec and merging; socket, `IBClient`, a live paper run; positions, account summary, P&L; market
-data and contract lookups; session requests, the account stream and reconnect) leave open. Delete a line when it
+What stages 1 to 7 (codec and merging; socket, `IBClient`, a live paper run; positions, account summary, P&L; market
+data and contract lookups; session requests, the account stream and reconnect; the full order field set, what-if
+and exercise) leave open. Delete a line when it
 is settled.
 
 ## To confirm against a live gateway
