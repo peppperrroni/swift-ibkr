@@ -39,6 +39,8 @@ public enum IBRequest: Sendable, Equatable {
     case cancelMarketDepth(requestID: Int, smart: Bool)
     case tickByTick(requestID: Int, contract: Contract, type: TickByTickType)
     case cancelTickByTick(requestID: Int)
+    case historicalTicks(requestID: Int, contract: Contract, start: Date?, end: Date?, count: Int, whatToShow: String,
+                         rth: Bool, ignoreSize: Bool)
     case currentTime
     case depthExchanges
     case smartComponents(requestID: Int, bboExchange: String)
@@ -162,6 +164,10 @@ public enum IBRequest: Sendable, Equatable {
             try w.add(type.rawValue); w.add(0); w.add(false)  // numberOfTicks (unlimited), ignoreSize
         case .cancelTickByTick(let reqID):
             w.add(98); w.add(reqID)
+        case .historicalTicks(let reqID, let c, let start, let end, let count, let what, let rth, let ignoreSize):
+            w.add(96); w.add(reqID); try Self.contract(&w, c); w.add(false)  // includeExpired
+            try w.add(start.map { Self.endFormat.string(from: $0) } ?? ""); try w.add(end.map { Self.endFormat.string(from: $0) } ?? "")
+            w.add(count); try w.add(what); w.add(rth); w.add(ignoreSize); try w.add("")  // miscOptions
         }
         return w.body
     }

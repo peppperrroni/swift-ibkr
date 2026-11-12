@@ -475,6 +475,25 @@ public actor IBClient {
         return schedule
     }
 
+    /// Historical midpoint (`whatToShow` "MIDPOINT"), bid/ask ("BID_ASK") or trade ("TRADES") ticks, up to `count`,
+    /// from `start` or up to `end` (nil is unset). IB has no cancel for it, so none is sent. Throws like `contractDetails`.
+    public func historicalTicks(
+        _ contract: Contract, start: Date? = nil, end: Date? = nil, count: Int, whatToShow: String = "TRADES",
+        rth: Bool = true, ignoreSize: Bool = false
+    ) async throws(IBClientError) -> [TickByTick] {
+        try requireConnected()
+        let id = nextRequestID()
+        let stream = try openStream(.historicalTicks(requestID: id, contract: contract, start: start, end: end, count: count,
+                                                     whatToShow: whatToShow, rth: rth, ignoreSize: ignoreSize),
+                                    id: id, cancel: nil) { (message, out: AsyncThrowingStream<TickByTick, any Error>.Continuation) in
+            guard case .historicalTicks(_, let ticks, let done) = message else { return false }
+            ticks.forEach { out.yield($0) }
+            if done { out.finish() }
+            return done
+        }
+        return try await collect(stream)
+    }
+
     /// IB's five-second bars for `contract`, one per bar, never ending itself; ends like `marketData` on a refusal.
     /// `whatToShow` is "TRADES", "MIDPOINT", "BID" or "ASK". MIDPOINT/BID/ASK bars carry -1 volume, average and
     /// count, as historical bars do. 10225 (bust event) ends the stream; the consumer subscribes again.
@@ -758,7 +777,7 @@ public actor IBClient {
         case .accountSummary(let id, _), .accountSummaryEnd(let id), .pnlSingle(let id, _),
              .contractData(let id, _), .contractDataEnd(let id), .symbolSamples(let id, _), .tick(let id, _),
              .historicalData(let id, _), .historicalDataUpdate(let id, _), .historicalSchedule(let id, _), .realTimeBar(let id, _), .depth(let id, _),
-             .tickByTick(let id, _), .tickSnapshotEnd(let id), .userInfo(let id, _), .positionMulti(let id, _), .positionMultiEnd(let id),
+             .tickByTick(let id, _), .historicalTicks(let id, _, _), .tickSnapshotEnd(let id), .userInfo(let id, _), .positionMulti(let id, _), .positionMultiEnd(let id),
              .accountUpdateMulti(let id, _), .accountUpdateMultiEnd(let id), .pnl(let id, _), .smartComponents(let id, _):
             if requestStreams[id]?.route(message) == true { requestStreams[id] = nil }   // before any termination hop
         case .openOrder(let m) where m.order.whatIf:   // whatIfOrder's answer, keyed by the order id it took

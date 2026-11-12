@@ -83,6 +83,23 @@ private let expectedSchedule = HistoricalSchedule(
         var f = batch; f[5] = "yesterday"
         guard case .malformed = IBDecoder.decode(body(f)) else { Issue.record("not malformed"); return }
     }
+    @Test func historicalTicksRequestEncodes() throws {
+        #expect(try IBRequest.historicalTicks(requestID: 7, contract: Contract(symbol: "AAPL"),
+                                              start: Date(timeIntervalSince1970: 1794321000), end: nil, count: 100,
+                                              whatToShow: "TRADES", rth: true, ignoreSize: false).body()
+            == body(["96", "7"] + aapl + ["0", "20261110-14:30:00", "", "100", "TRADES", "1", "0", ""]))
+    }
+
+    @Test func historicalTicksDecode() {
+        let t = Date(timeIntervalSince1970: 1794321000)
+        #expect(IBDecoder.decode(body("96", "7", "2", "1794321000", "0", "351.5", "0", "1794321001", "0", "351.55", "0", "1"))
+            == .historicalTicks(requestID: 7, [.midPoint(time: t, price: d("351.5")), .midPoint(time: t + 1, price: d("351.55"))], done: true))
+        #expect(IBDecoder.decode(body("97", "7", "1", "1794321000", "3", "351.5", "351.6", "100", "200", "1"))
+            == .historicalTicks(requestID: 7, [.bidAsk(time: t, bidPrice: d("351.5"), askPrice: d("351.6"), bidSize: 100, askSize: 200)], done: true))
+        #expect(IBDecoder.decode(body("98", "7", "1", "1794321000", "2", "351.5", "100", "ISLAND", "T", "0"))
+            == .historicalTicks(requestID: 7, [.trade(time: t, price: d("351.5"), size: 100, exchange: "ISLAND", conditions: "T", pastLimit: false, unreported: true)], done: false))
+        guard case .malformed = IBDecoder.decode(body("98", "7", "-1", "0")) else { Issue.record("not malformed"); return }
+    }
 }
 
 @Test func historyWithoutUpdatesEndsWithoutCancel() async throws {
@@ -173,5 +190,36 @@ private let expectedSchedule = HistoricalSchedule(
     }
     try await Task.sleep(for: .milliseconds(50))
     #expect(try await gateway.waitForSent(FakeGateway.syncFrames).count == FakeGateway.syncFrames)
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func historicalTicksCollectUntilDone() async throws {
+    let gateway = FakeGateway()
+    gateway.onRequest = { f in
+        guard f.first == "96" else { return [] }
+        return [["98", f[1], "1", "1794321000", "0", "351.5", "100", "ISLAND", "", "0"],
+                ["98", f[1], "1", "1794321001", "2", "351.6", "50", "NYSE", "T", "1"]]
+    }
+    let client = try await connected(gateway)
+    let t = Date(timeIntervalSince1970: 1794321000)
+    let got = try await within2s { try await client.historicalTicks(Contract(symbol: "AAPL"), start: t, count: 2) }
+    #expect(got == [.trade(time: t, price: d("351.5"), size: 100, exchange: "ISLAND", conditions: "", pastLimit: false, unreported: false),
+                    .trade(time: t + 1, price: d("351.6"), size: 50, exchange: "NYSE", conditions: "T", pastLimit: false, unreported: true)])
+    try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).count == FakeGateway.syncFrames + 1)
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func historicalTicksFailsOnItsError() async throws {
+    let gateway = FakeGateway()
+    gateway.onRequest = { f in
+        f.first == "96" ? [["4", "2", f[1], "162", "Historical Market Data Service error message:HMDS query returned no data", ""]] : []
+    }
+    let client = try await connected(gateway)
+    await #expect(throws: IBClientError.ib(code: 162, text: "Historical Market Data Service error message:HMDS query returned no data")) {
+        _ = try await within2s { try await client.historicalTicks(Contract(symbol: "AAPL"), count: 2) }
+    }
+    try await Task.sleep(for: .milliseconds(50))
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).count == FakeGateway.syncFrames + 1)
     #expect(await client.requestStreamCount == 0)
 }

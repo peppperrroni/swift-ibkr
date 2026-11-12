@@ -1408,6 +1408,19 @@ No version. `106, reqId, startDateTime, endDateTime, timeZone, count`, then `cou
 answer to reqHistoricalData with `whatToShow` `SCHEDULE`, `barSize` `1 day` and `duration` `"N D"`; a refusal is the
 usual error, and a permission refusal needs the cancel (25). A negative count makes the frame malformed.
 
+### reqHistoricalTicks (out 96)
+
+No version. 22 fields: `96, reqId, contract(12), includeExpired (0), startDateTime, endDateTime, numberOfTicks,
+whatToShow, useRth, ignoreSize, miscOptions ("")`. Each date is `yyyyMMdd-HH:mm:ss` UTC, or `""` for unset. A BAG contract
+is refused. IB has no cancel for it.
+
+### historicalTicks / historicalTicksBidAsk / historicalTicksLast (in 96, 97, 98)
+
+No version, one reqId; the same frame shape: `id, reqId, n, n rows, done`, with `done` a bool that ends the answer.
+Rows: 96 (midpoint) `time, unused, price, size`; 97 (bid/ask) `time, mask, bidPrice, askPrice, bidSize, askSize`;
+98 (last) `time, mask, price, size, exchange, specialConditions`. `time` is Unix seconds. The 96 size and the 97 mask are
+read and dropped; the 98 mask is bit 0 pastLimit, bit 1 unreported. A negative `n` makes the frame malformed.
+
 ### historicalDataUpdate (in 90)
 
 No version. `90, reqId, barCount, date, open, close, high, low, average, volume`; 10 fields. The order is O,C,H,L, unlike 17.

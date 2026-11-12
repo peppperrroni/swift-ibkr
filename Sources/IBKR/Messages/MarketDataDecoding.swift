@@ -51,6 +51,30 @@ extension IBDecoder {
             }))
     }
 
+    /// historicalTicks (96 midpoint, 97 bid/ask, 98 last): no version; the same shape with a different row.
+    static func historicalTicks(_ r: inout FieldReader, _ kind: Int) throws -> IBMessage {
+        let reqID = try r.int()
+        let ticks: [TickByTick] = try (0..<wireCount(&r)).map { _ in
+            let time = Date(timeIntervalSince1970: Double(try r.int()))
+            switch kind {
+            case 96:
+                try r.skip()  // unused
+                let price = try r.decimal()
+                try r.skip()  // size
+                return .midPoint(time: time, price: price)
+            case 97:
+                try r.skip()  // attribMask
+                let bid = try r.decimal(), ask = try r.decimal()
+                return .bidAsk(time: time, bidPrice: bid, askPrice: ask, bidSize: try r.decimal(), askSize: try r.decimal())
+            default:
+                let mask = try r.int(), price = try r.decimal(), size = try r.decimal()
+                return .trade(time: time, price: price, size: size, exchange: try r.string(), conditions: try r.string(),
+                              pastLimit: mask & 1 != 0, unreported: mask & 2 != 0)
+            }
+        }
+        return .historicalTicks(requestID: reqID, ticks, done: try r.bool())
+    }
+
     /// tickNews (84), no version.
     static func news(_ r: inout FieldReader) throws -> IBMessage {
         let id = try r.int()

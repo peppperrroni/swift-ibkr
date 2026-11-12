@@ -111,6 +111,7 @@ public enum IBDecoder {
             case 84: return try news(&r)
             case 80: return try depthExchanges(&r)
             case 82: return try smartComponents(&r)
+            case 96, 97, 98: return try historicalTicks(&r, id)
             case 106: return try historicalSchedule(&r)
             case 59:
                 try r.skip()

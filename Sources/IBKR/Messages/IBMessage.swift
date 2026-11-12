@@ -53,6 +53,7 @@ public enum IBMessage: Sendable, Equatable {
     case realTimeBar(requestID: Int, Bar)
     case depth(requestID: Int, DepthUpdate)
     case tickByTick(requestID: Int, TickByTick)
+    case historicalTicks(requestID: Int, [TickByTick], done: Bool)
     case tickSnapshotEnd(requestID: Int)
     case deltaNeutralValidation(requestID: Int, DeltaNeutralContract)
     case depthExchanges([DepthMarketDataDescription])
