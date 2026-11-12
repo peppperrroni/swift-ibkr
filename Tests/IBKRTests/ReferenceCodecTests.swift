@@ -28,4 +28,21 @@ import Testing
         #expect(try IBRequest.cancelCalculateImpliedVolatility(requestID: 7).body() == body("56", "1", "7"))
         #expect(try IBRequest.cancelCalculateOptionPrice(requestID: 7).body() == body("57", "1", "7"))
     }
+
+    @Test func ruleFamilyAndTiersCodec() throws {
+        #expect(try IBRequest.marketRule(marketRuleID: 26).body() == body("91", "26"))
+        #expect(try IBRequest.familyCodes.body() == body("80"))
+        #expect(try IBRequest.softDollarTiers(requestID: 7).body() == body("79", "7"))
+        #expect(IBDecoder.decode(body("93", "26", "2", "0", "0.01", "1000", "0.05"))
+            == .marketRule(marketRuleID: 26, [PriceIncrement(lowEdge: 0, increment: d("0.01")),
+                                              PriceIncrement(lowEdge: 1000, increment: d("0.05"))]))
+        #expect(IBDecoder.decode(body("78", "2", "DU1", "F1", "DU2", ""))
+            == .familyCodes([FamilyCode(accountID: "DU1", familyCodeStr: "F1"),
+                             FamilyCode(accountID: "DU2", familyCodeStr: "")]))
+        #expect(IBDecoder.decode(body("77", "7", "1", "Tier1", "T1V", "Tier One"))
+            == .softDollarTiers(requestID: 7, [SoftDollarTier(name: "Tier1", value: "T1V", displayName: "Tier One")]))
+        for frame in [body("93", "26", "-1"), body("78", "-1"), body("77", "7", "-1")] {
+            guard case .malformed = IBDecoder.decode(frame) else { Issue.record("not malformed"); return }
+        }
+    }
 }

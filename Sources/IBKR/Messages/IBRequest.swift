@@ -56,6 +56,9 @@ public enum IBRequest: Sendable, Equatable {
                               options: [TagValue])
     case cancelCalculateImpliedVolatility(requestID: Int)
     case cancelCalculateOptionPrice(requestID: Int)
+    case marketRule(marketRuleID: Int)
+    case familyCodes
+    case softDollarTiers(requestID: Int)
     case managedAccounts
     case userInfo(requestID: Int)
     case serverLogLevel(ServerLogLevel)
@@ -85,6 +88,12 @@ public enum IBRequest: Sendable, Equatable {
             w.add(56); w.add(1); w.add(reqID)
         case .cancelCalculateOptionPrice(let reqID):
             w.add(57); w.add(1); w.add(reqID)
+        case .marketRule(let id):
+            w.add(91); w.add(id)
+        case .familyCodes:
+            w.add(80)
+        case .softDollarTiers(let reqID):
+            w.add(79); w.add(reqID)
         case .managedAccounts:
             w.add(17); w.add(1)
         case .userInfo(let reqID):

@@ -214,3 +214,45 @@ private func t21(_ id: String, _ iv: String) -> [String] {
     #expect(try await within2s { try await result.value }
         == [.optionComputation(TickField(rawValue: 53), comp), .price(.bid, price: d("351.5"), size: d("200"))])
 }
+
+@Test func marketRulesAnswerTheirOwnID() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let a = Task { try await client.marketRule(26) }
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames] == ["91", "26"])
+    let b = Task { try await client.marketRule(4563) }
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["91", "4563"])
+    gateway.feed(["93", "4563", "1", "0", "0.0001"])
+    gateway.feed(["93", "26", "1", "0", "0.01"])
+    #expect(try await within2s { try await a.value } == [PriceIncrement(lowEdge: 0, increment: d("0.01"))])
+    #expect(try await within2s { try await b.value } == [PriceIncrement(lowEdge: 0, increment: d("0.0001"))])
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func familyCodesAnswer() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in f == ["80"] ? [["78", "2", "DU1", "F1", "DU2", ""]] : [] }
+    let got = try await within2s { try await client.familyCodes() }
+    #expect(got == [FamilyCode(accountID: "DU1", familyCodeStr: "F1"), FamilyCode(accountID: "DU2", familyCodeStr: "")])
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func softDollarTiersAnswer() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in f[0] == "79" ? [["77", f[1], "1", "Tier1", "T1V", "Tier One"]] : [] }
+    let got = try await within2s { try await client.softDollarTiers() }
+    #expect(got == [SoftDollarTier(name: "Tier1", value: "T1V", displayName: "Tier One")])
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func softDollarTiersFailOnTheirError() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in f[0] == "79" ? [ibError(f[1], "321", "Error validating request")] : [] }
+    await #expect(throws: IBClientError.ib(code: 321, text: "Error validating request")) {
+        _ = try await within2s { try await client.softDollarTiers() }
+    }
+    #expect(await client.requestStreamCount == 0)
+}

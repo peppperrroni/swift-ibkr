@@ -32,6 +32,8 @@ import Testing
         contract: contract, description: "d", issuerID: "").derivativeSecTypes.isEmpty)
     #expect(OptionChain(exchange: "SMART", underlyingConID: 1, tradingClass: "AAPL", multiplier: "100",
                         expirations: ["20261218"], strikes: [190]).strikes == [190])
+    #expect(PriceIncrement(lowEdge: 0, increment: 1).increment == 1)
+    #expect(FamilyCode(accountID: "DU1", familyCodeStr: "F").familyCodeStr == "F")
     #expect(Bar(time: Date(timeIntervalSince1970: 0), open: 1, high: 2, low: 0, close: 1, volume: 5, count: 1).high == 2)
     #expect(DepthLevel(price: 1, size: 2, marketMaker: "").marketMaker == "")
     #expect(OptionComputation(tickAttrib: 0).delta == nil)

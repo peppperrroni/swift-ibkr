@@ -42,6 +42,29 @@ extension IBDecoder {
         })
     }
 
+    /// marketRule (93): no version, no reqId; the rule id says which request it answers.
+    static func marketRule(_ r: inout FieldReader) throws -> IBMessage {
+        let id = try r.int()
+        return .marketRule(marketRuleID: id, try (0..<wireCount(&r)).map { _ in
+            PriceIncrement(lowEdge: try r.decimal(), increment: try r.decimal())
+        })
+    }
+
+    /// familyCodes (78): no version, no reqId.
+    static func familyCodes(_ r: inout FieldReader) throws -> IBMessage {
+        .familyCodes(try (0..<wireCount(&r)).map { _ in
+            FamilyCode(accountID: try r.string(), familyCodeStr: try r.string())
+        })
+    }
+
+    /// softDollarTiers (77): no version.
+    static func softDollarTiers(_ r: inout FieldReader) throws -> IBMessage {
+        let id = try r.int()
+        return .softDollarTiers(requestID: id, try (0..<wireCount(&r)).map { _ in
+            SoftDollarTier(name: try r.string(), value: try r.string(), displayName: try r.string())
+        })
+    }
+
     /// securityDefinitionOptionParameter (75): no version.
     static func optionChain(_ r: inout FieldReader) throws -> IBMessage {
         let id = try r.int(), exchange = try r.string(), conID = try r.int(), tradingClass = try r.string()

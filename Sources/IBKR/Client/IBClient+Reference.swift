@@ -40,6 +40,30 @@ extension IBClient {
                                      id: id, cancel: .cancelCalculateOptionPrice(requestID: id))
     }
 
+    /// The price-increment steps of market rule `marketRuleID` (the ids in `ContractDetails.marketRuleIDs`). IB's answer
+    /// carries the rule id and no reqId, so each call takes only its own rule's answer; IB has no error path for it.
+    public func marketRule(_ marketRuleID: Int) async throws(IBClientError) -> [PriceIncrement] {
+        try requireConnected()
+        return try await answer(.marketRule(marketRuleID: marketRuleID)) {
+            if case .marketRule(marketRuleID, let steps) = $0 { steps } else { nil }
+        }
+    }
+
+    /// Each account's family code. IB addresses no error to it.
+    public func familyCodes() async throws(IBClientError) -> [FamilyCode] {
+        try requireConnected()
+        return try await answer(.familyCodes) { if case .familyCodes(let codes) = $0 { codes } else { nil } }
+    }
+
+    /// The soft-dollar tiers IB offers this account.
+    public func softDollarTiers() async throws(IBClientError) -> [SoftDollarTier] {
+        try requireConnected()
+        let id = nextRequestID()
+        return try await answer(.softDollarTiers(requestID: id), id: id) {
+            if case .softDollarTiers(_, let tiers) = $0 { tiers } else { nil }
+        }
+    }
+
     /// The answer is tick 21 under the calculation's own reqId, so a quote stream's 21 never reaches it.
     private func calculation(_ request: IBRequest, id: Int, cancel: IBRequest) async throws(IBClientError) -> OptionComputation {
         let stream = try openStream(request, id: id, cancel: cancel) { (message, out: AsyncThrowingStream<OptionComputation, any Error>.Continuation) in

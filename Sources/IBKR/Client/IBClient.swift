@@ -814,11 +814,12 @@ public actor IBClient {
              .headTimeStamp(let id, _), .histogramData(let id, _), .tickSnapshotEnd(let id), .userInfo(let id, _),
              .positionMulti(let id, _), .positionMultiEnd(let id), .accountUpdateMulti(let id, _),
              .accountUpdateMultiEnd(let id), .pnl(let id, _), .smartComponents(let id, _),
-             .securityDefinitionOptionParameter(let id, _), .securityDefinitionOptionParameterEnd(let id):
+             .securityDefinitionOptionParameter(let id, _), .securityDefinitionOptionParameterEnd(let id),
+             .softDollarTiers(let id, _):
             if requestStreams[id]?.route(message) == true { requestStreams[id] = nil }   // before any termination hop
         case .openOrder(let m) where m.order.whatIf:   // whatIfOrder's answer, keyed by the order id it took
             if requestStreams[m.orderID]?.route(message) == true { requestStreams[m.orderID] = nil }
-        case .currentTime, .managedAccounts, .nextValidID, .depthExchanges:   // no reqId: the oldest waiter that takes it gets it
+        case .currentTime, .managedAccounts, .nextValidID, .depthExchanges, .marketRule, .familyCodes:   // no reqId: the oldest waiter that takes it gets it
             for key in requestStreams.keys.filter({ $0 < -1 }).sorted(by: >) where requestStreams[key]?.route(message) == true {
                 requestStreams[key] = nil
                 break

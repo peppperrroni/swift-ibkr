@@ -26,3 +26,19 @@ public struct OptionChain: Sendable, Equatable {
         self.multiplier = multiplier; self.expirations = expirations; self.strikes = strikes
     }
 }
+
+/// One step of an exchange's price-increment rule: from `lowEdge` upward, prices move in steps of `increment`.
+public struct PriceIncrement: Sendable, Equatable {
+    public var lowEdge: Decimal
+    public var increment: Decimal
+
+    public init(lowEdge: Decimal, increment: Decimal) { self.lowEdge = lowEdge; self.increment = increment }
+}
+
+/// An account and its family code (`ib_async`'s `FamilyCode`); `familyCodeStr` is empty for an account with none.
+public struct FamilyCode: Sendable, Equatable {
+    public var accountID: String
+    public var familyCodeStr: String
+
+    public init(accountID: String, familyCodeStr: String) { self.accountID = accountID; self.familyCodeStr = familyCodeStr }
+}

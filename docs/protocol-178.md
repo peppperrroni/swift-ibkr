@@ -1558,6 +1558,33 @@ request for want of permission; not after any other IB error.
 
 `57, 1, reqId`; 3 fields. Sent as 56 is.
 
+### reqMarketRule (out 91)
+
+`91, marketRuleId`; 2 fields, no version and no reqId.
+
+### marketRule (in 93)
+
+`93, marketRuleId, n, n x (lowEdge, increment)`; no version and no reqId. Both are `Decimal`. A negative `n` is
+malformed. The rule id says which `marketRule(_:)` call it answers; the first waiter whose rule id matches takes it.
+
+### reqFamilyCodes (out 80)
+
+`80`; 1 field, no version and no reqId. (Out 80 and in 80 are different messages.)
+
+### familyCodes (in 78)
+
+`78, n, n x (accountId, familyCodeStr)`; no version and no reqId. `familyCodeStr` is `""` for an account with none. A
+negative `n` is malformed. Answers `familyCodes()`, oldest waiter first.
+
+### reqSoftDollarTiers (out 79)
+
+`79, reqId`; 2 fields, no version.
+
+### softDollarTiers (in 77)
+
+`77, reqId, n, n x (name, val, displayName)`; no version. A negative `n` is malformed. The reqId routes it to
+`softDollarTiers()`, which fails on an IB error for that reqId.
+
 ### reqMktDepth (out 10)
 
 `10, 5, reqId, contract(12), numRows, isSmartDepth, mktDepthOptions`; 18 fields. `mktDepthOptions` is always `""`.
