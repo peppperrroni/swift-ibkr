@@ -14,8 +14,7 @@ jobs:
       - run: swift --version
       - run: swift build
       - run: swift test
-      - run: xcodebuild -list
-      - run: xcodebuild -scheme IBKR -destination 'generic/platform=iOS' build
+      - run: xcodebuild -scheme swift-ibkr -destination 'generic/platform=iOS' build
 
   linux:
     runs-on: ubuntu-latest
