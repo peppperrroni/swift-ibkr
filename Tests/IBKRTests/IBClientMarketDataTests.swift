@@ -181,3 +181,134 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
     }
     #expect(await client.requestStreamCount == 0)
 }
+
+/// Forwards `stream` into `seen` until the stream ends or `reader` is cancelled, so the reader keeps the stream.
+private func reading<T: Sendable>(_ stream: AsyncThrowingStream<T, any Error>)
+    -> (reader: Task<Void, Never>, seen: AsyncThrowingStream<T, any Error>) {
+    let (seen, out) = AsyncThrowingStream.makeStream(of: T.self, throwing: (any Error).self)
+    let reader = Task { do { for try await t in stream { out.yield(t) }; out.finish() } catch { out.finish(throwing: error) } }
+    return (reader, seen)
+}
+
+private func noStreamsLeft(_ client: IBClient) async throws {
+    try await within2s { while await client.requestStreamCount != 0 { try await Task.sleep(for: .milliseconds(5)) } }
+}
+
+private let aapl = Contract(symbol: "AAPL")
+
+@Test func tickersYieldWholeTickers() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.tickers(aapl)
+    let f = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames]
+    #expect(f[0] == "1" && f[16] == "")
+    let id = f[2]
+    gateway.feed(["1", "6", id, "1", "351.5", "200", "0"])
+    gateway.feed(["2", "6", id, "0", "300"])
+    let (reader, seen) = reading(stream)
+    let ticker = try await within2s { try await seen.first { $0.bidSize == d("300") } }
+    #expect(ticker?.bid == d("351.5"))
+    reader.cancel()
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["2", "2", id])
+}
+
+@Test func tickersWithDepthCarryTheBookAndCancelBoth() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.tickers(aapl, depthRows: 5)
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
+    #expect(sent[FakeGateway.syncFrames][0] == "10" && sent[FakeGateway.syncFrames + 1][0] == "1")
+    let (did, qid) = (sent[FakeGateway.syncFrames][2], sent[FakeGateway.syncFrames + 1][2])
+    gateway.feed(["12", "1", did, "0", "0", "1", "351.5", "100"])
+    gateway.feed(["1", "6", qid, "1", "351.5", "200", "0"])
+    let (reader, seen) = reading(stream)
+    let ticker = try await within2s { try await seen.first { $0.depth.bids.count == 1 && $0.bid != nil } }
+    #expect(ticker != nil)
+    reader.cancel()
+    let cancels = try await gateway.waitForSent(FakeGateway.syncFrames + 4).suffix(2)
+    #expect(Set(cancels) == [["2", "2", qid], ["11", "1", did, "1"]])
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func tickersEndWithTheirDepthRefusal() async throws {
+    guard let frame = try recording("liveMarketData").first(where: { $0.first == "4" && $0.count > 3 && $0[3] == "2152" }) else {
+        Issue.record("no 2152 frame"); return
+    }
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.tickers(aapl, depthRows: 5)
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
+    let (did, qid) = (sent[FakeGateway.syncFrames][2], sent[FakeGateway.syncFrames + 1][2])
+    gateway.feed(replacing(frame, [2: did]))
+    await #expect(throws: IBClientError.noMarketDataPermission(code: 2152, text: frame[4])) {
+        _ = try await within2s { try await stream.first { _ in false } }
+    }
+    let cancels = try await gateway.waitForSent(FakeGateway.syncFrames + 4).suffix(2)
+    #expect(Set(cancels) == [["2", "2", qid], ["11", "1", did, "1"]])
+    try await noStreamsLeft(client)
+}
+
+@Test func tickersRefuseABagBook() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    await #expect(throws: IBClientError.encoding(.unsupported("secType BAG"))) {
+        _ = try await client.tickers(bagContract, depthRows: 5)
+    }
+    try await Task.sleep(for: .milliseconds(50))   // room for a wrong request or cancel
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames).count == FakeGateway.syncFrames)
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func tickersForReturnsSnapshotsInOrder() async throws {
+    let gateway = FakeGateway()
+    gateway.onRequest = { f in
+        f.first == "1" ? [["1", "6", f[2], "1", f[4] == "AAPL" ? "351.5" : "420.1", "100", "0"], ["57", "1", f[2]]] : []
+    }
+    let client = try await connected(gateway)
+    let got = try await within2s {
+        try await client.tickers(for: [Contract(symbol: "AAPL"), Contract(symbol: "MSFT")])
+    }
+    #expect(got.map(\.contract.symbol) == ["AAPL", "MSFT"])
+    #expect(got.map(\.bid) == [d("351.5"), d("420.1")])
+    try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 2).dropFirst(FakeGateway.syncFrames)
+    #expect(sent.count == 2 && sent.allSatisfy { $0[0] == "1" && $0[17] == "1" && $0[18] == "0" })
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func tickersForFailsOnAnErrorAndCancelsTheRest() async throws {
+    let gateway = FakeGateway()
+    gateway.onRequest = { f in
+        f.first == "1" && f[4] == "AAPL" ? [["4", "2", f[2], "200", "No security definition", ""]] : []
+    }
+    let client = try await connected(gateway)
+    await #expect(throws: IBClientError.ib(code: 200, text: "No security definition")) {
+        _ = try await within2s { try await client.tickers(for: [Contract(symbol: "AAPL"), Contract(symbol: "MSFT")]) }
+    }
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 3)
+    #expect(sent[FakeGateway.syncFrames + 2] == ["2", "2", sent[FakeGateway.syncFrames + 1][2]])
+    try await noStreamsLeft(client)
+}
+
+@Test func tickersForStopsWhatItOpenedOnAnEncodingError() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    await #expect(throws: IBClientError.encoding(.nonASCII(field: "é"))) {
+        _ = try await client.tickers(for: [Contract(symbol: "AAPL"), Contract(symbol: "é")])
+    }
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
+    #expect(sent[FakeGateway.syncFrames + 1] == ["2", "2", sent[FakeGateway.syncFrames][2]])
+    try await noStreamsLeft(client)
+}
+
+@Test func tickersForCancelledSendsEveryCancel() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let call = Task { try await client.tickers(for: [Contract(symbol: "AAPL"), Contract(symbol: "MSFT")]) }
+    let opened = try await gateway.waitForSent(FakeGateway.syncFrames + 2).dropFirst(FakeGateway.syncFrames)
+    call.cancel()
+    await #expect(throws: IBClientError.cancelled) { _ = try await within2s { try await call.value } }
+    let cancels = try await gateway.waitForSent(FakeGateway.syncFrames + 4).suffix(2)
+    #expect(Set(cancels) == Set(opened.map { ["2", "2", $0[2]] }))
+    try await noStreamsLeft(client)
+}

@@ -494,6 +494,93 @@ public actor IBClient {
         }
     }
 
+    /// `contract`'s market data folded into one `Ticker`, yielded whole after every tick or depth book, with no
+    /// deduplication; a slow consumer keeps only the newest. `depthRows` adds `marketDepth`'s book; it is opened
+    /// first, since it refuses everything `marketData` refuses and BAG too. The first inner error ends the stream with
+    /// that error, and however it ends, every request still open is cancelled.
+    public func tickers(_ contract: Contract, genericTicks: [Int] = [], depthRows: Int? = nil, smartDepth: Bool = true)
+        throws(IBClientError) -> AsyncThrowingStream<Ticker, any Error> {
+        var depth: AsyncThrowingStream<DepthBook, any Error>?
+        if let depthRows { depth = try marketDepth(contract, rows: depthRows, smart: smartDepth) }
+        let quotes: AsyncThrowingStream<Tick, any Error>
+        do throws(IBClientError) { quotes = try marketData(contract, genericTicks: genericTicks) } catch {
+            if let depth { Self.stop(depth) }
+            throw error
+        }
+        return Self.fold(contract, quotes, depth)
+    }
+
+    /// One snapshot `Ticker` per contract, in the order of `contracts`, each read to IB's snapshot end. Every request
+    /// is sent before any is read, as `ib_async`'s `reqTickers`. The first error is thrown and every request still open
+    /// is cancelled, where `ib_async` returns partial tickers; a cancelled calling task throws `.cancelled`.
+    public func tickers(for contracts: [Contract], regulatorySnapshot: Bool = false) async throws(IBClientError) -> [Ticker] {
+        var streams: [AsyncThrowingStream<Tick, any Error>] = []
+        do throws(IBClientError) {
+            for c in contracts { streams.append(try marketData(c, snapshot: true, regulatorySnapshot: regulatorySnapshot)) }
+        } catch {
+            streams.forEach(Self.stop)
+            throw error
+        }
+        let tickers: [Ticker]
+        do {
+            // a child that throws makes the group cancel the others, which stops their streams and sends their cancels
+            tickers = try await withThrowingTaskGroup(of: (Int, Ticker).self) { group in
+                for (i, (contract, ticks)) in zip(contracts, streams).enumerated() {
+                    group.addTask {
+                        var t = Ticker(contract: contract)
+                        for try await tick in ticks { t.apply(tick) }
+                        return (i, t)
+                    }
+                }
+                var got = contracts.map { Ticker(contract: $0) }
+                for try await (i, t) in group { got[i] = t }
+                return got
+            }
+        } catch { throw error as? IBClientError ?? .cancelled }
+        if Task.isCancelled { throw .cancelled }   // a cancelled stream ends without error, its ticker partial
+        return tickers
+    }
+
+    /// What `tickers` folds: a tick, or a whole depth book.
+    private enum TickerPart: Sendable { case tick(Tick), book(DepthBook) }
+
+    /// One task per inner stream forwards it into an unbounded channel (a dropped tick is lost state); the fold
+    /// yields the whole ticker after each part. The first inner end or error ends the fold, and the outer stream's end
+    /// cancels the readers, which stops each inner stream and so sends its cancel.
+    private nonisolated static func fold(_ contract: Contract, _ quotes: AsyncThrowingStream<Tick, any Error>,
+                                         _ depth: AsyncThrowingStream<DepthBook, any Error>?)
+        -> AsyncThrowingStream<Ticker, any Error> {
+        let (parts, feed) = AsyncThrowingStream.makeStream(of: TickerPart.self, throwing: (any Error).self)
+        func forward<E: Sendable>(_ s: AsyncThrowingStream<E, any Error>, _ wrap: @escaping @Sendable (E) -> TickerPart)
+            -> Task<Void, Never> {
+            Task { do { for try await e in s { feed.yield(wrap(e)) }; feed.finish() } catch { feed.finish(throwing: error) } }
+        }
+        let readers = [forward(quotes, TickerPart.tick)] + (depth.map { [forward($0, TickerPart.book)] } ?? [])
+        let (stream, out) = AsyncThrowingStream.makeStream(of: Ticker.self, throwing: (any Error).self,
+                                                           bufferingPolicy: .bufferingNewest(1))
+        out.onTermination = { _ in readers.forEach { $0.cancel() } }   // set before the fold below can finish `out`
+        Task {
+            var ticker = Ticker(contract: contract)
+            do {
+                for try await part in parts {
+                    switch part {
+                    case .tick(let t): ticker.apply(t)
+                    case .book(let b): ticker.depth = b
+                    }
+                    out.yield(ticker)
+                }
+                out.finish()
+            } catch { out.finish(throwing: error) }
+        }
+        return stream
+    }
+
+    /// Stops a stream nobody reads: a cancelled reader terminates it, which sends its cancel. Freeing an unread
+    /// stream would too, but nothing promises when.
+    private nonisolated static func stop<E: Sendable>(_ stream: AsyncThrowingStream<E, any Error>) {
+        Task { for try await _ in stream {} }.cancel()
+    }
+
     /// Every trade, quote or midpoint IB reports for `contract`, unlimited and with size-only quote changes kept.
     /// Never ends itself; ends like `marketData` on a refusal.
     public func tickByTick(_ contract: Contract, _ type: TickByTickType)
