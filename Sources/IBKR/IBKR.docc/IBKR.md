@@ -29,7 +29,7 @@ synced at connect and offered as a snapshot plus a stream of changes; every othe
 - ``ComboLeg``
 - ``DeltaNeutralContract``
 
-### Orders
+### Placing orders
 - <doc:Orders>
 - ``Order``
 - ``OrderAction``
