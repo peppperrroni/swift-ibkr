@@ -1,6 +1,7 @@
 import Foundation
 
-/// The margin and commission IB works out for an order; filled only on a what-if answer, else all `nil`.
+/// The margin and commission IB works out for an order. A what-if answer fills the margins; live openOrders
+/// carry `commission` and `commissionCurrency` too (seen on Filled ones). Unset values are `nil`.
 public struct OrderState: Sendable, Equatable {
     public var initMarginBefore: Decimal?
     public var maintMarginBefore: Decimal?

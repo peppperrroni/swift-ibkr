@@ -166,7 +166,8 @@ leg fails to encode, nothing is sent.
 let bracket = Order.bracket(.buy, quantity: 100, limitPrice: 180, takeProfitPrice: 190, stopLossPrice: 175)
 let ids = try await client.placeBracket(aapl, bracket)      // (parent:, takeProfit:, stopLoss:)
 
-let pair = Order.oneCancelsAll([a, b], group: "exit", type: 1)   // IB cancels the other when one fills
+let exits = Order.oneCancelsAll([.limit(.sell, quantity: 100, price: 190), .stop(.sell, quantity: 100, stopPrice: 175)],
+                                group: "exit", type: 1)   // IB cancels the other when one fills
 ```
 
 Every other `placeOrder` field is a property of `Order` and `Contract`: conditions, algos, pegged orders, combos,

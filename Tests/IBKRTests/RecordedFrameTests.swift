@@ -163,7 +163,7 @@ func recordedPnLSingleDecodes() throws {
     #expect(p.value == d("347.6103821"))
 }
 
-/// IB's price cap cancels an over-aggressive limit with a 202; the tracker keeps no reason (a known gap).
+/// IB's price cap cancels an over-aggressive limit with a 202; the tracker keeps its reason as `rejectReason`.
 @Test func recordedPriceCapCancelEndsCancelled() throws {
     var tracker = OrderTracker(clientID: 77)
     var snapshots: [OrderSnapshot] = []
