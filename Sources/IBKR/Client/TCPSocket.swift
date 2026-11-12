@@ -69,7 +69,8 @@ final class TCPSocket: Transport, @unchecked Sendable {
             if n == 0 || !isOpen {
                 continuation.finish()
             } else {
-                continuation.finish(throwing: peerGone.contains(code) ? IBClientError.connectionClosed : .transport("recv: \(code)"))
+                continuation.finish(throwing: peerGone.contains(code)
+                    ? IBClientError.connectionClosed : .transport("recv: \(code)"))
             }
             break
         }
@@ -103,7 +104,8 @@ final class TCPSocket: Transport, @unchecked Sendable {
     }
 
     /// Non-blocking connect bounded by `deadline`, then back to blocking.
-    private static func attempt(_ ai: UnsafeMutablePointer<AddrInfo>, deadline: ContinuousClock.Instant) throws(IBClientError) -> Handle {
+    private static func attempt(_ ai: UnsafeMutablePointer<AddrInfo>,
+                                deadline: ContinuousClock.Instant) throws(IBClientError) -> Handle {
         let h = socket(ai.pointee.ai_family, ai.pointee.ai_socktype, ai.pointee.ai_protocol)
         guard h != invalidHandle else { throw .transport("socket: \(lastError())") }
         do throws(IBClientError) {
@@ -155,7 +157,8 @@ private func setNonBlocking(_ h: SOCKET, _ on: Bool) -> Bool {
 /// sends just one: a refused 127.0.0.1 fails at once, and "localhost" falls from ::1 to 127.0.0.1 without the wait.
 private func connectHandle(_ h: SOCKET, _ ai: UnsafeMutablePointer<ADDRINFOA>) -> Int32 {
     if isLoopback(ai.pointee.ai_addr) {
-        // TCP_INITIAL_RTO_PARAMETERS { Rtt = TCP_INITIAL_RTO_UNSPECIFIED_RTT, MaxSynRetransmissions = NO_SYN_RETRANSMISSIONS },
+        // TCP_INITIAL_RTO_PARAMETERS { Rtt = TCP_INITIAL_RTO_UNSPECIFIED_RTT,
+        //                             MaxSynRetransmissions = NO_SYN_RETRANSMISSIONS },
         // packed little-endian; SIO_TCP_INITIAL_RTO = _WSAIOW(IOC_VENDOR, 17). Both are macros that do not import.
         var params: UInt32 = 0x00FE_FFFF
         var returned: DWORD = 0
@@ -167,7 +170,9 @@ private func connectHandle(_ h: SOCKET, _ ai: UnsafeMutablePointer<ADDRINFOA>) -
 private func isLoopback(_ address: UnsafeMutablePointer<sockaddr>) -> Bool {
     switch Int32(address.pointee.sa_family) {
     case AF_INET:
-        address.withMemoryRebound(to: sockaddr_in.self, capacity: 1) { UInt32(bigEndian: $0.pointee.sin_addr.S_un.S_addr) >> 24 == 127 }
+        address.withMemoryRebound(to: sockaddr_in.self, capacity: 1) {
+            UInt32(bigEndian: $0.pointee.sin_addr.S_un.S_addr) >> 24 == 127
+        }
     case AF_INET6:
         address.withMemoryRebound(to: sockaddr_in6.self, capacity: 1) {
             withUnsafeBytes(of: $0.pointee.sin6_addr) { Array($0) == Array(repeating: 0, count: 15) + [1] }

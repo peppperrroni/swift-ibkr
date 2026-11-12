@@ -3,7 +3,8 @@ import Foundation
 extension IBClient {
     /// Every option chain IB lists for `underlying` (one per exchange and trading class), once IB's end marker
     /// arrives. `underlying` needs its `conID`; `futFopExchange` is for futures options only. IB has no cancel for it.
-    public func optionChains(for underlying: Contract, futFopExchange: String = "") async throws(IBClientError) -> [OptionChain] {
+    public func optionChains(for underlying: Contract, futFopExchange: String = "")
+        async throws(IBClientError) -> [OptionChain] {
         try requireConnected()
         let id = nextRequestID()
         return try await collect(try openStream(
@@ -19,7 +20,8 @@ extension IBClient {
     }
 
     /// IB's implied volatility (and greeks) of option `contract` at `optionPrice` with the underlying at `underPrice`.
-    /// The first computation answers; IB's cancel follows it, as `ib_async` sends. Throws like `marketData` on a refusal.
+    /// The first computation answers; IB's cancel follows it, as `ib_async` sends.
+    /// Throws like `marketData` on a refusal.
     public func calculateImpliedVolatility(_ contract: Contract, optionPrice: Decimal, underPrice: Decimal,
                                            options: [TagValue] = []) async throws(IBClientError) -> OptionComputation {
         try requireConnected()

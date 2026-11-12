@@ -1,10 +1,21 @@
-public enum ErrorKind: Sendable { case notice, warning, orderCancelled, fatal }
+/// How the client treats an IB error code (the table in docs/DECISIONS.md).
+public enum ErrorKind: Sendable {
+    /// Informational; never fails a request.
+    case notice
+    /// Fails the request it names, but never rejects an order (`ib_async`'s warning codes).
+    case warning
+    /// 202, the confirmation of a cancel and not a rejection.
+    case orderCancelled
+    /// Every other code: fails the request it names.
+    case fatal
+}
 
 extension ErrorKind {
     /// Warnings and fatals both fail the request they name; only a fatal also rejects an order.
     var failsRequest: Bool { self == .warning || self == .fatal }
 }
 
+/// IB error codes and what the client makes of them.
 public enum ErrorCode {
     /// An explicit table (docs/DECISIONS.md), not a range rule: 10167 is delayed data, 202 is a cancel.
     public static func kind(_ code: Int) -> ErrorKind {

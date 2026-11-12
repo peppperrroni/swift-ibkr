@@ -1,8 +1,20 @@
+/// Why a client call or stream failed.
 public enum IBClientError: Error, Equatable, Sendable {
-    case notConnected, alreadyConnected, timeout, connectionClosed
+    /// A call was made while the client is not connected.
+    case notConnected
+    /// `connect` was called while connected, connecting or reconnecting.
+    case alreadyConnected
+    /// `connect` ran out of its timeout, or the reconnect probe heard nothing.
+    case timeout
+    /// The peer closed or reset the connection.
+    case connectionClosed
+    /// The socket failed; the text is the underlying error's.
     case transport(String)
+    /// IB sent bytes the library could not read.
     case protocolError(IBProtocolError)
+    /// The request could not be encoded.
     case encoding(IBEncodingError)
+    /// IB answered the request with this error code and text.
     case ib(code: Int, text: String)
     /// A market-data request refused for want of a subscription (`ErrorCode.isNoMarketDataPermission`).
     case noMarketDataPermission(code: Int, text: String)

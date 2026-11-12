@@ -1,93 +1,175 @@
 import Foundation
 
+/// Every request the client can send; the doc of each case names the IB message and its id.
 public enum IBRequest: Sendable, Equatable {
+    /// startApi (out 71). Sent by `connect` once the version handshake is done.
     case startAPI(clientID: Int, capabilities: String)
+    /// reqIds (out 8). Answered by nextValidId (in 9).
     case requestIDs
+    /// cancelOrder (out 4).
     case cancelOrder(orderID: Int, manualCancelTime: String)
-    case exerciseOptions(requestID: Int, contract: Contract, action: ExerciseAction, quantity: Int, account: String, override: Bool)
+    /// exerciseOptions (out 21).
+    case exerciseOptions(requestID: Int, contract: Contract, action: ExerciseAction,
+                         quantity: Int, account: String, override: Bool)
+    /// reqOpenOrders (out 5).
     case openOrders
+    /// reqAllOpenOrders (out 16). Sent by `connect`'s sync.
     case allOpenOrders
+    /// reqAutoOpenOrders (out 15).
     case autoOpenOrders(Bool)
+    /// reqCompletedOrders (out 99). Sent by `connect`'s sync.
     case completedOrders(apiOnly: Bool)
+    /// reqExecutions (out 7). Sent by `connect`'s sync.
     case executions(requestID: Int, filter: ExecutionFilter)
+    /// placeOrder (out 3). A modification is the same message sent again with the same `orderID`.
     case placeOrder(orderID: Int, contract: Contract, order: Order)
+    /// reqPositions (out 61). Sent by `connect`'s sync.
     case positions
+    /// reqAccountSummary (out 62).
     case accountSummary(requestID: Int, group: String, tags: [String])
+    /// cancelAccountSummary (out 63).
     case cancelAccountSummary(requestID: Int)
+    /// reqPnLSingle (out 94).
     case pnlSingle(requestID: Int, account: String, modelCode: String, conID: Int)
+    /// cancelPnLSingle (out 95).
     case cancelPnLSingle(requestID: Int)
+    /// reqAccountUpdates (out 6). Sent by `connect`'s sync for a single account.
     case accountUpdates(subscribe: Bool, account: String)
+    /// cancelPositions (out 64).
     case cancelPositions
+    /// reqPositionsMulti (out 74).
     case positionsMulti(requestID: Int, account: String, modelCode: String)
+    /// cancelPositionsMulti (out 75).
     case cancelPositionsMulti(requestID: Int)
+    /// reqAccountUpdatesMulti (out 76). Sent by `connect`'s sync, once per account, when there are several.
     case accountUpdatesMulti(requestID: Int, account: String, modelCode: String, ledgerAndNLV: Bool)
+    /// cancelAccountUpdatesMulti (out 77).
     case cancelAccountUpdatesMulti(requestID: Int)
+    /// reqPnL (out 92).
     case pnl(requestID: Int, account: String, modelCode: String)
+    /// cancelPnL (out 93).
     case cancelPnL(requestID: Int)
+    /// reqContractDetails (out 9).
     case contractDetails(requestID: Int, contract: Contract)
+    /// reqMatchingSymbols (out 81).
     case matchingSymbols(requestID: Int, pattern: String)
+    /// reqMarketDataType (out 59).
     case marketDataType(MarketDataType)
+    /// reqMktData (out 1).
     case marketData(requestID: Int, contract: Contract, genericTicks: [GenericTick] = [], snapshot: Bool = false,
                     regulatorySnapshot: Bool = false)
+    /// cancelMktData (out 2).
     case cancelMarketData(requestID: Int)
+    /// reqHistoricalData (out 20).
     case historicalData(requestID: Int, contract: Contract, end: Date?, barSize: String, duration: String,
                         rth: Bool, whatToShow: String, keepUpToDate: Bool)
+    /// cancelHistoricalData (out 25).
     case cancelHistoricalData(requestID: Int)
+    /// reqRealTimeBars (out 50).
     case realTimeBars(requestID: Int, contract: Contract, whatToShow: String, rth: Bool)
+    /// cancelRealTimeBars (out 51).
     case cancelRealTimeBars(requestID: Int)
+    /// reqMktDepth (out 10).
     case marketDepth(requestID: Int, contract: Contract, rows: Int, smart: Bool)
+    /// cancelMktDepth (out 11).
     case cancelMarketDepth(requestID: Int, smart: Bool)
+    /// reqTickByTickData (out 97).
     case tickByTick(requestID: Int, contract: Contract, type: TickByTickType)
+    /// cancelTickByTickData (out 98).
     case cancelTickByTick(requestID: Int)
+    /// reqHistoricalTicks (out 96).
     case historicalTicks(requestID: Int, contract: Contract, start: Date?, end: Date?, count: Int, whatToShow: String,
                          rth: Bool, ignoreSize: Bool)
+    /// reqHeadTimeStamp (out 87).
     case headTimeStamp(requestID: Int, contract: Contract, whatToShow: String, rth: Bool)
+    /// cancelHeadTimeStamp (out 90).
     case cancelHeadTimeStamp(requestID: Int)
+    /// reqHistogramData (out 88).
     case histogramData(requestID: Int, contract: Contract, rth: Bool, period: String)
+    /// cancelHistogramData (out 89).
     case cancelHistogramData(requestID: Int)
+    /// reqCurrentTime (out 49). Also the reconnect policy's silence probe.
     case currentTime
+    /// reqMktDepthExchanges (out 82).
     case depthExchanges
+    /// reqSmartComponents (out 83).
     case smartComponents(requestID: Int, bboExchange: String)
+    /// reqSecDefOptParams (out 78).
     case secDefOptParams(requestID: Int, underlyingSymbol: String, futFopExchange: String, underlyingSecType: String,
                          underlyingConID: Int)
+    /// calculateImpliedVolatility (out 54).
     case calculateImpliedVolatility(requestID: Int, contract: Contract, optionPrice: Decimal, underPrice: Decimal,
                                     options: [TagValue])
+    /// calculateOptionPrice (out 55).
     case calculateOptionPrice(requestID: Int, contract: Contract, volatility: Decimal, underPrice: Decimal,
                               options: [TagValue])
+    /// cancelCalculateImpliedVolatility (out 56).
     case cancelCalculateImpliedVolatility(requestID: Int)
+    /// cancelCalculateOptionPrice (out 57).
     case cancelCalculateOptionPrice(requestID: Int)
+    /// reqMarketRule (out 91).
     case marketRule(marketRuleID: Int)
+    /// reqFamilyCodes (out 80).
     case familyCodes
+    /// reqSoftDollarTiers (out 79).
     case softDollarTiers(requestID: Int)
+    /// reqScannerSubscription (out 22).
     case scannerSubscription(requestID: Int, subscription: ScannerSubscription, options: [TagValue],
                              filterOptions: [TagValue])
+    /// cancelScannerSubscription (out 23).
     case cancelScannerSubscription(requestID: Int)
+    /// reqScannerParameters (out 24).
     case scannerParameters
+    /// reqNewsProviders (out 85).
     case newsProviders
+    /// reqNewsBulletins (out 12).
     case newsBulletins(allMessages: Bool)
+    /// cancelNewsBulletins (out 13).
     case cancelNewsBulletins
+    /// reqNewsArticle (out 84).
     case newsArticle(requestID: Int, providerCode: String, articleID: String, options: [TagValue])
+    /// reqHistoricalNews (out 86).
     case historicalNews(requestID: Int, conID: Int, providerCodes: [String], start: Date?, end: Date?,
                         totalResults: Int, options: [TagValue])
+    /// reqFundamentalData (out 52).
     case fundamentalData(requestID: Int, contract: Contract, reportType: String, options: [TagValue])
+    /// cancelFundamentalData (out 53).
     case cancelFundamentalData(requestID: Int)
+    /// reqWshMetaData (out 100).
     case wshMetaData(requestID: Int)
+    /// cancelWshMetaData (out 101).
     case cancelWshMetaData(requestID: Int)
+    /// reqWshEventData (out 102).
     case wshEventData(requestID: Int, data: WshEventData)
+    /// cancelWshEventData (out 103).
     case cancelWshEventData(requestID: Int)
+    /// requestFA (out 18).
     case requestFA(FADataType)
+    /// replaceFA (out 19).
     case replaceFA(requestID: Int, type: FADataType, xml: String)
+    /// queryDisplayGroups (out 67).
     case queryDisplayGroups(requestID: Int)
+    /// subscribeToGroupEvents (out 68).
     case subscribeToGroupEvents(requestID: Int, groupID: Int)
+    /// updateDisplayGroup (out 69).
     case updateDisplayGroup(requestID: Int, contractInfo: String)
+    /// unsubscribeFromGroupEvents (out 70).
     case unsubscribeFromGroupEvents(requestID: Int)
+    /// verifyRequest (out 65).
     case verifyRequest(apiName: String, apiVersion: String)
+    /// verifyMessage (out 66).
     case verifyMessage(apiData: String)
+    /// verifyAndAuthRequest (out 72).
     case verifyAndAuthRequest(apiName: String, apiVersion: String, opaqueISVKey: String)
+    /// verifyAndAuthMessage (out 73).
     case verifyAndAuthMessage(apiData: String, xyzResponse: String)
+    /// reqManagedAccts (out 17). Answered by managedAccounts (in 15).
     case managedAccounts
+    /// reqUserInfo (out 104).
     case userInfo(requestID: Int)
+    /// setServerLogLevel (out 14).
     case serverLogLevel(ServerLogLevel)
+    /// reqGlobalCancel (out 58).
     case globalCancel
 
     /// Fields only; the caller frames them. Field order is docs/protocol-178.md.
@@ -123,7 +205,8 @@ public enum IBRequest: Sendable, Equatable {
         case .scannerSubscription(let reqID, let s, let options, let filterOptions):
             w.add(22); w.add(reqID); w.add(s.numberOfRows ?? -1)  // -1: IB's default row count
             try w.add(s.instrument); try w.add(s.locationCode); try w.add(s.scanCode)
-            w.add(s.abovePrice); w.add(s.belowPrice); w.add(s.aboveVolume); w.add(s.marketCapAbove); w.add(s.marketCapBelow)
+            w.add(s.abovePrice); w.add(s.belowPrice); w.add(s.aboveVolume)
+            w.add(s.marketCapAbove); w.add(s.marketCapBelow)
             try w.add(s.moodyRatingAbove); try w.add(s.moodyRatingBelow); try w.add(s.spRatingAbove)
             try w.add(s.spRatingBelow); try w.add(s.maturityDateAbove); try w.add(s.maturityDateBelow)
             w.add(s.couponRateAbove); w.add(s.couponRateBelow); w.add(s.excludeConvertible)
@@ -143,7 +226,8 @@ public enum IBRequest: Sendable, Equatable {
             w.add(84); w.add(reqID); try w.add(provider); try w.add(article); try w.add(Self.tagValues(options))
         case .historicalNews(let reqID, let conID, let providers, let start, let end, let total, let options):
             w.add(86); w.add(reqID); w.add(conID); try w.add(providers.joined(separator: "+"))
-            try w.add(start.map { Self.newsFormat.string(from: $0) } ?? ""); try w.add(end.map { Self.newsFormat.string(from: $0) } ?? "")
+            try w.add(start.map { Self.newsFormat.string(from: $0) } ?? "")
+            try w.add(end.map { Self.newsFormat.string(from: $0) } ?? "")
             w.add(total); try w.add(Self.tagValues(options))
         case .fundamentalData(let reqID, let c, let reportType, let options):
             // the contract block minus strike, right and multiplier, as ib_async sends it
@@ -246,7 +330,8 @@ public enum IBRequest: Sendable, Equatable {
             w.add(93); w.add(reqID)
         case .contractDetails(let reqID, let c):
             w.add(9); w.add(8); w.add(reqID); try Self.contract(&w, c)
-            w.add(false); try w.add(c.secIDType); try w.add(c.secID); try w.add("")  // includeExpired, secIdType, secId, issuerId
+            // includeExpired, secIdType, secId, issuerId
+            w.add(false); try w.add(c.secIDType); try w.add(c.secID); try w.add("")
         case .matchingSymbols(let reqID, let pattern):
             w.add(81); w.add(reqID); try w.add(pattern)
         case .marketDataType(let t):
@@ -288,16 +373,19 @@ public enum IBRequest: Sendable, Equatable {
         case .cancelTickByTick(let reqID):
             w.add(98); w.add(reqID)
         case .headTimeStamp(let reqID, let c, let what, let rth):
-            w.add(87); w.add(reqID); try Self.contract(&w, c); w.add(false); w.add(rth); try w.add(what); w.add(2)  // includeExpired, useRTH, whatToShow, formatDate
+            // includeExpired, useRTH, whatToShow, formatDate
+            w.add(87); w.add(reqID); try Self.contract(&w, c); w.add(false); w.add(rth); try w.add(what); w.add(2)
         case .cancelHeadTimeStamp(let reqID):
             w.add(90); w.add(reqID)
         case .histogramData(let reqID, let c, let rth, let period):
-            w.add(88); w.add(reqID); try Self.contract(&w, c); w.add(false); w.add(rth); try w.add(period)  // includeExpired, useRTH, timePeriod
+            // includeExpired, useRTH, timePeriod
+            w.add(88); w.add(reqID); try Self.contract(&w, c); w.add(false); w.add(rth); try w.add(period)
         case .cancelHistogramData(let reqID):
             w.add(89); w.add(reqID)
         case .historicalTicks(let reqID, let c, let start, let end, let count, let what, let rth, let ignoreSize):
             w.add(96); w.add(reqID); try Self.contract(&w, c); w.add(false)  // includeExpired
-            try w.add(start.map { Self.endFormat.string(from: $0) } ?? ""); try w.add(end.map { Self.endFormat.string(from: $0) } ?? "")
+            try w.add(start.map { Self.endFormat.string(from: $0) } ?? "")
+            try w.add(end.map { Self.endFormat.string(from: $0) } ?? "")
             w.add(count); try w.add(what); w.add(rth); w.add(ignoreSize); try w.add("")  // miscOptions
         }
         return w.body
@@ -330,7 +418,8 @@ public enum IBRequest: Sendable, Equatable {
     }
 
     /// The 12-field contract block every outgoing request shares (placeOrder rows 2-13). Only placeOrder,
-    /// marketData and historicalData pass `allowBag: true` (they send a `BAG`'s legs), so every other request refuses one.
+    /// marketData and historicalData pass `allowBag: true` (they send a `BAG`'s legs), so every other request
+    /// refuses one.
     static func contract(_ w: inout FieldWriter, _ c: Contract, allowBag: Bool = false) throws(IBEncodingError) {
         if c.secType == "BAG" && !allowBag { throw .unsupported("secType BAG") }
         w.add(c.conID); try w.add(c.symbol); try w.add(c.secType); try w.add(c.lastTradeDateOrContractMonth)

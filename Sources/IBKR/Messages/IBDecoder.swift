@@ -1,5 +1,6 @@
 import Foundation
 
+/// Turns one frame body into an `IBMessage` (incoming message ids per docs/protocol-178.md).
 public enum IBDecoder {
     /// Never throws. A non-numeric message id is `.malformed` with id 0.
     public static func decode(_ body: [UInt8]) -> IBMessage {
@@ -14,7 +15,8 @@ public enum IBDecoder {
             case 3: return .orderStatus(try orderStatus(&r))
             case 4:
                 try r.skip()
-                return .error(IBErrorMessage(requestID: try r.int(), code: try r.int(), text: unescapeUnicode(try r.string()),
+                return .error(IBErrorMessage(requestID: try r.int(), code: try r.int(),
+                                             text: unescapeUnicode(try r.string()),
                                              advancedOrderRejectJSON: try r.string()))
             case 5: return .openOrder(try openOrder(&r))
             case 9: try r.skip(); return .nextValidID(try r.int())
@@ -46,7 +48,9 @@ public enum IBDecoder {
                 return .tick(requestID: id, .string(f, try r.string()))
             case 58:
                 try r.skip(); let id = try r.int(), raw = try r.int()
-                guard let t = MarketDataType(rawValue: raw) else { throw IBProtocolError.badNumber(String(raw), index: r.index - 1) }
+                guard let t = MarketDataType(rawValue: raw) else {
+                    throw IBProtocolError.badNumber(String(raw), index: r.index - 1)
+                }
                 return .tick(requestID: id, .dataType(t))
             case 17:
                 let id = try r.int(); try r.skip(2)  // startDate, endDate
@@ -60,7 +64,8 @@ public enum IBDecoder {
                 return .historicalData(requestID: id, bars)
             case 90:
                 let id = try r.int(), count = try r.int(), time = try barTime(&r)
-                let open = try r.decimal(), close = try r.decimal(), high = try r.decimal(), low = try r.decimal()  // O,C,H,L
+                let open = try r.decimal(), close = try r.decimal()
+                let high = try r.decimal(), low = try r.decimal()   // O,C,H,L, as IB sends them
                 let average = try r.optionalDecimal()
                 return .historicalDataUpdate(requestID: id, Bar(
                     time: time, open: open, high: high, low: low, close: close, volume: try r.decimal(),
@@ -68,13 +73,15 @@ public enum IBDecoder {
             case 50:
                 try r.skip(); let id = try r.int(), time = Date(timeIntervalSince1970: Double(try r.int()))
                 return .realTimeBar(requestID: id, Bar(
-                    time: time, open: try r.decimal(), high: try r.decimal(), low: try r.decimal(), close: try r.decimal(),
+                    time: time, open: try r.decimal(), high: try r.decimal(), low: try r.decimal(),
+                    close: try r.decimal(),
                     volume: try r.decimal(), average: try r.optionalDecimal(), count: try r.int()))
             case 12:
                 try r.skip(); let id = try r.int(), pos = try r.int(), op = try r.int(), side = try r.int()
                 return .depth(requestID: id, try depthUpdate(pos, "", op, side, &r))
             case 13:
-                try r.skip(); let id = try r.int(), pos = try r.int(), mm = try r.string(), op = try r.int(), side = try r.int()
+                try r.skip(); let id = try r.int(), pos = try r.int(), mm = try r.string()
+                let op = try r.int(), side = try r.int()
                 let u = try depthUpdate(pos, mm, op, side, &r)
                 _ = try r.bool()  // isSmartDepth
                 return .depth(requestID: id, u)
@@ -87,9 +94,11 @@ public enum IBDecoder {
                         time: time, price: price, size: size, exchange: try r.string(), conditions: try r.string(),
                         pastLimit: mask & 1 != 0, unreported: mask & 2 != 0))
                 case 3:
-                    let bid = try r.decimal(), ask = try r.decimal(), bidSize = try r.decimal(), askSize = try r.decimal()
+                    let bid = try r.decimal(), ask = try r.decimal()
+                    let bidSize = try r.decimal(), askSize = try r.decimal()
                     try r.skip()  // attribMask
-                    return .tickByTick(requestID: id, .bidAsk(time: time, bidPrice: bid, askPrice: ask, bidSize: bidSize, askSize: askSize))
+                    return .tickByTick(requestID: id, .bidAsk(
+                        time: time, bidPrice: bid, askPrice: ask, bidSize: bidSize, askSize: askSize))
                 case 4: return .tickByTick(requestID: id, .midPoint(time: time, price: try r.decimal()))
                 default: throw IBProtocolError.badNumber(String(type), index: r.index - 1)
                 }
@@ -117,11 +126,17 @@ public enum IBDecoder {
             case 77: return try softDollarTiers(&r)
             case 19: try r.skip(); return .scannerParameters(try r.string())
             case 20: return try scannerData(&r)
-            case 85: return .newsProviders(try (0..<wireCount(&r)).map { _ in NewsProvider(code: try r.string(), name: try r.string()) })
-            case 83: return .newsArticle(requestID: try r.int(), NewsArticle(articleType: try r.int(), articleText: try r.string()))
+            case 85:
+                return .newsProviders(try (0..<wireCount(&r)).map { _ in
+                    NewsProvider(code: try r.string(), name: try r.string())
+                })
+            case 83:
+                return .newsArticle(requestID: try r.int(),
+                                    NewsArticle(articleType: try r.int(), articleText: try r.string()))
             case 86:
                 return .historicalNews(requestID: try r.int(), HistoricalNews(
-                    time: try r.string(), providerCode: try r.string(), articleID: try r.string(), headline: try r.string()))
+                    time: try r.string(), providerCode: try r.string(), articleID: try r.string(),
+                    headline: try r.string()))
             case 14:
                 try r.skip()
                 return .newsBulletin(NewsBulletin(msgID: try r.int(), msgType: try r.int(), message: try r.string(),
@@ -132,7 +147,9 @@ public enum IBDecoder {
             case 16:
                 try r.skip()
                 let raw = try r.int()
-                guard let type = FADataType(rawValue: raw) else { throw IBProtocolError.badNumber(String(raw), index: r.index - 1) }
+                guard let type = FADataType(rawValue: raw) else {
+                    throw IBProtocolError.badNumber(String(raw), index: r.index - 1)
+                }
                 return .receiveFA(type: type, xml: try r.string())
             case 103: return .replaceFAEnd(requestID: try r.int(), try r.string())
             case 67: try r.skip(); return .displayGroupList(requestID: try r.int(), try r.string())
@@ -171,7 +188,8 @@ public enum IBDecoder {
             case 7:
                 try r.skip()
                 var c = try contract(&r)
-                c.primaryExchange = c.exchange; c.exchange = ""  // this layout carries primaryExchange in the exchange slot
+                // this layout carries primaryExchange in the exchange slot
+                c.primaryExchange = c.exchange; c.exchange = ""
                 let quantity = try r.decimal(), price = try r.decimal(), value = try r.decimal(), cost = try r.decimal()
                 let unrealized = try r.optionalDecimal(), realized = try r.optionalDecimal()
                 return .portfolioItem(PortfolioItem(
@@ -195,7 +213,8 @@ public enum IBDecoder {
             case 74: try r.skip(); return .accountUpdateMultiEnd(requestID: try r.int())
             case 94:
                 return .pnl(requestID: try r.int(), AccountPnL(
-                    daily: try r.optionalDecimal(), unrealized: try r.optionalDecimal(), realized: try r.optionalDecimal()))
+                    daily: try r.optionalDecimal(), unrealized: try r.optionalDecimal(),
+                    realized: try r.optionalDecimal()))
             case 95:
                 return .pnlSingle(requestID: try r.int(), PnL(
                     position: try r.decimal(), daily: try r.optionalDecimal(), unrealized: try r.optionalDecimal(),
@@ -252,10 +271,16 @@ public enum IBDecoder {
         })
     }
 
-    private static func depthUpdate(_ pos: Int, _ mm: String, _ op: Int, _ side: Int, _ r: inout FieldReader) throws -> DepthUpdate {
-        guard let o = DepthUpdate.Operation(rawValue: op) else { throw IBProtocolError.badNumber(String(op), index: r.index - 1) }
-        guard let s = DepthUpdate.Side(rawValue: side) else { throw IBProtocolError.badNumber(String(side), index: r.index - 1) }
-        return DepthUpdate(position: pos, marketMaker: mm, operation: o, side: s, price: try r.decimal(), size: try r.decimal())
+    private static func depthUpdate(_ pos: Int, _ mm: String, _ op: Int, _ side: Int,
+                                    _ r: inout FieldReader) throws -> DepthUpdate {
+        guard let o = DepthUpdate.Operation(rawValue: op) else {
+            throw IBProtocolError.badNumber(String(op), index: r.index - 1)
+        }
+        guard let s = DepthUpdate.Side(rawValue: side) else {
+            throw IBProtocolError.badNumber(String(side), index: r.index - 1)
+        }
+        return DepthUpdate(position: pos, marketMaker: mm, operation: o, side: s,
+                           price: try r.decimal(), size: try r.decimal())
     }
 
     /// A repeat count off the wire: a negative one is a corrupt frame, not an empty list (and `0..<n` traps on it).

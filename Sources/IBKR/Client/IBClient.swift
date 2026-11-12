@@ -1,7 +1,11 @@
 import Foundation
+/// Where an `IBClient` stands, as `states()` reports it.
 public enum ConnectionState: Sendable, Equatable {
+    /// Not connected: `nil` after `disconnect()` or before any connect, else the error that ended the connection.
     case disconnected(IBClientError?)
+    /// `connect` or a reconnect attempt is under way.
     case connecting
+    /// The handshake and the sync are done; the server's version and the managed account ids.
     case connected(serverVersion: Int, accounts: [String])
 }
 
@@ -64,6 +68,7 @@ public actor IBClient {
     private var probeTask: Task<Void, Never>?
     private var lastFrame = ContinuousClock.now
 
+    /// Creates a client that is not connected; `connect` opens the socket.
     public init() {
         self.init(connector: { host, port, timeout in
             try await TCPSocket.connect(host: host, port: port, timeout: timeout)
@@ -150,7 +155,8 @@ public actor IBClient {
     private func probe(every: Duration, _ gen: Int) async {
         var probedAt: ContinuousClock.Instant?
         while true {
-            guard (try? await Task.sleep(until: (probedAt ?? lastFrame) + every)) != nil, gen == generation else { return }
+            guard (try? await Task.sleep(until: (probedAt ?? lastFrame) + every)) != nil,
+                  gen == generation else { return }
             if let p = probedAt {
                 if lastFrame >= p { probedAt = nil } else { return end(.timeout) }
             } else if ContinuousClock.now - lastFrame >= every {
@@ -161,7 +167,8 @@ public actor IBClient {
     }
 
     private func cancelConnect(_ gen: Int) {
-        if gen == generation, state == .connecting { end(.cancelled) }   // `.connecting`: a late cancel keeps a done connect
+        // `.connecting`: a late cancel keeps a done connect
+        if gen == generation, state == .connecting { end(.cancelled) }
     }
 
     /// Reports `.disconnected(nil)` and ends the request streams at once. From `.connected` it first queues
@@ -251,7 +258,8 @@ public actor IBClient {
                                 override: Bool = false) throws(IBClientError) -> Int {
         try requireConnected()
         let id = nextRequestID()
-        try send(.exerciseOptions(requestID: id, contract: contract, action: action, quantity: quantity, account: account, override: override))
+        try send(.exerciseOptions(requestID: id, contract: contract, action: action, quantity: quantity,
+                                  account: account, override: override))
         return id
     }
 
@@ -268,7 +276,8 @@ public actor IBClient {
     /// The positions known now, then every whole new set from now on. Always on: `connect` requests them and
     /// they stream for the whole connection.
     public func positions() -> (snapshot: [Position], updates: AsyncStream<[Position]>) {
-        (positionTracker.positions, positionSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(position: id) } })
+        (positionTracker.positions,
+         positionSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(position: id) } })
     }
 
     /// The portfolio known now, then every whole new set from now on. Always on, like `positions()`: `connect`
@@ -341,9 +350,13 @@ public actor IBClient {
                               cancel: .cancelPositionsMulti(requestID: id)) { message, out in
             switch message {
             case .positionMulti(_, let p):
-                positions.removeAll { ($0.account, $0.modelCode, $0.contract.conID) == (p.account, p.modelCode, p.contract.conID) }
+                positions.removeAll {
+                    ($0.account, $0.modelCode, $0.contract.conID) == (p.account, p.modelCode, p.contract.conID)
+                }
                 if p.quantity != 0 { positions.append(p) }
-                positions.sort { ($0.account, $0.modelCode, $0.contract.conID) < ($1.account, $1.modelCode, $1.contract.conID) }
+                positions.sort {
+                    ($0.account, $0.modelCode, $0.contract.conID) < ($1.account, $1.modelCode, $1.contract.conID)
+                }
             case .positionMultiEnd: ended = true
             default: return false
             }
@@ -425,7 +438,8 @@ public actor IBClient {
     ) throws(IBClientError) -> AsyncThrowingStream<Tick, any Error> {
         try requireConnected()
         let id = nextRequestID()
-        return try openStream(.marketData(requestID: id, contract: contract, genericTicks: genericTicks, snapshot: snapshot,
+        return try openStream(.marketData(requestID: id, contract: contract, genericTicks: genericTicks,
+                                          snapshot: snapshot,
                                           regulatorySnapshot: regulatorySnapshot), id: id,
                               cancel: .cancelMarketData(requestID: id)) { message, out in
             switch message {
@@ -464,7 +478,8 @@ public actor IBClient {
     }
 
     /// The trading sessions of `contract` over the last `days` days up to `end` (nil is now), as IB's history request
-    /// with `whatToShow` SCHEDULE. Throws like `contractDetails` when IB refuses it; a missing permission sends the cancel.
+    /// with `whatToShow` SCHEDULE. Throws like `contractDetails` when IB refuses it; a missing permission sends
+    /// the cancel.
     public func historicalSchedule(_ contract: Contract, days: Int, end: Date? = nil, rth: Bool = true)
         async throws(IBClientError) -> HistoricalSchedule {
         try requireConnected()
@@ -472,7 +487,8 @@ public actor IBClient {
         let stream = try openStream(.historicalData(requestID: id, contract: contract, end: end, barSize: "1 day",
                                                     duration: "\(days) D", rth: rth, whatToShow: "SCHEDULE",
                                                     keepUpToDate: false),
-                                    id: id, cancel: .cancelHistoricalData(requestID: id)) { (message, out: AsyncThrowingStream<HistoricalSchedule, any Error>.Continuation) in
+                                    id: id, cancel: .cancelHistoricalData(requestID: id)) {
+            (message, out: AsyncThrowingStream<HistoricalSchedule, any Error>.Continuation) in
             guard case .historicalSchedule(_, let schedule) = message else { return false }
             out.yield(schedule); out.finish(); return true
         }
@@ -481,16 +497,19 @@ public actor IBClient {
     }
 
     /// Historical midpoint (`whatToShow` "MIDPOINT"), bid/ask ("BID_ASK") or trade ("TRADES") ticks, up to `count`,
-    /// from `start` or up to `end` (nil is unset). IB has no cancel for it, so none is sent. Throws like `contractDetails`.
+    /// from `start` or up to `end` (nil is unset). IB has no cancel for it, so none is sent. Throws like
+    /// `contractDetails`.
     public func historicalTicks(
         _ contract: Contract, start: Date? = nil, end: Date? = nil, count: Int, whatToShow: String = "TRADES",
         rth: Bool = true, ignoreSize: Bool = false
     ) async throws(IBClientError) -> [TickByTick] {
         try requireConnected()
         let id = nextRequestID()
-        let stream = try openStream(.historicalTicks(requestID: id, contract: contract, start: start, end: end, count: count,
+        let stream = try openStream(.historicalTicks(requestID: id, contract: contract, start: start, end: end,
+                                                     count: count,
                                                      whatToShow: whatToShow, rth: rth, ignoreSize: ignoreSize),
-                                    id: id, cancel: nil) { (message, out: AsyncThrowingStream<TickByTick, any Error>.Continuation) in
+                                    id: id, cancel: nil) {
+            (message, out: AsyncThrowingStream<TickByTick, any Error>.Continuation) in
             guard case .historicalTicks(_, let ticks, let done) = message else { return false }
             ticks.forEach { out.yield($0) }
             if done { out.finish() }
@@ -499,14 +518,16 @@ public actor IBClient {
         return try await collect(stream)
     }
 
-    /// The date of the earliest data IB has for `contract` and `whatToShow`. Throws like `contractDetails` when IB refuses it.
+    /// The date of the earliest data IB has for `contract` and `whatToShow`. Throws like `contractDetails` when IB
+    /// refuses it.
     /// IB's cancel goes out after the answer, as `ib_async` does.
     public func headTimeStamp(_ contract: Contract, whatToShow: String = "TRADES", rth: Bool = true)
         async throws(IBClientError) -> Date {
         try requireConnected()
         let id = nextRequestID()
         let stream = try openStream(.headTimeStamp(requestID: id, contract: contract, whatToShow: whatToShow, rth: rth),
-                                    id: id, cancel: .cancelHeadTimeStamp(requestID: id)) { (message, out: AsyncThrowingStream<Date, any Error>.Continuation) in
+                                    id: id, cancel: .cancelHeadTimeStamp(requestID: id)) {
+            (message, out: AsyncThrowingStream<Date, any Error>.Continuation) in
             guard case .headTimeStamp(_, let date) = message else { return false }
             out.yield(date); out.finish(); return false   // false: the termination hop sends the cancel
         }
@@ -520,8 +541,10 @@ public actor IBClient {
         async throws(IBClientError) -> [HistogramData] {
         try requireConnected()
         let id = nextRequestID()
-        return try await collect(try openStream(.histogramData(requestID: id, contract: contract, rth: rth, period: period),
-                                                id: id, cancel: .cancelHistogramData(requestID: id)) { (message, out: AsyncThrowingStream<[HistogramData], any Error>.Continuation) in
+        return try await collect(try openStream(.histogramData(requestID: id, contract: contract, rth: rth,
+                                                                period: period),
+                                                id: id, cancel: .cancelHistogramData(requestID: id)) {
+            (message, out: AsyncThrowingStream<[HistogramData], any Error>.Continuation) in
             guard case .histogramData(_, let list) = message else { return false }
             out.yield(list); out.finish(); return true
         }).flatMap { $0 }
@@ -570,7 +593,8 @@ public actor IBClient {
     /// deduplication; a slow consumer keeps only the newest. `depthRows` adds `marketDepth`'s book; it is opened
     /// first, since it refuses everything `marketData` refuses and BAG too. The first inner error ends the stream with
     /// that error, and however it ends, every request still open is cancelled.
-    public func tickers(_ contract: Contract, genericTicks: [GenericTick] = [], depthRows: Int? = nil, smartDepth: Bool = true)
+    public func tickers(_ contract: Contract, genericTicks: [GenericTick] = [], depthRows: Int? = nil,
+                        smartDepth: Bool = true)
         throws(IBClientError) -> AsyncThrowingStream<Ticker, any Error> {
         var depth: AsyncThrowingStream<DepthBook, any Error>?
         if let depthRows { depth = try marketDepth(contract, rows: depthRows, smart: smartDepth) }
@@ -587,12 +611,15 @@ public actor IBClient {
     /// is cancelled, where `ib_async` returns partial tickers; a cancelled calling task throws `.cancelled`.
     /// There is no timeout: a request IB never ends keeps the call waiting until the calling task is cancelled, as
     /// with `ib_async`'s default `RequestTimeout` 0. An already-cancelled caller sends nothing.
-    public func tickers(for contracts: [Contract], regulatorySnapshot: Bool = false) async throws(IBClientError) -> [Ticker] {
+    public func tickers(for contracts: [Contract], regulatorySnapshot: Bool = false)
+        async throws(IBClientError) -> [Ticker] {
         try requireConnected()
         if Task.isCancelled { throw .cancelled }
         var streams: [AsyncThrowingStream<Tick, any Error>] = []
         do throws(IBClientError) {
-            for c in contracts { streams.append(try marketData(c, snapshot: true, regulatorySnapshot: regulatorySnapshot)) }
+            for c in contracts {
+                streams.append(try marketData(c, snapshot: true, regulatorySnapshot: regulatorySnapshot))
+            }
         } catch {
             streams.forEach(Self.stop)
             throw error
@@ -629,7 +656,9 @@ public actor IBClient {
         let (parts, feed) = AsyncThrowingStream.makeStream(of: TickerPart.self, throwing: (any Error).self)
         func forward<E: Sendable>(_ s: AsyncThrowingStream<E, any Error>, _ wrap: @escaping @Sendable (E) -> TickerPart)
             -> Task<Void, Never> {
-            Task { do { for try await e in s { feed.yield(wrap(e)) }; feed.finish() } catch { feed.finish(throwing: error) } }
+            Task {
+                do { for try await e in s { feed.yield(wrap(e)) }; feed.finish() } catch { feed.finish(throwing: error) }
+            }
         }
         let readers = [forward(quotes, TickerPart.tick)] + (depth.map { [forward($0, TickerPart.book)] } ?? [])
         let (stream, out) = AsyncThrowingStream.makeStream(of: Ticker.self, throwing: (any Error).self,
@@ -739,7 +768,8 @@ public actor IBClient {
     func answer<T: Sendable>(_ request: IBRequest, id: Int? = nil, cancel: IBRequest? = nil, thenCancel: Bool = false,
                              pick: @escaping @Sendable (IBMessage) -> T?) async throws(IBClientError) -> T {
         let key = id ?? nextLocalID()
-        let stream = try openStream(request, id: key, cancel: cancel) { (message, out: AsyncThrowingStream<T, any Error>.Continuation) in
+        let stream = try openStream(request, id: key, cancel: cancel) {
+            (message, out: AsyncThrowingStream<T, any Error>.Continuation) in
             guard let value = pick(message) else { return false }
             out.yield(value); out.finish(); return !thenCancel
         }
@@ -830,8 +860,10 @@ public actor IBClient {
         case .openOrder(let m) where m.order.whatIf:   // whatIfOrder's answer, keyed by the order id it took
             if requestStreams[m.orderID]?.route(message) == true { requestStreams[m.orderID] = nil }
         case .currentTime, .managedAccounts, .nextValidID, .depthExchanges, .marketRule, .familyCodes,
-             .scannerParameters, .newsProviders, .newsBulletin, .receiveFA:   // no reqId: the oldest waiter that takes it gets it
-            for key in requestStreams.keys.filter({ $0 < -1 }).sorted(by: >) where requestStreams[key]?.route(message) == true {
+             // no reqId: the oldest waiter that takes it gets it
+             .scannerParameters, .newsProviders, .newsBulletin, .receiveFA:
+            for key in requestStreams.keys.filter({ $0 < -1 }).sorted(by: >)
+                where requestStreams[key]?.route(message) == true {
                 requestStreams[key] = nil
                 break
             }

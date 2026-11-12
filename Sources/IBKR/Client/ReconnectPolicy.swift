@@ -9,6 +9,7 @@ public struct ReconnectPolicy: Sendable, Equatable {
     /// connection with `.timeout`. `nil`: no probe.
     public var probeAfter: Duration?
 
+    /// Creates a policy with every field given.
     public init(delays: [Duration] = [.seconds(1), .seconds(2), .seconds(5), .seconds(10), .seconds(30)],
                 maxAttempts: Int? = nil, probeAfter: Duration? = .seconds(30)) {
         self.delays = delays
