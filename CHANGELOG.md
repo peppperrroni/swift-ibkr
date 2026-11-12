@@ -38,6 +38,9 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
   `algoStrategy` / `algoParams`, the PEG BENCH reference fields, `conditions` with `conditionsIgnoreRTH` /
   `conditionsCancelOrder`, `minTradeQty`, `minCompeteSize`, `competeAgainstBestOffset` and the mid offsets. New types
   `OrderCondition` and `CompeteOffset`.
+- `whatIfOrder(_:_:)` returns IB's margin and commission for an order without placing it, as a new `OrderState`
+  (nine margins and three commissions as `Decimal?`, `commissionCurrency`, `warningText`). openOrder decodes it into
+  the new `OpenOrderMessage.state`; what-if openOrders never reach `orders()`.
 
 ### Changed
 - `contractDetails` sends the contract's `secIDType` and `secID` instead of empty fields.
@@ -50,6 +53,8 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
   marks an unacknowledged order inactive. Error `text` has its `\uXXXX` escapes decoded.
 - A write that finds the peer gone throws `.connectionClosed`, not `.transport("send: ...")`, whether or not the
   reader has seen the close yet. A peer reset seen by the reader is `.connectionClosed` too.
+- `placeOrder` and `modifyOrder` refuse an order with `whatIf` set (`.encoding(.unsupported("whatIf"))`): use
+  `whatIfOrder`.
 
 ### Removed
 - `OrderKey` is no longer public; the public API never used it.

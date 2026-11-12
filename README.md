@@ -173,6 +173,8 @@ _ = try await client.placeOrder(aapl, profit)
 _ = try await client.placeOrder(aapl, stop)
 ```
 
+`try await client.whatIfOrder(aapl, order)` returns IB's margin and commission for an order without placing it.
+
 Outgoing text must be printable ASCII. This is the same rule as IB's own client, and anything else throws
 `IBEncodingError.nonASCII(field:)`.
 

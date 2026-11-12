@@ -185,7 +185,8 @@ public actor IBClient {
     }
 
     /// Queues the order and returns its id at once; IB's answer arrives through `orders()`. Throws
-    /// `.notConnected` unless the state is `.connected`, and `.encoding` when the order does not encode.
+    /// `.notConnected` unless the state is `.connected`, and `.encoding` when the order does not encode or has
+    /// `whatIf` set (use `whatIfOrder`).
     public func placeOrder(_ contract: Contract, _ order: Order) throws(IBClientError) -> Int {
         try requireConnected()
         let id = nextRequestID()
@@ -197,6 +198,19 @@ public actor IBClient {
     public func modifyOrder(_ orderID: Int, _ contract: Contract, _ order: Order) throws(IBClientError) {
         try requireConnected()
         try submit(orderID, contract, order)
+    }
+
+    /// IB's margin and commission for `order`, worked out without placing it; nothing reaches `orders()`. Throws
+    /// like `contractDetails`: IB's error for it (201 when IB refuses the order), or the connection ending.
+    public func whatIfOrder(_ contract: Contract, _ order: Order) async throws(IBClientError) -> OrderState {
+        try requireConnected()
+        let id = nextRequestID()
+        var o = order
+        o.whatIf = true
+        return try await answer(.placeOrder(orderID: id, contract: contract, order: o), id: id) {
+            // IB may first echo the order with no margins: only the one carrying them answers
+            if case .openOrder(let m) = $0, m.order.whatIf, m.state.initMarginChange != nil { m.state } else { nil }
+        }
     }
 
     public func cancelOrder(_ orderID: Int) throws(IBClientError) {
@@ -514,7 +528,9 @@ public actor IBClient {
         guard case .connected = state else { throw .notConnected }
     }
 
+    /// A what-if order is never placed: it goes through `whatIfOrder`.
     private func submit(_ id: Int, _ contract: Contract, _ order: Order) throws(IBClientError) {
+        if order.whatIf { throw .encoding(.unsupported("whatIf")) }
         try send(.placeOrder(orderID: id, contract: contract, order: order))
         orderTracker.sent(orderID: id, clientID: clientID, contract: contract, order: order)
     }
@@ -558,6 +574,8 @@ public actor IBClient {
              .tickByTick(let id, _), .userInfo(let id, _), .positionMulti(let id, _), .positionMultiEnd(let id),
              .accountUpdateMulti(let id, _), .accountUpdateMultiEnd(let id), .pnl(let id, _):
             if requestStreams[id]?.route(message) == true { requestStreams[id] = nil }   // before any termination hop
+        case .openOrder(let m) where m.order.whatIf:   // whatIfOrder's answer, keyed by the order id it took
+            if requestStreams[m.orderID]?.route(message) == true { requestStreams[m.orderID] = nil }
         case .currentTime, .managedAccounts, .nextValidID:   // no reqId: the oldest waiter that takes it gets it
             for key in requestStreams.keys.filter({ $0 < -1 }).sorted(by: >) where requestStreams[key]?.route(message) == true {
                 requestStreams[key] = nil

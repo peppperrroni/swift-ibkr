@@ -36,6 +36,10 @@ import Testing
     #expect(IBErrorMessage(requestID: 1, code: 2104, text: "t", advancedOrderRejectJSON: "").advancedOrderRejectJSON == "")
     #expect(OpenOrderMessage(
         orderID: 5, clientID: 4, permID: 3, contract: contract, order: order, status: .submitted).permID == 3)
+    #expect(OrderState().commission == nil)
+    #expect(OpenOrderMessage(
+        orderID: 5, clientID: 4, permID: 3, contract: contract, order: order, status: .submitted,
+        state: OrderState(commission: 1)).state.commission == 1)
     #expect(CompletedOrderMessage(
         permID: 3, contract: contract, order: order, status: .filled, completedTime: "", completedStatus: "",
         filledQuantity: 1).permID == 3)

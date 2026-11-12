@@ -253,3 +253,17 @@ private func expectConditionalGroups(_ c: Contract, _ o: Order) {
                                    .margin(isMore: true, percent: 30)])
     #expect(isMalformed(Array(f.dropLast())))
 }
+
+@Test func openOrderDecodesTheWhatIfState() {
+    var f = openFields()
+    f[84] = "1"
+    f[86...99] = ["1000", "800", "10000", "250.5", "200.25", "-1.5", "1250.5", "1000.25", "9998.5", "1.25", "1", "1.5",
+                  "USD", "margin warning"]
+    let m = openOrder(f)
+    #expect(m?.order.whatIf == true)
+    #expect(m?.state == OrderState(
+        initMarginBefore: 1000, maintMarginBefore: 800, equityWithLoanBefore: 10000, initMarginChange: d("250.5"),
+        maintMarginChange: d("200.25"), equityWithLoanChange: d("-1.5"), initMarginAfter: d("1250.5"),
+        maintMarginAfter: d("1000.25"), equityWithLoanAfter: d("9998.5"), commission: d("1.25"), minCommission: 1,
+        maxCommission: d("1.5"), commissionCurrency: "USD", warningText: "margin warning"))
+}

@@ -74,6 +74,8 @@ public struct OrderTracker: Sendable {
 
     public mutating func apply(_ message: IBMessage) -> [OrderSnapshot] {
         switch message {
+        case .openOrder(let m) where m.order.whatIf:
+            return []   // a what-if answer, not a live order: whatIfOrder takes it
         case .openOrder(let m):
             let key = Self.key(m.orderID, m.clientID, m.permID)
             let heldStatus = held.removeValue(forKey: key)

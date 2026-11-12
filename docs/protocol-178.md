@@ -745,20 +745,20 @@ no smart-routing params.
 | 83 | solicited ★ | bool | |
 | 84 | whatIf ★ | bool | |
 | 85 | status | string | OrderState.status |
-| 86 | initMarginBefore | string | |
-| 87 | maintMarginBefore | string | |
-| 88 | equityWithLoanBefore | string | |
-| 89 | initMarginChange | string | |
-| 90 | maintMarginChange | string | |
-| 91 | equityWithLoanChange | string | |
-| 92 | initMarginAfter | string | |
-| 93 | maintMarginAfter | string | |
-| 94 | equityWithLoanAfter | string | |
-| 95 | commission | double | |
-| 96 | minCommission | double | |
-| 97 | maxCommission | double | |
-| 98 | commissionCurrency | string | |
-| 99 | warningText | string | (the outside-RTH margin block starts at 195 — absent) |
+| 86 | initMarginBefore ★ | string | `OrderState`, `Decimal?`; `""` and the sentinels → nil |
+| 87 | maintMarginBefore ★ | string | `OrderState`, as 86 |
+| 88 | equityWithLoanBefore ★ | string | `OrderState`, as 86 |
+| 89 | initMarginChange ★ | string | `OrderState`, as 86 |
+| 90 | maintMarginChange ★ | string | `OrderState`, as 86 |
+| 91 | equityWithLoanChange ★ | string | `OrderState`, as 86 |
+| 92 | initMarginAfter ★ | string | `OrderState`, as 86 |
+| 93 | maintMarginAfter ★ | string | `OrderState`, as 86 |
+| 94 | equityWithLoanAfter ★ | string | `OrderState`, as 86 |
+| 95 | commission ★ | double | `OrderState`, as 86 |
+| 96 | minCommission ★ | double | `OrderState`, as 86 |
+| 97 | maxCommission ★ | double | `OrderState`, as 86 |
+| 98 | commissionCurrency ★ | string | `OrderState` |
+| 99 | warningText ★ | string | `OrderState`; (the outside-RTH margin block starts at 195 — absent) |
 | 100 | randomizeSize ★ | bool | |
 | 101 | randomizePrice ★ | bool | |
 | + | referenceContractId int, isPeggedChangeAmountDecrease bool, peggedChangeAmount double, referenceChangeAmount double, referenceExchangeId string ★ | | only if orderType `PEG BENCH` / `PEGBENCH`; 5 fields |

@@ -7,14 +7,17 @@ public struct OpenOrderMessage: Sendable, Equatable {
     public var contract: Contract
     public var order: Order
     public var status: OrderStatus
+    public var state: OrderState
 
-    public init(orderID: Int, clientID: Int, permID: Int, contract: Contract, order: Order, status: OrderStatus) {
+    public init(orderID: Int, clientID: Int, permID: Int, contract: Contract, order: Order, status: OrderStatus,
+                state: OrderState = OrderState()) {
         self.orderID = orderID
         self.clientID = clientID
         self.permID = permID
         self.contract = contract
         self.order = order
         self.status = status
+        self.state = state
     }
 }
 
@@ -86,7 +89,14 @@ extension IBDecoder {
         try deltaNeutralContractAndAlgo(&r, &contract, &o)
         o.solicited = try r.bool(); o.whatIf = try r.bool()
         let status = OrderStatus(rawValue: try r.string())
-        try r.skip(14)  // 86–99 margins, commissions, warningText
+        let state = OrderState(
+            initMarginBefore: try r.optionalDecimal(), maintMarginBefore: try r.optionalDecimal(),
+            equityWithLoanBefore: try r.optionalDecimal(), initMarginChange: try r.optionalDecimal(),
+            maintMarginChange: try r.optionalDecimal(), equityWithLoanChange: try r.optionalDecimal(),
+            initMarginAfter: try r.optionalDecimal(), maintMarginAfter: try r.optionalDecimal(),
+            equityWithLoanAfter: try r.optionalDecimal(), commission: try r.optionalDecimal(),
+            minCommission: try r.optionalDecimal(), maxCommission: try r.optionalDecimal(),
+            commissionCurrency: try r.string(), warningText: try r.string())
         o.randomizeSize = try r.bool(); o.randomizePrice = try r.bool()
         try pegBenchThroughConditions(&r, &o)
         o.adjustedOrderType = try r.string(); o.triggerPrice = try r.optionalDecimal()
@@ -101,7 +111,7 @@ extension IBDecoder {
         o.duration = try r.optionalInt(); o.postToAts = try r.optionalInt(); o.autoCancelParent = try r.bool()
         try tail(&r, &o)
         return OpenOrderMessage(orderID: orderID, clientID: clientID, permID: permID, contract: contract, order: o,
-                                status: status)
+                                status: status, state: state)
     }
 
     static func completedOrder(_ r: inout FieldReader) throws -> CompletedOrderMessage {

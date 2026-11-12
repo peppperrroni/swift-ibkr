@@ -52,6 +52,8 @@ Still open:
   adjustedOrderType `None`) is unchecked live. It also sends displaySize `0` where `ib_async` sends `""` (the
   gateway's `2147483647` decodes to 0).
 - Conditions, algos, PEG and combo orders are checked on hand-built frames only: no live order has carried one.
+- What-if is unchecked live: `whatIfOrder` and the margin / commission decoding are tested on hand-built frames
+  only, so the margin text format of a real answer (and whether IB echoes the order first) is unconfirmed.
 - A filled order replayed by completedOrders (the connect-time sync) has `order.totalQuantity` 0: its size is only
   in `filled`. The tracker keeps the 0 and clamps `remaining` at 0; a consumer reads the size from `filled`.
 - execDetails `time` comes in two formats: `20261110-11:56:31` (UTC, no zone) on a live fill and

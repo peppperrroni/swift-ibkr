@@ -176,3 +176,14 @@ private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT"
     let r = t.apply(error(12, 321, "Error validating request"))
     #expect(r.count == 1 && r[0].status == .apiPending && r[0].rejectReason == "Error validating request")
 }
+
+@Test func whatIfOpenOrderLeavesTheTrackerAlone() {
+    var f = Fixtures.openOrderFields(
+        orderID: 12, permID: 918273001, clientID: 1, symbol: "AAPL", action: "BUY", quantity: "100", orderType: "LMT",
+        limitPrice: "187.25", auxPrice: unset, tif: "DAY", parentID: "0", outsideRTH: "0", orderRef: "r",
+        status: "PreSubmitted")
+    f[84] = "1"
+    var t = OrderTracker(clientID: 1)
+    #expect(t.apply(IBDecoder.decode(body(f))).isEmpty)
+    #expect(t.orders.isEmpty)
+}
