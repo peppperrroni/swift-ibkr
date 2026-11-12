@@ -76,6 +76,14 @@ targets: [
 ]
 ```
 
+Or with CocoaPods:
+
+```ruby
+pod 'SwiftIBKR', :git => 'https://github.com/peppperrroni/swift-ibkr.git', :tag => '<version>'
+```
+
+The module is still `IBKR`, so `import IBKR` is the same under both. Publication to the CocoaPods trunk is pending.
+
 These are the default ports:
 
 | | Paper | Live |
