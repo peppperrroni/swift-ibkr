@@ -90,7 +90,7 @@ public struct OrderTracker: Sendable {
             if m.status == .filled {   // IB sends a fill's openOrder before its orderStatus: don't publish Filled with filled 0
                 var s = index(key, m.permID).map { snaps[$0] } ?? Self.blank(m.contract, m.order)
                 edit(&s)
-                if s.filled == 0 { heldOpen[key] = m; return [] }
+                if s.filled == 0 || s.remaining > 0 { heldOpen[key] = m; return [] }   // a part-filled order waits for its last fill too
             }
             heldOpen[key] = nil
             return upsert(key, m.permID, new: Self.blank(m.contract, m.order), edit)
@@ -168,7 +168,9 @@ public struct OrderTracker: Sendable {
     private static func applyOpen(_ m: OpenOrderMessage, into s: inout OrderSnapshot) {
         let prior = s.status
         s.orderID = m.orderID; s.clientID = m.clientID; s.permID = m.permID
+        let parentPermID = s.order.parentPermID   // openOrder never carries it: keep what a completedOrder gave
         s.contract = m.contract; s.order = m.order; s.status = m.status
+        s.order.parentPermID = m.order.parentPermID ?? parentPermID
         if prior.isFinal && !m.status.isFinal { s.status = prior }
     }
 

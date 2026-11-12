@@ -274,3 +274,19 @@ private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT"
     let b = u.apply(completed(permID: 918273001, parentPermID: "918273000"))
     #expect(b.count == 1 && b[0].order.parentPermID == 918273000 && b[0].order.parentID == 12)
 }
+
+@Test func filledOpenOrderOfAPartFilledOrderWaits() {
+    var t = OrderTracker(clientID: 1)
+    _ = t.apply(open())
+    _ = t.apply(status(.submitted, filled: "50", remaining: "50"))
+    #expect(t.apply(open(status: "Filled")).isEmpty)
+    let r = t.apply(status(.filled, filled: "100", remaining: "0"))
+    #expect(r.count == 1 && r[0].status == .filled && r[0].filled == d("100") && r[0].remaining == 0)
+}
+
+@Test func openOrderKeepsTheParentPermID() {
+    var t = OrderTracker(clientID: 1)
+    _ = t.apply(completed(permID: 918273001, parentPermID: "918273000"))
+    let r = t.apply(open())
+    #expect(r.count == 1 && r[0].orderID == 12 && r[0].order.parentPermID == 918273000)
+}

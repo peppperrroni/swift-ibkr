@@ -63,8 +63,9 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 - A 202 keeps its reason: when IB cancels an order with text after `reason:` (its price cap), that text becomes the
   snapshot's `rejectReason`. A plain cancel still leaves it `nil`.
 - A Filled openOrder waits for its orderStatus or its completedOrder: `orders()` no longer publishes `.filled` with
-  `filled` 0 first. A completedOrder takes the waiting openOrder's ids and order, and the fill size when it is larger
-  than the snapshot's. A completedOrder joined to a known order also copies `order.parentPermID`.
+  `filled` 0 first, nor a part-filled order's `.filled` with the earlier fill. A completedOrder takes the waiting
+  openOrder's ids and order, and the fill size when it is larger than the snapshot's. A completedOrder joined to a
+  known order also copies `order.parentPermID`, and a later openOrder keeps it.
 
 ### Removed
 - `OrderKey` is no longer public; the public API never used it.

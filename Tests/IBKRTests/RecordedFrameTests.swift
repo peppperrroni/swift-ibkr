@@ -74,6 +74,16 @@ func recordedFillHasCommission() throws {
     #expect(sell?.commission.realizedPNL == d("-2.027165"))
 }
 
+/// The gateway sent each fill's Filled openOrder before its Filled orderStatus: the tracker must hold it.
+@Test(.enabled(if: fillRecorded))
+func recordedFillNeverPublishesFilledWithoutTheFill() throws {
+    var tracker = OrderTracker(clientID: 77)
+    var published: [OrderSnapshot] = []
+    for f in try recording("liveOrderFillsWithCommission") { published += tracker.apply(IBDecoder.decode(body(f))) }
+    #expect(published.contains { $0.status == .filled })
+    #expect(!published.contains { $0.status == .filled && $0.filled == 0 })
+}
+
 /// The fill run's connect-time sync replayed the morning's cancelled $1 limit order: the first live completedOrder.
 @Test(.enabled(if: fillRecorded))
 func recordedCompletedOrderDecodes() throws {
