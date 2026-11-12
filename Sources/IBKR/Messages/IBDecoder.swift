@@ -89,8 +89,12 @@ public enum IBDecoder {
                 }
             case 57: try r.skip(); return .tickSnapshotEnd(requestID: try r.int())
             case 81:
-                return .tickRequestParameters(requestID: try r.int(), minTick: try r.optionalDecimal(),
-                                              bboExchange: try r.string(), snapshotPermissions: try r.int())
+                let id = try r.int()
+                return .tick(requestID: id, .requestParameters(
+                    minTick: try r.optionalDecimal(), bboExchange: try r.string(), snapshotPermissions: try r.int()))
+            case 21: return try optionComputation(&r)
+            case 47: return try efp(&r)
+            case 84: return try news(&r)
             case 59:
                 try r.skip()
                 return .commissionReport(CommissionReport(

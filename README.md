@@ -264,7 +264,8 @@ from a real failure.
 ```swift
 // Quotes. Without a subscription ask for delayed data; it is not kept across reconnects, so set it after connect.
 try await client.setMarketDataType(.delayed)
-Task { for try await tick in try await client.marketData(aapl) { print(tick) } }   // .price, .size, .generic, .string, .dataType
+Task { for try await tick in try await client.marketData(aapl) { print(tick) } }
+// .price, .size, .generic, .string, .dataType, .optionComputation, .efp, .requestParameters, .news
 
 // Historical bars: one .history batch, then the stream ends, unless keepUpToDate, which goes on with .update bars.
 for try await event in try await client.historicalBars(aapl, duration: "1 D", barSize: "5 mins") {

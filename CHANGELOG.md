@@ -8,6 +8,10 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 - `marketData`'s `genericTicks`, `snapshot` and `regulatorySnapshot`; BAG and delta-neutral contracts in
   `marketData`; and `IBMessage.tickSnapshotEnd(requestID:)`, which ends a snapshot stream with no cancel. A new case in
   a public enum: an exhaustive `switch` over `IBMessage` needs a new branch.
+- `Tick.optionComputation`, `.efp`, `.requestParameters` and `.news`, with the new types `OptionComputation`, `EFPData`
+  and `NewsTick`: `marketData` yields option computations (21), EFP quotes (47), request parameters (81) and news
+  ticks (84). An uncomputed greek is `nil`, and `TickField.live` maps the delayed greeks 80-83 to 10-13. New cases in
+  a public enum: an exhaustive `switch` over `Tick` needs new branches.
 - Order factories `Order.market/limit/stop/stopLimit`, `Order.bracket` (a `BracketOrder`), `Order.oneCancelsAll` and
   `IBClient.placeBracket`, which links and transmits the three legs and sends none if any fails to encode.
 - `exerciseOptions` with the new `ExerciseAction`, and `cancelOrder(_:manualCancelOrderTime:)`. `IBRequest` gains the
@@ -52,6 +56,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 - `OrderSnapshot.advancedOrderRejectJSON`: the raw advanced-reject JSON of the last error for the order that had one.
 
 ### Changed
+- tickReqParams (81) is a tick, `Tick.requestParameters`, and `marketData` yields it.
 - `marketData` sends `Contract.deltaNeutralContract`. `IBRequest.marketData` gains three associated values
   (`genericTicks`, `snapshot`, `regulatorySnapshot`) whose defaults keep construction compiling; a `switch`/`case` on
   `.marketData` needs the new bindings.
@@ -75,6 +80,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
   known order also copies `order.parentPermID`, and a later openOrder keeps it.
 
 ### Removed
+- `IBMessage.tickRequestParameters`: 81 now decodes as `.tick(requestID:, .requestParameters(…))`.
 - `OrderKey` is no longer public; the public API never used it.
 - The `.unsupported` refusals of `placeOrder` for PEG order types and exchange IBKRATS: it now encodes every layout.
 

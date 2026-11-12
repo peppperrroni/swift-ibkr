@@ -1343,7 +1343,26 @@ Total: 7 fields.
 
 ### tickReqParams (in 81)
 
-`81, reqId, minTick, bboExchange, snapshotPermissions`; 5 fields. No version. Decoded, not put into any stream.
+`81, reqId, minTick, bboExchange, snapshotPermissions`; 5 fields. No version. Decoded as a tick
+(`Tick.requestParameters`) and yielded by `marketData`. `minTick` empty/unset is `nil`.
+
+### tickOptionComputation (in 21)
+
+No version. 12 fields: `21, reqId, tickType, tickAttrib, impliedVol, delta, optPrice, pvDividend, gamma, vega,
+theta, undPrice`. Every value is a double on the wire, read as an optional decimal (empty/unset is `nil`). IB's
+"not computed" is `nil` too: `-1` for impliedVol, optPrice, pvDividend and undPrice, `-2` for delta, gamma, vega and
+theta. The delayed greek fields 80-83 map to 10-13 through `TickField.live`.
+
+### tickEFP (in 47)
+
+11 fields: `47, version, reqId, tickType, basisPoints, formattedBasisPoints, impliedFuture, holdDays,
+futureLastTradeDate, dividendImpact, dividendsToLastTradeDate`. The version is ignored; holdDays is an int, the
+decimals and holdDays are `nil` when empty/unset, the two strings are kept as sent.
+
+### tickNews (in 84)
+
+No version. 7 fields: `84, reqId, timeStamp, providerCode, articleId, headline, extraData`. `timeStamp` is kept as
+IB's raw int, its unit undocumented.
 
 ### reqHistoricalData (out 20)
 

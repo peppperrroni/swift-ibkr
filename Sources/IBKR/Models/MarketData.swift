@@ -87,7 +87,7 @@ public struct TickField: RawRepresentable, Hashable, Sendable {
     public static let halted = TickField(rawValue: 49)
 
     private static let delayedTwin: [Int: Int] = [
-        66: 1, 67: 2, 68: 4, 69: 0, 70: 3, 71: 5, 72: 6, 73: 7, 74: 8, 75: 9, 76: 14, 88: 45,
+        66: 1, 67: 2, 68: 4, 69: 0, 70: 3, 71: 5, 72: 6, 73: 7, 74: 8, 75: 9, 76: 14, 80: 10, 81: 11, 82: 12, 83: 13, 88: 45,
     ]
     /// A delayed field's real-time twin; any other field is itself.
     public var live: TickField { TickField(rawValue: Self.delayedTwin[rawValue] ?? rawValue) }
@@ -133,6 +133,86 @@ public enum Tick: Sendable, Equatable {
     case generic(TickField, Decimal)
     case string(TickField, String)
     case dataType(MarketDataType)
+    case optionComputation(TickField, OptionComputation)
+    case efp(TickField, EFPData)
+    /// tickReqParams (81): the minimum tick, the BBO exchange code and the snapshot permissions of this request.
+    case requestParameters(minTick: Decimal?, bboExchange: String, snapshotPermissions: Int)
+    case news(NewsTick)
+}
+
+/// One tickOptionComputation (21). A value IB has not computed (`-1` for impliedVol, optPrice, pvDividend and
+/// undPrice; `-2` for delta, gamma, vega and theta) is `nil`.
+public struct OptionComputation: Sendable, Equatable {
+    public var tickAttrib: Int
+    public var impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice: Decimal?
+
+    public init(
+        tickAttrib: Int,
+        impliedVol: Decimal? = nil,
+        delta: Decimal? = nil,
+        optPrice: Decimal? = nil,
+        pvDividend: Decimal? = nil,
+        gamma: Decimal? = nil,
+        vega: Decimal? = nil,
+        theta: Decimal? = nil,
+        undPrice: Decimal? = nil
+    ) {
+        self.tickAttrib = tickAttrib
+        self.impliedVol = impliedVol
+        self.delta = delta
+        self.optPrice = optPrice
+        self.pvDividend = pvDividend
+        self.gamma = gamma
+        self.vega = vega
+        self.theta = theta
+        self.undPrice = undPrice
+    }
+}
+
+/// One tickEFP (47): an exchange-for-physical quote.
+public struct EFPData: Sendable, Equatable {
+    public var basisPoints: Decimal?
+    public var formattedBasisPoints: String
+    public var impliedFuture: Decimal?
+    public var holdDays: Int?
+    public var futureLastTradeDate: String
+    public var dividendImpact: Decimal?
+    public var dividendsToLastTradeDate: Decimal?
+
+    public init(
+        basisPoints: Decimal? = nil,
+        formattedBasisPoints: String = "",
+        impliedFuture: Decimal? = nil,
+        holdDays: Int? = nil,
+        futureLastTradeDate: String = "",
+        dividendImpact: Decimal? = nil,
+        dividendsToLastTradeDate: Decimal? = nil
+    ) {
+        self.basisPoints = basisPoints
+        self.formattedBasisPoints = formattedBasisPoints
+        self.impliedFuture = impliedFuture
+        self.holdDays = holdDays
+        self.futureLastTradeDate = futureLastTradeDate
+        self.dividendImpact = dividendImpact
+        self.dividendsToLastTradeDate = dividendsToLastTradeDate
+    }
+}
+
+/// One tickNews (84). `timeStamp` is IB's raw number: its unit is undocumented.
+public struct NewsTick: Sendable, Equatable {
+    public var timeStamp: Int
+    public var providerCode: String
+    public var articleID: String
+    public var headline: String
+    public var extraData: String
+
+    public init(timeStamp: Int, providerCode: String, articleID: String, headline: String, extraData: String = "") {
+        self.timeStamp = timeStamp
+        self.providerCode = providerCode
+        self.articleID = articleID
+        self.headline = headline
+        self.extraData = extraData
+    }
 }
 
 /// What `reqTickByTickData` is asked for; the raw value is the text IB's request carries.

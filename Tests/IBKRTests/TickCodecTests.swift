@@ -23,13 +23,49 @@ import Testing
 
     @Test func tickReqParamsDecodes() {
         #expect(IBDecoder.decode(body("81", "7", "0.01", "9c0001", "3"))
-            == .tickRequestParameters(requestID: 7, minTick: d("0.01"), bboExchange: "9c0001", snapshotPermissions: 3))
+            == .tick(requestID: 7, .requestParameters(minTick: d("0.01"), bboExchange: "9c0001", snapshotPermissions: 3)))
+    }
+
+    private let greeks = ["21", "7", "13", "1", "0.25", "0.55", "6.1", "0", "0.03", "0.12", "-0.05", "187.2"]
+
+    @Test func optionComputationDecodes() {
+        #expect(IBDecoder.decode(body(greeks)) == .tick(requestID: 7, .optionComputation(TickField(rawValue: 13), OptionComputation(
+            tickAttrib: 1, impliedVol: d("0.25"), delta: d("0.55"), optPrice: d("6.1"), pvDividend: 0, gamma: d("0.03"),
+            vega: d("0.12"), theta: d("-0.05"), undPrice: d("187.2")))))
+    }
+
+    @Test func uncomputedGreeksAreNil() {
+        #expect(IBDecoder.decode(body("21", "7", "10", "0", "-1", "-2", "-1", "-1", "-2", "-2", "-2", "-1"))
+            == .tick(requestID: 7, .optionComputation(TickField(rawValue: 10), OptionComputation(tickAttrib: 0))))
+        #expect(IBDecoder.decode(body("21", "7", "11", "0", "1.7976931348623157E308", "0.5", "", "2147483647", "0.01", "0.1", "-0.02", "187"))
+            == .tick(requestID: 7, .optionComputation(TickField(rawValue: 11), OptionComputation(
+                tickAttrib: 0, delta: d("0.5"), gamma: d("0.01"), vega: d("0.1"), theta: d("-0.02"), undPrice: 187))))
+    }
+
+    @Test func shortOptionComputationIsMalformed() {
+        guard case .malformed = IBDecoder.decode(body(Array(greeks.dropLast()))) else { Issue.record("not malformed"); return }
+    }
+
+    @Test func efpDecodes() {
+        #expect(IBDecoder.decode(body("47", "1", "7", "38", "1.5", "1.50%", "187.3", "30", "20261218", "0.2", "0.25"))
+            == .tick(requestID: 7, .efp(TickField(rawValue: 38), EFPData(
+                basisPoints: d("1.5"), formattedBasisPoints: "1.50%", impliedFuture: d("187.3"), holdDays: 30,
+                futureLastTradeDate: "20261218", dividendImpact: d("0.2"), dividendsToLastTradeDate: d("0.25")))))
+    }
+
+    @Test func newsTickDecodes() {
+        #expect(IBDecoder.decode(body("84", "7", "1794321000000", "BRFG", "BRFG$12345", "Apple headline", "A:800015:L:en"))
+            == .tick(requestID: 7, .news(NewsTick(
+                timeStamp: 1794321000000, providerCode: "BRFG", articleID: "BRFG$12345", headline: "Apple headline",
+                extraData: "A:800015:L:en"))))
     }
 
     @Test func delayedFieldsMapToLive() {
         #expect(TickField(rawValue: 66).live == .bid)
         #expect(TickField(rawValue: 75).live == .close)
         #expect(TickField.bid.live == .bid)
+        #expect(TickField(rawValue: 80).live.rawValue == 10)
+        #expect(TickField(rawValue: 83).live.rawValue == 13)
     }
 
     @Test func marketDataRequestsEncode() throws {

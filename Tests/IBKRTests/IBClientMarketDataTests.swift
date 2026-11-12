@@ -24,6 +24,21 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
     #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["2", "2", id])
 }
 
+@Test func marketDataYieldsGreeksAndParameters() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.marketData(Contract(symbol: "AAPL"))
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][2]
+    let (_, result) = take(2, stream)
+    gateway.feed(["21", id, "13", "1", "0.25", "0.55", "6.1", "0", "0.03", "0.12", "-0.05", "187.2"])
+    gateway.feed(["81", id, "0.01", "9c0001", "3"])
+    #expect(try await within2s { try await result.value } == [
+        .optionComputation(TickField(rawValue: 13), OptionComputation(
+            tickAttrib: 1, impliedVol: d("0.25"), delta: d("0.55"), optPrice: d("6.1"), pvDividend: 0, gamma: d("0.03"),
+            vega: d("0.12"), theta: d("-0.05"), undPrice: d("187.2"))),
+        .requestParameters(minTick: d("0.01"), bboExchange: "9c0001", snapshotPermissions: 3)])
+}
+
 @Test func marketDataSendsGenericTicks() async throws {
     let gateway = FakeGateway()
     let client = try await connected(gateway)
