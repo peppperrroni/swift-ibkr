@@ -5,6 +5,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 ## [Unreleased]
 
 ### Added
+- `Contract.stock`, `.option`, `.futuresOption`, `.future`, `.contFuture`, `.forex`, `.index`, `.cfd`, `.commodity`, `.crypto`, `.mutualFund`, `.warrant`, `.bond` and `.bag`, `ib_async`'s contract factories, with its defaults (`""` for exchange and currency, `IDEALPRO` for forex).
 - `headTimeStamp(_:whatToShow:rth:)` (the earliest data date) and `histogramData(_:period:rth:)` (trade counts by price), with `HistogramData`, `IBRequest.headTimeStamp`, `.cancelHeadTimeStamp`, `.histogramData`, `.cancelHistogramData` (out 87, 90, 88, 89) and `IBMessage.headTimeStamp`, `.histogramData` (in 88, 89). New cases in public enums: an exhaustive `switch` over `IBRequest` or `IBMessage` needs new branches.
 - `historicalTicks(_:start:end:count:whatToShow:rth:ignoreSize:)`, historical midpoint, bid/ask or trade ticks as `[TickByTick]`, with `IBRequest.historicalTicks` (out 96) and `IBMessage.historicalTicks` (in 96, 97, 98). New cases in public enums: an exhaustive `switch` over `IBRequest` or `IBMessage` needs new branches.
 - `historicalSchedule(_:days:end:rth:)`, a contract's trading sessions, with `HistoricalSchedule` and `HistoricalSession`, and `IBMessage.historicalSchedule` (in 106); BAG history: `historicalBars` sends a `BAG`'s legs. A new case in a public enum: an exhaustive `switch` over `IBMessage` needs a new branch.

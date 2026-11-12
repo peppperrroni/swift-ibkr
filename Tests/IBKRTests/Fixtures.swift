@@ -69,3 +69,11 @@ enum Fixtures {
          "", "", "", "", ""]                                                                   // 91–95 minTradeQty … midOffsetAtHalf
     }
 }
+
+/// The AAPL Dec 2026 200 call on SMART, and its 12-field contract block.
+let aaplCall = Contract.option("AAPL", lastTradeDateOrContractMonth: "20261218", strike: 200, right: "C",
+                               exchange: "SMART", currency: "USD")
+let aaplCallBlock = ["0", "AAPL", "OPT", "20261218", "200.0", "C", "", "SMART", "", "USD", "", ""]
+
+/// IB's error frame (in 4) for `reqID`.
+func ibError(_ reqID: String, _ code: String, _ text: String) -> [String] { ["4", "2", reqID, code, text, ""] }

@@ -154,6 +154,8 @@ let (known, updates) = await client.orders()     // snapshot now, then every cha
 Task { for await order in updates { print(order.orderID, order.status, order.filled) } }
 
 let aapl = Contract(symbol: "AAPL")              // stock, SMART routing, USD by default
+let call = Contract.option("AAPL", lastTradeDateOrContractMonth: "20261218", strike: 200, right: "C",
+                           exchange: "SMART", currency: "USD")   // also .stock .future .forex("EURUSD") .index .bag ...; ib_async's defaults ("" exchange and currency)
 let id = try await client.placeOrder(aapl, .limit(.buy, quantity: 1, price: 180))
 try await client.modifyOrder(id, aapl, .limit(.buy, quantity: 1, price: 181))
 try await client.cancelOrder(id)                 // cancelOrder(id, manualCancelOrderTime: "20261112-15:00:00") records a hand cancel
@@ -188,8 +190,7 @@ twap.algoParams = [TagValue(tag: "startTime", value: "09:30:00 US/Eastern")]
 an `OrderState`. To exercise or lapse an option:
 
 ```swift
-var option = Contract(symbol: "AAPL", secType: "OPT")
-option.lastTradeDateOrContractMonth = "20261218"; option.strike = 200; option.right = "C"; option.multiplier = "100"
+var option = call; option.multiplier = "100"
 try await client.exerciseOptions(option, action: .exercise, quantity: 1, account: "DU0000001")
 ```
 

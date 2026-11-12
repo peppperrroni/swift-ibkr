@@ -4,6 +4,7 @@ import Testing
 
 @Test func everyPublicModelIsConstructible() {
     let contract = Contract(symbol: "AAPL")
+    #expect(Contract.stock("AAPL").secType == "STK")
     let order = Order(action: .buy, quantity: 1, orderType: "MKT")
     let execution = Execution(
         execID: "e1", time: "t", account: "A", exchange: "X", side: "BOT", shares: 1, price: 2, permID: 3,
