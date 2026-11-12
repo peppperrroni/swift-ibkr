@@ -65,6 +65,9 @@ func scan(_ id: String) -> [String] {
                                               options: []).body()
                 == body("52", "2", "7", "0", "AAPL", "STK", "SMART", "", "USD", "", "ReportSnapshot", "0", ""))
         #expect(try IBRequest.cancelFundamentalData(requestID: 7).body() == body("53", "1", "7"))
+        #expect(throws: IBEncodingError.unsupported("secType BAG")) {   // R6: 52 carries no legs
+            try IBRequest.fundamentalData(requestID: 7, contract: bagContract, reportType: "ReportSnapshot", options: []).body()
+        }
         #expect(try IBRequest.wshMetaData(requestID: 7).body() == body("100", "7"))
         #expect(try IBRequest.cancelWshMetaData(requestID: 7).body() == body("101", "7"))
         #expect(try IBRequest.wshEventData(requestID: 7, data: WshEventData(conID: 8314, startDate: "20261101",

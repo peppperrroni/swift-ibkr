@@ -85,13 +85,14 @@ import Testing
         #expect(id == 10)
     }
 
+    // exchange and currency differ from Contract's defaults, and every flag is set, so a dropped field shows
     private let bondFrame = ["18", "7", "IBM", "BOND", "459200HU8", "3.45", "20270210", "20170210", "A2 A-", "FIXED",
-        "FIXED", "0", "1", "0", "", "SMART", "USD", "IBM 3.45 02/10/27", "IBCID123", "123456789", "0.001", "LMT,MKT",
-        "SMART", "", "", "0", "", "IBM 3.45 02/10/27", "", "", "0", "1", "239", "1", "1", "1"]
+        "FIXED", "1", "1", "1", "", "NYSE", "EUR", "IBM 3.45 02/10/27", "IBCID123", "123456789", "0.001", "LMT,MKT",
+        "SMART", "", "", "1", "", "IBM 3.45 02/10/27", "", "", "1", "ISIN", "US459200HU86", "1", "239", "1", "1", "1"]
 
     @Test func bondContractDataDecodes() {
-        #expect(bondFrame.count == 36)
-        var c = Contract(symbol: "IBM", secType: "BOND")
+        #expect(bondFrame.count == 38)
+        var c = Contract(symbol: "IBM", secType: "BOND", exchange: "NYSE", currency: "EUR")
         c.conID = 123456789; c.tradingClass = "IBCID123"
         var x = ContractDetails(
             contract: c, marketName: "IBM 3.45 02/10/27", minTick: d("0.001"), priceMagnifier: 0,
@@ -99,6 +100,8 @@ import Testing
             timeZoneID: "", tradingHours: "", liquidHours: "", minSize: 1, sizeIncrement: 1, suggestedSizeIncrement: 1)
         x.cusip = "459200HU8"; x.coupon = d("3.45"); x.maturity = "20270210"; x.issueDate = "20170210"
         x.ratings = "A2 A-"; x.bondType = "FIXED"; x.couponType = "FIXED"; x.callable = true
+        x.convertible = true; x.putable = true; x.nextOptionPartial = true
+        x.secIDList = [TagValue(tag: "ISIN", value: "US459200HU86")]
         x.aggGroup = 1; x.marketRuleIDs = [239]
         #expect(IBDecoder.decode(body(bondFrame)) == .contractData(requestID: 7, x))
     }

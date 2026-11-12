@@ -80,6 +80,35 @@ private func details(_ id: String, _ symbol: String, conID: String, secType: Str
     #expect(got == [.ambiguous([])])
 }
 
+@Test func qualifyContractsWithNoSecTypeOffersEveryCandidate() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in
+        guard f[0] == "9" else { return [] }
+        return [details(f[2], "ES", conID: "1", secType: "FUT", lastTimes: "20261218", exchange: "CME"),
+                details(f[2], "ES", conID: "2", secType: "FOP", lastTimes: "20261218", exchange: "CME"),
+                ["52", "1", f[2]]]
+    }
+    let got = try await within2s { try await client.qualifyContracts([Contract(symbol: "ES", secType: "")]) }
+    guard case .ambiguous(let list) = got.first else { Issue.record("\(got)"); return }
+    #expect(list.map(\.conID) == [1, 2])
+}
+
+/// The filter leaves one candidate, and the input's SMART is kept on it.
+@Test func qualifyContractsKeepsSmartAfterTheFilter() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in
+        guard f[0] == "9" else { return [] }
+        return [details(f[2], "AAPL", conID: "265598", exchange: "NASDAQ"),
+                details(f[2], "AAPL", conID: "9", secType: "CFD", exchange: "SMART"), ["52", "1", f[2]]]
+    }
+    let got = try await within2s { try await client.qualifyContracts([.stock("AAPL", exchange: "SMART", currency: "USD")]) }
+    guard case .qualified(let c) = got.first else { Issue.record("\(got)"); return }
+    #expect(c.conID == 265598)
+    #expect(c.exchange == "SMART")
+}
+
 @Test func qualifyContractsThrowsAnyOtherError() async throws {
     let gateway = FakeGateway()
     let client = try await connected(gateway)
@@ -122,11 +151,21 @@ private func chainFrame(_ id: String, _ exchange: String) -> [String] {
     let chains = try await within2s { try await client.optionChains(for: u) }
     #expect(chains.map(\.exchange) == ["SMART", "CBOE"])
     #expect(chains[0].strikes == [190, 195, 200])
+    #expect(chains[1] == OptionChain(exchange: "CBOE", underlyingConID: 265598, tradingClass: "AAPL", multiplier: "100",
+                                     expirations: ["20261218", "20270115"], strikes: [190, 195, 200]))
     let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
     #expect(sent[FakeGateway.syncFrames].dropFirst(2) == ["AAPL", "", "STK", "265598"])
     #expect(sent[FakeGateway.syncFrames].first == "78")
     try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel
     #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).count == FakeGateway.syncFrames + 1)
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func optionChainsWithOnlyTheEndMarkerAreEmpty() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in f[0] == "78" ? [["76", f[1]]] : [] }
+    #expect(try await within2s { try await client.optionChains(for: .stock("AAPL")) } == [])
     #expect(await client.requestStreamCount == 0)
 }
 

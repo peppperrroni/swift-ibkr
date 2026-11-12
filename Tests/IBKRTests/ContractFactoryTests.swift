@@ -25,6 +25,23 @@ struct ContractFactoryTests {
                 == body(["9", "8", "5"] + aaplCallBlock + ["0", "", "", ""]))
     }
 
+    @Test func shortForexPairDoesNotTrap() {
+        let fx = Contract.forex("EUR")
+        #expect(fx.symbol == "EUR" && fx.currency == "")
+    }
+
+    @Test func futureFactoriesPlaceLocalSymbolAndMultiplier() throws {
+        let fut = Contract.future("ES", lastTradeDateOrContractMonth: "202612", exchange: "CME", localSymbol: "ESZ6",
+                                  multiplier: "50", currency: "USD")
+        #expect(try IBRequest.contractDetails(requestID: 5, contract: fut).body()
+                == body(["9", "8", "5", "0", "ES", "FUT", "202612", "0.0", "", "50", "CME", "", "USD", "ESZ6", "",
+                         "0", "", "", ""]))
+        let cont = Contract.contFuture("ES", exchange: "CME", localSymbol: "ESZ6", multiplier: "50", currency: "USD")
+        #expect(try IBRequest.contractDetails(requestID: 5, contract: cont).body()
+                == body(["9", "8", "5", "0", "ES", "CONTFUT", "", "0.0", "", "50", "CME", "", "USD", "ESZ6", "",
+                         "0", "", "", ""]))
+    }
+
     @Test func bondAndBagFactories() {
         let bond = Contract.bond(secIDType: "ISIN", secID: "US459200HU86")
         #expect(bond.secIDType == "ISIN" && bond.secID == "US459200HU86" && bond.symbol == "")

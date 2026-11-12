@@ -153,6 +153,8 @@ private let haltedBulletin = NewsBulletin(msgID: 3, msgType: 1, message: "Exchan
     #expect(try await within2s { await seen.first { _ in true } } == haltedBulletin)
     reader.cancel()
     #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["13", "1"])
+    try await Task.sleep(for: .milliseconds(50))   // room for a wrong second 13
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2).filter { $0[0] == "13" }.count == 1)
     #expect(await client.requestStreamCount == 0)
 }
 
