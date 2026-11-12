@@ -219,8 +219,7 @@ private func accountPnL(_ id: String, _ daily: String, realized: String = "0") -
     gateway.feed(multiValue(id, "NetLiquidation", "100"))
     gateway.feed(multiValue(id, "BuyingPower", "400"))
     gateway.feed(["74", "1", id])
-    // FakeGateway answers every 76 with an end marker at once, so the empty set comes first, then one set per change.
-    #expect(pairs(try await take(3, stream)[2]) == ["DU1/BuyingPower=400", "DU1/NetLiquidation=100"])
+    #expect(pairs(try await take(1, stream)[0]) == ["DU1/BuyingPower=400", "DU1/NetLiquidation=100"])
 }
 
 @Test func positionsMultiYieldsTheSetAtEndAndDropsZero() async throws {
@@ -293,6 +292,6 @@ private func accountPnL(_ id: String, _ daily: String, realized: String = "0") -
     let id = try await lastRequestID(gateway, FakeGateway.syncFrames + 1, at: 2)
     gateway.feed(multiValue(id, "NetLiquidation", "100", model: "M1"))
     gateway.feed(["74", "1", id])
-    #expect(try await take(2, stream)[1].map(\.modelCode) == ["M1"])   // [0] is the fake's instant end
+    #expect(try await take(1, stream)[0].map(\.modelCode) == ["M1"])
     #expect(await client.accountValues().snapshot.allSatisfy { $0.modelCode != "M1" })
 }

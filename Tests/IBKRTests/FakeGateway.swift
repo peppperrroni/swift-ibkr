@@ -82,7 +82,8 @@ final class FakeGateway: Transport, @unchecked Sendable {
         case "7": feed(["55", "1", fields[2]])
         case "61" where answersPositions: feed(["62", "1"])
         case "6" where answersAccountUpdates && fields[2] == "1": feed(["54", "1", fields[3]])
-        case "76" where answersAccountUpdates: feed(["74", "1", fields[2]])
+        // only the sync's 76s (several accounts): a consumer's accountUpdatesMulti must wait for the test's end marker
+        case "76" where answersAccountUpdates && accounts.contains(","): feed(["74", "1", fields[2]])
         default: break
         }
     }
