@@ -15,6 +15,23 @@ public struct ContractDetails: Sendable, Equatable {
     public var minSize: Decimal?
     public var sizeIncrement: Decimal?
     public var suggestedSizeIncrement: Decimal?
+    // Declared with defaults and kept out of the init, as `Order` is: set them on the value after it.
+    public var underConID = 0
+    public var contractMonth = "", industry = "", category = "", subcategory = ""
+    public var evRule = ""
+    public var evMultiplier: Decimal? = nil
+    public var secIDList: [TagValue] = []
+    public var aggGroup: Int? = nil
+    public var underSymbol = "", underSecType = ""
+    public var marketRuleIDs: [Int] = []
+    public var realExpirationDate = "", lastTradeTime = ""
+    // Bonds (in 18)
+    public var cusip = "", ratings = "", descAppend = "", bondType = "", couponType = ""
+    public var coupon: Decimal? = nil
+    public var convertible = false, callable = false, putable = false
+    public var maturity = "", issueDate = "", nextOptionDate = "", nextOptionType = ""
+    public var nextOptionPartial = false
+    public var notes = ""
 
     public init(
         contract: Contract,

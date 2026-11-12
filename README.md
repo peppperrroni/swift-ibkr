@@ -253,7 +253,7 @@ One-shot calls wait for IB's whole answer. They throw `.ib(code: 200, ...)` when
 connection's error when it drops, and `.cancelled` when the calling task is cancelled.
 
 ```swift
-let details = try await client.contractDetails(Contract(symbol: "AAPL"))   // [ContractDetails]: conID, minTick, hours ...
+let details = try await client.contractDetails(Contract(symbol: "AAPL"))   // [ContractDetails]: conID, minTick, hours, marketRuleIDs, secIDList ...; bonds (Contract.bond) come back the same way
 let matches = try await client.matchingSymbols("AAP")                      // [ContractDescription]
 ```
 

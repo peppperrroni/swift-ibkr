@@ -192,6 +192,9 @@ func recordedPnLSingleDecodes() throws {
     #expect(details.minTick == d("0.01"))
     #expect(details.timeZoneID == "US/Eastern")
     #expect(!details.tradingHours.isEmpty)
+    #expect(details.secIDList == [TagValue(tag: "ISIN", value: "US0378331005")])
+    #expect(details.marketRuleIDs.count == 27 && details.marketRuleIDs.first == 4563)
+    #expect(details.industry == "Technology" && details.aggGroup == 1 && details.evMultiplier == nil)
 }
 
 /// A paper account without a market-data subscription (2026-11-11): quotes 10197, history 162 «different IP»,

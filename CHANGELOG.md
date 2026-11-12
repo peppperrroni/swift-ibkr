@@ -5,6 +5,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 ## [Unreleased]
 
 ### Added
+- `ContractDetails` carries every field `ib_async` decodes (`underConID`, `contractMonth`, `industry`, `category`, `subcategory`, `evRule`, `evMultiplier`, `secIDList`, `aggGroup`, `underSymbol`, `underSecType`, `marketRuleIDs`, `realExpirationDate`, `lastTradeTime`), and bond details (in 18) come back through `contractDetails` with `cusip`, `coupon`, `maturity`, `issueDate`, `ratings`, `bondType`, `couponType`, `convertible`, `callable`, `putable`, `descAppend`, `nextOptionDate`, `nextOptionType`, `nextOptionPartial` and `notes`.
 - `Contract.stock`, `.option`, `.futuresOption`, `.future`, `.contFuture`, `.forex`, `.index`, `.cfd`, `.commodity`, `.crypto`, `.mutualFund`, `.warrant`, `.bond` and `.bag`, `ib_async`'s contract factories, with its defaults (`""` for exchange and currency, `IDEALPRO` for forex).
 - `headTimeStamp(_:whatToShow:rth:)` (the earliest data date) and `histogramData(_:period:rth:)` (trade counts by price), with `HistogramData`, `IBRequest.headTimeStamp`, `.cancelHeadTimeStamp`, `.histogramData`, `.cancelHistogramData` (out 87, 90, 88, 89) and `IBMessage.headTimeStamp`, `.histogramData` (in 88, 89). New cases in public enums: an exhaustive `switch` over `IBRequest` or `IBMessage` needs new branches.
 - `historicalTicks(_:start:end:count:whatToShow:rth:ignoreSize:)`, historical midpoint, bid/ask or trade ticks as `[TickByTick]`, with `IBRequest.historicalTicks` (out 96) and `IBMessage.historicalTicks` (in 96, 97, 98). New cases in public enums: an exhaustive `switch` over `IBRequest` or `IBMessage` needs new branches.
@@ -68,6 +69,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 - `OrderSnapshot.advancedOrderRejectJSON`: the raw advanced-reject JSON of the last error for the order that had one.
 
 ### Changed
+- An option's or future's `lastTradeDateOrContractMonth` in `contractDetails` keeps only the date (`20261218`), and the time goes to the new `ContractDetails.lastTradeTime`; before, the whole lastTimes text was kept.
 - `historicalBars` accepts a `BAG` and refuses `whatToShow` "SCHEDULE" (`.encoding(.unsupported)`): use `historicalSchedule`.
 - `marketDepth` ends with `.noMarketDataPermission(code: 2152, text:)` and sends its cancel when IB's 2152 lists its unknown permissions and grants no `Depth:` exchange, instead of staying silent; a 2152 that grants some depth keeps the book open.
 - tickReqParams (81) is a tick, `Tick.requestParameters`, and `marketData` yields it.

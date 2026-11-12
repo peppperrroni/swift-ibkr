@@ -27,6 +27,7 @@ public enum IBDecoder {
             case 53: return .openOrderEnd
             case 55: try r.skip(); return .execDetailsEnd(requestID: try r.int())
             case 10: return try contractData(&r)
+            case 18: return try bondContractData(&r)
             case 52: try r.skip(); return .contractDataEnd(requestID: try r.int())
             case 79: return try symbolSamples(&r)
             case 1:
@@ -236,10 +237,35 @@ public enum IBDecoder {
 
     private static func list(_ s: String) -> [String] { s.split(separator: ",").map(String.init) }
 
+    /// ib_async's lastTimes split: on `-` when there is one, else on runs of whitespace.
+    private static func splitLastTimes(_ s: String, into d: inout ContractDetails) -> String {
+        let parts = s.contains("-") ? s.split(separator: "-", omittingEmptySubsequences: false)
+                                    : s.split(whereSeparator: \.isWhitespace)
+        if parts.count > 1 { d.lastTradeTime = String(parts[1]) }
+        if parts.count > 2 { d.timeZoneID = String(parts[2]) }
+        return parts.first.map(String.init) ?? ""
+    }
+
+    private static func marketRuleIDs(_ r: inout FieldReader) throws -> [Int] {
+        let at = r.index
+        return try list(try r.string()).map {
+            guard let v = Int($0) else { throw IBProtocolError.badNumber($0, index: at) }
+            return v
+        }
+    }
+
+    /// The secId count and pairs, then aggGroup (shared by 10 and 18).
+    private static func secIDsAndAggGroup(_ r: inout FieldReader, into d: inout ContractDetails) throws {
+        let n = try r.int()
+        guard n >= 0, n <= r.fields.count else { throw IBProtocolError.badNumber(String(n), index: r.index - 1) }
+        for _ in 0..<n { d.secIDList.append(TagValue(tag: try r.string(), value: try r.string())) }
+        d.aggGroup = try r.optionalInt()
+    }
+
     private static func contractData(_ r: inout FieldReader) throws -> IBMessage {
         let requestID = try r.int()
         var c = Contract(symbol: try r.string())
-        c.secType = try r.string(); c.lastTradeDateOrContractMonth = try r.string()  // lastTimes, kept whole
+        c.secType = try r.string(); let lastTimes = try r.string()
         c.strike = try r.optionalDecimal(); c.right = try r.string(); c.exchange = try r.string()
         c.currency = try r.string(); c.localSymbol = try r.string()
         let marketName = try r.string()
@@ -248,24 +274,55 @@ public enum IBDecoder {
         c.multiplier = try r.string()
         let orderTypes = list(try r.string()), validExchanges = list(try r.string())
         let magnifier = try r.int()
-        try r.skip()  // underConId
-        let longName = try r.string()
+        let underConID = try r.int()
+        let longName = unescapeUnicode(try r.string())
         c.primaryExchange = try r.string()
-        try r.skip(3)  // contractMonth, industry, category
-        try r.skip()   // subcategory
-        let tz = try r.string(), trading = try r.string(), liquid = try r.string()
-        try r.skip(2)  // evRule, evMultiplier
-        let secIDs = try r.int()
-        guard secIDs >= 0, secIDs <= r.fields.count else { throw IBProtocolError.badNumber(String(secIDs), index: r.index - 1) }
-        try r.skip(secIDs * 2 + 1)  // secIdList, aggGroup
-        try r.skip(4)  // underSymbol, underSecType, marketRuleIds, realExpirationDate
-        let stockType = try r.string()
-        let details = ContractDetails(
+        var d = ContractDetails(
             contract: c, marketName: marketName, minTick: minTick, priceMagnifier: magnifier, longName: longName,
-            stockType: stockType, orderTypes: orderTypes, validExchanges: validExchanges, timeZoneID: tz,
-            tradingHours: trading, liquidHours: liquid, minSize: try r.optionalDecimal(),
-            sizeIncrement: try r.optionalDecimal(), suggestedSizeIncrement: try r.optionalDecimal())
-        return .contractData(requestID: requestID, details)
+            stockType: "", orderTypes: orderTypes, validExchanges: validExchanges, timeZoneID: "",
+            tradingHours: "", liquidHours: "")
+        d.underConID = underConID
+        d.contractMonth = try r.string(); d.industry = try r.string(); d.category = try r.string()
+        d.subcategory = try r.string()
+        d.timeZoneID = try r.string(); d.tradingHours = try r.string(); d.liquidHours = try r.string()
+        d.evRule = try r.string(); d.evMultiplier = try r.optionalDecimal()
+        try secIDsAndAggGroup(&r, into: &d)
+        d.underSymbol = try r.string(); d.underSecType = try r.string()
+        d.marketRuleIDs = try marketRuleIDs(&r); d.realExpirationDate = try r.string()
+        d.stockType = try r.string()
+        d.minSize = try r.optionalDecimal(); d.sizeIncrement = try r.optionalDecimal()
+        d.suggestedSizeIncrement = try r.optionalDecimal()
+        d.contract.lastTradeDateOrContractMonth = splitLastTimes(lastTimes, into: &d)
+        return .contractData(requestID: requestID, d)
+    }
+
+    /// Bond details (18) decode to the same `ContractDetails`; lastTimes part 0 is the maturity.
+    private static func bondContractData(_ r: inout FieldReader) throws -> IBMessage {
+        let requestID = try r.int()
+        var c = Contract(symbol: try r.string(), secType: try r.string())
+        var d = ContractDetails(
+            contract: c, marketName: "", minTick: 0, priceMagnifier: 0, longName: "", stockType: "",
+            timeZoneID: "", tradingHours: "", liquidHours: "")
+        d.cusip = try r.string(); d.coupon = try r.optionalDecimal()
+        let lastTimes = try r.string()
+        d.issueDate = try r.string(); d.ratings = try r.string(); d.bondType = try r.string()
+        d.couponType = try r.string()
+        d.convertible = try r.bool(); d.callable = try r.bool(); d.putable = try r.bool()
+        d.descAppend = try r.string()
+        c.exchange = try r.string(); c.currency = try r.string()
+        d.marketName = try r.string(); c.tradingClass = try r.string(); c.conID = try r.int()
+        d.minTick = try r.decimal()
+        d.orderTypes = list(try r.string()); d.validExchanges = list(try r.string())
+        d.nextOptionDate = try r.string(); d.nextOptionType = try r.string()
+        d.nextOptionPartial = try r.bool(); d.notes = try r.string(); d.longName = try r.string()
+        d.evRule = try r.string(); d.evMultiplier = try r.optionalDecimal()
+        try secIDsAndAggGroup(&r, into: &d)
+        d.marketRuleIDs = try marketRuleIDs(&r)
+        d.minSize = try r.optionalDecimal(); d.sizeIncrement = try r.optionalDecimal()
+        d.suggestedSizeIncrement = try r.optionalDecimal()
+        d.maturity = splitLastTimes(lastTimes, into: &d)
+        d.contract = c
+        return .contractData(requestID: requestID, d)
     }
 
     private static func symbolSamples(_ r: inout FieldReader) throws -> IBMessage {

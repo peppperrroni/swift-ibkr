@@ -29,6 +29,23 @@ private func contractData(_ id: String, conID: String) -> [String] {
     #expect(await client.requestStreamCount == 0)
 }
 
+@Test func contractDetailsCollectsBonds() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in
+        guard f[0] == "9" else { return [] }
+        return [["18", f[2], "IBM", "BOND", "459200HU8", "3.45", "20270210", "20170210", "A2 A-", "FIXED",
+                 "FIXED", "0", "1", "0", "", "SMART", "USD", "IBM 3.45 02/10/27", "IBCID123", "123456789",
+                 "0.001", "LMT,MKT", "SMART", "", "", "0", "", "IBM 3.45 02/10/27", "", "", "0", "1", "239",
+                 "1", "1", "1"],
+                ["52", "1", f[2]]]
+    }
+    let got = try await within2s { try await client.contractDetails(Contract.bond(secIDType: "CUSIP", secID: "459200HU8")) }
+    #expect(got.map(\.cusip) == ["459200HU8"])
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
+    #expect(sent[FakeGateway.syncFrames][16...17] == ["CUSIP", "459200HU8"])
+}
+
 @Test func matchingSymbolsReturnsTheSamples() async throws {
     let gateway = FakeGateway()
     let client = try await connected(gateway)

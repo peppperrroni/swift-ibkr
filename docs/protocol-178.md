@@ -1246,7 +1246,7 @@ No version field and no mdSizeMultiplier at 178; field 1 is the reqId.
 | 1 | reqId | int | |
 | 2 | symbol | string | |
 | 3 | secType | string | |
-| 4 | lastTimes | string | kept whole in `lastTradeDateOrContractMonth` (empty for STK), not split |
+| 4 | lastTimes | string | split as `ib_async` does: on `-` when it has one, else on runs of whitespace. Part 0 is `lastTradeDateOrContractMonth` (empty for STK), part 1 `lastTradeTime`, part 2, when present, replaces `timeZoneId` |
 | 5 | strike | double | |
 | 6 | right | string | kept as sent (`?` for non-options is possible) |
 | 7 | exchange | string | |
@@ -1260,24 +1260,58 @@ No version field and no mdSizeMultiplier at 178; field 1 is the reqId.
 | 15 | orderTypes | string | comma list; `""` is `[]` |
 | 16 | validExchanges | string | comma list; `""` is `[]` |
 | 17 | priceMagnifier | int | |
-| 18 | underConId | int | skipped |
-| 19 | longName | string | not unicode-unescaped |
+| 18 | underConId | int | |
+| 19 | longName | string | JSON-style unicode escapes are decoded, as `ib_async` does |
 | 20 | primaryExchange | string | |
-| 21-24 | contractMonth, industry, category, subcategory | string | skipped |
+| 21-24 | contractMonth, industry, category, subcategory | string | |
 | 25 | timeZoneId | string | |
 | 26 | tradingHours | string | raw |
 | 27 | liquidHours | string | raw |
-| 28-29 | evRule, evMultiplier | | skipped |
+| 28-29 | evRule, evMultiplier | string, decimal | unset reads as nil |
 | 30 | numSecIds | int | |
-| + | secIdList | | numSecIds x (tag, value), skipped |
-| 31 | aggGroup | int | skipped |
-| 32-35 | underSymbol, underSecType, marketRuleIds, realExpirationDate | string | skipped |
+| + | secIdList | | numSecIds x (tag, value), into `secIDList` |
+| 31 | aggGroup | int | unset reads as nil |
+| 32-35 | underSymbol, underSecType, marketRuleIds, realExpirationDate | string | marketRuleIds is a comma list of ints, empty is `[]`, a non-number is `.malformed` |
 | 36 | stockType | string | |
 | 37 | minSize | decimal | unset reads as nil |
 | 38 | sizeIncrement | decimal | |
 | 39 | suggestedSizeIncrement | decimal | |
 
 Total: 40 fields plus 2 per secId. Fields past 39 are ignored by position.
+
+### bondContractData (in 18)
+
+Decodes to `.contractData(requestID:, ContractDetails)`, the same as in 10 (`ib_async` aliases its wrapper to
+`contractDetails`), so `contractDetails(_:)` returns bonds. No version field at 178.
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `18` |
+| 1 | reqId | int | |
+| 2-3 | symbol, secType | string | |
+| 4 | cusip | string | |
+| 5 | coupon | decimal | unset reads as nil |
+| 6 | lastTimes | string | split as in 10; part 0 goes to `maturity` and the contract's `lastTradeDateOrContractMonth` stays empty |
+| 7-10 | issueDate, ratings, bondType, couponType | string | |
+| 11-13 | convertible, callable, putable | bool | |
+| 14 | descAppend | string | |
+| 15-16 | exchange, currency | string | |
+| 17 | marketName | string | |
+| 18 | tradingClass | string | |
+| 19 | conId | int | |
+| 20 | minTick | decimal | |
+| 21-22 | orderTypes, validExchanges | string | comma lists |
+| 23-26 | nextOptionDate, nextOptionType, nextOptionPartial, notes | string, string, bool, string | |
+| 27 | longName | string | not unescaped |
+| 28-29 | evRule, evMultiplier | string, decimal | |
+| 30 | numSecIds | int | |
+| + | secIdList | | numSecIds x (tag, value) |
+| 31 | aggGroup | int | |
+| 32 | marketRuleIds | string | comma list of ints |
+| 33-35 | minSize, sizeIncrement, suggestedSizeIncrement | decimal | |
+
+Total: 36 fields plus 2 per secId. `priceMagnifier` is 0 and `stockType`, `tradingHours` and `liquidHours` are empty;
+`timeZoneID` is lastTimes part 2, or empty.
 
 ### contractDataEnd (in 52)
 
