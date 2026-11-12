@@ -47,6 +47,7 @@ private func inserting(_ groups: [(after: Int, fields: [String])], into f: [Stri
     c.conID = 265598; c.strike = 0; c.localSymbol = "AAPL"; c.tradingClass = "NMS"
     var o = Order(action: .buy, quantity: 100, orderType: "LMT", limitPrice: d("187.25"), tif: "DAY")
     o.account = "DU123456"; o.orderRef = "preset-1"; o.ocaGroup = "oca-1"; o.ocaType = 2; o.outsideRTH = true
+    o.volatilityType = 0; o.referencePriceType = 0; o.clearingIntent = "IB"
     #expect(IBDecoder.decode(body(f)) == .openOrder(OpenOrderMessage(
         orderID: 12, clientID: 1, permID: 918273001, contract: c, order: o, status: .submitted)))
 }
@@ -74,9 +75,103 @@ private func inserting(_ groups: [(after: Int, fields: [String])], into f: [Stri
     c.strike = 0; c.localSymbol = "AAPL"
     var o = Order(action: .buy, quantity: 100, orderType: "LMT", limitPrice: d("187.25"), tif: "DAY")
     o.account = "DU123456"; o.orderRef = "preset-1"
+    o.volatilityType = 0; o.referencePriceType = 0; o.clearingIntent = "IB"
     #expect(IBDecoder.decode(body(completedFields())) == .completedOrder(CompletedOrderMessage(
         permID: 918273001, contract: c, order: o, status: .filled,
         completedTime: "20261109 15:59:01", completedStatus: "Filled", filledQuantity: 100)))
+}
+
+/// The contract both every-field frames carry.
+private func plainContract() -> Contract {
+    var c = Contract(symbol: "AAPL")
+    c.conID = 265598; c.strike = 0; c.localSymbol = "AAPL"; c.tradingClass = "NMS"
+    return c
+}
+
+/// The fields openOrder and completedOrder share, as the every-field frames set them.
+private func plainOrder(orderType: String) -> Order {
+    var o = Order(action: .sell, quantity: 100, orderType: orderType, limitPrice: d("187.25"), auxPrice: d("1.5"),
+                  tif: "GTC")
+    o.ocaGroup = "g1"; o.account = "DU1"; o.openClose = "C"; o.origin = 1; o.orderRef = "r1"
+    o.outsideRTH = true; o.hidden = true
+    o.discretionaryAmt = d("0.05"); o.goodAfterTime = "20261112 09:30:00"; o.faGroup = "G"; o.faMethod = "EqualQuantity"
+    o.faPercentage = "50"; o.modelCode = "M1"; o.goodTillDate = "20261113 16:00:00"; o.rule80A = "I"
+    o.percentOffset = d("0.01"); o.settlingFirm = "F"
+    o.shortSaleSlot = 2; o.designatedLocation = "L"; o.exemptCode = 0; o.startingPrice = d("1.1")
+    o.stockRefPrice = d("1.2"); o.delta = d("0.5"); o.stockRangeLower = 1; o.stockRangeUpper = 2
+    o.displaySize = 10; o.sweepToFill = true; o.allOrNone = true; o.minQty = 5; o.ocaType = 1
+    o.triggerMethod = 2; o.volatility = d("0.3"); o.volatilityType = 2
+    o.continuousUpdate = true; o.referencePriceType = 1; o.trailStopPrice = 180; o.trailingPercent = 2
+    o.scaleInitLevelSize = 10; o.scaleSubsLevelSize = 5
+    o.clearingAccount = "CA"; o.clearingIntent = "IB"; o.notHeld = true; o.solicited = true
+    o.randomizeSize = true; o.randomizePrice = true
+    o.limitPriceOffset = d("0.1"); o.cashQty = 1000
+    o.dontUseAutoPriceForHedge = true; o.isOmsContainer = true; o.autoCancelParent = true
+    return o
+}
+
+@Test func openOrderDecodesEveryPlainField() {
+    let f = ["5", "12",
+             "265598", "AAPL", "STK", "", "0", "", "", "SMART", "USD", "AAPL", "NMS",          // 2–12
+             "SELL", "100", "VOL", "187.25", "1.5", "GTC", "g1", "DU1", "C", "1", "r1",       // 13–23
+             "7", "918273001", "1",                                                           // 24–26
+             "1", "0.05", "20261112 09:30:00", "alloc", "G", "EqualQuantity", "50", "M1",     // 27–34
+             "20261113 16:00:00", "I", "0.01", "F", "2", "L", "0", "1",                       // 35–42
+             "1.1", "1.2", "0.5", "1", "2", "10", "1", "1", "1", "5",                         // 43–52
+             "1", "0", "0", "", "9",                                                          // 53–57
+             "2", "0.3", "2", "", "",                                                         // 58–62
+             "1", "1", "179", "2", "3", "1",                                                  // 63–68
+             "", "0", "0", "0", "10", "5", "", "",                                            // 69–76
+             "1", "CA", "IB", "1", "0", "", "1", "0",                                         // 77–84
+             "Submitted", "", "", "", "", "", "", "", "", "", "", "", "", "", "",             // 85–99
+             "1", "1", "0",                                                                   // 100–102
+             "STP", "185", "180", "0.1", "184", "183", "1", "1", "N", "V", "Display", "1000", // 103–114
+             "1", "1", "1", "1", "60", "1", "1",                                              // 115–121
+             "", "", "", "", ""]                                                              // 122–126
+    #expect(f.count == 127)
+    var o = plainOrder(orderType: "VOL")
+    o.auctionStrategy = 1; o.blockOrder = true; o.parentID = 9; o.basisPoints = 3; o.basisPointsType = 1
+    o.optOutSmartRouting = true
+    o.adjustedOrderType = "STP"; o.triggerPrice = 185; o.adjustedStopPrice = 184; o.adjustedStopLimitPrice = 183
+    o.adjustedTrailingAmount = 1; o.adjustableTrailingUnit = 1
+    o.softDollarTier = SoftDollarTier(name: "N", value: "V", displayName: "Display")
+    o.discretionaryUpToLimitPrice = true; o.usePriceMgmtAlgo = true; o.duration = 60; o.postToAts = 1
+    #expect(IBDecoder.decode(body(f)) == .openOrder(OpenOrderMessage(
+        orderID: 12, clientID: 7, permID: 918273001, contract: plainContract(), order: o, status: .submitted)))
+}
+
+@Test func completedOrderDecodesEveryPlainField() {
+    let f = ["101",
+             "265598", "AAPL", "STK", "", "0", "", "", "SMART", "USD", "AAPL", "NMS",          // 1–11
+             "SELL", "100", "LMT", "187.25", "1.5", "GTC", "g1", "DU1", "C", "1", "r1",       // 12–22
+             "918273001", "1",                                                                // 23–24
+             "1", "0.05", "20261112 09:30:00", "G", "EqualQuantity", "50", "M1",              // 25–31
+             "20261113 16:00:00", "I", "0.01", "F", "2", "L", "0",                            // 32–38
+             "1.1", "1.2", "0.5", "1", "2", "10", "1", "1", "5",                              // 39–47
+             "1", "2", "0.3", "2", "", "",                                                    // 48–53
+             "1", "1", "179", "2",                                                            // 54–57
+             "", "0", "0", "0", "10", "5", "", "",                                            // 58–65
+             "CA", "IB", "1", "0", "", "1",                                                   // 66–71
+             "Filled", "1", "1", "0",                                                         // 72–75
+             "180", "0.1", "1000", "1", "1", "20261231", "100", "495512551",                  // 76–83
+             "1", "Not an insider or substantial shareholder", "1", "1", "918273000",         // 84–88
+             "20261112 15:59:01", "Filled Size: 100",                                         // 89–90
+             "", "", "", "", ""]                                                              // 91–95
+    #expect(f.count == 96)
+    var o = plainOrder(orderType: "LMT")
+    o.autoCancelDate = "20261231"; o.refFuturesConID = 495512551
+    o.shareholder = "Not an insider or substantial shareholder"; o.imbalanceOnly = true; o.routeMarketableToBbo = true
+    o.parentPermID = 918273000
+    #expect(IBDecoder.decode(body(f)) == .completedOrder(CompletedOrderMessage(
+        permID: 918273001, contract: plainContract(), order: o, status: .filled,
+        completedTime: "20261112 15:59:01", completedStatus: "Filled Size: 100", filledQuantity: 100)))
+}
+
+@Test func unknownActionIsMalformed() {
+    var f = openFields()
+    f[13] = "HOLD"
+    guard case .malformed(let id, _, _) = IBDecoder.decode(body(f)) else { Issue.record("not malformed"); return }
+    #expect(id == 5)
 }
 
 @Test func completedOrderConsumesEveryField() {

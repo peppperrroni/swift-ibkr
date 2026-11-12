@@ -46,7 +46,8 @@ Still open:
 - IB's price cap is about 1.8% from the market in regular hours. The live fill test uses +-1% and prices the SELL
   off the BUY's fill.
 - openOrder gives a plain stock LMT order contract `right` `?` and auxPrice `0.0`; the decoder keeps them as `"?"`
-  and `0`, not `""` / nil, so a consumer must not read them as set.
+  and `0`, not `""` / nil, so a consumer must not read them as set. The same holds for `None` in
+  deltaNeutralOrderType / adjustedOrderType and clearingIntent `IB`: all kept as sent.
 - A filled order replayed by completedOrders (the connect-time sync) has `order.totalQuantity` 0: its size is only
   in `filled`. The tracker keeps the 0 and clamps `remaining` at 0; a consumer reads the size from `filled`.
 - execDetails `time` comes in two formats: `20261110-11:56:31` (UTC, no zone) on a live fill and
@@ -75,8 +76,8 @@ CI (`.github/workflows/ci.yml`) builds and tests on macOS, Linux and Windows and
 - `frameAfterDisconnectIsIgnored` cannot catch a removed generation guard, because FakeGateway closes its stream;
   it needs a mode that stays open after close. The same goes for the generation guard in `IBClient`'s request-stream
   `stopped(...)`, which stops a late consumer-stop from an old connection cancelling a reused reqId.
-- completedOrder's `parentPermId` is skipped: after an app restart a fresh tracker loses bracket links of
-  completed orders.
+- completedOrder's `parentPermId` is skipped when the completedOrder joins an existing snapshot (only a fresh one
+  keeps it, in `order.parentPermID`), and the tracker links nothing by it.
 - `rejectReason` is never cleared once set.
 - A fatal error on one of the sync's reqAccountUpdatesMulti ids after `connect` returned goes only to `messages()`:
   `accountValues()` then silently stops updating for that account until the next connect.
@@ -84,5 +85,5 @@ CI (`.github/workflows/ci.yml`) builds and tests on macOS, Linux and Windows and
   late.
 - Pending execDetails / commission halves that never meet are kept for the client's lifetime (the execution
   tracker survives reconnects).
-- Test gaps: the 0xFFFFFF frame boundary; `int()` / `decimal()` of `""`; `bool()`, `double()`, `skip()`; an unknown action or condition type in openOrder; the 2 s close bound of a
+- Test gaps: the 0xFFFFFF frame boundary; `int()` / `decimal()` of `""`; `bool()`, `double()`, `skip()`; an unknown condition type in openOrder; the 2 s close bound of a
   draining disconnect (FakeGateway's write never blocks).

@@ -82,6 +82,7 @@
 | Prices go out as `Decimal.description` (`180`, `nil` → `""`); `addDouble` writes a `Double`'s text (`0` → `0.0`) only for the floats whose `ib_async` default is not unset (contract strike, `discretionaryAmt`). Exception: `totalQuantity` stays `"100"` where `ib_async` sends `100.0` | a `Decimal` has no float rounding to hide; the `0.0` defaults are what `ib_async` sends for a field that is never unset; the gateway accepted `"100"` (2026-11-10 paper run) | `Double` text for every price; `Decimal` text for the strike (its default would be `0`) |
 | `volatility` is sent only when `orderType` starts with `VOL`, else `""` (as `ib_async`) | IB back-fills it into live orders and then rejects their modification | sending the model's value for every order type |
 | `contractDetails` sends the contract's `secIDType` and `secID` | once `Contract` has them, ignoring them would be a silent trap | keeping them constant `""` |
+| openOrder and completedOrder keep every decoded order value as the gateway sent it: `None` in `deltaNeutralOrderType` / `adjustedOrderType`, `openClose` `""`, `clearingIntent` `IB`. `modifyOrder` with a decoded order re-sends them as `ib_async` would; whether IB accepts that is not yet checked live. `trailStopPrice`, sent twice, takes the second value | `ib_async` passes them through raw, so a decoded order re-encodes into the layout it would send; mapping `None` to `""` is a guess at IB's meaning that a consumer cannot undo | mapping `None` → `""` and `IB` → `""` on decode; keeping the first `trailStopPrice` |
 
 ## Error-code table
 

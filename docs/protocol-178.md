@@ -36,6 +36,8 @@ fields gated above 178 are dropped, fields gated at or below are kept. Defaults 
   firmQuoteOnly and nbboPriceCap (never modelled), and the rows that open a conditional group
   (deltaNeutralOrderType / AuxPrice, scalePriceIncrement, hedgeType, deltaNeutralContractPresent,
   algoStrategy, conditionsCount) with their `+` rows, which stage 7 models group by group.
+  In `openOrder` and `completedOrder`, ★ marks a field read into the model; unstarred fields are
+  skipped or land on the message (ids, status, filledQuantity, completedTime / Status).
 
 ## Handshake
 
@@ -658,46 +660,46 @@ no smart-routing params.
 | 18 | tif ★ | string | |
 | 19 | ocaGroup ★ | string | |
 | 20 | account ★ | string | |
-| 21 | openClose | string | |
-| 22 | origin | int | |
+| 21 | openClose ★ | string | |
+| 22 | origin ★ | int | |
 | 23 | orderRef ★ | string | |
 | 24 | clientId | int | |
 | 25 | permId | int | |
 | 26 | outsideRth ★ | bool | |
-| 27 | hidden | bool | |
-| 28 | discretionaryAmt | double | |
-| 29 | goodAfterTime | string | |
+| 27 | hidden ★ | bool | |
+| 28 | discretionaryAmt ★ | double | |
+| 29 | goodAfterTime ★ | string | |
 | 30 | sharesAllocation | string | deprecated, skip |
-| 31 | faGroup | string | |
-| 32 | faMethod | string | |
-| 33 | faPercentage | string | faProfile only below 177 — absent |
-| 34 | modelCode | string | |
-| 35 | goodTillDate | string | |
-| 36 | rule80A | string | |
-| 37 | percentOffset | double | |
-| 38 | settlingFirm | string | |
-| 39 | shortSaleSlot | int | |
-| 40 | designatedLocation | string | |
-| 41 | exemptCode | int | |
-| 42 | auctionStrategy | int | |
-| 43 | startingPrice | double | |
-| 44 | stockRefPrice | double | |
-| 45 | delta | double | |
-| 46 | stockRangeLower | double | |
-| 47 | stockRangeUpper | double | |
-| 48 | displaySize | int | |
-| 49 | blockOrder | bool | |
-| 50 | sweepToFill | bool | |
-| 51 | allOrNone | bool | |
-| 52 | minQty | int | |
+| 31 | faGroup ★ | string | |
+| 32 | faMethod ★ | string | |
+| 33 | faPercentage ★ | string | faProfile only below 177 — absent |
+| 34 | modelCode ★ | string | |
+| 35 | goodTillDate ★ | string | |
+| 36 | rule80A ★ | string | |
+| 37 | percentOffset ★ | double | |
+| 38 | settlingFirm ★ | string | |
+| 39 | shortSaleSlot ★ | int | |
+| 40 | designatedLocation ★ | string | |
+| 41 | exemptCode ★ | int | |
+| 42 | auctionStrategy ★ | int | |
+| 43 | startingPrice ★ | double | |
+| 44 | stockRefPrice ★ | double | |
+| 45 | delta ★ | double | |
+| 46 | stockRangeLower ★ | double | |
+| 47 | stockRangeUpper ★ | double | |
+| 48 | displaySize ★ | int | |
+| 49 | blockOrder ★ | bool | |
+| 50 | sweepToFill ★ | bool | |
+| 51 | allOrNone ★ | bool | |
+| 52 | minQty ★ | int | |
 | 53 | ocaType ★ | int | |
 | 54 | eTradeOnly | bool | deprecated, skip |
 | 55 | firmQuoteOnly | bool | deprecated, skip |
 | 56 | nbboPriceCap | double | deprecated, skip |
 | 57 | parentId ★ | int | |
-| 58 | triggerMethod | int | |
-| 59 | volatility | double | |
-| 60 | volatilityType | int | |
+| 58 | triggerMethod ★ | int | |
+| 59 | volatility ★ | double | |
+| 60 | volatilityType ★ | int | |
 | 61 | deltaNeutralOrderType | string | |
 | 62 | deltaNeutralAuxPrice | double | |
 | + | deltaNeutralConId | int | only if deltaNeutralOrderType ≠ `""`; 8 fields. The live gateway sends `None` for a plain order, so the group is present (Disagreements 9) |
@@ -708,12 +710,12 @@ no smart-routing params.
 | + | deltaNeutralShortSale | bool | |
 | + | deltaNeutralShortSaleSlot | int | |
 | + | deltaNeutralDesignatedLocation | string | |
-| 63 | continuousUpdate | bool | |
-| 64 | referencePriceType | int | |
-| 65 | trailStopPrice | double | overwritten by #105 in both clients |
-| 66 | trailingPercent | double | |
-| 67 | basisPoints | double | |
-| 68 | basisPointsType | int | |
+| 63 | continuousUpdate ★ | bool | |
+| 64 | referencePriceType ★ | int | |
+| 65 | trailStopPrice ★ | double | overwritten by #105 in both clients |
+| 66 | trailingPercent ★ | double | |
+| 67 | basisPoints ★ | double | |
+| 68 | basisPointsType ★ | int | |
 | 69 | comboLegsDescrip | string | |
 | 70 | comboLegsCount | int | always present |
 | + | ↳ leg: conId int, ratio int, action string, exchange string, openClose int, shortSaleSlot int, designatedLocation string, exemptCode int | | × comboLegsCount, 8 fields per leg |
@@ -721,23 +723,23 @@ no smart-routing params.
 | + | ↳ price | double | × orderComboLegsCount |
 | 72 | smartComboRoutingParamsCount | int | always present |
 | + | ↳ tag, value | string, string | × count, 2 fields per element |
-| 73 | scaleInitLevelSize | int | |
-| 74 | scaleSubsLevelSize | int | |
+| 73 | scaleInitLevelSize ★ | int | |
+| 74 | scaleSubsLevelSize ★ | int | |
 | 75 | scalePriceIncrement | double | |
 | + | scalePriceAdjustValue double, scalePriceAdjustInterval int, scaleProfitOffset double, scaleAutoReset bool, scaleInitPosition int, scaleInitFillQty int, scaleRandomPercent bool | | only if 0 < scalePriceIncrement < UNSET; 7 fields |
 | 76 | hedgeType | string | |
 | + | hedgeParam | string | only if hedgeType ≠ `""` |
-| 77 | optOutSmartRouting | bool | |
-| 78 | clearingAccount | string | |
-| 79 | clearingIntent | string | |
-| 80 | notHeld | bool | |
+| 77 | optOutSmartRouting ★ | bool | |
+| 78 | clearingAccount ★ | string | |
+| 79 | clearingIntent ★ | string | |
+| 80 | notHeld ★ | bool | |
 | 81 | deltaNeutralContractPresent | bool | |
 | + | conId int, delta double, price double | | only if present; 3 fields |
 | 82 | algoStrategy | string | |
 | + | algoParamsCount | int | only if algoStrategy ≠ `""` |
 | + | ↳ tag, value | string, string | × algoParamsCount |
-| 83 | solicited | bool | |
-| 84 | whatIf | bool | |
+| 83 | solicited ★ | bool | |
+| 84 | whatIf ★ | bool | |
 | 85 | status | string | OrderState.status |
 | 86 | initMarginBefore | string | |
 | 87 | maintMarginBefore | string | |
@@ -753,31 +755,31 @@ no smart-routing params.
 | 97 | maxCommission | double | |
 | 98 | commissionCurrency | string | |
 | 99 | warningText | string | (the outside-RTH margin block starts at 195 — absent) |
-| 100 | randomizeSize | bool | |
-| 101 | randomizePrice | bool | |
+| 100 | randomizeSize ★ | bool | |
+| 101 | randomizePrice ★ | bool | |
 | + | referenceContractId int, isPeggedChangeAmountDecrease bool, peggedChangeAmount double, referenceChangeAmount double, referenceExchangeId string | | only if orderType `PEG BENCH` / `PEGBENCH`; 5 fields |
 | 102 | conditionsCount | int | |
 | + | ↳ one condition | | × conditionsCount — see [Order condition element](#order-condition-element) |
 | + | conditionsIgnoreRth, conditionsCancelOrder | bool, bool | only if conditionsCount > 0 |
-| 103 | adjustedOrderType | string | |
-| 104 | triggerPrice | double | |
-| 105 | trailStopPrice | double | second occurrence |
-| 106 | lmtPriceOffset | double | |
-| 107 | adjustedStopPrice | double | |
-| 108 | adjustedStopLimitPrice | double | |
-| 109 | adjustedTrailingAmount | double | |
-| 110 | adjustableTrailingUnit | int | |
-| 111 | softDollarTier.name | string | |
-| 112 | softDollarTier.value | string | |
-| 113 | softDollarTier.displayName | string | |
-| 114 | cashQty | double | |
-| 115 | dontUseAutoPriceForHedge | bool | |
-| 116 | isOmsContainer | bool | |
-| 117 | discretionaryUpToLimitPrice | bool | |
-| 118 | usePriceMgmtAlgo | bool | |
-| 119 | duration | int | |
-| 120 | postToAts | int | |
-| 121 | autoCancelParent | bool | |
+| 103 | adjustedOrderType ★ | string | |
+| 104 | triggerPrice ★ | double | |
+| 105 | trailStopPrice ★ | double | second occurrence |
+| 106 | lmtPriceOffset ★ | double | |
+| 107 | adjustedStopPrice ★ | double | |
+| 108 | adjustedStopLimitPrice ★ | double | |
+| 109 | adjustedTrailingAmount ★ | double | |
+| 110 | adjustableTrailingUnit ★ | int | |
+| 111 | softDollarTier.name ★ | string | |
+| 112 | softDollarTier.value ★ | string | |
+| 113 | softDollarTier.displayName ★ | string | |
+| 114 | cashQty ★ | double | |
+| 115 | dontUseAutoPriceForHedge ★ | bool | |
+| 116 | isOmsContainer ★ | bool | |
+| 117 | discretionaryUpToLimitPrice ★ | bool | |
+| 118 | usePriceMgmtAlgo ★ | bool | |
+| 119 | duration ★ | int | |
+| 120 | postToAts ★ | int | |
+| 121 | autoCancelParent ★ | bool | |
 | 122 | minTradeQty | int | gate 170, always present |
 | 123 | minCompeteSize | int | |
 | 124 | competeAgainstBestOffset | double | `Infinite` = +∞ |
@@ -1112,45 +1114,45 @@ No version field. Base case as for `openOrder`.
 | 17 | tif ★ | string | |
 | 18 | ocaGroup ★ | string | |
 | 19 | account ★ | string | |
-| 20 | openClose | string | |
-| 21 | origin | int | |
+| 20 | openClose ★ | string | |
+| 21 | origin ★ | int | |
 | 22 | orderRef ★ | string | |
 | 23 | permId | int | the key |
 | 24 | outsideRth ★ | bool | |
-| 25 | hidden | bool | |
-| 26 | discretionaryAmt | double | |
-| 27 | goodAfterTime | string | no sharesAllocation here |
-| 28 | faGroup | string | |
-| 29 | faMethod | string | |
-| 30 | faPercentage | string | faProfile only below 177 — absent |
-| 31 | modelCode | string | |
-| 32 | goodTillDate | string | |
-| 33 | rule80A | string | |
-| 34 | percentOffset | double | |
-| 35 | settlingFirm | string | |
-| 36 | shortSaleSlot | int | |
-| 37 | designatedLocation | string | |
-| 38 | exemptCode | int | no auctionStrategy here |
-| 39 | startingPrice | double | |
-| 40 | stockRefPrice | double | |
-| 41 | delta | double | |
-| 42 | stockRangeLower | double | |
-| 43 | stockRangeUpper | double | |
-| 44 | displaySize | int | no blockOrder here |
-| 45 | sweepToFill | bool | |
-| 46 | allOrNone | bool | |
-| 47 | minQty | int | |
+| 25 | hidden ★ | bool | |
+| 26 | discretionaryAmt ★ | double | |
+| 27 | goodAfterTime ★ | string | no sharesAllocation here |
+| 28 | faGroup ★ | string | |
+| 29 | faMethod ★ | string | |
+| 30 | faPercentage ★ | string | faProfile only below 177 — absent |
+| 31 | modelCode ★ | string | |
+| 32 | goodTillDate ★ | string | |
+| 33 | rule80A ★ | string | |
+| 34 | percentOffset ★ | double | |
+| 35 | settlingFirm ★ | string | |
+| 36 | shortSaleSlot ★ | int | |
+| 37 | designatedLocation ★ | string | |
+| 38 | exemptCode ★ | int | no auctionStrategy here |
+| 39 | startingPrice ★ | double | |
+| 40 | stockRefPrice ★ | double | |
+| 41 | delta ★ | double | |
+| 42 | stockRangeLower ★ | double | |
+| 43 | stockRangeUpper ★ | double | |
+| 44 | displaySize ★ | int | no blockOrder here |
+| 45 | sweepToFill ★ | bool | |
+| 46 | allOrNone ★ | bool | |
+| 47 | minQty ★ | int | |
 | 48 | ocaType ★ | int | no eTradeOnly / firmQuoteOnly / nbboPriceCap / parentId here |
-| 49 | triggerMethod | int | |
-| 50 | volatility | double | |
-| 51 | volatilityType | int | |
+| 49 | triggerMethod ★ | int | |
+| 50 | volatility ★ | double | |
+| 51 | volatilityType ★ | int | |
 | 52 | deltaNeutralOrderType | string | |
 | 53 | deltaNeutralAuxPrice | double | |
 | + | deltaNeutralConId int, deltaNeutralShortSale bool, deltaNeutralShortSaleSlot int, deltaNeutralDesignatedLocation string | | only if deltaNeutralOrderType ≠ `""`; **4** fields (no settlingFirm / clearing / openClose); expect it present (`None`, Disagreements 9) |
-| 54 | continuousUpdate | bool | |
-| 55 | referencePriceType | int | |
-| 56 | trailStopPrice | double | overwritten by #76 in both clients |
-| 57 | trailingPercent | double | no basisPoints here |
+| 54 | continuousUpdate ★ | bool | |
+| 55 | referencePriceType ★ | int | |
+| 56 | trailStopPrice ★ | double | overwritten by #76 in both clients |
+| 57 | trailingPercent ★ | double | no basisPoints here |
 | 58 | comboLegsDescrip | string | |
 | 59 | comboLegsCount | int | always present |
 | + | ↳ leg: 8 fields as in `openOrder` | | × comboLegsCount |
@@ -1158,40 +1160,40 @@ No version field. Base case as for `openOrder`.
 | + | ↳ price | double | × orderComboLegsCount |
 | 61 | smartComboRoutingParamsCount | int | always present |
 | + | ↳ tag, value | string, string | × count |
-| 62 | scaleInitLevelSize | int | |
-| 63 | scaleSubsLevelSize | int | |
+| 62 | scaleInitLevelSize ★ | int | |
+| 63 | scaleSubsLevelSize ★ | int | |
 | 64 | scalePriceIncrement | double | |
 | + | the 7 scale fields as in `openOrder` | | only if 0 < scalePriceIncrement < UNSET |
 | 65 | hedgeType | string | |
 | + | hedgeParam | string | only if hedgeType ≠ `""` |
-| 66 | clearingAccount | string | no optOutSmartRouting here |
-| 67 | clearingIntent | string | |
-| 68 | notHeld | bool | |
+| 66 | clearingAccount ★ | string | no optOutSmartRouting here |
+| 67 | clearingIntent ★ | string | |
+| 68 | notHeld ★ | bool | |
 | 69 | deltaNeutralContractPresent | bool | |
 | + | conId int, delta double, price double | | only if present |
 | 70 | algoStrategy | string | |
 | + | algoParamsCount, then tag/value pairs | | only if algoStrategy ≠ `""` |
-| 71 | solicited | bool | no whatIf here |
+| 71 | solicited ★ | bool | no whatIf here |
 | 72 | status | string | OrderState.status; no margin / commission block |
-| 73 | randomizeSize | bool | |
-| 74 | randomizePrice | bool | |
+| 73 | randomizeSize ★ | bool | |
+| 74 | randomizePrice ★ | bool | |
 | + | the 5 PEG BENCH fields as in `openOrder` | | only if orderType `PEG BENCH` / `PEGBENCH` |
 | 75 | conditionsCount | int | |
 | + | ↳ one condition | | × conditionsCount — see [Order condition element](#order-condition-element) |
 | + | conditionsIgnoreRth, conditionsCancelOrder | bool, bool | only if conditionsCount > 0 |
-| 76 | trailStopPrice | double | second occurrence; no adjusted-order block here |
-| 77 | lmtPriceOffset | double | |
-| 78 | cashQty | double | no softDollarTier here |
-| 79 | dontUseAutoPriceForHedge | bool | |
-| 80 | isOmsContainer | bool | |
-| 81 | autoCancelDate | string | |
+| 76 | trailStopPrice ★ | double | second occurrence; no adjusted-order block here |
+| 77 | lmtPriceOffset ★ | double | |
+| 78 | cashQty ★ | double | no softDollarTier here |
+| 79 | dontUseAutoPriceForHedge ★ | bool | |
+| 80 | isOmsContainer ★ | bool | |
+| 81 | autoCancelDate ★ | string | |
 | 82 | filledQuantity | decimal | |
-| 83 | refFuturesConId | int | |
-| 84 | autoCancelParent | bool | |
-| 85 | shareholder | string | |
-| 86 | imbalanceOnly | bool | always present in completedOrder (unlike placeOrder / openOrder) |
-| 87 | routeMarketableToBbo | bool | |
-| 88 | parentPermId | int | |
+| 83 | refFuturesConId ★ | int | |
+| 84 | autoCancelParent ★ | bool | |
+| 85 | shareholder ★ | string | |
+| 86 | imbalanceOnly ★ | bool | always present in completedOrder (unlike placeOrder / openOrder) |
+| 87 | routeMarketableToBbo ★ | bool | |
+| 88 | parentPermId ★ | int | |
 | 89 | completedTime | string | |
 | 90 | completedStatus | string | |
 | 91 | minTradeQty | int | gate 170, always present |

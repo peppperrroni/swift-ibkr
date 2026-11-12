@@ -33,6 +33,8 @@ func everyRecordedFrameDecodes(_ name: String) throws {
     c.conID = 265598; c.strike = 0; c.right = "?"; c.localSymbol = "AAPL"; c.tradingClass = "NMS"
     var o = Order(action: .buy, quantity: 1, orderType: "LMT", limitPrice: d("1"), auxPrice: 0, tif: "DAY")
     o.account = "DU0000001"; o.ocaType = 3
+    o.openClose = ""; o.volatilityType = 0; o.referencePriceType = 0; o.trailStopPrice = 2; o.clearingIntent = "IB"
+    o.adjustedOrderType = "None"; o.cashQty = 0; o.dontUseAutoPriceForHedge = true
     let statuses: [OrderStatus] = [.preSubmitted, .preSubmitted, .pendingCancel, .pendingCancel]
     #expect(frames.map(\.count) == [135, 135, 135, 135])
     #expect(frames.map { IBDecoder.decode(body($0)) } == statuses.map {

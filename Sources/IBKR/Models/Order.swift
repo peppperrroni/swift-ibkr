@@ -63,6 +63,11 @@ public struct Order: Sendable, Equatable {
     public var autoCancelParent = false                          // 111
     public var advancedErrorOverride = "", manualOrderTime = ""  // 112-113
 
+    // Decoded only, never sent: openOrder's, then completedOrder's.
+    public var basisPoints: Decimal?, basisPointsType: Int?
+    public var autoCancelDate = "", refFuturesConID: Int?, shareholder = ""
+    public var imbalanceOnly = false, routeMarketableToBbo = false, parentPermID: Int?
+
     public init(action: OrderAction, quantity: Decimal, orderType: String,
                 limitPrice: Decimal? = nil, auxPrice: Decimal? = nil, tif: String = "DAY") {
         self.action = action; totalQuantity = quantity; self.orderType = orderType

@@ -26,6 +26,10 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
   trailing, adjusted-order, MiFID II, cash quantity, soft dollar tier, misc options and more) and `Contract` gains
   `secIDType` / `secID`. New value types `TagValue` and `SoftDollarTier`. `volatility` goes out only for `VOL` order
   types.
+- openOrder and completedOrder decode the order fields: every plain field `placeOrder` sends, plus the decoded-only
+  `basisPoints` / `basisPointsType` (openOrder) and `autoCancelDate`, `refFuturesConID`, `shareholder`,
+  `imbalanceOnly`, `routeMarketableToBbo` and `parentPermID` (completedOrder). Values are kept as the gateway sends
+  them (`None`, `clearingIntent` `IB`).
 
 ### Changed
 - `contractDetails` sends the contract's `secIDType` and `secID` instead of empty fields.

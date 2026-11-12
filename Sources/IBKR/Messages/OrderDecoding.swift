@@ -55,22 +55,45 @@ extension IBDecoder {
         let contract = try self.contract(&r)
         var o = try orderHead(&r)
         let clientID = try r.int(), permID = try r.int()
-        o.outsideRTH = try r.bool()
-        try r.skip(26)  // 27–52 hidden … minQty
-        o.ocaType = try r.int()
+        o.outsideRTH = try r.bool(); o.hidden = try r.bool(); o.discretionaryAmt = try r.decimal()
+        o.goodAfterTime = try r.string()
+        try r.skip()  // 30 sharesAllocation
+        o.faGroup = try r.string(); o.faMethod = try r.string(); o.faPercentage = try r.string()
+        o.modelCode = try r.string(); o.goodTillDate = try r.string(); o.rule80A = try r.string()
+        o.percentOffset = try r.optionalDecimal(); o.settlingFirm = try r.string(); o.shortSaleSlot = try r.int()
+        o.designatedLocation = try r.string(); o.exemptCode = try r.int(); o.auctionStrategy = try r.int()
+        o.startingPrice = try r.optionalDecimal(); o.stockRefPrice = try r.optionalDecimal()
+        o.delta = try r.optionalDecimal(); o.stockRangeLower = try r.optionalDecimal()
+        o.stockRangeUpper = try r.optionalDecimal(); o.displaySize = try r.int()
+        o.blockOrder = try r.bool(); o.sweepToFill = try r.bool(); o.allOrNone = try r.bool()
+        o.minQty = try r.optionalInt(); o.ocaType = try r.int()
         try r.skip(3)  // 54–56 eTradeOnly, firmQuoteOnly, nbboPriceCap
         o.parentID = try r.int()
-        try r.skip(3)  // 58–60 triggerMethod, volatility, volatilityType
+        o.triggerMethod = try r.int(); o.volatility = try r.optionalDecimal(); o.volatilityType = try r.optionalInt()
         try skipDeltaNeutral(&r, extraFields: 8)
-        try r.skip(6)  // 63–68 continuousUpdate … basisPointsType
-        try skipComboThroughHedge(&r)
-        try r.skip(4)  // 77–80 optOutSmartRouting, clearingAccount, clearingIntent, notHeld
+        o.continuousUpdate = try r.bool(); o.referencePriceType = try r.optionalInt()
+        o.trailStopPrice = try r.optionalDecimal(); o.trailingPercent = try r.optionalDecimal()
+        o.basisPoints = try r.optionalDecimal(); o.basisPointsType = try r.optionalInt()
+        try comboThroughHedge(&r, &o)
+        o.optOutSmartRouting = try r.bool()
+        o.clearingAccount = try r.string(); o.clearingIntent = try r.string(); o.notHeld = try r.bool()
         try skipDeltaNeutralContractAndAlgo(&r)
-        try r.skip(2)  // 83–84 solicited, whatIf
+        o.solicited = try r.bool(); o.whatIf = try r.bool()
         let status = OrderStatus(rawValue: try r.string())
         try r.skip(14)  // 86–99 margins, commissions, warningText
-        try skipRandomizeThroughConditions(&r, orderType: o.orderType)
-        try r.skip(24)  // 103–126 adjustedOrderType … midOffsetAtHalf
+        o.randomizeSize = try r.bool(); o.randomizePrice = try r.bool()
+        try skipPegBenchThroughConditions(&r, orderType: o.orderType)
+        o.adjustedOrderType = try r.string(); o.triggerPrice = try r.optionalDecimal()
+        o.trailStopPrice = try r.optionalDecimal()  // again (65): this one wins, as in ib_async
+        o.limitPriceOffset = try r.optionalDecimal(); o.adjustedStopPrice = try r.optionalDecimal()
+        o.adjustedStopLimitPrice = try r.optionalDecimal(); o.adjustedTrailingAmount = try r.optionalDecimal()
+        o.adjustableTrailingUnit = try r.int()
+        o.softDollarTier = SoftDollarTier(name: try r.string(), value: try r.string(), displayName: try r.string())
+        o.cashQty = try r.optionalDecimal()
+        o.dontUseAutoPriceForHedge = try r.bool(); o.isOmsContainer = try r.bool()
+        o.discretionaryUpToLimitPrice = try r.bool(); o.usePriceMgmtAlgo = try r.bool()
+        o.duration = try r.optionalInt(); o.postToAts = try r.optionalInt(); o.autoCancelParent = try r.bool()
+        try r.skip(5)  // 122–126 minTradeQty … midOffsetAtHalf
         return OpenOrderMessage(orderID: orderID, clientID: clientID, permID: permID, contract: contract, order: o,
                                 status: status)
     }
@@ -79,21 +102,35 @@ extension IBDecoder {
         let contract = try self.contract(&r)
         var o = try orderHead(&r)
         let permID = try r.int()
-        o.outsideRTH = try r.bool()
-        try r.skip(23)  // 25–47 hidden … minQty
-        o.ocaType = try r.int()
-        try r.skip(3)  // 49–51 triggerMethod, volatility, volatilityType
+        o.outsideRTH = try r.bool(); o.hidden = try r.bool(); o.discretionaryAmt = try r.decimal()
+        o.goodAfterTime = try r.string()
+        o.faGroup = try r.string(); o.faMethod = try r.string(); o.faPercentage = try r.string()
+        o.modelCode = try r.string(); o.goodTillDate = try r.string(); o.rule80A = try r.string()
+        o.percentOffset = try r.optionalDecimal(); o.settlingFirm = try r.string(); o.shortSaleSlot = try r.int()
+        o.designatedLocation = try r.string(); o.exemptCode = try r.int()
+        o.startingPrice = try r.optionalDecimal(); o.stockRefPrice = try r.optionalDecimal()
+        o.delta = try r.optionalDecimal(); o.stockRangeLower = try r.optionalDecimal()
+        o.stockRangeUpper = try r.optionalDecimal(); o.displaySize = try r.int()
+        o.sweepToFill = try r.bool(); o.allOrNone = try r.bool()
+        o.minQty = try r.optionalInt(); o.ocaType = try r.int()
+        o.triggerMethod = try r.int(); o.volatility = try r.optionalDecimal(); o.volatilityType = try r.optionalInt()
         try skipDeltaNeutral(&r, extraFields: 4)
-        try r.skip(4)  // 54–57 continuousUpdate … trailingPercent
-        try skipComboThroughHedge(&r)
-        try r.skip(3)  // 66–68 clearingAccount, clearingIntent, notHeld
+        o.continuousUpdate = try r.bool(); o.referencePriceType = try r.optionalInt()
+        o.trailStopPrice = try r.optionalDecimal(); o.trailingPercent = try r.optionalDecimal()
+        try comboThroughHedge(&r, &o)
+        o.clearingAccount = try r.string(); o.clearingIntent = try r.string(); o.notHeld = try r.bool()
         try skipDeltaNeutralContractAndAlgo(&r)
-        try r.skip()  // 71 solicited
+        o.solicited = try r.bool()
         let status = OrderStatus(rawValue: try r.string())
-        try skipRandomizeThroughConditions(&r, orderType: o.orderType)
-        try r.skip(6)  // 76-81 trailStopPrice ... autoCancelDate
+        o.randomizeSize = try r.bool(); o.randomizePrice = try r.bool()
+        try skipPegBenchThroughConditions(&r, orderType: o.orderType)
+        o.trailStopPrice = try r.optionalDecimal()  // again (56): this one wins, as in ib_async
+        o.limitPriceOffset = try r.optionalDecimal(); o.cashQty = try r.optionalDecimal()
+        o.dontUseAutoPriceForHedge = try r.bool(); o.isOmsContainer = try r.bool()
+        o.autoCancelDate = try r.string()
         let filledQuantity = try r.decimal()
-        try r.skip(6)  // 83-88 refFuturesConId ... parentPermId
+        o.refFuturesConID = try r.optionalInt(); o.autoCancelParent = try r.bool(); o.shareholder = try r.string()
+        o.imbalanceOnly = try r.bool(); o.routeMarketableToBbo = try r.bool(); o.parentPermID = try r.optionalInt()
         let completedTime = try r.string(), completedStatus = try r.string()
         try r.skip(5)  // 91–95 minTradeQty … midOffsetAtHalf
         return CompletedOrderMessage(permID: permID, contract: contract, order: o, status: status,
@@ -119,8 +156,7 @@ extension IBDecoder {
         var o = Order(action: action, quantity: try r.decimal(), orderType: try r.string(),
                       limitPrice: try r.optionalDecimal(), auxPrice: try r.optionalDecimal(), tif: try r.string())
         o.ocaGroup = try r.string(); o.account = try r.string()
-        try r.skip(2)  // openClose, origin
-        o.orderRef = try r.string()
+        o.openClose = try r.string(); o.origin = try r.int(); o.orderRef = try r.string()
         return o
     }
 
@@ -140,12 +176,13 @@ extension IBDecoder {
     }
 
     /// comboLegsDescrip through hedgeType (+ hedgeParam): combo legs, their prices, smart routing params, scale.
-    private static func skipComboThroughHedge(_ r: inout FieldReader) throws {
+    /// Reads only the two scale sizes.
+    private static func comboThroughHedge(_ r: inout FieldReader, _ o: inout Order) throws {
         try r.skip()  // comboLegsDescrip
         try r.skip(8 * count(&r))  // legs
         try r.skip(count(&r))  // order combo-leg prices
         try r.skip(2 * count(&r))  // smart combo routing tag/value pairs
-        try r.skip(2)  // scaleInitLevelSize, scaleSubsLevelSize
+        o.scaleInitLevelSize = try r.optionalInt(); o.scaleSubsLevelSize = try r.optionalInt()
         if let increment = try r.optionalDouble(), increment > 0 { try r.skip(7) }
         if try !r.string().isEmpty { try r.skip() }  // hedgeType set → hedgeParam
     }
@@ -155,9 +192,8 @@ extension IBDecoder {
         if try !r.string().isEmpty { try r.skip(2 * count(&r)) }  // algoStrategy set → tag/value pairs
     }
 
-    /// randomizeSize, randomizePrice, PEG BENCH fields, conditions and their two flags.
-    private static func skipRandomizeThroughConditions(_ r: inout FieldReader, orderType: String) throws {
-        try r.skip(2)
+    /// PEG BENCH fields, conditions and their two flags.
+    private static func skipPegBenchThroughConditions(_ r: inout FieldReader, orderType: String) throws {
         if orderType == "PEG BENCH" || orderType == "PEGBENCH" { try r.skip(5) }
         let n = try count(&r)
         for _ in 0..<n {
