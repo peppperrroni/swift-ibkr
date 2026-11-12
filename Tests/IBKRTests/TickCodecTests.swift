@@ -94,6 +94,8 @@ import Testing
         #expect(TickField.bid.live == .bid)
         #expect(TickField(rawValue: 80).live.rawValue == 10)
         #expect(TickField(rawValue: 83).live.rawValue == 13)
+        #expect(TickField(rawValue: 103).live.rawValue == 50)
+        #expect(TickField(rawValue: 104).live.rawValue == 51)
     }
 
     @Test func marketDataRequestsEncode() throws {

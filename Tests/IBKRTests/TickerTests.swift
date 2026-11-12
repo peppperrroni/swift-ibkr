@@ -86,4 +86,50 @@ import Testing
         t.apply(.news(NewsTick(timeStamp: 1, providerCode: "BZ", articleID: "A1", headline: "H")))
         #expect(t == before)
     }
+
+    @Test func delayedYieldsLandOnTheirLiveFields() {
+        var t = Ticker(contract: Contract(symbol: "AAPL"))
+        t.apply(.price(TickField(rawValue: 103), price: d("4.5"), size: 0))
+        #expect(t.prices[TickField(rawValue: 50)] == d("4.5"))
+        #expect(t.prices[TickField(rawValue: 103)] == nil)
+    }
+
+    @Test func aPriceAfterAnEmptySideRestoresIt() {
+        var t = Ticker(contract: Contract(symbol: "AAPL"))
+        t.apply(.price(.bid, price: d("351.5"), size: d("200")))
+        t.apply(.size(.bidSize, 0))
+        t.apply(.price(.bid, price: d("351.6"), size: d("100")))
+        #expect(t.bid == d("351.6"))
+        #expect(t.bidSize == 100)
+    }
+
+    @Test func aPriceWithoutSizeKeepsThePrice() {
+        var t = Ticker(contract: Contract(symbol: "AAPL"))
+        t.apply(.price(.bid, price: d("351.5"), size: nil))
+        #expect(t.bid == d("351.5"))
+        #expect(t.bidSize == nil)
+    }
+
+    @Test func delayedBidLandsOnBid() {
+        var t = Ticker(contract: Contract(symbol: "AAPL"))
+        t.apply(.price(TickField(rawValue: 66), price: d("351.4"), size: 100))
+        #expect(t.bid == d("351.4"))
+        #expect(t.bidSize == 100)
+        #expect(t.prices.isEmpty)
+    }
+
+    @Test func tickNyseKeepsMinusOneWithoutAClose() {
+        var t = Ticker(contract: Contract(symbol: "AAPL"))
+        t.apply(.price(.last, price: -1, size: 0))
+        #expect(t.last == -1)
+        #expect(t.lastSize == 0)
+    }
+
+    @Test func aZeroOrBadTimestampIsIgnored() {
+        var t = Ticker(contract: Contract(symbol: "AAPL"))
+        t.apply(.string(.lastTimestamp, "1794321000"))
+        t.apply(.string(.lastTimestamp, "0"))
+        t.apply(.string(.lastTimestamp, "x"))
+        #expect(t.lastTimestamp == Date(timeIntervalSince1970: 1794321000))
+    }
 }

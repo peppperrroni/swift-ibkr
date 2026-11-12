@@ -87,7 +87,7 @@ public struct TickField: RawRepresentable, Hashable, Sendable {
     public static let halted = TickField(rawValue: 49)
 
     private static let delayedTwin: [Int: Int] = [
-        66: 1, 67: 2, 68: 4, 69: 0, 70: 3, 71: 5, 72: 6, 73: 7, 74: 8, 75: 9, 76: 14, 80: 10, 81: 11, 82: 12, 83: 13, 88: 45,
+        66: 1, 67: 2, 68: 4, 69: 0, 70: 3, 71: 5, 72: 6, 73: 7, 74: 8, 75: 9, 76: 14, 80: 10, 81: 11, 82: 12, 83: 13, 88: 45, 103: 50, 104: 51,
     ]
     /// A delayed field's real-time twin; any other field is itself.
     public var live: TickField { TickField(rawValue: Self.delayedTwin[rawValue] ?? rawValue) }

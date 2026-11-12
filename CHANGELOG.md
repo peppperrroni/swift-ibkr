@@ -18,7 +18,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
   a public enum: an exhaustive `switch` over `IBMessage` needs a new branch.
 - `Tick.optionComputation`, `.efp`, `.requestParameters` and `.news`, with the new types `OptionComputation`, `EFPData`
   and `NewsTick`: `marketData` yields option computations (21), EFP quotes (47), request parameters (81) and news
-  ticks (84). An uncomputed greek is `nil`, and `TickField.live` maps the delayed greeks 80-83 to 10-13. New cases in
+  ticks (84). An uncomputed greek is `nil`, and `TickField.live` maps the delayed greeks 80-83 to 10-13 and the delayed yields 103/104 to 50/51. New cases in
   a public enum: an exhaustive `switch` over `Tick` needs new branches.
 - `IBMessage.deltaNeutralValidation`, `.rerouteMarketData` and `.rerouteMarketDepth` (56, 91, 92), decoded and
   delivered to `messages()` only; the market data stream stays open through a reroute. New cases in a public enum: an
