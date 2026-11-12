@@ -1,7 +1,7 @@
 # Known gaps after stage 6
 
-What stages 1 to 4 (codec and merging; socket, `IBClient`, a live paper run; positions, account summary, P&L; market
-data and contract lookups) leave open. Delete a line when it
+What stages 1 to 6 (codec and merging; socket, `IBClient`, a live paper run; positions, account summary, P&L; market
+data and contract lookups; session requests, the account stream and reconnect) leave open. Delete a line when it
 is settled.
 
 ## To confirm against a live gateway
@@ -78,6 +78,8 @@ CI (`.github/workflows/ci.yml`) builds and tests on macOS, Linux and Windows and
 - completedOrder's `parentPermId` is skipped: after an app restart a fresh tracker loses bracket links of
   completed orders.
 - `rejectReason` is never cleared once set.
+- A fatal error on one of the sync's reqAccountUpdatesMulti ids after `connect` returned goes only to `messages()`:
+  `accountValues()` then silently stops updating for that account until the next connect.
 - `Frame.encode` does not enforce `Frame.maxLength`; an oversized header after a good frame is seen one `append`
   late.
 - Pending execDetails / commission halves that never meet are kept for the client's lifetime (the execution

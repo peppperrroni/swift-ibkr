@@ -89,14 +89,14 @@ private func connect(_ client: IBClient, _ policy: ReconnectPolicy) async throws
     let one = FakeGateway()
     let gateways = Gateways([one])
     let client = IBClient(connector: gateways.connector)
-    try await connect(client, ReconnectPolicy(delays: [.milliseconds(200)], probeAfter: nil))
+    try await connect(client, ReconnectPolicy(delays: [.seconds(1)], probeAfter: nil))
     let states = await client.states()
     one.close()
     #expect(try await next(3, states) == [ready, .disconnected(.connectionClosed), .connecting])
     await #expect(throws: IBClientError.alreadyConnected) { try await connect(client, policy) }
     await client.disconnect()
     #expect(try await next(1, states) == [.disconnected(nil)])
-    try await Task.sleep(for: .milliseconds(400))
+    try await Task.sleep(for: .milliseconds(1200))   // past the 1 s pause: an attempt not cancelled would count
     #expect(await gateways.connects == 1)
     #expect(try await next(1, client.states()) == [.disconnected(nil)])
 }

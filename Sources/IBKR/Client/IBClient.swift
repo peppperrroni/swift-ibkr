@@ -442,7 +442,8 @@ public actor IBClient {
         return Date(timeIntervalSince1970: Double(seconds))
     }
 
-    /// The accounts IB lists for this login; the stored list is refreshed too.
+    /// The accounts IB lists for this login now. Only the returned list is fresh: `states()` keeps the accounts seen
+    /// at connect.
     public func managedAccounts() async throws(IBClientError) -> [String] {
         try requireConnected()
         return try await answer(.managedAccounts) { if case .managedAccounts(let a) = $0 { a } else { nil } }
