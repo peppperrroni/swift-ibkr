@@ -6,6 +6,6 @@ public enum IBClientError: Error, Equatable, Sendable {
     case ib(code: Int, text: String)
     /// A market-data request refused for want of a subscription (`ErrorCode.isNoMarketDataPermission`).
     case noMarketDataPermission(code: Int, text: String)
-    /// The calling task was cancelled while a one-shot request waited.
+    /// The calling task was cancelled while `connect` or a one-shot request waited.
     case cancelled
 }

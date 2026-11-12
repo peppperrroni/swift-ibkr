@@ -21,6 +21,9 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 ### Changed
 - `connect` sends one more sync request (reqAccountUpdates, or one reqAccountUpdatesMulti per account) and returns
   only after its end marker.
+- `connect` honours task cancellation: it throws `.cancelled` and leaves `.disconnected(.cancelled)`.
+- `disconnect()` from `.connected` sends cancelPositions and closes the socket only after the queued frames are out
+  (within 2 s), so an order placed just before it is no longer dropped.
 - `ErrorKind.warning` for 105, 321, 329, 434 and 492, as in `ib_async`: it ends the request stream it names, but never
   marks an unacknowledged order inactive. Error `text` has its `\uXXXX` escapes decoded.
 - A write that finds the peer gone throws `.connectionClosed`, not `.transport("send: ...")`, whether or not the

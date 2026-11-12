@@ -442,7 +442,7 @@ Total: 4 fields.
 | 0 | msgId | int | `64` |
 | 1 | version | int | `1` |
 
-Total: 2 fields.
+Total: 2 fields. Sent only by `disconnect()` from `.connected`, queued behind every pending frame.
 
 ### reqPositionsMulti (out 74)
 

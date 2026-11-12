@@ -112,7 +112,8 @@ await client.disconnect()
 - **What it throws.** On failure it throws an `IBClientError`:
   - `.timeout`;
   - `.connectionClosed`;
-  - `.ib(code:text:)` when the gateway refuses, for example 326 «client id already in use».
+  - `.ib(code:text:)` when the gateway refuses, for example 326 «client id already in use»;
+  - `.cancelled` when the calling task is cancelled; the state turns `.disconnected(.cancelled)`.
 - **Streams.** Every call to `states()` or `messages()` hands out a fresh stream, so any number of consumers
   can listen.
 - **No automatic reconnect.** A lost connection turns the state to `.disconnected(error)`, and nothing
@@ -120,6 +121,9 @@ await client.disconnect()
 - **Across a reconnect.** Subscribers of `orders()`, `executions()`, `positions()`, `portfolio()` and
   `accountValues()` stay subscribed. Per-request streams such as `accountSummary` and `pnlSingle` end with the
   connection's error instead, so subscribe to them again.
+- **What `disconnect()` does.** From `.connected` it sends cancelPositions behind every request already queued
+  (an order placed just before still goes out), then closes the socket, within 2 s at the latest. The state turns
+  `.disconnected(nil)` and per-request streams end at once.
 - **Always call `disconnect()`** when you are done. A connected client is kept alive by its reader and writer
   tasks, and its streams never finish on their own.
 

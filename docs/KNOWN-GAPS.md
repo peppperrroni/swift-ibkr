@@ -67,9 +67,8 @@ CI (`.github/workflows/ci.yml`) builds and tests on macOS, Linux and Windows and
 
 ## To build later
 
-- `connect` ignores the caller's task cancellation and runs until its deadline.
-- `placeOrder` then an immediate `disconnect()` can drop the queued frame, and the order stays `.apiPending` in
-  the stale snapshot.
+- A cancel while `TCPSocket.connect` blocks publishes `.disconnected(.cancelled)` at once, but `connect` returns only
+  when the socket attempt ends (within its timeout): the blocking connect thread does not see the cancel.
 - Subscriber buffers are `.unbounded` (orders, fills, the positions stream and every request stream) on purpose:
   each element counts (a tick, a bar, a trade, a lookup row), so none may be dropped. The one exception is
   `marketDepth`, which keeps only the newest book (`.bufferingNewest(1)`) because every element is a whole book.
@@ -84,4 +83,5 @@ CI (`.github/workflows/ci.yml`) builds and tests on macOS, Linux and Windows and
 - Pending execDetails / commission halves that never meet are kept for the client's lifetime (the execution
   tracker survives reconnects).
 - Test gaps: the 0xFFFFFF frame boundary; `int()` / `decimal()` of `""`; `bool()`, `double()`, `skip()`; a contract
-  with non-default fields in placeOrder; an unknown action or condition type in openOrder.
+  with non-default fields in placeOrder; an unknown action or condition type in openOrder; the 2 s close bound of a
+  draining disconnect (FakeGateway's write never blocks).

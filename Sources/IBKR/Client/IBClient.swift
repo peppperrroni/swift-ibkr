@@ -62,7 +62,7 @@ public actor IBClient {
 
     /// Returns once the handshake is done and open orders, completed orders, executions, positions, the portfolio
     /// and the account values are synced.
-    /// `timeout` covers all of it.
+    /// `timeout` covers all of it. Cancelling the calling task stops it with `.cancelled`.
     public func connect(host: String = "127.0.0.1", port: Int = 4002, clientID: Int,
                         timeout: Duration = .seconds(10)) async throws(IBClientError) {
         guard case .disconnected = state else { throw .alreadyConnected }
@@ -76,26 +76,42 @@ public actor IBClient {
         positionTracker.reload()   // the set is kept too, and replaced whole at the sync's positionEnd
         setState(.connecting)
 
-        let t: any Transport
-        do {
-            t = try await connector(host, port, timeout)
-        } catch {
-            let e = error as? IBClientError ?? .transport("\(error)")
-            if gen == generation { end(e) }
-            throw e
-        }
-        guard gen == generation else { t.close(); throw .connectionClosed }   // disconnect() came first
-
-        try await withCheckedContinuation { continuation in
-            pendingConnect = continuation
-            start(t, gen, deadline)
+        try await withTaskCancellationHandler { () async -> Result<Void, IBClientError> in
+            let t: any Transport
+            do {
+                t = try await connector(host, port, timeout)
+            } catch {
+                let e = Task.isCancelled || error is CancellationError
+                    ? .cancelled : error as? IBClientError ?? .transport("\(error)")
+                if gen == generation { end(e) }
+                return .failure(e)
+            }
+            guard gen == generation else {   // disconnect() or a cancel came first
+                t.close()
+                return .failure(Task.isCancelled ? .cancelled : .connectionClosed)
+            }
+            return await withCheckedContinuation { continuation in
+                pendingConnect = continuation
+                start(t, gen, deadline)
+            }
+        } onCancel: {
+            Task { await self.cancelConnect(gen) }
         }.get()
     }
 
-    /// Closes the connection and reports `.disconnected(nil)`. Does nothing when already disconnected.
+    private func cancelConnect(_ gen: Int) {
+        if gen == generation, state == .connecting { end(.cancelled) }   // `.connecting`: a late cancel keeps a done connect
+    }
+
+    /// Reports `.disconnected(nil)` and ends the request streams at once. From `.connected` it first queues
+    /// cancelPositions and lets the queue drain: the writer closes after the last frame, or 2 s later at the
+    /// latest. From `.connecting` it closes at once. Does nothing when already disconnected.
     public func disconnect() {
-        if case .disconnected = state { return }
-        end(nil)
+        switch state {
+        case .disconnected: return
+        case .connecting: end(nil)
+        case .connected: end(nil, draining: true)
+        }
     }
 
     /// A fresh stream on every call; the current state comes first.
@@ -524,6 +540,7 @@ public actor IBClient {
                 if wait > .zero { try? await Task.sleep(for: wait) }
                 do { try t.write(frame) } catch { return await self.closed(error, gen) }
             }
+            t.close()   // the outbox finished: after a draining disconnect, this is the close
         }
         Task.detached {
             do {
@@ -629,10 +646,16 @@ public actor IBClient {
     }
 
     /// Every exit path ends here: the transport is closed (its reader thread holds it), the outbox finished,
-    /// and anything still in flight from this connection is ignored from now on.
-    private func end(_ error: IBClientError?) {
+    /// and anything still in flight from this connection is ignored from now on. `draining` (a clean disconnect)
+    /// queues cancelPositions and leaves the close to the writer, with a 2 s bound.
+    private func end(_ error: IBClientError?, draining: Bool = false) {
         generation += 1
-        transport?.close()
+        if draining, let t = transport {
+            try? send(.cancelPositions)   // all integers: encodes
+            Task { try? await Task.sleep(for: .seconds(2)); t.close() }
+        } else {
+            transport?.close()
+        }
         outbox?.finish()
         connectTimer?.cancel()
         (transport, outbox, connectTimer, syncEnds) = (nil, nil, nil, nil)

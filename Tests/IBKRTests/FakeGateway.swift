@@ -42,6 +42,15 @@ final class FakeGateway: Transport, @unchecked Sendable {
 
     var isClosed: Bool { lock.withLock { closed } }
 
+    /// Returns once the client closed this transport, within 2 s.
+    func waitUntilClosed() async throws {
+        let deadline = ContinuousClock.now + .seconds(2)
+        while !isClosed {
+            guard ContinuousClock.now < deadline else { throw TimedOut() }
+            try await Task.sleep(for: .milliseconds(5))
+        }
+    }
+
     func close() {
         lock.withLock { closed = true }
         continuation.finish()

@@ -86,11 +86,78 @@ private let ready = ConnectionState.connected(serverVersion: 178, accounts: ["DU
     try await connect(client)
     await client.disconnect()
     #expect(try await first(client.states()) == .disconnected(nil))
+    try await one.waitUntilClosed()
     #expect(one.isClosed)
 
     try await connect(client)
     #expect(try await first(client.states()) == ready)
     #expect(try await two.waitForSent(FakeGateway.syncFrames).count == FakeGateway.syncFrames)
+}
+
+@Test func cleanDisconnectSendsCancelPositionsThenCloses() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    await client.disconnect()
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).last == ["64", "1"])
+    try await gateway.waitUntilClosed()
+}
+
+@Test func queuedFramesLeaveBeforeTheClose() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    _ = try await client.placeOrder(Contract(symbol: "AAPL"),
+                                    Order(action: .buy, quantity: 1, orderType: "LMT", limitPrice: d("1")))
+    await client.disconnect()
+    try await gateway.waitUntilClosed()
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
+    #expect(sent.suffix(2).map { $0[0] } == ["3", "64"])
+    #expect(sent.last == ["64", "1"])
+}
+
+@Test func peerCloseSendsNoCancelPositions() async throws {
+    let gateway = FakeGateway()
+    _ = try await connected(gateway)
+    gateway.close()
+    try await Task.sleep(for: .milliseconds(100))
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames).count == FakeGateway.syncFrames)
+}
+
+@Test func disconnectWhileConnectingSendsNoCancelPositions() async throws {
+    let gateway = FakeGateway(answersStartAPI: false)
+    let client = IBClient(connector: gateway.connector)
+    let connecting = Task { try await connect(client) }
+    _ = try await gateway.waitForSent(1)
+    await client.disconnect()
+    await #expect(throws: IBClientError.connectionClosed) { try await connecting.value }
+    #expect(gateway.isClosed)
+    #expect(!(try await gateway.waitForSent(1)).contains { $0[0] == "64" })
+}
+
+@Test func connectHonoursCancellation() async throws {
+    let (one, two) = (FakeGateway(answersStartAPI: false), FakeGateway())
+    let gateways = Gateways([one, two])
+    let client = IBClient(connector: { _, _, _ in await gateways.next() })
+    let connecting = Task { try await client.connect(clientID: 7) }   // not within2s: its work task would not see the cancel
+    _ = try await one.waitForSent(1)
+    connecting.cancel()
+    await #expect(throws: IBClientError.cancelled) { try await within2s { try await connecting.value } }
+    #expect(try await first(client.states()) == .disconnected(.cancelled))
+    #expect(one.isClosed)
+
+    try await connect(client)
+    #expect(try await first(client.states()) == ready)
+}
+
+@Test func cancelWhileTheConnectorWaits() async throws {
+    let client = IBClient(connector: { _, _, _ in
+        try await Task.sleep(for: .seconds(5))
+        return FakeGateway()
+    })
+    let connecting = Task { try await client.connect(clientID: 7) }
+    _ = try await first(client.states()) { $0 == .connecting }
+    connecting.cancel()
+    await #expect(throws: IBClientError.cancelled) { try await within2s { try await connecting.value } }
+    #expect(try await first(client.states()) == .disconnected(.cancelled))
 }
 
 @Test func reconnectDoesNotRepublishFills() async throws {
