@@ -1,8 +1,9 @@
-# Known gaps after stage 11
+# Known gaps after stage 12
 
-What stages 1 to 11 (codec and merging; socket, `IBClient`, a live paper run; positions, account summary, P&L; market
+What stages 1 to 12 (codec and merging; socket, `IBClient`, a live paper run; positions, account summary, P&L; market
 data and contract lookups; session requests, the account stream and reconnect; the full order field set, what-if
-and exercise; market data and history in full; options, reference data, scanner, news and research) leave open. Delete a line when it
+and exercise; market data and history in full; options, reference data, scanner, news and research; Flex reports)
+leave open. Delete a line when it
 is settled.
 
 ## To confirm against a live gateway
@@ -31,6 +32,9 @@ Still open:
 - `marketDepth` ends on a 2152 whose granted part names no `Depth:` exchange (docs/DECISIONS.md, the `marketDepth` 2152 row). The recorded grant
   is `Top: IBEOS; OVERNIGHT`, venues closed in regular hours, so both cases are unseen live: a 2152 that grants `Depth:`
   on some exchanges keeps the book open; one that grants `Top:` only on regular venues ends it.
+- `IBKRFlex` has never run against IB's Flex Web Service (no token given): the v3 «in progress» answer (`ErrorCode`
+  1019) is taken from IB's documentation, not recorded, and `urlSession`'s non-2xx path is never exercised (the live
+  test checks only success).
 
 - Whether a rejected order shows up again in `completedOrders` (its tracker snapshot has permID 0, so it would be
   duplicated).
@@ -60,7 +64,8 @@ Still open:
 CI (`.github/workflows/ci.yml`) builds and tests on macOS, Linux and Windows and builds for iOS. It does not:
 
 - run any test on iOS: the package is only compiled for it, so the socket's Darwin branch is tested on macOS only;
-- run the live tests: `IBKR_LIVE` is never set, so nothing in CI talks to a gateway;
+- run the live tests: `IBKR_LIVE`, `IBKR_FLEX_TOKEN` and `IBKR_FLEX_QUERY` are never set, so nothing in CI talks to a
+  gateway or to IB's Flex Web Service;
 - try other Swift versions than 6.0 and the latest image on Linux (Ubuntu, x86_64), 6.4.2 on Windows, and the
   runner's Xcode on macOS (6.3 at the time of writing), or any ARM Linux.
 

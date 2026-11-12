@@ -57,6 +57,7 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | News | providers, article text, historical headlines, bulletins, news ticks through `marketData` | ✅ on the fake gateway; a live run is due in stage 13 |
 | Fundamentals and Wall Street Horizon | fundamentals report XML, WSH metadata and event JSON, all as IB's text | ✅ on the fake gateway; a live run is due in stage 13 |
 | FA, display groups and verify | FA XML read and replace, TWS display groups (list, follow, update), the vendor verify handshake | ✅ on the fake gateway; a live run is due in stage 13 |
+| Flex reports | download by token and query id, topics, records as IB's strings with a strict Decimal accessor (the separate product IBKRFlex, SwiftPM only) | ✅ on hand-written XML and a fake HTTP layer; never run against IB's service |
 
 What is still unconfirmed against a live gateway is listed in [`docs/KNOWN-GAPS.md`](docs/KNOWN-GAPS.md).
 There are no tagged releases yet, and the API may still change.
@@ -404,6 +405,24 @@ and the display-group stream throw `.ib` on IB's error. The four verify calls (`
 `verifyAndAuthRequest`, `verifyAndAuthMessage`) only send; IB's answers arrive through `messages()`. IB documents them
 before startApi, which `connect` sends itself.
 
+### Flex reports
+
+```swift
+import IBKRFlex
+
+let report = try await FlexReport.download(token: token, queryID: "123456")   // polls until IB has it ready
+for trade in report.extract("Trade") {
+    print(trade["symbol"] ?? "", trade["tradeDate"] ?? "", trade.decimal("quantity") ?? 0, trade.decimal("tradePrice") ?? 0)
+}
+try report.data.write(to: URL(fileURLWithPath: "trades.xml"))                      // save
+let saved = try FlexReport(data: Data(contentsOf: URL(fileURLWithPath: "trades.xml")))  // load
+```
+
+The token and the query id come from Client Portal: Settings → Flex Web Service gives the token, and each Flex query
+shows its id. `topics` lists every tag that has attributes. Records keep IB's strings, with dates in the format the
+query sets; `decimal(_:)` is `nil` for anything that is not entirely a number. Errors are `FlexError` (`.request`,
+`.statement`, `.malformedXML`, `.http`). Cancel the task to stop the polling.
+
 ### Errors
 
 IB sends informational notices and real errors through the same message. The library sorts them with an explicit
@@ -422,7 +441,7 @@ All of them, notices included, are still visible on `messages()`.
 ## ib_async names
 
 Calls keep `ib_async`'s names, minus a leading `req`, with `Id` written `ID`, except `faData`, `optionChains`,
-`displayGroups` and `displayGroupUpdates` (DECISIONS). This table covers the stage 10–11 calls; stage 13 extends it to
+`displayGroups` and `displayGroupUpdates` (DECISIONS). This table covers the stage 10–12 calls; stage 13 extends it to
 every call.
 
 | ib_async | swift-ibkr |
@@ -454,6 +473,12 @@ every call.
 | `verifyMessage` | `verifyMessage(_:)` |
 | `verifyAndAuthRequest` | `verifyAndAuthRequest(apiName:apiVersion:opaqueISVKey:)` |
 | `verifyAndAuthMessage` | `verifyAndAuthMessage(_:xyzResponse:)` |
+| `FlexReport(token, queryId)` / `download` | `FlexReport.download(token:queryID:)` |
+| `FlexReport(path=)` / `load` / `save` | `FlexReport(data:)` / `report.data.write(to:)` |
+| `extract` | `extract(_:)` (strings; `decimal(_:)` for numbers) |
+| `topics` | `topics` |
+| `FlexError` | `FlexError` (four cases) |
+| `df` | none |
 
 ## Development
 
@@ -480,6 +505,12 @@ after hours until 01:00 UTC.
 On Windows PowerShell, set the variables with `$env:IBKR_LIVE="1"`. Remove them afterwards
 (`Remove-Item Env:IBKR_LIVE, Env:IBKR_LIVE_FILL, Env:IBKR_LIVE_FILL_PRICE`), so that a later `swift test` in the
 same shell does not trade.
+
+The Flex live test downloads your own Flex query from IB and only checks that a report with topics comes back:
+
+```bash
+IBKR_FLEX_TOKEN=<token> IBKR_FLEX_QUERY=<query id> swift test --filter FlexLiveTests
+```
 
 ### Documents
 

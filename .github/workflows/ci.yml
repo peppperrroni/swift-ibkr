@@ -5,7 +5,7 @@ on:
     branches: ["**"]
   pull_request:
 
-# Live tests skip themselves: IBKR_LIVE is never set here.
+# Live tests skip themselves: IBKR_LIVE, IBKR_FLEX_TOKEN and IBKR_FLEX_QUERY are never set here.
 jobs:
   macos:
     runs-on: macos-latest
