@@ -63,6 +63,17 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
     #expect(await client.requestStreamCount == 0)
 }
 
+@Test func rerouteLeavesTheStreamOpen() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.marketData(Contract(symbol: "AAPL"))
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][2]
+    let (_, result) = take(1, stream)
+    gateway.feed(["91", id, "12087792", "IDEALPRO"])
+    gateway.feed(["1", "6", id, "1", "351.5", "200", "0"])
+    #expect(try await within2s { try await result.value } == [.price(.bid, price: d("351.5"), size: d("200"))])
+}
+
 @Test func delayedNoticeKeepsTheStreamAndMapsFields() async throws {
     let gateway = FakeGateway()
     let client = try await connected(gateway)

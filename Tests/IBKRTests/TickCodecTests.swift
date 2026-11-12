@@ -21,6 +21,18 @@ import Testing
         guard case .malformed = IBDecoder.decode(body("58", "1", "7", "9")) else { Issue.record("not malformed"); return }
     }
 
+    @Test func deltaNeutralValidationDecodes() {
+        #expect(IBDecoder.decode(body("56", "1", "7", "265598", "0.5", "187.25"))
+            == .deltaNeutralValidation(requestID: 7, DeltaNeutralContract(conID: 265598, delta: d("0.5"), price: d("187.25"))))
+    }
+
+    @Test func reroutesDecode() {
+        #expect(IBDecoder.decode(body("91", "7", "12087792", "IDEALPRO"))
+            == .rerouteMarketData(requestID: 7, conID: 12087792, exchange: "IDEALPRO"))
+        #expect(IBDecoder.decode(body("92", "7", "12087792", "IDEALPRO"))
+            == .rerouteMarketDepth(requestID: 7, conID: 12087792, exchange: "IDEALPRO"))
+    }
+
     @Test func tickReqParamsDecodes() {
         #expect(IBDecoder.decode(body("81", "7", "0.01", "9c0001", "3"))
             == .tick(requestID: 7, .requestParameters(minTick: d("0.01"), bboExchange: "9c0001", snapshotPermissions: 3)))

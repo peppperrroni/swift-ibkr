@@ -12,6 +12,9 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
   and `NewsTick`: `marketData` yields option computations (21), EFP quotes (47), request parameters (81) and news
   ticks (84). An uncomputed greek is `nil`, and `TickField.live` maps the delayed greeks 80-83 to 10-13. New cases in
   a public enum: an exhaustive `switch` over `Tick` needs new branches.
+- `IBMessage.deltaNeutralValidation`, `.rerouteMarketData` and `.rerouteMarketDepth` (56, 91, 92), decoded and
+  delivered to `messages()` only; the market data stream stays open through a reroute. New cases in a public enum: an
+  exhaustive `switch` over `IBMessage` needs new branches.
 - Order factories `Order.market/limit/stop/stopLimit`, `Order.bracket` (a `BracketOrder`), `Order.oneCancelsAll` and
   `IBClient.placeBracket`, which links and transmits the three legs and sends none if any fails to encode.
 - `exerciseOptions` with the new `ExerciseAction`, and `cancelOrder(_:manualCancelOrderTime:)`. `IBRequest` gains the

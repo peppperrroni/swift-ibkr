@@ -1364,6 +1364,21 @@ decimals and holdDays are `nil` when empty/unset, the two strings are kept as se
 No version. 7 fields: `84, reqId, timeStamp, providerCode, articleId, headline, extraData`. `timeStamp` is kept as
 IB's raw int, its unit undocumented.
 
+### deltaNeutralValidation (in 56)
+
+6 fields: `56, version, reqId, conId, delta, price`. The version is ignored; `delta` and `price` are read with
+`decimal()` (`ib_async` reads `float(x or 0)`). IB sends it when a delta-neutral contract given to `reqMktData` is
+accepted; it reaches `messages()` only.
+
+### rerouteMktDataReq (in 91)
+
+4 fields: `91, reqId, conId, exchange`, no version. IB answers a `reqMktData` it serves from another contract (for
+example an IDEALPRO one) with it, and then sends the ticks under the same reqId; it reaches `messages()` only.
+
+### rerouteMktDepthReq (in 92)
+
+Same layout as 91 (`92, reqId, conId, exchange`), for `reqMktDepth`; it reaches `messages()` only.
+
 ### reqHistoricalData (out 20)
 
 No version field. 23 fields: `20, reqId, contract(12), includeExpired (0), endDateTime, barSize, duration, useRTH,

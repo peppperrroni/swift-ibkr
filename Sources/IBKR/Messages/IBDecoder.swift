@@ -88,6 +88,15 @@ public enum IBDecoder {
                 default: throw IBProtocolError.badNumber(String(type), index: r.index - 1)
                 }
             case 57: try r.skip(); return .tickSnapshotEnd(requestID: try r.int())
+            case 56:
+                try r.skip()
+                let id = try r.int()
+                return .deltaNeutralValidation(requestID: id, DeltaNeutralContract(
+                    conID: try r.int(), delta: try r.decimal(), price: try r.decimal()))
+            case 91, 92:
+                let reqID = try r.int(), conID = try r.int(), exchange = try r.string()
+                return id == 91 ? .rerouteMarketData(requestID: reqID, conID: conID, exchange: exchange)
+                    : .rerouteMarketDepth(requestID: reqID, conID: conID, exchange: exchange)
             case 81:
                 let id = try r.int()
                 return .tick(requestID: id, .requestParameters(

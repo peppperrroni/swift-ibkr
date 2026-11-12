@@ -52,6 +52,9 @@ public enum IBMessage: Sendable, Equatable {
     case depth(requestID: Int, DepthUpdate)
     case tickByTick(requestID: Int, TickByTick)
     case tickSnapshotEnd(requestID: Int)
+    case deltaNeutralValidation(requestID: Int, DeltaNeutralContract)
+    case rerouteMarketData(requestID: Int, conID: Int, exchange: String)
+    case rerouteMarketDepth(requestID: Int, conID: Int, exchange: String)
     case unknown(id: Int, fields: [String])
     case malformed(id: Int, fields: [String], reason: String)
 }
