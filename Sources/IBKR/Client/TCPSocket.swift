@@ -69,7 +69,7 @@ final class TCPSocket: Transport, @unchecked Sendable {
             if n == 0 || !isOpen {
                 continuation.finish()
             } else {
-                continuation.finish(throwing: IBClientError.transport("recv: \(code)"))
+                continuation.finish(throwing: peerGone.contains(code) ? IBClientError.connectionClosed : .transport("recv: \(code)"))
             }
             break
         }
@@ -139,7 +139,7 @@ extension TCPSocket {
 private typealias AddrInfo = ADDRINFOA
 private let invalidHandle = SOCKET.max   // INVALID_SOCKET, a cast macro that does not import
 private let connectPending = WSAEWOULDBLOCK
-private let peerGone = [WSAECONNRESET, WSAECONNABORTED]
+let peerGone = [WSAECONNRESET, WSAECONNABORTED]
 private let fionbio = Int32(bitPattern: 0x8004_667E)   // FIONBIO, a function-like macro that does not import
 
 private func lastError() -> Int32 { WSAGetLastError() }
@@ -217,7 +217,7 @@ extension TCPSocket {
 private typealias AddrInfo = addrinfo
 private let invalidHandle: Int32 = -1
 private let connectPending = EINPROGRESS
-private let peerGone = [EPIPE, ECONNRESET]
+let peerGone = [EPIPE, ECONNRESET]
 #if canImport(Glibc)
 private let sendFlags = Int32(MSG_NOSIGNAL)
 #else

@@ -25,7 +25,7 @@ Still open:
 - The depth book uses `ib_async`'s set-at-position model; IB's own sample shifts rows on insert and delete. Check a
   mid-book insert and delete on the first live depth run with a subscription.
 - `marketDepth` without depth permissions never yields and never throws: IB sends notice 2152 for the reqId and then
-  nothing. A consumer cannot tell that from a quiet book. Decide in stage 5 whether 2152 on a depth request ends the
+  nothing. A consumer cannot tell that from a quiet book. Decide in stage 8 (from recorded live frames) whether 2152 on a depth request ends the
   stream (its text can list exchanges that do have permissions).
 
 - Error text may arrive `\uXXXX`-escaped (IB's client unescapes it from server 153): unescape `text` and
@@ -47,7 +47,7 @@ Still open:
 - A `Filled` snapshot can come with `filled` 0. The gateway sends openOrder with status Filled before the
   orderStatus that carries filled / avgFillPrice, so `orders()` first publishes `.filled` with `filled` 0 and
   `averageFillPrice` 0, then the full one (seen live: orders 9, 15, 17). A consumer must read fill numbers from the
-  orderStatus-backed update, or the tracker should keep the status until orderStatus arrives. Decide in stage 5.
+  orderStatus-backed update, or the tracker should keep the status until orderStatus arrives. Decide in stage 7 (the spec: not published until orderStatus arrives).
 - IB's price cap is about 1.8% from the market in regular hours. The live fill test uses +-1% and prices the SELL
   off the BUY's fill.
 - openOrder gives a plain stock LMT order contract `right` `?` and auxPrice `0.0`; the decoder keeps them as `"?"`

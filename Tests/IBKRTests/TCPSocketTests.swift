@@ -105,3 +105,12 @@ private func acceptHandle(_ h: TCPSocket.Handle) -> TCPSocket.Handle { Glibc.acc
     #expect(error == .connectionClosed)
     client.close()
 }
+
+/// A reset or abort is a closed connection on the read path as well as the write path (the old `.transport` raced).
+@Test func peerResetCodesMapToConnectionClosed() {
+#if os(Windows)
+    #expect(peerGone.contains(WSAECONNRESET) && peerGone.contains(WSAECONNABORTED))
+#else
+    #expect(peerGone.contains(ECONNRESET) && peerGone.contains(EPIPE))
+#endif
+}

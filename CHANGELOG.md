@@ -12,7 +12,10 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 
 ### Changed
 - A write that finds the peer gone throws `.connectionClosed`, not `.transport("send: ...")`, whether or not the
-  reader has seen the close yet.
+  reader has seen the close yet. A peer reset seen by the reader is `.connectionClosed` too.
+
+### Removed
+- `OrderKey` is no longer public; the public API never used it.
 
 ## [0.4.0] - 2026-11-11
 
