@@ -35,7 +35,7 @@ public struct Execution: Sendable, Equatable {
     /// execDetails' `pendingPriceRevision` flag.
     public var pendingPriceRevision: Bool
 
-    /// Creates a execution with every field given.
+    /// Creates an execution with every field given.
     public init(
         execID: String,
         time: String,

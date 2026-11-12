@@ -84,8 +84,8 @@ public enum IBMessage: Sendable, Equatable {
     case contractDataEnd(requestID: Int)
     /// symbolSamples (in 79).
     case symbolSamples(requestID: Int, [ContractDescription])
-    /// tickPrice (in 1), tickSize (in 2), tickGeneric (in 45), tickString (in 46), marketDataType (in 58) and
-    /// tickReqParams (in 81).
+    /// tickPrice (in 1), tickSize (in 2), tickOptionComputation (in 21), tickGeneric (in 45), tickString (in 46),
+    /// tickEFP (in 47), marketDataType (in 58), tickReqParams (in 81) and tickNews (in 84).
     case tick(requestID: Int, Tick)
     /// historicalData (in 17).
     case historicalData(requestID: Int, [Bar])

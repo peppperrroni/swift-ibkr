@@ -70,7 +70,7 @@ extension IBClient {
         try requireConnected()
         let id = nextRequestID()
         return try await answer(.newsArticle(requestID: id, providerCode: providerCode, articleID: articleID,
-                                        options: options),
+                                             options: options),
                                 id: id) { if case .newsArticle(_, let article) = $0 { article } else { nil } }
     }
 
@@ -78,12 +78,12 @@ extension IBClient {
     /// end marker and sends no cancel (IB has none); like `ib_async`, drops the marker's `hasMore`.
     public func historicalNews(conID: Int, providerCodes: [String], start: Date? = nil, end: Date? = nil,
                                totalResults: Int, options: [TagValue] = [])
-                                   async throws(IBClientError) -> [HistoricalNews] {
+                               async throws(IBClientError) -> [HistoricalNews] {
         try requireConnected()
         let id = nextRequestID()
         let stream = try openStream(.historicalNews(requestID: id, conID: conID, providerCodes: providerCodes,
-                                                    start: start,
-                                                    end: end, totalResults: totalResults, options: options),
+                                                    start: start, end: end, totalResults: totalResults,
+                                                    options: options),
                                     id: id, cancel: nil) {
             (message, out: AsyncThrowingStream<HistoricalNews, any Error>.Continuation) in
             switch message {
@@ -134,7 +134,7 @@ extension IBClient {
         try requireConnected()
         let id = nextRequestID()
         return try await answer(.wshEventData(requestID: id, data: data), id: id,
-                                        cancel: .cancelWshEventData(requestID: id),
+                                cancel: .cancelWshEventData(requestID: id),
                                 thenCancel: true) {
             if case .wshEventData(_, let json) = $0 { json } else { nil }
         }

@@ -150,7 +150,7 @@ public struct NewsArticle: Sendable, Equatable {
     /// The article's text, as IB sends it.
     public var articleText: String
 
-    /// Creates a article with every field given.
+    /// Creates an article with every field given.
     public init(articleType: Int, articleText: String) {
         self.articleType = articleType; self.articleText = articleText
     }

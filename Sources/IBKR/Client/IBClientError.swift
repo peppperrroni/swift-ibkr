@@ -6,7 +6,8 @@ public enum IBClientError: Error, Equatable, Sendable {
     case alreadyConnected
     /// `connect` ran out of its timeout, or the reconnect probe heard nothing.
     case timeout
-    /// The peer closed or reset the connection.
+    /// The peer closed or reset the connection, a write hit a closed transport, a newer `connect` superseded this
+    /// one, or the connection's end finished the streams still open.
     case connectionClosed
     /// The socket failed; the text is the underlying error's.
     case transport(String)
