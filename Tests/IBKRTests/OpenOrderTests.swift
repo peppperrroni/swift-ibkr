@@ -28,13 +28,6 @@ private func isMalformed(_ fields: [String]) -> Bool {
     return false
 }
 
-/// Inserts each group after the base-case index given, so the indices stay those of the table.
-private func inserting(_ groups: [(after: Int, fields: [String])], into f: [String]) -> [String] {
-    var f = f
-    for g in groups.sorted(by: { $0.after > $1.after }) { f.insert(contentsOf: g.fields, at: g.after + 1) }
-    return f
-}
-
 @Test func fixturesHaveTheBaseCaseLengthOfTheTable() {
     #expect(openFields().count == 127)
     #expect(completedFields().count == 96)
@@ -179,7 +172,18 @@ private func plainOrder(orderType: String) -> Order {
     #expect(isMalformed(Array(completedFields().dropLast())))
 }
 
-@Test func openOrderSkipsEveryConditionalGroup() {
+/// The groups both conditional-group frames carry, as decoded.
+private func expectConditionalGroups(_ c: Contract, _ o: Order) {
+    #expect(c.comboLegs == [ComboLeg(conID: 265598, ratio: 1, action: .buy, exchange: "SMART")])
+    #expect(o.orderComboLegs == [OrderComboLeg(price: 187)])
+    #expect(o.smartComboRoutingParams == [TagValue(tag: "NonGuaranteed", value: "1")])
+    #expect(o.scalePriceIncrement == d("0.05") && o.scalePriceAdjustValue == d("0.01"))
+    #expect(o.scalePriceAdjustInterval == 60 && o.scaleProfitOffset == d("0.1") && o.scaleInitPosition == 0)
+    #expect(o.hedgeType == "D" && o.hedgeParam == "0.5")
+    #expect(c.deltaNeutralContract == DeltaNeutralContract(conID: 265598, delta: d("0.5"), price: 187))
+}
+
+@Test func openOrderDecodesEveryConditionalGroup() throws {
     var f = openFields(orderType: "PEG BENCH")
     f[61] = "LMT"; f[70] = "1"; f[71] = "1"; f[72] = "1"; f[75] = "0.05"; f[76] = "D"; f[81] = "1"; f[82] = "Adaptive"; f[102] = "2"
     f = inserting([
@@ -194,11 +198,15 @@ private func plainOrder(orderType: String) -> Order {
         (101, ["265598", "0", "1", "1", "ISLAND"]),                                      // PEG BENCH, 5
         (102, ["1", "a", "1", "180.5", "265598", "SMART", "0", "3", "o", "0", "20261109 15:00:00", "0", "0"]),
     ], into: f)                                                                          // price + time condition, flags
-    #expect(openOrder(f)?.status == .submitted)
+    let m = try #require(openOrder(f))
+    #expect(m.status == .submitted)
+    #expect(m.order.deltaNeutralOrderType == "LMT" && m.order.deltaNeutralConID == 265598)
+    #expect(m.order.deltaNeutralOpenClose == "O")
+    expectConditionalGroups(m.contract, m.order)
     #expect(isMalformed(Array(f.dropLast())))
 }
 
-@Test func completedOrderSkipsEveryConditionalGroup() {
+@Test func completedOrderDecodesEveryConditionalGroup() throws {
     var f = completedFields()
     f[14] = "PEGBENCH"; f[52] = "LMT"; f[59] = "1"; f[60] = "1"; f[61] = "1"; f[64] = "0.05"; f[65] = "D"
     f[69] = "1"; f[70] = "Adaptive"; f[75] = "2"
@@ -217,5 +225,8 @@ private func plainOrder(orderType: String) -> Order {
     guard case .completedOrder(let m) = IBDecoder.decode(body(f)) else { Issue.record("not decoded"); return }
     #expect(m.status == .filled)
     #expect(m.completedTime == "20261109 15:59:01")
+    #expect(m.order.deltaNeutralOrderType == "LMT" && m.order.deltaNeutralConID == 265598)
+    #expect(m.order.deltaNeutralShortSale == false)
+    expectConditionalGroups(m.contract, m.order)
     #expect(isMalformed(Array(f.dropLast())))
 }

@@ -30,6 +30,10 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
   `basisPoints` / `basisPointsType` (openOrder) and `autoCancelDate`, `refFuturesConID`, `shareholder`,
   `imbalanceOnly`, `routeMarketableToBbo` and `parentPermID` (completedOrder). Values are kept as the gateway sends
   them (`None`, `clearingIntent` `IB`).
+- BAG combos, delta-neutral orders and contracts, scale and hedge orders: `placeOrder` sends and openOrder /
+  completedOrder decode `Contract.comboLegs` and `deltaNeutralContract`, and the `Order` combo-leg prices, smart
+  routing params, delta-neutral, scale and hedge fields. New value types `ComboLeg`, `OrderComboLeg` and
+  `DeltaNeutralContract`. Every request other than `placeOrder` still refuses a `BAG` contract.
 
 ### Changed
 - `contractDetails` sends the contract's `secIDType` and `secID` instead of empty fields.

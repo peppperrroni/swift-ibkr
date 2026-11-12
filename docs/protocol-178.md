@@ -34,8 +34,7 @@ fields gated above 178 are dropped, fields gated at or below are kept. Defaults 
 - **★** marks a `placeOrder` row the `Contract` / `Order` model carries. Unstarred rows are sent
   with the default shown: msgId and orderId, the deprecated sharesAllocation, eTradeOnly,
   firmQuoteOnly and nbboPriceCap (never modelled), and the rows that open a conditional group
-  (deltaNeutralOrderType / AuxPrice, scalePriceIncrement, hedgeType, deltaNeutralContractPresent,
-  algoStrategy, conditionsCount) with their `+` rows, which stage 7 models group by group.
+  not modelled yet (algoStrategy, conditionsCount) with their `+` rows.
   In `openOrder` and `completedOrder`, ★ marks a field read into the model; unstarred fields are
   skipped or land on the message (ids, status, filledQuantity, completedTime / Status).
 
@@ -94,7 +93,9 @@ Total: 3 fields.
 
 No version field at 178 (it stopped at server version 145). Base case: not `BAG`, no delta-neutral
 order type, no scale increment, no hedge, no algo, not PEG BENCH / PEG BEST / PEG MID, no
-conditions, exchange not `IBKRATS`.
+conditions, exchange not `IBKRATS`. The `BAG`, delta-neutral, scale and hedge groups and the
+delta-neutral contract are sent; the legs come from `contract.comboLegs`. Every other request
+refuses a `BAG` contract.
 
 | # | Field | Type | Default sent | Notes |
 |---|---|---|---|---|
@@ -133,20 +134,20 @@ conditions, exchange not `IBKRATS`.
 | 32 | triggerMethod ★ | int | `0` | |
 | 33 | outsideRth ★ | bool | `0` | |
 | 34 | hidden ★ | bool | `0` | |
-| + | comboLegsCount | int | `0` | only if secType == `BAG` (with the next 2 counts) |
-| + | ↳ leg.conId | int | | × comboLegsCount, 8 fields per leg |
-| + | ↳ leg.ratio | int | | |
-| + | ↳ leg.action | string | | |
-| + | ↳ leg.exchange | string | | |
-| + | ↳ leg.openClose | int | `0` | |
-| + | ↳ leg.shortSaleSlot | int | `0` | |
-| + | ↳ leg.designatedLocation | string | `""` | |
-| + | ↳ leg.exemptCode | int | `-1` | |
-| + | orderComboLegsCount | int | `0` | only if `BAG` |
-| + | ↳ orderComboLeg.price | double | `""` | × orderComboLegsCount |
-| + | smartComboRoutingParamsCount | int | `0` | only if `BAG` |
-| + | ↳ tag | string | | × count, 2 fields per element |
-| + | ↳ value | string | | |
+| + | comboLegsCount ★ | int | `0` | only if secType == `BAG` (with the next 2 counts) |
+| + | ↳ leg.conId ★ | int | | × comboLegsCount, 8 fields per leg |
+| + | ↳ leg.ratio ★ | int | | |
+| + | ↳ leg.action ★ | string | | |
+| + | ↳ leg.exchange ★ | string | | |
+| + | ↳ leg.openClose ★ | int | `0` | |
+| + | ↳ leg.shortSaleSlot ★ | int | `0` | |
+| + | ↳ leg.designatedLocation ★ | string | `""` | |
+| + | ↳ leg.exemptCode ★ | int | `-1` | |
+| + | orderComboLegsCount ★ | int | `0` | only if `BAG` |
+| + | ↳ orderComboLeg.price ★ | double | `""` | × orderComboLegsCount |
+| + | smartComboRoutingParamsCount ★ | int | `0` | only if `BAG` |
+| + | ↳ tag ★ | string | | × count, 2 fields per element |
+| + | ↳ value ★ | string | | |
 | 35 | sharesAllocation | string | `""` | deprecated, always empty |
 | 36 | discretionaryAmt ★ | double | `0.0` | |
 | 37 | goodAfterTime ★ | string | `""` | |
@@ -176,43 +177,43 @@ conditions, exchange not `IBKRATS`.
 | 61 | overridePercentageConstraints ★ | bool | `0` | |
 | 62 | volatility ★ | double | `""` | sent only when orderType starts with `VOL`, else `""` (as `ib_async`) |
 | 63 | volatilityType ★ | int | `""` | UNSET |
-| 64 | deltaNeutralOrderType | string | `""` | |
-| 65 | deltaNeutralAuxPrice | double | `""` | UNSET |
-| + | deltaNeutralConId | int | `0` | only if deltaNeutralOrderType ≠ `""`; 8 fields |
-| + | deltaNeutralSettlingFirm | string | `""` | |
-| + | deltaNeutralClearingAccount | string | `""` | |
-| + | deltaNeutralClearingIntent | string | `""` | |
-| + | deltaNeutralOpenClose | string | `""` | |
-| + | deltaNeutralShortSale | bool | `0` | |
-| + | deltaNeutralShortSaleSlot | int | `0` | |
-| + | deltaNeutralDesignatedLocation | string | `""` | |
+| 64 | deltaNeutralOrderType ★ | string | `""` | |
+| 65 | deltaNeutralAuxPrice ★ | double | `""` | UNSET |
+| + | deltaNeutralConId ★ | int | `0` | only if deltaNeutralOrderType ≠ `""`; 8 fields |
+| + | deltaNeutralSettlingFirm ★ | string | `""` | |
+| + | deltaNeutralClearingAccount ★ | string | `""` | |
+| + | deltaNeutralClearingIntent ★ | string | `""` | |
+| + | deltaNeutralOpenClose ★ | string | `""` | |
+| + | deltaNeutralShortSale ★ | bool | `0` | |
+| + | deltaNeutralShortSaleSlot ★ | int | `0` | |
+| + | deltaNeutralDesignatedLocation ★ | string | `""` | |
 | 66 | continuousUpdate ★ | bool | `0` | |
 | 67 | referencePriceType ★ | int | `""` | UNSET |
 | 68 | trailStopPrice ★ | double | `""` | UNSET |
 | 69 | trailingPercent ★ | double | `""` | UNSET |
 | 70 | scaleInitLevelSize ★ | int | `""` | UNSET |
 | 71 | scaleSubsLevelSize ★ | int | `""` | UNSET |
-| 72 | scalePriceIncrement | double | `""` | UNSET |
-| + | scalePriceAdjustValue | double | `""` | only if 0 < scalePriceIncrement < UNSET; 7 fields |
-| + | scalePriceAdjustInterval | int | `""` | |
-| + | scaleProfitOffset | double | `""` | |
-| + | scaleAutoReset | bool | `0` | |
-| + | scaleInitPosition | int | `""` | |
-| + | scaleInitFillQty | int | `""` | |
-| + | scaleRandomPercent | bool | `0` | |
+| 72 | scalePriceIncrement ★ | double | `""` | UNSET |
+| + | scalePriceAdjustValue ★ | double | `""` | only if 0 < scalePriceIncrement < UNSET; 7 fields |
+| + | scalePriceAdjustInterval ★ | int | `""` | |
+| + | scaleProfitOffset ★ | double | `""` | |
+| + | scaleAutoReset ★ | bool | `0` | |
+| + | scaleInitPosition ★ | int | `""` | |
+| + | scaleInitFillQty ★ | int | `""` | |
+| + | scaleRandomPercent ★ | bool | `0` | |
 | 73 | scaleTable ★ | string | `""` | |
 | 74 | activeStartTime ★ | string | `""` | |
 | 75 | activeStopTime ★ | string | `""` | |
-| 76 | hedgeType | string | `""` | |
-| + | hedgeParam | string | `""` | only if hedgeType ≠ `""` |
+| 76 | hedgeType ★ | string | `""` | |
+| + | hedgeParam ★ | string | `""` | only if hedgeType ≠ `""` |
 | 77 | optOutSmartRouting ★ | bool | `0` | |
 | 78 | clearingAccount ★ | string | `""` | |
 | 79 | clearingIntent ★ | string | `""` | |
 | 80 | notHeld ★ | bool | `0` | |
-| 81 | deltaNeutralContractPresent | bool | `0` | |
-| + | deltaNeutralContract.conId | int | | only if present = `1`; 3 fields |
-| + | deltaNeutralContract.delta | double | | |
-| + | deltaNeutralContract.price | double | | |
+| 81 | deltaNeutralContractPresent ★ | bool | `0` | |
+| + | deltaNeutralContract.conId ★ | int | | only if present = `1`; 3 fields |
+| + | deltaNeutralContract.delta ★ | double | | |
+| + | deltaNeutralContract.price ★ | double | | |
 | 82 | algoStrategy | string | `""` | |
 | + | algoParamsCount | int | `0` | only if algoStrategy ≠ `""` |
 | + | ↳ tag | string | | × algoParamsCount, 2 fields per element |
@@ -700,41 +701,41 @@ no smart-routing params.
 | 58 | triggerMethod ★ | int | |
 | 59 | volatility ★ | double | |
 | 60 | volatilityType ★ | int | |
-| 61 | deltaNeutralOrderType | string | |
-| 62 | deltaNeutralAuxPrice | double | |
-| + | deltaNeutralConId | int | only if deltaNeutralOrderType ≠ `""`; 8 fields. The live gateway sends `None` for a plain order, so the group is present (Disagreements 9) |
-| + | deltaNeutralSettlingFirm | string | |
-| + | deltaNeutralClearingAccount | string | |
-| + | deltaNeutralClearingIntent | string | |
-| + | deltaNeutralOpenClose | string | |
-| + | deltaNeutralShortSale | bool | |
-| + | deltaNeutralShortSaleSlot | int | |
-| + | deltaNeutralDesignatedLocation | string | |
+| 61 | deltaNeutralOrderType ★ | string | |
+| 62 | deltaNeutralAuxPrice ★ | double | |
+| + | deltaNeutralConId ★ | int | only if deltaNeutralOrderType ≠ `""`; 8 fields. The live gateway sends `None` for a plain order, so the group is present (Disagreements 9) |
+| + | deltaNeutralSettlingFirm ★ | string | |
+| + | deltaNeutralClearingAccount ★ | string | |
+| + | deltaNeutralClearingIntent ★ | string | |
+| + | deltaNeutralOpenClose ★ | string | |
+| + | deltaNeutralShortSale ★ | bool | |
+| + | deltaNeutralShortSaleSlot ★ | int | |
+| + | deltaNeutralDesignatedLocation ★ | string | |
 | 63 | continuousUpdate ★ | bool | |
 | 64 | referencePriceType ★ | int | |
 | 65 | trailStopPrice ★ | double | overwritten by #105 in both clients |
 | 66 | trailingPercent ★ | double | |
 | 67 | basisPoints ★ | double | |
 | 68 | basisPointsType ★ | int | |
-| 69 | comboLegsDescrip | string | |
-| 70 | comboLegsCount | int | always present |
-| + | ↳ leg: conId int, ratio int, action string, exchange string, openClose int, shortSaleSlot int, designatedLocation string, exemptCode int | | × comboLegsCount, 8 fields per leg |
-| 71 | orderComboLegsCount | int | always present |
-| + | ↳ price | double | × orderComboLegsCount |
-| 72 | smartComboRoutingParamsCount | int | always present |
-| + | ↳ tag, value | string, string | × count, 2 fields per element |
+| 69 | comboLegsDescrip ★ | string | |
+| 70 | comboLegsCount ★ | int | always present |
+| + | ↳ leg: conId int, ratio int, action string, exchange string, openClose int, shortSaleSlot int, designatedLocation string, exemptCode int ★ | | × comboLegsCount, 8 fields per leg |
+| 71 | orderComboLegsCount ★ | int | always present |
+| + | ↳ price ★ | double | × orderComboLegsCount |
+| 72 | smartComboRoutingParamsCount ★ | int | always present |
+| + | ↳ tag, value ★ | string, string | × count, 2 fields per element |
 | 73 | scaleInitLevelSize ★ | int | |
 | 74 | scaleSubsLevelSize ★ | int | |
-| 75 | scalePriceIncrement | double | |
-| + | scalePriceAdjustValue double, scalePriceAdjustInterval int, scaleProfitOffset double, scaleAutoReset bool, scaleInitPosition int, scaleInitFillQty int, scaleRandomPercent bool | | only if 0 < scalePriceIncrement < UNSET; 7 fields |
-| 76 | hedgeType | string | |
-| + | hedgeParam | string | only if hedgeType ≠ `""` |
+| 75 | scalePriceIncrement ★ | double | |
+| + | scalePriceAdjustValue double, scalePriceAdjustInterval int, scaleProfitOffset double, scaleAutoReset bool, scaleInitPosition int, scaleInitFillQty int, scaleRandomPercent bool ★ | | only if 0 < scalePriceIncrement < UNSET; 7 fields |
+| 76 | hedgeType ★ | string | |
+| + | hedgeParam ★ | string | only if hedgeType ≠ `""` |
 | 77 | optOutSmartRouting ★ | bool | |
 | 78 | clearingAccount ★ | string | |
 | 79 | clearingIntent ★ | string | |
 | 80 | notHeld ★ | bool | |
-| 81 | deltaNeutralContractPresent | bool | |
-| + | conId int, delta double, price double | | only if present; 3 fields |
+| 81 | deltaNeutralContractPresent ★ | bool | |
+| + | conId int, delta double, price double ★ | | only if present; 3 fields |
 | 82 | algoStrategy | string | |
 | + | algoParamsCount | int | only if algoStrategy ≠ `""` |
 | + | ↳ tag, value | string, string | × algoParamsCount |
@@ -1146,31 +1147,31 @@ No version field. Base case as for `openOrder`.
 | 49 | triggerMethod ★ | int | |
 | 50 | volatility ★ | double | |
 | 51 | volatilityType ★ | int | |
-| 52 | deltaNeutralOrderType | string | |
-| 53 | deltaNeutralAuxPrice | double | |
-| + | deltaNeutralConId int, deltaNeutralShortSale bool, deltaNeutralShortSaleSlot int, deltaNeutralDesignatedLocation string | | only if deltaNeutralOrderType ≠ `""`; **4** fields (no settlingFirm / clearing / openClose); expect it present (`None`, Disagreements 9) |
+| 52 | deltaNeutralOrderType ★ | string | |
+| 53 | deltaNeutralAuxPrice ★ | double | |
+| + | deltaNeutralConId int, deltaNeutralShortSale bool, deltaNeutralShortSaleSlot int, deltaNeutralDesignatedLocation string ★ | | only if deltaNeutralOrderType ≠ `""`; **4** fields (no settlingFirm / clearing / openClose); expect it present (`None`, Disagreements 9) |
 | 54 | continuousUpdate ★ | bool | |
 | 55 | referencePriceType ★ | int | |
 | 56 | trailStopPrice ★ | double | overwritten by #76 in both clients |
 | 57 | trailingPercent ★ | double | no basisPoints here |
-| 58 | comboLegsDescrip | string | |
-| 59 | comboLegsCount | int | always present |
-| + | ↳ leg: 8 fields as in `openOrder` | | × comboLegsCount |
-| 60 | orderComboLegsCount | int | always present |
-| + | ↳ price | double | × orderComboLegsCount |
-| 61 | smartComboRoutingParamsCount | int | always present |
-| + | ↳ tag, value | string, string | × count |
+| 58 | comboLegsDescrip ★ | string | |
+| 59 | comboLegsCount ★ | int | always present |
+| + | ↳ leg: 8 fields as in `openOrder` ★ | | × comboLegsCount |
+| 60 | orderComboLegsCount ★ | int | always present |
+| + | ↳ price ★ | double | × orderComboLegsCount |
+| 61 | smartComboRoutingParamsCount ★ | int | always present |
+| + | ↳ tag, value ★ | string, string | × count |
 | 62 | scaleInitLevelSize ★ | int | |
 | 63 | scaleSubsLevelSize ★ | int | |
-| 64 | scalePriceIncrement | double | |
-| + | the 7 scale fields as in `openOrder` | | only if 0 < scalePriceIncrement < UNSET |
-| 65 | hedgeType | string | |
-| + | hedgeParam | string | only if hedgeType ≠ `""` |
+| 64 | scalePriceIncrement ★ | double | |
+| + | the 7 scale fields as in `openOrder` ★ | | only if 0 < scalePriceIncrement < UNSET |
+| 65 | hedgeType ★ | string | |
+| + | hedgeParam ★ | string | only if hedgeType ≠ `""` |
 | 66 | clearingAccount ★ | string | no optOutSmartRouting here |
 | 67 | clearingIntent ★ | string | |
 | 68 | notHeld ★ | bool | |
-| 69 | deltaNeutralContractPresent | bool | |
-| + | conId int, delta double, price double | | only if present |
+| 69 | deltaNeutralContractPresent ★ | bool | |
+| + | conId int, delta double, price double ★ | | only if present |
 | 70 | algoStrategy | string | |
 | + | algoParamsCount, then tag/value pairs | | only if algoStrategy ≠ `""` |
 | 71 | solicited ★ | bool | no whatIf here |

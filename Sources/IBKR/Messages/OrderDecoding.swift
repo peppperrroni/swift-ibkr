@@ -52,7 +52,7 @@ public struct CompletedOrderMessage: Sendable, Equatable {
 extension IBDecoder {
     static func openOrder(_ r: inout FieldReader) throws -> OpenOrderMessage {
         let orderID = try r.int()
-        let contract = try self.contract(&r)
+        var contract = try self.contract(&r)
         var o = try orderHead(&r)
         let clientID = try r.int(), permID = try r.int()
         o.outsideRTH = try r.bool(); o.hidden = try r.bool(); o.discretionaryAmt = try r.decimal()
@@ -70,14 +70,20 @@ extension IBDecoder {
         try r.skip(3)  // 54–56 eTradeOnly, firmQuoteOnly, nbboPriceCap
         o.parentID = try r.int()
         o.triggerMethod = try r.int(); o.volatility = try r.optionalDecimal(); o.volatilityType = try r.optionalInt()
-        try skipDeltaNeutral(&r, extraFields: 8)
+        try deltaNeutral(&r, &o)
+        if !o.deltaNeutralOrderType.isEmpty {
+            o.deltaNeutralConID = try r.int(); o.deltaNeutralSettlingFirm = try r.string()
+            o.deltaNeutralClearingAccount = try r.string(); o.deltaNeutralClearingIntent = try r.string()
+            o.deltaNeutralOpenClose = try r.string(); o.deltaNeutralShortSale = try r.bool()
+            o.deltaNeutralShortSaleSlot = try r.int(); o.deltaNeutralDesignatedLocation = try r.string()
+        }
         o.continuousUpdate = try r.bool(); o.referencePriceType = try r.optionalInt()
         o.trailStopPrice = try r.optionalDecimal(); o.trailingPercent = try r.optionalDecimal()
         o.basisPoints = try r.optionalDecimal(); o.basisPointsType = try r.optionalInt()
-        try comboThroughHedge(&r, &o)
+        try comboThroughHedge(&r, &contract, &o)
         o.optOutSmartRouting = try r.bool()
         o.clearingAccount = try r.string(); o.clearingIntent = try r.string(); o.notHeld = try r.bool()
-        try skipDeltaNeutralContractAndAlgo(&r)
+        try deltaNeutralContractAndAlgo(&r, &contract)
         o.solicited = try r.bool(); o.whatIf = try r.bool()
         let status = OrderStatus(rawValue: try r.string())
         try r.skip(14)  // 86–99 margins, commissions, warningText
@@ -99,7 +105,7 @@ extension IBDecoder {
     }
 
     static func completedOrder(_ r: inout FieldReader) throws -> CompletedOrderMessage {
-        let contract = try self.contract(&r)
+        var contract = try self.contract(&r)
         var o = try orderHead(&r)
         let permID = try r.int()
         o.outsideRTH = try r.bool(); o.hidden = try r.bool(); o.discretionaryAmt = try r.decimal()
@@ -114,12 +120,16 @@ extension IBDecoder {
         o.sweepToFill = try r.bool(); o.allOrNone = try r.bool()
         o.minQty = try r.optionalInt(); o.ocaType = try r.int()
         o.triggerMethod = try r.int(); o.volatility = try r.optionalDecimal(); o.volatilityType = try r.optionalInt()
-        try skipDeltaNeutral(&r, extraFields: 4)
+        try deltaNeutral(&r, &o)
+        if !o.deltaNeutralOrderType.isEmpty {
+            o.deltaNeutralConID = try r.int(); o.deltaNeutralShortSale = try r.bool()
+            o.deltaNeutralShortSaleSlot = try r.int(); o.deltaNeutralDesignatedLocation = try r.string()
+        }
         o.continuousUpdate = try r.bool(); o.referencePriceType = try r.optionalInt()
         o.trailStopPrice = try r.optionalDecimal(); o.trailingPercent = try r.optionalDecimal()
-        try comboThroughHedge(&r, &o)
+        try comboThroughHedge(&r, &contract, &o)
         o.clearingAccount = try r.string(); o.clearingIntent = try r.string(); o.notHeld = try r.bool()
-        try skipDeltaNeutralContractAndAlgo(&r)
+        try deltaNeutralContractAndAlgo(&r, &contract)
         o.solicited = try r.bool()
         let status = OrderStatus(rawValue: try r.string())
         o.randomizeSize = try r.bool(); o.randomizePrice = try r.bool()
@@ -168,27 +178,42 @@ extension IBDecoder {
         return n
     }
 
-    /// deltaNeutralOrderType, deltaNeutralAuxPrice, then `extraFields` more when the type is set.
-    private static func skipDeltaNeutral(_ r: inout FieldReader, extraFields: Int) throws {
-        let type = try r.string()
-        try r.skip()
-        if !type.isEmpty { try r.skip(extraFields) }
+    /// deltaNeutralOrderType, deltaNeutralAuxPrice; the caller reads its own group when the type is set.
+    private static func deltaNeutral(_ r: inout FieldReader, _ o: inout Order) throws {
+        o.deltaNeutralOrderType = try r.string(); o.deltaNeutralAuxPrice = try r.optionalDecimal()
     }
 
     /// comboLegsDescrip through hedgeType (+ hedgeParam): combo legs, their prices, smart routing params, scale.
-    /// Reads only the two scale sizes.
-    private static func comboThroughHedge(_ r: inout FieldReader, _ o: inout Order) throws {
-        try r.skip()  // comboLegsDescrip
-        try r.skip(8 * count(&r))  // legs
-        try r.skip(count(&r))  // order combo-leg prices
-        try r.skip(2 * count(&r))  // smart combo routing tag/value pairs
+    private static func comboThroughHedge(_ r: inout FieldReader, _ c: inout Contract, _ o: inout Order) throws {
+        c.comboLegsDescrip = try r.string()
+        c.comboLegs = try (0..<count(&r)).map { _ in
+            let conID = try r.int(), ratio = try r.int()
+            let at = r.index
+            let a = try r.string()
+            guard let action = OrderAction(rawValue: a) else { throw IBProtocolError.unexpectedValue(a, index: at) }
+            return ComboLeg(conID: conID, ratio: ratio, action: action, exchange: try r.string(), openClose: try r.int(),
+                            shortSaleSlot: try r.int(), designatedLocation: try r.string(),
+                            exemptCode: try r.optionalInt() ?? -1)
+        }
+        o.orderComboLegs = try (0..<count(&r)).map { _ in OrderComboLeg(price: try r.optionalDecimal()) }
+        o.smartComboRoutingParams = try (0..<count(&r)).map { _ in TagValue(tag: try r.string(), value: try r.string()) }
         o.scaleInitLevelSize = try r.optionalInt(); o.scaleSubsLevelSize = try r.optionalInt()
-        if let increment = try r.optionalDouble(), increment > 0 { try r.skip(7) }
-        if try !r.string().isEmpty { try r.skip() }  // hedgeType set → hedgeParam
+        o.scalePriceIncrement = try r.optionalDecimal()
+        if let increment = o.scalePriceIncrement, increment > 0 {
+            o.scalePriceAdjustValue = try r.optionalDecimal(); o.scalePriceAdjustInterval = try r.optionalInt()
+            o.scaleProfitOffset = try r.optionalDecimal(); o.scaleAutoReset = try r.bool()
+            o.scaleInitPosition = try r.optionalInt(); o.scaleInitFillQty = try r.optionalInt()
+            o.scaleRandomPercent = try r.bool()
+        }
+        o.hedgeType = try r.string()
+        if !o.hedgeType.isEmpty { o.hedgeParam = try r.string() }
     }
 
-    private static func skipDeltaNeutralContractAndAlgo(_ r: inout FieldReader) throws {
-        if try r.bool() { try r.skip(3) }  // conId, delta, price
+    /// The delta-neutral contract, then algoStrategy; algo params are still skipped.
+    private static func deltaNeutralContractAndAlgo(_ r: inout FieldReader, _ c: inout Contract) throws {
+        if try r.bool() {
+            c.deltaNeutralContract = DeltaNeutralContract(conID: try r.int(), delta: try r.decimal(), price: try r.decimal())
+        }
         if try !r.string().isEmpty { try r.skip(2 * count(&r)) }  // algoStrategy set → tag/value pairs
     }
 

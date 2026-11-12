@@ -48,4 +48,7 @@ import Testing
     #expect(ReconnectPolicy(probeAfter: nil).probeAfter == nil)
     #expect(TagValue(tag: "a", value: "1").tag == "a")
     #expect(SoftDollarTier().displayName == "")
+    #expect(ComboLeg(conID: 1, ratio: 2, action: .sell, exchange: "SMART").exemptCode == -1)
+    #expect(OrderComboLeg(price: 1).price == 1)
+    #expect(DeltaNeutralContract(conID: 1, delta: 0.5, price: 2).conID == 1)
 }

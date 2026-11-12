@@ -4,6 +4,20 @@ func body(_ fields: String...) -> [UInt8] { fields.flatMap { Array($0.utf8) + [0
 
 func d(_ s: String) -> Decimal { Decimal(string: s, locale: Locale(identifier: "en_US_POSIX"))! }
 
+/// Inserts each group after the base-case index given, so the indices stay those of the table.
+func inserting(_ groups: [(after: Int, fields: [String])], into f: [String]) -> [String] {
+    var f = f
+    for g in groups.sorted(by: { $0.after > $1.after }) { f.insert(contentsOf: g.fields, at: g.after + 1) }
+    return f
+}
+
+/// `f` with the field at each index replaced.
+func replacing(_ f: [String], _ changes: [Int: String]) -> [String] {
+    var f = f
+    for (i, v) in changes { f[i] = v }
+    return f
+}
+
 struct TimedOut: Error {}
 
 /// Resumes its continuation once: the first of the operation and the timer wins.

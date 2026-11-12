@@ -48,6 +48,9 @@ Still open:
 - openOrder gives a plain stock LMT order contract `right` `?` and auxPrice `0.0`; the decoder keeps them as `"?"`
   and `0`, not `""` / nil, so a consumer must not read them as set. The same holds for `None` in
   deltaNeutralOrderType / adjustedOrderType and clearingIntent `IB`: all kept as sent.
+- A modify that re-sends an order decoded from a live openOrder (deltaNeutralOrderType `None` with its 8 fields,
+  adjustedOrderType `None`) is unchecked live. It also sends displaySize `0` where `ib_async` sends `""` (the
+  gateway's `2147483647` decodes to 0).
 - A filled order replayed by completedOrders (the connect-time sync) has `order.totalQuantity` 0: its size is only
   in `filled`. The tracker keeps the 0 and clamps `remaining` at 0; a consumer reads the size from `filled`.
 - execDetails `time` comes in two formats: `20261110-11:56:31` (UTC, no zone) on a live fill and

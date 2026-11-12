@@ -77,7 +77,6 @@ private func fields(_ r: IBRequest) throws -> [String] { FieldReader(try r.body(
         c.strike = nil
         return .placeOrder(orderID: 1, contract: c, order: Order(action: .buy, quantity: d("1"), orderType: orderType))
     }
-    #expect(throws: IBEncodingError.unsupported("secType BAG")) { try req(secType: "BAG").body() }
     #expect(throws: IBEncodingError.unsupported("exchange IBKRATS")) { try req(exchange: "IBKRATS").body() }
     for t in ["PEG BENCH", "PEGBENCH", "PEG BEST", "PEGBEST", "PEG MID", "PEGMID"] {
         #expect(throws: IBEncodingError.unsupported("orderType \(t)")) { try req(orderType: t).body() }
@@ -157,4 +156,75 @@ private func everyPlainField(orderType: String = "VOL") -> IBRequest {
     #expect(lmt[62] == "")  // row 62 volatility
     #expect(lmt.count == vol.count)
     #expect(vol.indices.filter { vol[$0] != lmt[$0] } == [18, 62])
+}
+
+/// The base case's order and contract, changed by `change`, encoded with order id 12.
+private func group(_ change: (inout Contract, inout Order) -> Void) throws -> [String] {
+    var c = Contract(symbol: "AAPL")
+    var o = Order(action: .buy, quantity: d("100"), orderType: "LMT", limitPrice: d("187.25"))
+    change(&c, &o)
+    return try fields(.placeOrder(orderID: 12, contract: c, order: o))
+}
+
+@Test func bagSendsLegsPricesAndRoutingParams() throws {
+    let f = try group { c, o in
+        c.secType = "BAG"
+        c.comboLegs = [ComboLeg(conID: 265598, ratio: 1, action: .buy, exchange: "SMART"),
+                       ComboLeg(conID: 272093, ratio: 2, action: .sell, exchange: "SMART", openClose: 1, shortSaleSlot: 2,
+                                designatedLocation: "L", exemptCode: 0)]
+        o.orderComboLegs = [OrderComboLeg(price: d("1.25")), OrderComboLeg(price: nil)]
+        o.smartComboRoutingParams = [TagValue(tag: "NonGuaranteed", value: "1")]
+    }
+    let expected = inserting([(34, ["2", "265598", "1", "BUY", "SMART", "0", "0", "", "-1",
+                                    "272093", "2", "SELL", "SMART", "1", "2", "L", "0",
+                                    "2", "1.25", "", "1", "NonGuaranteed", "1"])], into: replacing(base, [4: "BAG"]))
+    #expect(expected.count == 137)
+    #expect(f == expected)
+}
+
+@Test func bagWithoutLegsSendsThreeZeroCounts() throws {
+    let f = try group { c, _ in c.secType = "BAG" }
+    #expect(f == inserting([(34, ["0", "0", "0"])], into: replacing(base, [4: "BAG"])))
+}
+
+@Test func deltaNeutralOrderSendsItsGroup() throws {
+    let f = try group { _, o in
+        o.deltaNeutralOrderType = "MKT"; o.deltaNeutralAuxPrice = d("0.1"); o.deltaNeutralConID = 265598
+        o.deltaNeutralSettlingFirm = "SF"; o.deltaNeutralClearingAccount = "CA"; o.deltaNeutralClearingIntent = "IB"
+        o.deltaNeutralOpenClose = "O"; o.deltaNeutralShortSale = true; o.deltaNeutralShortSaleSlot = 1
+        o.deltaNeutralDesignatedLocation = "DL"
+    }
+    #expect(f == inserting([(65, ["265598", "SF", "CA", "IB", "O", "1", "1", "DL"])],
+                           into: replacing(base, [64: "MKT", 65: "0.1"])))
+}
+
+@Test func scaleIncrementSendsItsGroup() throws {
+    let f = try group { _, o in
+        o.scalePriceIncrement = d("0.05"); o.scalePriceAdjustValue = d("0.01"); o.scalePriceAdjustInterval = 60
+        o.scaleProfitOffset = d("0.1"); o.scaleAutoReset = true; o.scaleInitPosition = 100; o.scaleInitFillQty = 10
+        o.scaleRandomPercent = true
+    }
+    #expect(f == inserting([(72, ["0.01", "60", "0.1", "1", "100", "10", "1"])], into: replacing(base, [72: "0.05"])))
+}
+
+@Test func hedgeTypeSendsItsParam() throws {
+    let f = try group { _, o in o.hedgeType = "D"; o.hedgeParam = "0.5" }
+    #expect(f == inserting([(76, ["0.5"])], into: replacing(base, [76: "D"])))
+}
+
+@Test func deltaNeutralContractIsSent() throws {
+    let f = try group { c, _ in c.deltaNeutralContract = DeltaNeutralContract(conID: 265598, delta: d("0.5"), price: d("187.25")) }
+    #expect(f == inserting([(81, ["265598", "0.5", "187.25"])], into: replacing(base, [81: "1"])))
+}
+
+/// Review Focus 1: a live openOrder (deltaNeutralOrderType `None`) re-encodes for a modify.
+@Test func decodedLiveOrderReencodes() throws {
+    let frame = try #require(try recording("liveLimitOrderPlacesAndCancels").first { $0.first == "5" })
+    guard case .openOrder(let m) = IBDecoder.decode(body(frame)) else { Issue.record("not decoded"); return }
+    let f = try fields(.placeOrder(orderID: 2, contract: m.contract, order: m.order))
+    #expect(f.count == 122)  // 114 plus the 8-field None group
+    #expect(f[64] == "None")
+    #expect(f[24] == "")
+    #expect(f[62] == "")  // volatility is dropped for LMT
+    #expect(f[76] == "2")  // trailStopPrice: row 68 plus the 8-field shift
 }

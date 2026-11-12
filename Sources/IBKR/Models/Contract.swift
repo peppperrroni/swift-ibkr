@@ -15,6 +15,11 @@ public struct Contract: Sendable, Equatable, Hashable {
     public var tradingClass: String
     public var secIDType = ""
     public var secID = ""
+    /// Sent only when `secType` is `BAG`.
+    public var comboLegs: [ComboLeg] = []
+    /// Decoded only, never sent.
+    public var comboLegsDescrip = ""
+    public var deltaNeutralContract: DeltaNeutralContract?
 
     public init(symbol: String, secType: String = "STK", exchange: String = "SMART",
                 currency: String = "USD", primaryExchange: String = "") {

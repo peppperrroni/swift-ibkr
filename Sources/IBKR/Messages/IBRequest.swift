@@ -142,9 +142,10 @@ public enum IBRequest: Sendable, Equatable {
         return f
     }()
 
-    /// The 12-field contract block every outgoing request shares (placeOrder rows 2-13).
-    static func contract(_ w: inout FieldWriter, _ c: Contract) throws(IBEncodingError) {
-        if c.secType == "BAG" { throw .unsupported("secType BAG") }
+    /// The 12-field contract block every outgoing request shares (placeOrder rows 2-13). Only placeOrder sends a
+    /// `BAG`'s legs, so every other request refuses one.
+    static func contract(_ w: inout FieldWriter, _ c: Contract, allowBag: Bool = false) throws(IBEncodingError) {
+        if c.secType == "BAG" && !allowBag { throw .unsupported("secType BAG") }
         w.add(c.conID); try w.add(c.symbol); try w.add(c.secType); try w.add(c.lastTradeDateOrContractMonth)
         w.addDouble(c.strike ?? 0)  // str(double), 0.0 by default
         try w.add(c.right); try w.add(c.multiplier); try w.add(c.exchange); try w.add(c.primaryExchange)

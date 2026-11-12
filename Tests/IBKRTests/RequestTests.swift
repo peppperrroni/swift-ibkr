@@ -44,6 +44,11 @@ import Testing
             try IBRequest.startAPI(clientID: 1, capabilities: "é").body()
         }
     }
+    @Test func bagIsStillRefusedOutsidePlaceOrder() {
+        #expect(throws: IBEncodingError.unsupported("secType BAG")) {
+            try IBRequest.marketData(requestID: 1, contract: Contract(symbol: "X", secType: "BAG")).body()
+        }
+    }
     @Test func contractDetailsSendsSecID() throws {
         var c = Contract(symbol: "AAPL")
         c.secIDType = "ISIN"; c.secID = "US0378331005"

@@ -3,7 +3,7 @@ import Testing
 @testable import IBKR
 
 /// Frames the paper gateway sent during the live tests (Tests/IBKRTests/Recorded, written by LiveTests).
-private func recording(_ name: String, file: String = #filePath) throws -> [[String]] {
+func recording(_ name: String, file: String = #filePath) throws -> [[String]] {
     let url = URL(fileURLWithPath: file).deletingLastPathComponent().appendingPathComponent("Recorded/\(name).json")
     return try JSONDecoder().decode([[String]].self, from: Data(contentsOf: url))
 }
@@ -35,6 +35,7 @@ func everyRecordedFrameDecodes(_ name: String) throws {
     o.account = "DU0000001"; o.ocaType = 3
     o.openClose = ""; o.volatilityType = 0; o.referencePriceType = 0; o.trailStopPrice = 2; o.clearingIntent = "IB"
     o.adjustedOrderType = "None"; o.cashQty = 0; o.dontUseAutoPriceForHedge = true
+    o.deltaNeutralOrderType = "None"; o.deltaNeutralOpenClose = "?"
     let statuses: [OrderStatus] = [.preSubmitted, .preSubmitted, .pendingCancel, .pendingCancel]
     #expect(frames.map(\.count) == [135, 135, 135, 135])
     #expect(frames.map { IBDecoder.decode(body($0)) } == statuses.map {

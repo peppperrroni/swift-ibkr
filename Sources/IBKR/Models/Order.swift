@@ -23,6 +23,8 @@ public struct Order: Sendable, Equatable {
     public var blockOrder = false, sweepToFill = false           // 29-30
     public var displaySize = 0, triggerMethod = 0                // 31-32
     public var hidden = false                                    // 34
+    /// Sent only when the contract's `secType` is `BAG`, after row 34.
+    public var orderComboLegs: [OrderComboLeg] = [], smartComboRoutingParams: [TagValue] = []
     public var discretionaryAmt: Decimal = 0                     // 36
     public var goodAfterTime = "", goodTillDate = ""             // 37-38
     public var faGroup = "", faMethod = "", faPercentage = ""    // 39-41
@@ -38,11 +40,24 @@ public struct Order: Sendable, Equatable {
     /// Sent only when `orderType` starts with `VOL`: IB back-fills it into live orders and then rejects their modification.
     public var volatility: Decimal?                              // 62
     public var volatilityType: Int?                              // 63
+    public var deltaNeutralOrderType = ""                        // 64
+    public var deltaNeutralAuxPrice: Decimal?                    // 65
+    // The 8 after row 65, sent only when deltaNeutralOrderType is set. completedOrder carries only conID,
+    // shortSale, shortSaleSlot and designatedLocation.
+    public var deltaNeutralConID = 0, deltaNeutralSettlingFirm = "", deltaNeutralClearingAccount = ""
+    public var deltaNeutralClearingIntent = "", deltaNeutralOpenClose = "", deltaNeutralShortSale = false
+    public var deltaNeutralShortSaleSlot = 0, deltaNeutralDesignatedLocation = ""
     public var continuousUpdate = false                          // 66
     public var referencePriceType: Int?                          // 67
     public var trailStopPrice, trailingPercent: Decimal?         // 68-69
     public var scaleInitLevelSize, scaleSubsLevelSize: Int?      // 70-71
+    public var scalePriceIncrement: Decimal?                     // 72
+    // The 7 after row 72, sent only when scalePriceIncrement > 0.
+    public var scalePriceAdjustValue: Decimal?, scalePriceAdjustInterval: Int?, scaleProfitOffset: Decimal?
+    public var scaleAutoReset = false, scaleInitPosition: Int?, scaleInitFillQty: Int?, scaleRandomPercent = false
     public var scaleTable = "", activeStartTime = "", activeStopTime = ""   // 73-75
+    public var hedgeType = ""                                    // 76
+    public var hedgeParam = ""                                   // after 76, sent only when hedgeType is set
     public var optOutSmartRouting = false                        // 77
     public var clearingAccount = "", clearingIntent = ""         // 78-79
     public var notHeld = false                                   // 80
