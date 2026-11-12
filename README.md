@@ -83,13 +83,15 @@ targets: [
 ]
 ```
 
+Flex reports are a separate product, `.product(name: "IBKRFlex", package: "swift-ibkr")`, with `import IBKRFlex`. It needs only Foundation and does not depend on `IBKR`.
+
 Or with CocoaPods:
 
 ```ruby
 pod 'SwiftIBKR', :git => 'https://github.com/peppperrroni/swift-ibkr.git', :tag => '<version>'
 ```
 
-The module is still `IBKR`, so `import IBKR` is the same under both. Publication to the CocoaPods trunk is pending.
+The module is still `IBKR`, so `import IBKR` is the same under both. Publication to the CocoaPods trunk is pending. `IBKRFlex` is Swift Package Manager only; the pod ships `IBKR` alone.
 
 These are the default ports:
 
