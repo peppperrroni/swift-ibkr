@@ -12,6 +12,7 @@ final class FakeGateway: Transport, @unchecked Sendable {
     private var sawHello = false
     private var sent: [[String]] = []
     private var closed = false
+    private var _writesAfterClose = 0
     private var _onRequest: (@Sendable ([String]) -> [[String]])?
 
     init(serverVersion: String = "178", nextValidID: Int = 1, accounts: String = "DU1", answersStartAPI: Bool = true,
@@ -42,6 +43,9 @@ final class FakeGateway: Transport, @unchecked Sendable {
 
     var isClosed: Bool { lock.withLock { closed } }
 
+    /// Writes attempted after `close()`; they throw and never reach the sent frames.
+    var writesAfterClose: Int { lock.withLock { _writesAfterClose } }
+
     /// Returns once the client closed this transport, within 2 s.
     func waitUntilClosed() async throws {
         let deadline = ContinuousClock.now + .seconds(2)
@@ -59,6 +63,7 @@ final class FakeGateway: Transport, @unchecked Sendable {
     func write(_ bytes: [UInt8]) throws(IBClientError) {
         let (wasClosed, isHello) = lock.withLock { () -> (Bool, Bool) in
             defer { sawHello = true }
+            if closed { _writesAfterClose += 1 }
             return (closed, !sawHello)
         }
         if wasClosed { throw .connectionClosed }

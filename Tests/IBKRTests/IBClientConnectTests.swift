@@ -120,6 +120,7 @@ private let ready = ConnectionState.connected(serverVersion: 178, accounts: ["DU
     gateway.close()
     try await Task.sleep(for: .milliseconds(100))
     #expect(try await gateway.waitForSent(FakeGateway.syncFrames).count == FakeGateway.syncFrames)
+    #expect(gateway.writesAfterClose == 0)
 }
 
 @Test func disconnectWhileConnectingSendsNoCancelPositions() async throws {
@@ -137,7 +138,7 @@ private let ready = ConnectionState.connected(serverVersion: 178, accounts: ["DU
     let (one, two) = (FakeGateway(answersStartAPI: false), FakeGateway())
     let gateways = Gateways([one, two])
     let client = IBClient(connector: { _, _, _ in await gateways.next() })
-    let connecting = Task { try await client.connect(clientID: 7) }   // not within2s: its work task would not see the cancel
+    let connecting = Task { try await client.connect(clientID: 7) }   // outside within2s: a task inside it would not receive this cancel
     _ = try await one.waitForSent(1)
     connecting.cancel()
     await #expect(throws: IBClientError.cancelled) { try await within2s { try await connecting.value } }

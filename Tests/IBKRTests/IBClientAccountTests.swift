@@ -163,6 +163,7 @@ func disconnectEndsRequestStreams(peerCloses: Bool) async throws {
     try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel from the streams' termination
     let after = try await gateway.waitForSent(FakeGateway.syncFrames + 2).dropFirst(FakeGateway.syncFrames + 2)
     #expect(Array(after) == (peerCloses ? [] : [["64", "1"]]))   // a clean disconnect sends cancelPositions only
+    #expect(gateway.writesAfterClose == 0)
 }
 
 @Test func requestStreamsNeedAConnection() async throws {

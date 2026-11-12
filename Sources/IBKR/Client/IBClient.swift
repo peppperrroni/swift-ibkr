@@ -652,7 +652,7 @@ public actor IBClient {
         generation += 1
         if draining, let t = transport {
             try? send(.cancelPositions)   // all integers: encodes
-            Task { try? await Task.sleep(for: .seconds(2)); t.close() }
+            Task.detached { try? await Task.sleep(for: .seconds(2)); t.close() }   // close() needs no actor
         } else {
             transport?.close()
         }
