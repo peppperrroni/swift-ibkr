@@ -19,6 +19,7 @@ private let sendSuccess = response("""
 private let inProgress = response(
     "<Status>Warn</Status><ErrorCode>1019</ErrorCode><ErrorMessage>Statement generation in progress. Please try again shortly.</ErrorMessage>")
 private let inProgressLegacy = response("<code>Statement generation in progress. Please try again shortly.</code>")
+private let inProgressCDATA = response("<code><![CDATA[Statement generation in progress. Please try again shortly.]]></code>")
 
 /// Answers each request with the next scripted reply and records the URLs asked for.
 private actor FakeFlexService {
@@ -58,10 +59,10 @@ private func isMalformed(_ error: any Error) -> Bool {
 
     @Test func downloadPollsWhileTheStatementIsInProgress() async throws {
         let fake = FakeFlexService([.success(sendSuccess), .success(inProgress), .success(inProgressLegacy),
-                                    .success(inProgress), .success(flexReportXML)])
+                                    .success(inProgress), .success(inProgressCDATA), .success(flexReportXML)])
         #expect(try await download(fake).topics.contains("Trade"))
         let urls = await fake.urls
-        #expect(urls.count == 5)
+        #expect(urls.count == 6)
         #expect(urls.dropFirst().allSatisfy { $0.absoluteString.hasPrefix("https://statements.example/GetStatement?") })
     }
 
@@ -80,6 +81,8 @@ private func isMalformed(_ error: any Error) -> Bool {
         await #expect(throws: FlexError.statement(code: "1003", message: "Statement is not available.")) { try await download(v3) }
         let legacy = FakeFlexService([.success(sendSuccess), .success(response("<code>Statement could not be generated</code>"))])
         await #expect(throws: FlexError.statement(code: "", message: "Statement could not be generated")) { try await download(legacy) }
+        let bare = FakeFlexService([.success(sendSuccess), .success(response("<Status>Fail</Status>"))])
+        await #expect(throws: FlexError.statement(code: "", message: "")) { try await download(bare) }
     }
 
     @Test func anHTTPErrorPropagates() async throws {
@@ -107,9 +110,20 @@ private func isMalformed(_ error: any Error) -> Bool {
         }
     }
 
+    @Test func anAlreadyCancelledCallerSendsNothing() async throws {
+        let fake = FakeFlexService([.success(sendSuccess), .success(flexReportXML)])
+        let task = Task {
+            withUnsafeCurrentTask { $0?.cancel() }
+            return try await download(fake)
+        }
+        await #expect(throws: CancellationError.self) { try await task.value }
+        #expect(await fake.urls.count == 0)
+    }
+
     @Test func cancellingStopsThePolling() async throws {
         let fake = FakeFlexService([.success(sendSuccess)] + Array(repeating: .success(inProgress), count: 10))
         let task = Task { try await download(fake, pollInterval: .seconds(60)) }
+        while await fake.urls.isEmpty { await Task.yield() }
         task.cancel()
         await #expect(throws: CancellationError.self) { try await task.value }
         #expect(await fake.urls.count == 1)
@@ -128,8 +142,9 @@ private func isMalformed(_ error: any Error) -> Bool {
         let failed = NSError(domain: NSURLErrorDomain, code: URLError.timedOut.rawValue,
                              userInfo: [NSURLErrorFailingURLErrorKey: url])
         #expect(throws: URLError(.timedOut)) { try FlexReport.urlSessionResult(nil, nil, failed).get() }
-        do { _ = try FlexReport.urlSessionResult(nil, nil, failed).get() }
-        catch { #expect(!"\(error)".contains(fakeToken)) }
+        guard case .failure(let error) = FlexReport.urlSessionResult(nil, nil, failed) else { Issue.record("succeeded"); return }
+        #expect((error as NSError).userInfo.isEmpty)
+        #expect(!"\(error)".contains(fakeToken))
         let other = NSError(domain: "other", code: 1)
         #expect(throws: other) { try FlexReport.urlSessionResult(nil, nil, other).get() }
 

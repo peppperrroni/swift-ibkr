@@ -3,8 +3,7 @@
 What stages 1 to 12 (codec and merging; socket, `IBClient`, a live paper run; positions, account summary, P&L; market
 data and contract lookups; session requests, the account stream and reconnect; the full order field set, what-if
 and exercise; market data and history in full; options, reference data, scanner, news and research; Flex reports)
-leave open. Delete a line when it
-is settled.
+leave open. Delete a line when it is settled.
 
 ## To confirm against a live gateway
 

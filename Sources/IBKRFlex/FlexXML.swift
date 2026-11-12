@@ -42,4 +42,9 @@ private final class FlexElementCollector: NSObject, XMLParserDelegate {
     func parser(_ parser: XMLParser, foundCharacters string: String) {
         if let index = open.last { elements[index].text += string }
     }
+
+    // Without this, CDATA text is dropped; ElementTree, which ib_async uses, keeps it.
+    func parser(_ parser: XMLParser, foundCDATA CDATABlock: Data) {
+        if let index = open.last { elements[index].text += String(decoding: CDATABlock, as: UTF8.self) }
+    }
 }

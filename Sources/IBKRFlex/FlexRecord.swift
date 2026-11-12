@@ -15,7 +15,9 @@ public struct FlexRecord: Sendable, Equatable {
     /// The attribute as a number, only when the whole value is one (`-1.0025`, `1E-4`); `nil` for a missing,
     /// empty or partly numeric value such as `12abc` or `1,000`.
     public func decimal(_ key: String) -> Decimal? {
-        guard let value = attributes[key], value.wholeMatch(of: /-?\d+(\.\d+)?([eE][-+]?\d+)?/) != nil else { return nil }
-        return Decimal(string: value)
+        // ASCII digits only (`\d` takes any script's); NaN is refused whatever the platform's `Decimal(string:)` does.
+        guard let value = attributes[key], value.wholeMatch(of: /-?[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?/) != nil,
+              let number = Decimal(string: value), !number.isNaN else { return nil }
+        return number
     }
 }

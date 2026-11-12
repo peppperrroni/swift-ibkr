@@ -4,11 +4,12 @@ import FoundationNetworking
 import Foundation
 
 /// Fetches one URL with a GET and returns the body; `FlexReport.urlSession` is the default.
+/// The URL carries the Flex token in its query: a custom transport must not log it or put it in an error.
 public typealias FlexTransport = @Sendable (URL) async throws -> Data
 
 extension FlexReport {
-    /// IB's documented SendRequest endpoint. A report on another host (IB's `ndcdyn` / `gdcdyn` regions)
-    /// goes in `download`'s `url:`.
+    /// IB's documented SendRequest endpoint (the `ndcdyn` region); another region, such as `gdcdyn`, goes in
+    /// `download`'s `url:`.
     public static let defaultURL = URL(string: "https://ndcdyn.interactivebrokers.com/AccountManagement/FlexWebService/SendRequest")!
 
     /// A GET through `URLSession.shared`; a non-2xx status throws `FlexError.http(status:)`.
@@ -37,11 +38,13 @@ extension FlexReport {
 
     /// Downloads a Flex query's report through the two steps of IB's Flex Web Service: SendRequest, then
     /// GetStatement until the statement is ready. It polls without a bound, sleeping `pollInterval` before every
-    /// GetStatement. Cancelling the calling task throws `CancellationError` at the next sleep; a request already
-    /// in flight is waited for (the transport is not cancelled).
+    /// GetStatement. An already-cancelled caller sends nothing; cancelling the calling task later throws
+    /// `CancellationError` at the next sleep, and a request already in flight is waited for (the transport is
+    /// not cancelled).
     public static func download(token: String, queryID: String, url: URL = FlexReport.defaultURL,
                                 pollInterval: Duration = .seconds(1),
                                 transport: FlexTransport = FlexReport.urlSession) async throws -> FlexReport {
+        try Task.checkCancellation()   // SendRequest starts generation at IB and counts against the token's rate limit
         let sent = try FlexReport(data: await transport(requestURL(url, [
             URLQueryItem(name: "t", value: token), URLQueryItem(name: "q", value: queryID), URLQueryItem(name: "v", value: "3"),
         ])))
