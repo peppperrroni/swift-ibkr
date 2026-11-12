@@ -71,6 +71,17 @@ private let cancelled = "Historical Market Data Service error message:API scanne
     #expect(await client.requestStreamCount == 0)
 }
 
+@Test func scannerDataCancelledSendsItsCancel() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let call = Task { try await client.scannerData(top) }
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][1]
+    call.cancel()
+    await #expect(throws: IBClientError.cancelled) { try await call.value }
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["23", "1", id])
+    #expect(await client.requestStreamCount == 0)
+}
+
 @Test func scannerParametersAnswer() async throws {
     let gateway = FakeGateway()
     let client = try await connected(gateway)
@@ -304,6 +315,17 @@ private let reportSnapshot = "<ReportSnapshot/>"
     }
     try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel
     #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).contains { $0[0] == "103" } == false)
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func wshEventDataCancelledSendsItsCancel() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let call = Task { try await client.wshEventData(WshEventData(conID: 8314)) }
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][1]
+    call.cancel()
+    await #expect(throws: IBClientError.cancelled) { try await call.value }
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["103", id])
     #expect(await client.requestStreamCount == 0)
 }
 

@@ -734,13 +734,14 @@ public actor IBClient {
     }
 
     /// Sends `request` and waits for the first message `pick` takes. Without `id` the waiter is keyed by a local
-    /// negative id and `routeToStream` offers it the id-less messages, oldest waiter first.
-    func answer<T: Sendable>(_ request: IBRequest, id: Int? = nil, pick: @escaping @Sendable (IBMessage) -> T?)
-        async throws(IBClientError) -> T {
+    /// negative id and `routeToStream` offers it the id-less messages, oldest waiter first. `cancel` is sent for a
+    /// cancelled caller; with `thenCancel` it is also sent after the answer (the termination hop sends it).
+    func answer<T: Sendable>(_ request: IBRequest, id: Int? = nil, cancel: IBRequest? = nil, thenCancel: Bool = false,
+                             pick: @escaping @Sendable (IBMessage) -> T?) async throws(IBClientError) -> T {
         let key = id ?? nextLocalID()
-        let stream = try openStream(request, id: key, cancel: nil) { (message, out: AsyncThrowingStream<T, any Error>.Continuation) in
+        let stream = try openStream(request, id: key, cancel: cancel) { (message, out: AsyncThrowingStream<T, any Error>.Continuation) in
             guard let value = pick(message) else { return false }
-            out.yield(value); out.finish(); return true
+            out.yield(value); out.finish(); return !thenCancel
         }
         guard let value = try await collect(stream).first else { throw .cancelled }
         return value

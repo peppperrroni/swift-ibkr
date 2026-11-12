@@ -195,6 +195,22 @@ private func t21(_ id: String, _ iv: String) -> [String] {
     #expect(await client.requestStreamCount == 0)
 }
 
+@Test func calculationsCancelledSendTheirCancel() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let iv = Task { try await client.calculateImpliedVolatility(aaplCall, optionPrice: d("6.1"), underPrice: d("187.2")) }
+    let a = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][2]
+    iv.cancel()
+    await #expect(throws: IBClientError.cancelled) { try await iv.value }
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["56", "1", a])
+    let price = Task { try await client.calculateOptionPrice(aaplCall, volatility: d("0.25"), underPrice: d("187.2")) }
+    let b = try await gateway.waitForSent(FakeGateway.syncFrames + 3)[FakeGateway.syncFrames + 2][2]
+    price.cancel()
+    await #expect(throws: IBClientError.cancelled) { try await price.value }
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 4)[FakeGateway.syncFrames + 3] == ["57", "1", b])
+    #expect(await client.requestStreamCount == 0)
+}
+
 /// Review Focus 2: a quote stream's 21 never answers a calculation, and the calculation's 21 never reaches the quotes.
 @Test func calculationTakesOnlyItsOwnTick() async throws {
     let gateway = FakeGateway()

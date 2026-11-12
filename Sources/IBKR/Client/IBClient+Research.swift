@@ -24,14 +24,11 @@ extension IBClient {
                             filterOptions: [TagValue] = []) async throws(IBClientError) -> [ScanData] {
         try requireConnected()
         let id = nextRequestID()
-        let stream = try openStream(.scannerSubscription(requestID: id, subscription: subscription, options: options,
-                                                         filterOptions: filterOptions),
-                                    id: id, cancel: .cancelScannerSubscription(requestID: id)) { (message, out: AsyncThrowingStream<[ScanData], any Error>.Continuation) in
-            guard case .scannerData(_, let rows) = message else { return false }
-            out.yield(rows); out.finish(); return false   // false: the termination hop sends the cancel
+        return try await answer(.scannerSubscription(requestID: id, subscription: subscription, options: options,
+                                                     filterOptions: filterOptions),
+                                id: id, cancel: .cancelScannerSubscription(requestID: id), thenCancel: true) {
+            if case .scannerData(_, let rows) = $0 { rows } else { nil }
         }
-        guard let rows = try await collect(stream).first else { throw .cancelled }
-        return rows
     }
 
     /// IB's scanner parameters XML: every instrument, location, scan code and filter it offers. IB addresses no
@@ -97,13 +94,10 @@ extension IBClient {
         async throws(IBClientError) -> String {
         try requireConnected()
         let id = nextRequestID()
-        let stream = try openStream(.fundamentalData(requestID: id, contract: contract, reportType: reportType, options: options),
-                                    id: id, cancel: .cancelFundamentalData(requestID: id)) { (message, out: AsyncThrowingStream<String, any Error>.Continuation) in
-            guard case .fundamentalData(_, let xml) = message else { return false }
-            out.yield(xml); out.finish(); return true   // true: the answer ends it, so no 53
+        return try await answer(.fundamentalData(requestID: id, contract: contract, reportType: reportType, options: options),
+                                id: id, cancel: .cancelFundamentalData(requestID: id)) {
+            if case .fundamentalData(_, let xml) = $0 { xml } else { nil }
         }
-        guard let xml = try await collect(stream).first else { throw .cancelled }
-        return xml
     }
 
     /// Wall Street Horizon's metadata as IB's JSON text. As `ib_async`'s `getWshMetaDataAsync`, the answered request
@@ -117,12 +111,9 @@ extension IBClient {
             try send(.cancelWshMetaData(requestID: held))
         }
         let id = nextRequestID()
-        let stream = try openStream(.wshMetaData(requestID: id), id: id, cancel: .cancelWshMetaData(requestID: id)) {
-            (message, out: AsyncThrowingStream<String, any Error>.Continuation) in
-            guard case .wshMetaData(_, let json) = message else { return false }
-            out.yield(json); out.finish(); return true   // true: the answer ends it, so no 101 now
+        let json = try await answer(.wshMetaData(requestID: id), id: id, cancel: .cancelWshMetaData(requestID: id)) {
+            if case .wshMetaData(_, let json) = $0 { json } else { nil }
         }
-        guard let json = try await collect(stream).first else { throw .cancelled }
         guard (try? requireConnected()) != nil else { return json }   // the connection ended meanwhile: hold nothing
         if let other = wshMetaRequestID { try? send(.cancelWshMetaData(requestID: other)) }   // a concurrent call's
         wshMetaRequestID = id
@@ -132,22 +123,12 @@ extension IBClient {
     /// Wall Street Horizon's events for `data` as IB's JSON text, then IB's cancel (103). IB's error throws `.ib` and
     /// sends no cancel.
     public func wshEventData(_ data: WshEventData) async throws(IBClientError) -> String {
-        try await wshText(request: { .wshEventData(requestID: $0, data: data) }, cancel: { .cancelWshEventData(requestID: $0) }) {
-            if case .wshEventData(_, let json) = $0 { json } else { nil }
-        }
-    }
-
-    /// The shared one-answer shape of the WSH calls: yield, finish, return `false`, so the termination hop sends the cancel.
-    private func wshText(request: (Int) -> IBRequest, cancel: (Int) -> IBRequest,
-                         pick: @escaping @Sendable (IBMessage) -> String?) async throws(IBClientError) -> String {
         try requireConnected()
         let id = nextRequestID()
-        let stream = try openStream(request(id), id: id, cancel: cancel(id)) { (message, out: AsyncThrowingStream<String, any Error>.Continuation) in
-            guard let json = pick(message) else { return false }
-            out.yield(json); out.finish(); return false
+        return try await answer(.wshEventData(requestID: id, data: data), id: id, cancel: .cancelWshEventData(requestID: id),
+                                thenCancel: true) {
+            if case .wshEventData(_, let json) = $0 { json } else { nil }
         }
-        guard let json = try await collect(stream).first else { throw .cancelled }
-        return json
     }
 
     /// The account's financial-advisor configuration of `type` as IB's XML text, never parsed. 16 carries no reqId, so
