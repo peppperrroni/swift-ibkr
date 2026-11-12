@@ -34,6 +34,10 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
   completedOrder decode `Contract.comboLegs` and `deltaNeutralContract`, and the `Order` combo-leg prices, smart
   routing params, delta-neutral, scale and hedge fields. New value types `ComboLeg`, `OrderComboLeg` and
   `DeltaNeutralContract`. Every request other than `placeOrder` still refuses a `BAG` contract.
+- Algos, PEG BENCH, BEST and MID, conditions and IBKRATS: `placeOrder` sends and openOrder / completedOrder decode
+  `algoStrategy` / `algoParams`, the PEG BENCH reference fields, `conditions` with `conditionsIgnoreRTH` /
+  `conditionsCancelOrder`, `minTradeQty`, `minCompeteSize`, `competeAgainstBestOffset` and the mid offsets. New types
+  `OrderCondition` and `CompeteOffset`.
 
 ### Changed
 - `contractDetails` sends the contract's `secIDType` and `secID` instead of empty fields.
@@ -49,6 +53,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 
 ### Removed
 - `OrderKey` is no longer public; the public API never used it.
+- The `.unsupported` refusals of `placeOrder` for PEG order types and exchange IBKRATS: it now encodes every layout.
 
 ## [0.4.0] - 2026-11-11
 

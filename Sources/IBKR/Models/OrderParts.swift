@@ -43,6 +43,9 @@ public struct OrderComboLeg: Sendable, Equatable {
     public init(price: Decimal?) { self.price = price }
 }
 
+/// A `PEG BEST` order's `competeAgainstBestOffset`; `upToMid` is the wire's `Infinite`.
+public enum CompeteOffset: Sendable, Equatable { case offset(Decimal), upToMid }
+
 /// The hedge contract of a delta-neutral order (`Contract.deltaNeutralContract`).
 public struct DeltaNeutralContract: Sendable, Equatable, Hashable {
     public var conID: Int

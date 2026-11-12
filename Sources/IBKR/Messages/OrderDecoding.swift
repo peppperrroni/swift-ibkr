@@ -83,12 +83,12 @@ extension IBDecoder {
         try comboThroughHedge(&r, &contract, &o)
         o.optOutSmartRouting = try r.bool()
         o.clearingAccount = try r.string(); o.clearingIntent = try r.string(); o.notHeld = try r.bool()
-        try deltaNeutralContractAndAlgo(&r, &contract)
+        try deltaNeutralContractAndAlgo(&r, &contract, &o)
         o.solicited = try r.bool(); o.whatIf = try r.bool()
         let status = OrderStatus(rawValue: try r.string())
         try r.skip(14)  // 86–99 margins, commissions, warningText
         o.randomizeSize = try r.bool(); o.randomizePrice = try r.bool()
-        try skipPegBenchThroughConditions(&r, orderType: o.orderType)
+        try pegBenchThroughConditions(&r, &o)
         o.adjustedOrderType = try r.string(); o.triggerPrice = try r.optionalDecimal()
         o.trailStopPrice = try r.optionalDecimal()  // again (65): this one wins, as in ib_async
         o.limitPriceOffset = try r.optionalDecimal(); o.adjustedStopPrice = try r.optionalDecimal()
@@ -99,7 +99,7 @@ extension IBDecoder {
         o.dontUseAutoPriceForHedge = try r.bool(); o.isOmsContainer = try r.bool()
         o.discretionaryUpToLimitPrice = try r.bool(); o.usePriceMgmtAlgo = try r.bool()
         o.duration = try r.optionalInt(); o.postToAts = try r.optionalInt(); o.autoCancelParent = try r.bool()
-        try r.skip(5)  // 122–126 minTradeQty … midOffsetAtHalf
+        try tail(&r, &o)
         return OpenOrderMessage(orderID: orderID, clientID: clientID, permID: permID, contract: contract, order: o,
                                 status: status)
     }
@@ -129,11 +129,11 @@ extension IBDecoder {
         o.trailStopPrice = try r.optionalDecimal(); o.trailingPercent = try r.optionalDecimal()
         try comboThroughHedge(&r, &contract, &o)
         o.clearingAccount = try r.string(); o.clearingIntent = try r.string(); o.notHeld = try r.bool()
-        try deltaNeutralContractAndAlgo(&r, &contract)
+        try deltaNeutralContractAndAlgo(&r, &contract, &o)
         o.solicited = try r.bool()
         let status = OrderStatus(rawValue: try r.string())
         o.randomizeSize = try r.bool(); o.randomizePrice = try r.bool()
-        try skipPegBenchThroughConditions(&r, orderType: o.orderType)
+        try pegBenchThroughConditions(&r, &o)
         o.trailStopPrice = try r.optionalDecimal()  // again (56): this one wins, as in ib_async
         o.limitPriceOffset = try r.optionalDecimal(); o.cashQty = try r.optionalDecimal()
         o.dontUseAutoPriceForHedge = try r.bool(); o.isOmsContainer = try r.bool()
@@ -142,7 +142,7 @@ extension IBDecoder {
         o.refFuturesConID = try r.optionalInt(); o.autoCancelParent = try r.bool(); o.shareholder = try r.string()
         o.imbalanceOnly = try r.bool(); o.routeMarketableToBbo = try r.bool(); o.parentPermID = try r.optionalInt()
         let completedTime = try r.string(), completedStatus = try r.string()
-        try r.skip(5)  // 91–95 minTradeQty … midOffsetAtHalf
+        try tail(&r, &o)
         return CompletedOrderMessage(permID: permID, contract: contract, order: o, status: status,
                                      completedTime: completedTime, completedStatus: completedStatus,
                                      filledQuantity: filledQuantity)
@@ -170,7 +170,7 @@ extension IBDecoder {
         return o
     }
 
-    /// A repeat count; bounded by the fields left so `skip(n * size)` cannot overflow.
+    /// A repeat count; bounded by the fields left so a corrupt count fails fast.
     private static func count(_ r: inout FieldReader) throws -> Int {
         let at = r.index
         let n = try r.int()
@@ -209,29 +209,67 @@ extension IBDecoder {
         if !o.hedgeType.isEmpty { o.hedgeParam = try r.string() }
     }
 
-    /// The delta-neutral contract, then algoStrategy; algo params are still skipped.
-    private static func deltaNeutralContractAndAlgo(_ r: inout FieldReader, _ c: inout Contract) throws {
+    /// The delta-neutral contract, then algoStrategy and its params.
+    private static func deltaNeutralContractAndAlgo(_ r: inout FieldReader, _ c: inout Contract, _ o: inout Order) throws {
         if try r.bool() {
             c.deltaNeutralContract = DeltaNeutralContract(conID: try r.int(), delta: try r.decimal(), price: try r.decimal())
         }
-        if try !r.string().isEmpty { try r.skip(2 * count(&r)) }  // algoStrategy set → tag/value pairs
+        o.algoStrategy = try r.string()
+        if !o.algoStrategy.isEmpty {
+            o.algoParams = try (0..<count(&r)).map { _ in TagValue(tag: try r.string(), value: try r.string()) }
+        }
     }
 
     /// PEG BENCH fields, conditions and their two flags.
-    private static func skipPegBenchThroughConditions(_ r: inout FieldReader, orderType: String) throws {
-        if orderType == "PEG BENCH" || orderType == "PEGBENCH" { try r.skip(5) }
-        let n = try count(&r)
-        for _ in 0..<n {
-            let at = r.index
-            let size = switch try r.int() {
-            case 1: 7  // Price
-            case 3, 4: 4  // Time, Margin
-            case 5: 5  // Execution
-            case 6, 7: 6  // Volume, PercentChange
-            case let t: throw IBProtocolError.unexpectedValue(String(t), index: at)
-            }
-            try r.skip(size - 1)
+    private static func pegBenchThroughConditions(_ r: inout FieldReader, _ o: inout Order) throws {
+        if o.orderType == "PEG BENCH" || o.orderType == "PEGBENCH" {
+            o.referenceContractID = try r.int(); o.isPeggedChangeAmountDecrease = try r.bool()
+            o.peggedChangeAmount = try r.decimal(); o.referenceChangeAmount = try r.decimal()
+            o.referenceExchangeID = try r.string()
         }
-        if n > 0 { try r.skip(2) }  // conditionsIgnoreRth, conditionsCancelOrder
+        o.conditions = try (0..<count(&r)).map { _ in try condition(&r) }
+        if !o.conditions.isEmpty { o.conditionsIgnoreRTH = try r.bool(); o.conditionsCancelOrder = try r.bool() }
+    }
+
+    /// One condition element; an unknown type or conjunction throws.
+    private static func condition(_ r: inout FieldReader) throws -> OrderCondition {
+        let typeAt = r.index
+        let type = try r.int()
+        let at = r.index
+        let j = try r.string()
+        guard let conjunction = OrderCondition.Conjunction(rawValue: j) else { throw IBProtocolError.unexpectedValue(j, index: at) }
+        switch type {
+        case 1:
+            let isMore = try r.bool(), price = try r.decimal(), conID = try r.int(), exchange = try r.string()
+            return .price(conID: conID, exchange: exchange, isMore: isMore, price: price, triggerMethod: try r.int(),
+                          conjunction: conjunction)
+        case 3: return .time(isMore: try r.bool(), time: try r.string(), conjunction: conjunction)
+        case 4: return .margin(isMore: try r.bool(), percent: try r.int(), conjunction: conjunction)
+        case 5:
+            return .execution(secType: try r.string(), exchange: try r.string(), symbol: try r.string(),
+                              conjunction: conjunction)
+        case 6:
+            let isMore = try r.bool(), volume = try r.int()
+            return .volume(conID: try r.int(), exchange: try r.string(), isMore: isMore, volume: volume,
+                           conjunction: conjunction)
+        case 7:
+            let isMore = try r.bool(), changePercent = try r.decimal()
+            return .percentChange(conID: try r.int(), exchange: try r.string(), isMore: isMore,
+                                  changePercent: changePercent, conjunction: conjunction)
+        default: throw IBProtocolError.unexpectedValue(String(type), index: typeAt)
+        }
+    }
+
+    /// minTradeQty, minCompeteSize, competeAgainstBestOffset (`Infinite` is `upToMid`), midOffsetAtWhole, midOffsetAtHalf.
+    private static func tail(_ r: inout FieldReader, _ o: inout Order) throws {
+        o.minTradeQty = try r.optionalInt(); o.minCompeteSize = try r.optionalInt()
+        let at = r.index
+        if try r.string() == "Infinite" {
+            o.competeAgainstBestOffset = .upToMid
+        } else {
+            r.index = at
+            o.competeAgainstBestOffset = try r.optionalDecimal().map(CompeteOffset.offset)
+        }
+        o.midOffsetAtWhole = try r.optionalDecimal(); o.midOffsetAtHalf = try r.optionalDecimal()
     }
 }

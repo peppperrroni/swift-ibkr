@@ -1,14 +1,8 @@
 import Foundation
 
 extension IBRequest {
-    /// placeOrder (out 3) with the BAG, delta-neutral, scale, hedge and delta-neutral-contract groups; no algo / PEG /
-    /// conditions yet. Rows that open a group not modelled carry the table's default; row numbers are the table's.
+    /// placeOrder (out 3) with every group `ib_async` sends at version 178; row numbers are the table's.
     static func placeOrder(_ w: inout FieldWriter, _ id: Int, _ c: Contract, _ o: Order) throws(IBEncodingError) {
-        // Table conditions that add fields this encoder does not emit; refuse rather than misalign.
-        if c.exchange == "IBKRATS" { throw .unsupported("exchange IBKRATS") }
-        if ["PEG BENCH", "PEGBENCH", "PEG BEST", "PEGBEST", "PEG MID", "PEGMID"].contains(o.orderType) {
-            throw .unsupported("orderType \(o.orderType)")
-        }
         func raw(_ values: String...) throws(IBEncodingError) { for v in values { try w.add(v) } }
         w.add(3); w.add(id)
         try contract(&w, c, allowBag: true)
@@ -65,11 +59,21 @@ extension IBRequest {
         } else {
             w.add(false)
         }
-        try raw("")                                                                       // 82 algoStrategy
+        try w.add(o.algoStrategy)                                                         // 82
+        if !o.algoStrategy.isEmpty {
+            w.add(o.algoParams.count)
+            for p in o.algoParams { try w.add(p.tag); try w.add(p.value) }
+        }
         try w.add(o.algoID); w.add(o.whatIf)                                              // 83-84
         try w.add(o.orderMiscOptions.map { "\($0.tag)=\($0.value);" }.joined())           // 85
         w.add(o.solicited); w.add(o.randomizeSize); w.add(o.randomizePrice)               // 86-88
-        try raw("0")                                                                      // 89 conditionsCount
+        if o.orderType == "PEG BENCH" || o.orderType == "PEGBENCH" {
+            w.add(o.referenceContractID); w.add(o.isPeggedChangeAmountDecrease)
+            w.addDouble(o.peggedChangeAmount); w.addDouble(o.referenceChangeAmount); try w.add(o.referenceExchangeID)
+        }
+        w.add(o.conditions.count)                                                         // 89
+        for condition in o.conditions { try self.condition(&w, condition) }
+        if !o.conditions.isEmpty { w.add(o.conditionsIgnoreRTH); w.add(o.conditionsCancelOrder) }
         try w.add(o.adjustedOrderType); w.add(o.triggerPrice); w.add(o.limitPriceOffset)  // 90-92
         w.add(o.adjustedStopPrice); w.add(o.adjustedStopLimitPrice); w.add(o.adjustedTrailingAmount)  // 93-95
         w.add(o.adjustableTrailingUnit); try w.add(o.extOperator)                         // 96-97
@@ -81,5 +85,39 @@ extension IBRequest {
         w.add(o.discretionaryUpToLimitPrice); w.add(o.usePriceMgmtAlgo)                   // 107-108
         w.add(o.duration); w.add(o.postToAts); w.add(o.autoCancelParent)                  // 109-111
         try w.add(o.advancedErrorOverride); try w.add(o.manualOrderTime)                  // 112-113
+        if c.exchange == "IBKRATS" { w.add(o.minTradeQty) }
+        let pegBest = o.orderType == "PEG BEST" || o.orderType == "PEGBEST"
+        let pegMid = o.orderType == "PEG MID" || o.orderType == "PEGMID"
+        if pegBest {
+            w.add(o.minCompeteSize)
+            switch o.competeAgainstBestOffset {
+            case .upToMid: try raw("Infinite")
+            case .offset(let offset): w.add(offset)
+            case nil: w.add(nil as Decimal?)
+            }
+        }
+        if pegMid || (pegBest && o.competeAgainstBestOffset == .upToMid) {
+            w.add(o.midOffsetAtWhole); w.add(o.midOffsetAtHalf)
+        }
+    }
+
+    /// One element of the conditions, its type first.
+    private static func condition(_ w: inout FieldWriter, _ c: OrderCondition) throws(IBEncodingError) {
+        switch c {
+        case let .price(conID, exchange, isMore, price, triggerMethod, conjunction):
+            w.add(1); try w.add(conjunction.rawValue); w.add(isMore); w.addDouble(price); w.add(conID)
+            try w.add(exchange); w.add(triggerMethod)
+        case let .time(isMore, time, conjunction):
+            w.add(3); try w.add(conjunction.rawValue); w.add(isMore); try w.add(time)
+        case let .margin(isMore, percent, conjunction):
+            w.add(4); try w.add(conjunction.rawValue); w.add(isMore); w.add(percent)
+        case let .execution(secType, exchange, symbol, conjunction):
+            w.add(5); try w.add(conjunction.rawValue); try w.add(secType); try w.add(exchange); try w.add(symbol)
+        case let .volume(conID, exchange, isMore, volume, conjunction):
+            w.add(6); try w.add(conjunction.rawValue); w.add(isMore); w.add(volume); w.add(conID); try w.add(exchange)
+        case let .percentChange(conID, exchange, isMore, changePercent, conjunction):
+            w.add(7); try w.add(conjunction.rawValue); w.add(isMore); w.addDouble(changePercent); w.add(conID)
+            try w.add(exchange)
+        }
     }
 }

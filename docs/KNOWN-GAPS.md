@@ -51,6 +51,7 @@ Still open:
 - A modify that re-sends an order decoded from a live openOrder (deltaNeutralOrderType `None` with its 8 fields,
   adjustedOrderType `None`) is unchecked live. It also sends displaySize `0` where `ib_async` sends `""` (the
   gateway's `2147483647` decodes to 0).
+- Conditions, algos, PEG and combo orders are checked on hand-built frames only: no live order has carried one.
 - A filled order replayed by completedOrders (the connect-time sync) has `order.totalQuantity` 0: its size is only
   in `filled`. The tracker keeps the 0 and clamps `remaining` at 0; a consumer reads the size from `filled`.
 - execDetails `time` comes in two formats: `20261110-11:56:31` (UTC, no zone) on a live fill and
@@ -88,5 +89,5 @@ CI (`.github/workflows/ci.yml`) builds and tests on macOS, Linux and Windows and
   late.
 - Pending execDetails / commission halves that never meet are kept for the client's lifetime (the execution
   tracker survives reconnects).
-- Test gaps: the 0xFFFFFF frame boundary; `int()` / `decimal()` of `""`; `bool()`, `double()`, `skip()`; an unknown condition type in openOrder; the 2 s close bound of a
+- Test gaps: the 0xFFFFFF frame boundary; `int()` / `decimal()` of `""`; `bool()`, `double()`, `skip()`; the 2 s close bound of a
   draining disconnect (FakeGateway's write never blocks).

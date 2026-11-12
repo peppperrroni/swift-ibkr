@@ -71,18 +71,6 @@ private func fields(_ r: IBRequest) throws -> [String] { FieldReader(try r.body(
     #expect(throws: IBEncodingError.nonASCII(field: "Купить 500")) { try limit("187.25", ref: "Купить 500").body() }
 }
 
-@Test func placeOrderRefusesLayoutsItCannotEncode() {
-    func req(secType: String = "STK", exchange: String = "SMART", orderType: String = "LMT") -> IBRequest {
-        var c = Contract(symbol: "AAPL", secType: secType, exchange: exchange)
-        c.strike = nil
-        return .placeOrder(orderID: 1, contract: c, order: Order(action: .buy, quantity: d("1"), orderType: orderType))
-    }
-    #expect(throws: IBEncodingError.unsupported("exchange IBKRATS")) { try req(exchange: "IBKRATS").body() }
-    for t in ["PEG BENCH", "PEGBENCH", "PEG BEST", "PEGBEST", "PEG MID", "PEGMID"] {
-        #expect(throws: IBEncodingError.unsupported("orderType \(t)")) { try req(orderType: t).body() }
-    }
-}
-
 @Test func strikeEncodesAsADouble() throws {
     var c = Contract(symbol: "AAPL", secType: "OPT")
     c.strike = d("150")
@@ -215,6 +203,61 @@ private func group(_ change: (inout Contract, inout Order) -> Void) throws -> [S
 @Test func deltaNeutralContractIsSent() throws {
     let f = try group { c, _ in c.deltaNeutralContract = DeltaNeutralContract(conID: 265598, delta: d("0.5"), price: d("187.25")) }
     #expect(f == inserting([(81, ["265598", "0.5", "187.25"])], into: replacing(base, [81: "1"])))
+}
+
+@Test func algoSendsItsParams() throws {
+    let f = try group { _, o in o.algoStrategy = "Adaptive"; o.algoParams = [TagValue(tag: "adaptivePriority", value: "Normal")] }
+    #expect(f == inserting([(82, ["1", "adaptivePriority", "Normal"])], into: replacing(base, [82: "Adaptive"])))
+    let bare = try group { _, o in o.algoStrategy = "Adaptive" }
+    #expect(bare == inserting([(82, ["0"])], into: replacing(base, [82: "Adaptive"])))
+}
+
+@Test func pegBenchSendsItsFields() throws {
+    let f = try group { _, o in
+        o.orderType = "PEG BENCH"; o.referenceContractID = 265598; o.isPeggedChangeAmountDecrease = true
+        o.peggedChangeAmount = d("0.5"); o.referenceChangeAmount = 1; o.referenceExchangeID = "ISLAND"
+    }
+    #expect(f == inserting([(88, ["265598", "1", "0.5", "1.0", "ISLAND"])], into: replacing(base, [18: "PEG BENCH"])))
+    let bare = try group { _, o in o.orderType = "PEG BENCH" }
+    #expect(bare == inserting([(88, ["0", "0", "0.0", "0.0", ""])], into: replacing(base, [18: "PEG BENCH"])))
+}
+
+@Test func conditionsAreSentWithTheirFlags() throws {
+    let f = try group { _, o in
+        o.conditions = [
+            .price(conID: 265598, exchange: "SMART", isMore: true, price: d("180.5"), triggerMethod: 2),
+            .time(isMore: false, time: "20261112 15:00:00", conjunction: .or),
+            .margin(isMore: true, percent: 30),
+            .execution(secType: "STK", exchange: "SMART", symbol: "AAPL"),
+            .volume(conID: 265598, exchange: "SMART", isMore: true, volume: 100000),
+            .percentChange(conID: 265598, exchange: "SMART", isMore: false, changePercent: d("2.5")),
+        ]
+        o.conditionsIgnoreRTH = true
+    }
+    #expect(f == inserting([(89, ["1", "a", "1", "180.5", "265598", "SMART", "2",
+                                  "3", "o", "0", "20261112 15:00:00",
+                                  "4", "a", "1", "30",
+                                  "5", "a", "STK", "SMART", "AAPL",
+                                  "6", "a", "1", "100000", "265598", "SMART",
+                                  "7", "a", "0", "2.5", "265598", "SMART",
+                                  "1", "0"])], into: replacing(base, [89: "6"])))
+}
+
+@Test func tailFieldsFollowExchangeAndOrderType() throws {
+    /// The fields after row 113; rows 0-113 are the base case with the exchange and order type changed.
+    func tail(exchange: String = "SMART", _ orderType: String, _ change: (inout Order) -> Void) throws -> [String] {
+        let f = try group { c, o in c.exchange = exchange; o.orderType = orderType; change(&o) }
+        #expect(Array(f.prefix(114)) == replacing(base, [9: exchange, 18: orderType]))
+        return Array(f.dropFirst(114))
+    }
+    func mids(_ o: inout Order) { o.midOffsetAtWhole = d("0.01"); o.midOffsetAtHalf = d("0.005") }
+    #expect(try tail("PEG BEST") { $0.minCompeteSize = 100; $0.competeAgainstBestOffset = .offset(d("0.02")) }
+            == ["100", "0.02"])
+    #expect(try tail("PEGBEST") { $0.minCompeteSize = 100; $0.competeAgainstBestOffset = .upToMid; mids(&$0) }
+            == ["100", "Infinite", "0.01", "0.005"])
+    #expect(try tail("PEG MID") { mids(&$0) } == ["0.01", "0.005"])
+    #expect(try tail(exchange: "IBKRATS", "LMT") { $0.minTradeQty = 50 } == ["50"])
+    #expect(try tail(exchange: "IBKRATS", "PEGMID") { $0.minTradeQty = 50; mids(&$0) } == ["50", "0.01", "0.005"])
 }
 
 /// Review Focus 1: a live openOrder (deltaNeutralOrderType `None`) re-encodes for a modify.

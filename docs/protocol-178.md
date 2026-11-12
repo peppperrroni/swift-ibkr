@@ -33,8 +33,7 @@ fields gated above 178 are dropped, fields gated at or below are kept. Defaults 
   `"1"`/`"0"` (empty decodes as false); `string` as is.
 - **★** marks a `placeOrder` row the `Contract` / `Order` model carries. Unstarred rows are sent
   with the default shown: msgId and orderId, the deprecated sharesAllocation, eTradeOnly,
-  firmQuoteOnly and nbboPriceCap (never modelled), and the rows that open a conditional group
-  not modelled yet (algoStrategy, conditionsCount) with their `+` rows.
+  firmQuoteOnly and nbboPriceCap (never modelled).
   In `openOrder` and `completedOrder`, ★ marks a field read into the model; unstarred fields are
   skipped or land on the message (ids, status, filledQuantity, completedTime / Status).
 
@@ -93,9 +92,8 @@ Total: 3 fields.
 
 No version field at 178 (it stopped at server version 145). Base case: not `BAG`, no delta-neutral
 order type, no scale increment, no hedge, no algo, not PEG BENCH / PEG BEST / PEG MID, no
-conditions, exchange not `IBKRATS`. The `BAG`, delta-neutral, scale and hedge groups and the
-delta-neutral contract are sent; the legs come from `contract.comboLegs`. Every other request
-refuses a `BAG` contract.
+conditions, exchange not `IBKRATS`. Every group `ib_async` sends is sent and no layout is refused;
+the legs come from `contract.comboLegs`. Every other request refuses a `BAG` contract.
 
 | # | Field | Type | Default sent | Notes |
 |---|---|---|---|---|
@@ -214,25 +212,25 @@ refuses a `BAG` contract.
 | + | deltaNeutralContract.conId ★ | int | | only if present = `1`; 3 fields |
 | + | deltaNeutralContract.delta ★ | double | | |
 | + | deltaNeutralContract.price ★ | double | | |
-| 82 | algoStrategy | string | `""` | |
-| + | algoParamsCount | int | `0` | only if algoStrategy ≠ `""` |
-| + | ↳ tag | string | | × algoParamsCount, 2 fields per element |
-| + | ↳ value | string | | |
+| 82 | algoStrategy ★ | string | `""` | |
+| + | algoParamsCount ★ | int | `0` | only if algoStrategy ≠ `""` |
+| + | ↳ tag ★ | string | | × algoParamsCount, 2 fields per element |
+| + | ↳ value ★ | string | | |
 | 83 | algoId ★ | string | `""` | |
 | 84 | whatIf ★ | bool | `0` | |
 | 85 | orderMiscOptions ★ | string | `""` | TagValue list as `tag=value;…` in one field |
 | 86 | solicited ★ | bool | `0` | |
 | 87 | randomizeSize ★ | bool | `0` | |
 | 88 | randomizePrice ★ | bool | `0` | |
-| + | referenceContractId | int | `0` | only if orderType is `PEG BENCH` / `PEGBENCH`; 5 fields |
-| + | isPeggedChangeAmountDecrease | bool | `0` | |
-| + | peggedChangeAmount | double | `0.0` | |
-| + | referenceChangeAmount | double | `0.0` | |
-| + | referenceExchangeId | string | `""` | |
-| 89 | conditionsCount | int | `0` | |
-| + | ↳ one condition | | | × conditionsCount — see [Order condition element](#order-condition-element) |
-| + | conditionsIgnoreRth | bool | `0` | only if conditionsCount > 0 |
-| + | conditionsCancelOrder | bool | `0` | only if conditionsCount > 0 |
+| + | referenceContractId ★ | int | `0` | only if orderType is `PEG BENCH` / `PEGBENCH`; 5 fields |
+| + | isPeggedChangeAmountDecrease ★ | bool | `0` | |
+| + | peggedChangeAmount ★ | double | `0.0` | |
+| + | referenceChangeAmount ★ | double | `0.0` | |
+| + | referenceExchangeId ★ | string | `""` | |
+| 89 | conditionsCount ★ | int | `0` | |
+| + | ↳ one condition ★ | | | × conditionsCount — see [Order condition element](#order-condition-element) |
+| + | conditionsIgnoreRth ★ | bool | `0` | only if conditionsCount > 0 |
+| + | conditionsCancelOrder ★ | bool | `0` | only if conditionsCount > 0 |
 | 90 | adjustedOrderType ★ | string | `""` | |
 | 91 | triggerPrice ★ | double | `""` | UNSET |
 | 92 | lmtPriceOffset ★ | double | `""` | UNSET |
@@ -257,11 +255,11 @@ refuses a `BAG` contract.
 | 111 | autoCancelParent ★ | bool | `0` | gate 162 |
 | 112 | advancedErrorOverride ★ | string | `""` | gate 166 |
 | 113 | manualOrderTime ★ | string | `""` | gate 169 |
-| + | minTradeQty | int | `""` | gate 170; only if contract.exchange == `IBKRATS` |
-| + | minCompeteSize | int | `""` | gate 170; only if orderType `PEG BEST` / `PEGBEST` |
-| + | competeAgainstBestOffset | double | `""` | same condition; +∞ is sent as `Infinite` |
-| + | midOffsetAtWhole | double | `""` | if PEG BEST with competeAgainstBestOffset = +∞, or orderType `PEG MID` / `PEGMID` |
-| + | midOffsetAtHalf | double | `""` | same condition |
+| + | minTradeQty ★ | int | `""` | gate 170; only if contract.exchange == `IBKRATS` |
+| + | minCompeteSize ★ | int | `""` | gate 170; only if orderType `PEG BEST` / `PEGBEST` |
+| + | competeAgainstBestOffset ★ | double | `""` | same condition; +∞ is sent as `Infinite` |
+| + | midOffsetAtWhole ★ | double | `""` | if PEG BEST with competeAgainstBestOffset = +∞, or orderType `PEG MID` / `PEGMID` |
+| + | midOffsetAtHalf ★ | double | `""` | same condition |
 
 Total: 114 fields in the base case (indices 0–113). Nothing follows `manualOrderTime` at 178
 (customerAccount 183, professionalCustomer 184, includeOvernight 189, manualOrderIndicator 192,
@@ -597,6 +595,11 @@ layout both ways; `ib_async` sends a condition dataclass's fields in declaration
 Execution (5) has instead, after the conjunction: secType (string), exchange (string), symbol
 (string). Element sizes: Price 7, Time 4, Margin 4, Execution 5, Volume 6, PercentChange 6.
 
+In Swift each type is a case of `OrderCondition`: 1 `.price`, 3 `.time`, 4 `.margin`, 5 `.execution`,
+6 `.volume`, 7 `.percentChange`; the conjunction is `OrderCondition.Conjunction` (`.and`, `.or`).
+`ib_async`'s `exch` is `exchange`. On the way in, any other type or conjunction makes the frame
+malformed.
+
 ## Incoming messages
 
 ### orderStatus (in 3)
@@ -736,9 +739,9 @@ no smart-routing params.
 | 80 | notHeld ★ | bool | |
 | 81 | deltaNeutralContractPresent ★ | bool | |
 | + | conId int, delta double, price double ★ | | only if present; 3 fields |
-| 82 | algoStrategy | string | |
-| + | algoParamsCount | int | only if algoStrategy ≠ `""` |
-| + | ↳ tag, value | string, string | × algoParamsCount |
+| 82 | algoStrategy ★ | string | |
+| + | algoParamsCount ★ | int | only if algoStrategy ≠ `""` |
+| + | ↳ tag, value ★ | string, string | × algoParamsCount |
 | 83 | solicited ★ | bool | |
 | 84 | whatIf ★ | bool | |
 | 85 | status | string | OrderState.status |
@@ -758,10 +761,10 @@ no smart-routing params.
 | 99 | warningText | string | (the outside-RTH margin block starts at 195 — absent) |
 | 100 | randomizeSize ★ | bool | |
 | 101 | randomizePrice ★ | bool | |
-| + | referenceContractId int, isPeggedChangeAmountDecrease bool, peggedChangeAmount double, referenceChangeAmount double, referenceExchangeId string | | only if orderType `PEG BENCH` / `PEGBENCH`; 5 fields |
-| 102 | conditionsCount | int | |
-| + | ↳ one condition | | × conditionsCount — see [Order condition element](#order-condition-element) |
-| + | conditionsIgnoreRth, conditionsCancelOrder | bool, bool | only if conditionsCount > 0 |
+| + | referenceContractId int, isPeggedChangeAmountDecrease bool, peggedChangeAmount double, referenceChangeAmount double, referenceExchangeId string ★ | | only if orderType `PEG BENCH` / `PEGBENCH`; 5 fields |
+| 102 | conditionsCount ★ | int | |
+| + | ↳ one condition ★ | | × conditionsCount — see [Order condition element](#order-condition-element) |
+| + | conditionsIgnoreRth, conditionsCancelOrder ★ | bool, bool | only if conditionsCount > 0 |
 | 103 | adjustedOrderType ★ | string | |
 | 104 | triggerPrice ★ | double | |
 | 105 | trailStopPrice ★ | double | second occurrence |
@@ -781,11 +784,11 @@ no smart-routing params.
 | 119 | duration ★ | int | |
 | 120 | postToAts ★ | int | |
 | 121 | autoCancelParent ★ | bool | |
-| 122 | minTradeQty | int | gate 170, always present |
-| 123 | minCompeteSize | int | |
-| 124 | competeAgainstBestOffset | double | `Infinite` = +∞ |
-| 125 | midOffsetAtWhole | double | |
-| 126 | midOffsetAtHalf | double | |
+| 122 | minTradeQty ★ | int | gate 170, always present |
+| 123 | minCompeteSize ★ | int | |
+| 124 | competeAgainstBestOffset ★ | double | `Infinite` = +∞ |
+| 125 | midOffsetAtWhole ★ | double | |
+| 126 | midOffsetAtHalf ★ | double | |
 
 Total: 127 fields in the base case (indices 0–126).
 
@@ -1172,16 +1175,16 @@ No version field. Base case as for `openOrder`.
 | 68 | notHeld ★ | bool | |
 | 69 | deltaNeutralContractPresent ★ | bool | |
 | + | conId int, delta double, price double ★ | | only if present |
-| 70 | algoStrategy | string | |
-| + | algoParamsCount, then tag/value pairs | | only if algoStrategy ≠ `""` |
+| 70 | algoStrategy ★ | string | |
+| + | algoParamsCount, then tag/value pairs ★ | | only if algoStrategy ≠ `""` |
 | 71 | solicited ★ | bool | no whatIf here |
 | 72 | status | string | OrderState.status; no margin / commission block |
 | 73 | randomizeSize ★ | bool | |
 | 74 | randomizePrice ★ | bool | |
-| + | the 5 PEG BENCH fields as in `openOrder` | | only if orderType `PEG BENCH` / `PEGBENCH` |
-| 75 | conditionsCount | int | |
-| + | ↳ one condition | | × conditionsCount — see [Order condition element](#order-condition-element) |
-| + | conditionsIgnoreRth, conditionsCancelOrder | bool, bool | only if conditionsCount > 0 |
+| + | the 5 PEG BENCH fields as in `openOrder` ★ | | only if orderType `PEG BENCH` / `PEGBENCH` |
+| 75 | conditionsCount ★ | int | |
+| + | ↳ one condition ★ | | × conditionsCount — see [Order condition element](#order-condition-element) |
+| + | conditionsIgnoreRth, conditionsCancelOrder ★ | bool, bool | only if conditionsCount > 0 |
 | 76 | trailStopPrice ★ | double | second occurrence; no adjusted-order block here |
 | 77 | lmtPriceOffset ★ | double | |
 | 78 | cashQty ★ | double | no softDollarTier here |
@@ -1197,11 +1200,11 @@ No version field. Base case as for `openOrder`.
 | 88 | parentPermId ★ | int | |
 | 89 | completedTime | string | |
 | 90 | completedStatus | string | |
-| 91 | minTradeQty | int | gate 170, always present |
-| 92 | minCompeteSize | int | |
-| 93 | competeAgainstBestOffset | double | |
-| 94 | midOffsetAtWhole | double | |
-| 95 | midOffsetAtHalf | double | |
+| 91 | minTradeQty ★ | int | gate 170, always present |
+| 92 | minCompeteSize ★ | int | |
+| 93 | competeAgainstBestOffset ★ | double | |
+| 94 | midOffsetAtWhole ★ | double | |
+| 95 | midOffsetAtHalf ★ | double | |
 
 Total: 96 fields in the base case (indices 0–95). customerAccount (183), professionalCustomer
 (184) and submitter (198) are above 178.

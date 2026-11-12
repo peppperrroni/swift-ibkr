@@ -61,10 +61,17 @@ public struct Order: Sendable, Equatable {
     public var optOutSmartRouting = false                        // 77
     public var clearingAccount = "", clearingIntent = ""         // 78-79
     public var notHeld = false                                   // 80
+    public var algoStrategy = ""                                 // 82
+    public var algoParams: [TagValue] = []                       // after 82, sent only when algoStrategy is set
     public var algoID = ""                                       // 83
     public var whatIf = false                                    // 84
     public var orderMiscOptions: [TagValue] = []                 // 85
     public var solicited = false, randomizeSize = false, randomizePrice = false   // 86-88
+    // The 5 after row 88, sent only for PEG BENCH and PEGBENCH.
+    public var referenceContractID = 0, isPeggedChangeAmountDecrease = false
+    public var peggedChangeAmount: Decimal = 0, referenceChangeAmount: Decimal = 0, referenceExchangeID = ""
+    public var conditions: [OrderCondition] = []                 // 89 (the count), then the elements
+    public var conditionsIgnoreRTH = false, conditionsCancelOrder = false   // after them, only when there are any
     public var adjustedOrderType = ""                            // 90
     public var triggerPrice, limitPriceOffset, adjustedStopPrice, adjustedStopLimitPrice, adjustedTrailingAmount: Decimal?  // 91-95
     public var adjustableTrailingUnit = 0                        // 96
@@ -77,6 +84,10 @@ public struct Order: Sendable, Equatable {
     public var duration: Int?, postToAts: Int?                   // 109-110
     public var autoCancelParent = false                          // 111
     public var advancedErrorOverride = "", manualOrderTime = ""  // 112-113
+    // After row 113: minTradeQty for exchange IBKRATS; minCompeteSize and competeAgainstBestOffset for PEG BEST and
+    // PEGBEST (the mid offsets too when it is upToMid); the mid offsets for PEG MID and PEGMID.
+    public var minTradeQty: Int?, minCompeteSize: Int?, competeAgainstBestOffset: CompeteOffset?
+    public var midOffsetAtWhole, midOffsetAtHalf: Decimal?
 
     // Decoded only, never sent: openOrder's, then completedOrder's.
     public var basisPoints: Decimal?, basisPointsType: Int?

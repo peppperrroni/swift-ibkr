@@ -186,6 +186,7 @@ private func expectConditionalGroups(_ c: Contract, _ o: Order) {
 @Test func openOrderDecodesEveryConditionalGroup() throws {
     var f = openFields(orderType: "PEG BENCH")
     f[61] = "LMT"; f[70] = "1"; f[71] = "1"; f[72] = "1"; f[75] = "0.05"; f[76] = "D"; f[81] = "1"; f[82] = "Adaptive"; f[102] = "2"
+    f[122...126] = ["50", "100", "Infinite", "0.01", "0.005"]
     f = inserting([
         (62, ["265598", "", "", "", "O", "0", "0", ""]),                                // delta-neutral, 8
         (70, ["265598", "1", "BUY", "SMART", "0", "0", "", "-1"]),                       // one combo leg
@@ -203,7 +204,27 @@ private func expectConditionalGroups(_ c: Contract, _ o: Order) {
     #expect(m.order.deltaNeutralOrderType == "LMT" && m.order.deltaNeutralConID == 265598)
     #expect(m.order.deltaNeutralOpenClose == "O")
     expectConditionalGroups(m.contract, m.order)
+    #expect(m.order.algoStrategy == "Adaptive" && m.order.algoParams == [TagValue(tag: "adaptivePriority", value: "Normal")])
+    #expect(m.order.referenceContractID == 265598 && m.order.isPeggedChangeAmountDecrease == false)
+    #expect(m.order.peggedChangeAmount == 1 && m.order.referenceChangeAmount == 1 && m.order.referenceExchangeID == "ISLAND")
+    #expect(m.order.conditions == [.price(conID: 265598, exchange: "SMART", isMore: true, price: d("180.5")),
+                                   .time(isMore: false, time: "20261109 15:00:00", conjunction: .or)])
+    #expect(!m.order.conditionsIgnoreRTH && !m.order.conditionsCancelOrder)
+    #expect(m.order.minTradeQty == 50 && m.order.minCompeteSize == 100 && m.order.competeAgainstBestOffset == .upToMid)
+    #expect(m.order.midOffsetAtWhole == d("0.01") && m.order.midOffsetAtHalf == d("0.005"))
     #expect(isMalformed(Array(f.dropLast())))
+}
+
+/// Review Focus 5: a condition type or conjunction the decoder does not know makes the frame malformed.
+@Test func unknownConditionIsMalformed() {
+    for condition in [["2", "a", "1", "0", "0"], ["1", "x", "1", "180.5", "265598", "SMART", "0", "0", "0"]] {
+        var f = openFields()
+        f[102] = "1"
+        guard case .malformed(let id, _, _) = IBDecoder.decode(body(inserting([(102, condition)], into: f))) else {
+            Issue.record("not malformed: \(condition)"); continue
+        }
+        #expect(id == 5)
+    }
 }
 
 @Test func completedOrderDecodesEveryConditionalGroup() throws {
@@ -228,5 +249,7 @@ private func expectConditionalGroups(_ c: Contract, _ o: Order) {
     #expect(m.order.deltaNeutralOrderType == "LMT" && m.order.deltaNeutralConID == 265598)
     #expect(m.order.deltaNeutralShortSale == false)
     expectConditionalGroups(m.contract, m.order)
+    #expect(m.order.conditions == [.execution(secType: "STK", exchange: "SMART", symbol: "AAPL"),
+                                   .margin(isMore: true, percent: 30)])
     #expect(isMalformed(Array(f.dropLast())))
 }
