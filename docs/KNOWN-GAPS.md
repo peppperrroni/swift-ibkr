@@ -84,6 +84,5 @@ CI (`.github/workflows/ci.yml`) builds and tests on macOS, Linux and Windows and
   late.
 - Pending execDetails / commission halves that never meet are kept for the client's lifetime (the execution
   tracker survives reconnects).
-- Test gaps: the 0xFFFFFF frame boundary; `int()` / `decimal()` of `""`; `bool()`, `double()`, `skip()`; a contract
-  with non-default fields in placeOrder; an unknown action or condition type in openOrder; the 2 s close bound of a
+- Test gaps: the 0xFFFFFF frame boundary; `int()` / `decimal()` of `""`; `bool()`, `double()`, `skip()`; an unknown action or condition type in openOrder; the 2 s close bound of a
   draining disconnect (FakeGateway's write never blocks).

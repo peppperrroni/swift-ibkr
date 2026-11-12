@@ -13,6 +13,8 @@ public struct Contract: Sendable, Equatable, Hashable {
     public var currency: String
     public var localSymbol: String
     public var tradingClass: String
+    public var secIDType = ""
+    public var secID = ""
 
     public init(symbol: String, secType: String = "STK", exchange: String = "SMART",
                 currency: String = "USD", primaryExchange: String = "") {

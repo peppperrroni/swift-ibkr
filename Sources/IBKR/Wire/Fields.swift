@@ -12,7 +12,8 @@ struct FieldWriter {
     mutating func add(_ value: Int?) { put(value.map(String.init) ?? "") }
     mutating func add(_ value: Decimal?) { put(value.map { $0.description } ?? "") }
     mutating func add(_ value: Bool) { put(value ? "1" : "0") }
-    mutating func add(_ value: Double?) { put(value.map { "\($0)" } ?? "") }
+    /// A `Double`'s text (`0` → `0.0`): `ib_async`'s `str(float)` for the floats whose default is not unset.
+    mutating func addDouble(_ value: Decimal) { put("\((value as NSDecimalNumber).doubleValue)") }
 
     private mutating func put(_ s: String) { body += Array(s.utf8) + [0] }
 }

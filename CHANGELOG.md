@@ -21,7 +21,14 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 - CI on every push and pull request: tests on macOS, Linux (Swift 6.0 and the latest) and Windows, and an iOS build.
 - A `SwiftIBKR.podspec` (pod `SwiftIBKR`, module `IBKR`), linted in CI; trunk publication is pending.
 
+- `placeOrder` sends every plain field of the order and contract: `Order` gains the rest of IB's placeOrder fields
+  (open/close, origin, display size, discretionary amount, good-after / good-till times, FA fields, volatility,
+  trailing, adjusted-order, MiFID II, cash quantity, soft dollar tier, misc options and more) and `Contract` gains
+  `secIDType` / `secID`. New value types `TagValue` and `SoftDollarTier`. `volatility` goes out only for `VOL` order
+  types.
+
 ### Changed
+- `contractDetails` sends the contract's `secIDType` and `secID` instead of empty fields.
 - `connect` sends one more sync request (reqAccountUpdates, or one reqAccountUpdatesMulti per account) and returns
   only after its end marker.
 - `connect` honours task cancellation: it throws `.cancelled` and leaves `.disconnected(.cancelled)`.

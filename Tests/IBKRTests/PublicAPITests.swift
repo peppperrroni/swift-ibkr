@@ -46,4 +46,6 @@ import Testing
     #expect(ServerLogLevel(rawValue: 5) == .detail)
     #expect(ReconnectPolicy().maxAttempts == nil)
     #expect(ReconnectPolicy(probeAfter: nil).probeAfter == nil)
+    #expect(TagValue(tag: "a", value: "1").tag == "a")
+    #expect(SoftDollarTier().displayName == "")
 }

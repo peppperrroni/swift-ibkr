@@ -31,8 +31,11 @@ fields gated above 178 are dropped, fields gated at or below are kept. Defaults 
 - **Types.** `int` is a signed integer as text (`permId` can exceed Int32 — use 64 bits);
   `decimal` is a quantity sent as text (`"100"`, `"0.5"`); `double` a price as text; `bool`
   `"1"`/`"0"` (empty decodes as false); `string` as is.
-- **★** marks a field of the stage-1 `Contract` / `Order` model (plan Task 4). Unstarred fields
-  of `placeOrder` are sent with the default shown.
+- **★** marks a `placeOrder` row the `Contract` / `Order` model carries. Unstarred rows are sent
+  with the default shown: msgId and orderId, the deprecated sharesAllocation, eTradeOnly,
+  firmQuoteOnly and nbboPriceCap (never modelled), and the rows that open a conditional group
+  (deltaNeutralOrderType / AuxPrice, scalePriceIncrement, hedgeType, deltaNeutralContractPresent,
+  algoStrategy, conditionsCount) with their `+` rows, which stage 7 models group by group.
 
 ## Handshake
 
@@ -107,8 +110,8 @@ conditions, exchange not `IBKRATS`.
 | 11 | currency ★ | string | `""` | |
 | 12 | localSymbol ★ | string | `""` | |
 | 13 | tradingClass ★ | string | `""` | |
-| 14 | secIdType | string | `""` | |
-| 15 | secId | string | `""` | |
+| 14 | secIdType ★ | string | `""` | |
+| 15 | secId ★ | string | `""` | |
 | 16 | action ★ | string | `""` | `BUY` / `SELL` / `SSHORT` |
 | 17 | totalQuantity ★ | decimal | `0.0` | |
 | 18 | orderType ★ | string | `""` | |
@@ -117,17 +120,17 @@ conditions, exchange not `IBKRATS`.
 | 21 | tif ★ | string | `""` | |
 | 22 | ocaGroup ★ | string | `""` | |
 | 23 | account ★ | string | `""` | |
-| 24 | openClose | string | `O` | see Disagreements |
-| 25 | origin | int | `0` | |
+| 24 | openClose ★ | string | `O` | see Disagreements |
+| 25 | origin ★ | int | `0` | |
 | 26 | orderRef ★ | string | `""` | |
 | 27 | transmit ★ | bool | `1` | |
 | 28 | parentId ★ | int | `0` | |
-| 29 | blockOrder | bool | `0` | |
-| 30 | sweepToFill | bool | `0` | |
-| 31 | displaySize | int | `0` | |
-| 32 | triggerMethod | int | `0` | |
+| 29 | blockOrder ★ | bool | `0` | |
+| 30 | sweepToFill ★ | bool | `0` | |
+| 31 | displaySize ★ | int | `0` | |
+| 32 | triggerMethod ★ | int | `0` | |
 | 33 | outsideRth ★ | bool | `0` | |
-| 34 | hidden | bool | `0` | |
+| 34 | hidden ★ | bool | `0` | |
 | + | comboLegsCount | int | `0` | only if secType == `BAG` (with the next 2 counts) |
 | + | ↳ leg.conId | int | | × comboLegsCount, 8 fields per leg |
 | + | ↳ leg.ratio | int | | |
@@ -143,34 +146,34 @@ conditions, exchange not `IBKRATS`.
 | + | ↳ tag | string | | × count, 2 fields per element |
 | + | ↳ value | string | | |
 | 35 | sharesAllocation | string | `""` | deprecated, always empty |
-| 36 | discretionaryAmt | double | `0.0` | |
-| 37 | goodAfterTime | string | `""` | |
-| 38 | goodTillDate | string | `""` | |
-| 39 | faGroup | string | `""` | |
-| 40 | faMethod | string | `""` | |
-| 41 | faPercentage | string | `""` | faProfile follows only below 177 — dropped |
-| 42 | modelCode | string | `""` | |
-| 43 | shortSaleSlot | int | `0` | |
-| 44 | designatedLocation | string | `""` | |
-| 45 | exemptCode | int | `-1` | |
+| 36 | discretionaryAmt ★ | double | `0.0` | |
+| 37 | goodAfterTime ★ | string | `""` | |
+| 38 | goodTillDate ★ | string | `""` | |
+| 39 | faGroup ★ | string | `""` | |
+| 40 | faMethod ★ | string | `""` | |
+| 41 | faPercentage ★ | string | `""` | faProfile follows only below 177 — dropped |
+| 42 | modelCode ★ | string | `""` | |
+| 43 | shortSaleSlot ★ | int | `0` | |
+| 44 | designatedLocation ★ | string | `""` | |
+| 45 | exemptCode ★ | int | `-1` | |
 | 46 | ocaType ★ | int | `0` | |
-| 47 | rule80A | string | `""` | |
-| 48 | settlingFirm | string | `""` | |
-| 49 | allOrNone | bool | `0` | |
-| 50 | minQty | int | `""` | UNSET |
-| 51 | percentOffset | double | `""` | UNSET |
+| 47 | rule80A ★ | string | `""` | |
+| 48 | settlingFirm ★ | string | `""` | |
+| 49 | allOrNone ★ | bool | `0` | |
+| 50 | minQty ★ | int | `""` | UNSET |
+| 51 | percentOffset ★ | double | `""` | UNSET |
 | 52 | eTradeOnly | bool | `0` | deprecated, always false |
 | 53 | firmQuoteOnly | bool | `0` | deprecated, always false |
 | 54 | nbboPriceCap | double | `""` | deprecated, always UNSET |
-| 55 | auctionStrategy | int | `0` | |
-| 56 | startingPrice | double | `""` | UNSET |
-| 57 | stockRefPrice | double | `""` | UNSET |
-| 58 | delta | double | `""` | UNSET |
-| 59 | stockRangeLower | double | `""` | UNSET |
-| 60 | stockRangeUpper | double | `""` | UNSET |
-| 61 | overridePercentageConstraints | bool | `0` | |
-| 62 | volatility | double | `""` | `ib_async` forces `""` unless orderType starts with `VOL` |
-| 63 | volatilityType | int | `""` | UNSET |
+| 55 | auctionStrategy ★ | int | `0` | |
+| 56 | startingPrice ★ | double | `""` | UNSET |
+| 57 | stockRefPrice ★ | double | `""` | UNSET |
+| 58 | delta ★ | double | `""` | UNSET |
+| 59 | stockRangeLower ★ | double | `""` | UNSET |
+| 60 | stockRangeUpper ★ | double | `""` | UNSET |
+| 61 | overridePercentageConstraints ★ | bool | `0` | |
+| 62 | volatility ★ | double | `""` | sent only when orderType starts with `VOL`, else `""` (as `ib_async`) |
+| 63 | volatilityType ★ | int | `""` | UNSET |
 | 64 | deltaNeutralOrderType | string | `""` | |
 | 65 | deltaNeutralAuxPrice | double | `""` | UNSET |
 | + | deltaNeutralConId | int | `0` | only if deltaNeutralOrderType ≠ `""`; 8 fields |
@@ -181,12 +184,12 @@ conditions, exchange not `IBKRATS`.
 | + | deltaNeutralShortSale | bool | `0` | |
 | + | deltaNeutralShortSaleSlot | int | `0` | |
 | + | deltaNeutralDesignatedLocation | string | `""` | |
-| 66 | continuousUpdate | bool | `0` | |
-| 67 | referencePriceType | int | `""` | UNSET |
-| 68 | trailStopPrice | double | `""` | UNSET |
-| 69 | trailingPercent | double | `""` | UNSET |
-| 70 | scaleInitLevelSize | int | `""` | UNSET |
-| 71 | scaleSubsLevelSize | int | `""` | UNSET |
+| 66 | continuousUpdate ★ | bool | `0` | |
+| 67 | referencePriceType ★ | int | `""` | UNSET |
+| 68 | trailStopPrice ★ | double | `""` | UNSET |
+| 69 | trailingPercent ★ | double | `""` | UNSET |
+| 70 | scaleInitLevelSize ★ | int | `""` | UNSET |
+| 71 | scaleSubsLevelSize ★ | int | `""` | UNSET |
 | 72 | scalePriceIncrement | double | `""` | UNSET |
 | + | scalePriceAdjustValue | double | `""` | only if 0 < scalePriceIncrement < UNSET; 7 fields |
 | + | scalePriceAdjustInterval | int | `""` | |
@@ -195,15 +198,15 @@ conditions, exchange not `IBKRATS`.
 | + | scaleInitPosition | int | `""` | |
 | + | scaleInitFillQty | int | `""` | |
 | + | scaleRandomPercent | bool | `0` | |
-| 73 | scaleTable | string | `""` | |
-| 74 | activeStartTime | string | `""` | |
-| 75 | activeStopTime | string | `""` | |
+| 73 | scaleTable ★ | string | `""` | |
+| 74 | activeStartTime ★ | string | `""` | |
+| 75 | activeStopTime ★ | string | `""` | |
 | 76 | hedgeType | string | `""` | |
 | + | hedgeParam | string | `""` | only if hedgeType ≠ `""` |
-| 77 | optOutSmartRouting | bool | `0` | |
-| 78 | clearingAccount | string | `""` | |
-| 79 | clearingIntent | string | `""` | |
-| 80 | notHeld | bool | `0` | |
+| 77 | optOutSmartRouting ★ | bool | `0` | |
+| 78 | clearingAccount ★ | string | `""` | |
+| 79 | clearingIntent ★ | string | `""` | |
+| 80 | notHeld ★ | bool | `0` | |
 | 81 | deltaNeutralContractPresent | bool | `0` | |
 | + | deltaNeutralContract.conId | int | | only if present = `1`; 3 fields |
 | + | deltaNeutralContract.delta | double | | |
@@ -212,12 +215,12 @@ conditions, exchange not `IBKRATS`.
 | + | algoParamsCount | int | `0` | only if algoStrategy ≠ `""` |
 | + | ↳ tag | string | | × algoParamsCount, 2 fields per element |
 | + | ↳ value | string | | |
-| 83 | algoId | string | `""` | |
-| 84 | whatIf | bool | `0` | |
-| 85 | orderMiscOptions | string | `""` | TagValue list as `tag=value;…` in one field |
-| 86 | solicited | bool | `0` | |
-| 87 | randomizeSize | bool | `0` | |
-| 88 | randomizePrice | bool | `0` | |
+| 83 | algoId ★ | string | `""` | |
+| 84 | whatIf ★ | bool | `0` | |
+| 85 | orderMiscOptions ★ | string | `""` | TagValue list as `tag=value;…` in one field |
+| 86 | solicited ★ | bool | `0` | |
+| 87 | randomizeSize ★ | bool | `0` | |
+| 88 | randomizePrice ★ | bool | `0` | |
 | + | referenceContractId | int | `0` | only if orderType is `PEG BENCH` / `PEGBENCH`; 5 fields |
 | + | isPeggedChangeAmountDecrease | bool | `0` | |
 | + | peggedChangeAmount | double | `0.0` | |
@@ -227,30 +230,30 @@ conditions, exchange not `IBKRATS`.
 | + | ↳ one condition | | | × conditionsCount — see [Order condition element](#order-condition-element) |
 | + | conditionsIgnoreRth | bool | `0` | only if conditionsCount > 0 |
 | + | conditionsCancelOrder | bool | `0` | only if conditionsCount > 0 |
-| 90 | adjustedOrderType | string | `""` | |
-| 91 | triggerPrice | double | `""` | UNSET |
-| 92 | lmtPriceOffset | double | `""` | UNSET |
-| 93 | adjustedStopPrice | double | `""` | UNSET |
-| 94 | adjustedStopLimitPrice | double | `""` | UNSET |
-| 95 | adjustedTrailingAmount | double | `""` | UNSET |
-| 96 | adjustableTrailingUnit | int | `0` | |
-| 97 | extOperator | string | `""` | |
-| 98 | softDollarTier.name | string | `""` | |
-| 99 | softDollarTier.value | string | `""` | |
-| 100 | cashQty | double | `""` | UNSET |
-| 101 | mifid2DecisionMaker | string | `""` | |
-| 102 | mifid2DecisionAlgo | string | `""` | |
-| 103 | mifid2ExecutionTrader | string | `""` | |
-| 104 | mifid2ExecutionAlgo | string | `""` | |
-| 105 | dontUseAutoPriceForHedge | bool | `0` | |
-| 106 | isOmsContainer | bool | `0` | |
-| 107 | discretionaryUpToLimitPrice | bool | `0` | |
-| 108 | usePriceMgmtAlgo | bool | `0` | see Disagreements |
-| 109 | duration | int | `""` | UNSET (gate 158) |
-| 110 | postToAts | int | `""` | UNSET (gate 160) |
-| 111 | autoCancelParent | bool | `0` | gate 162 |
-| 112 | advancedErrorOverride | string | `""` | gate 166 |
-| 113 | manualOrderTime | string | `""` | gate 169 |
+| 90 | adjustedOrderType ★ | string | `""` | |
+| 91 | triggerPrice ★ | double | `""` | UNSET |
+| 92 | lmtPriceOffset ★ | double | `""` | UNSET |
+| 93 | adjustedStopPrice ★ | double | `""` | UNSET |
+| 94 | adjustedStopLimitPrice ★ | double | `""` | UNSET |
+| 95 | adjustedTrailingAmount ★ | double | `""` | UNSET |
+| 96 | adjustableTrailingUnit ★ | int | `0` | |
+| 97 | extOperator ★ | string | `""` | |
+| 98 | softDollarTier.name ★ | string | `""` | |
+| 99 | softDollarTier.value ★ | string | `""` | |
+| 100 | cashQty ★ | double | `""` | UNSET |
+| 101 | mifid2DecisionMaker ★ | string | `""` | |
+| 102 | mifid2DecisionAlgo ★ | string | `""` | |
+| 103 | mifid2ExecutionTrader ★ | string | `""` | |
+| 104 | mifid2ExecutionAlgo ★ | string | `""` | |
+| 105 | dontUseAutoPriceForHedge ★ | bool | `0` | |
+| 106 | isOmsContainer ★ | bool | `0` | |
+| 107 | discretionaryUpToLimitPrice ★ | bool | `0` | |
+| 108 | usePriceMgmtAlgo ★ | bool | `0` | see Disagreements |
+| 109 | duration ★ | int | `""` | UNSET (gate 158) |
+| 110 | postToAts ★ | int | `""` | UNSET (gate 160) |
+| 111 | autoCancelParent ★ | bool | `0` | gate 162 |
+| 112 | advancedErrorOverride ★ | string | `""` | gate 166 |
+| 113 | manualOrderTime ★ | string | `""` | gate 169 |
 | + | minTradeQty | int | `""` | gate 170; only if contract.exchange == `IBKRATS` |
 | + | minCompeteSize | int | `""` | gate 170; only if orderType `PEG BEST` / `PEGBEST` |
 | + | competeAgainstBestOffset | double | `""` | same condition; +∞ is sent as `Infinite` |
@@ -518,8 +521,8 @@ Total: 2 fields.
 | 2 | reqId | int | |
 | 3-14 | contract | | the 12-field contract block (rows 2-13 of placeOrder); `BAG` is refused |
 | 15 | includeExpired | bool | `0` |
-| 16 | secIdType | string | `""` |
-| 17 | secId | string | `""` |
+| 16 | secIdType | string | the contract's `secIDType` |
+| 17 | secId | string | the contract's `secID` |
 | 18 | issuerId | string | `""` |
 
 Total: 19 fields.
