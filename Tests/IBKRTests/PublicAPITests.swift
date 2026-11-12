@@ -59,6 +59,8 @@ import Testing
     #expect(ComboLeg(conID: 1, ratio: 2, action: .sell, exchange: "SMART").exemptCode == -1)
     #expect(OrderComboLeg(price: 1).price == 1)
     #expect(DeltaNeutralContract(conID: 1, delta: 0.5, price: 2).conID == 1)
+    #expect(DepthMarketDataDescription(exchange: "ISLAND", secType: "STK", listingExchange: "NASDAQ", serviceDataType: "Deep2", aggGroup: 1).aggGroup == 1)
+    #expect(SmartComponent(bitNumber: 0, exchange: "NYSE", exchangeLetter: "N").bitNumber == 0)
     #expect(OrderCondition.margin(isMore: true, percent: 30) != .margin(isMore: false, percent: 30))
     #expect(CompeteOffset.upToMid != .offset(0))
     #expect(BracketOrder(parent: order, takeProfit: order, stopLoss: order).parent == order)

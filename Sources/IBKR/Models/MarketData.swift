@@ -240,6 +240,36 @@ public struct DepthLevel: Sendable, Equatable {
     }
 }
 
+/// One exchange that offers market depth, as IB lists it (message 80).
+public struct DepthMarketDataDescription: Sendable, Equatable {
+    public var exchange: String
+    public var secType: String
+    public var listingExchange: String
+    public var serviceDataType: String
+    public var aggGroup: Int?
+
+    public init(exchange: String, secType: String, listingExchange: String, serviceDataType: String, aggGroup: Int? = nil) {
+        self.exchange = exchange
+        self.secType = secType
+        self.listingExchange = listingExchange
+        self.serviceDataType = serviceDataType
+        self.aggGroup = aggGroup
+    }
+}
+
+/// One exchange behind a SMART route, with its bit in the BBO exchange mask (message 82).
+public struct SmartComponent: Sendable, Equatable {
+    public var bitNumber: Int
+    public var exchange: String
+    public var exchangeLetter: String
+
+    public init(bitNumber: Int, exchange: String, exchangeLetter: String) {
+        self.bitNumber = bitNumber
+        self.exchange = exchange
+        self.exchangeLetter = exchangeLetter
+    }
+}
+
 /// One change to the book, as IB sends it (messages 12 and 13).
 public struct DepthUpdate: Sendable, Equatable {
     public enum Operation: Int, Sendable { case insert = 0, update, delete }

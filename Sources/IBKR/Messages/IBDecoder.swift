@@ -109,6 +109,8 @@ public enum IBDecoder {
             case 21: return try optionComputation(&r)
             case 47: return try efp(&r)
             case 84: return try news(&r)
+            case 80: return try depthExchanges(&r)
+            case 82: return try smartComponents(&r)
             case 59:
                 try r.skip()
                 return .commissionReport(CommissionReport(
@@ -203,7 +205,7 @@ public enum IBDecoder {
     }
 
     /// A repeat count off the wire: a negative one is a corrupt frame, not an empty list (and `0..<n` traps on it).
-    private static func wireCount(_ r: inout FieldReader) throws -> Int {
+    static func wireCount(_ r: inout FieldReader) throws -> Int {
         let n = try r.int()
         guard n >= 0 else { throw IBProtocolError.badNumber(String(n), index: r.index - 1) }
         return n

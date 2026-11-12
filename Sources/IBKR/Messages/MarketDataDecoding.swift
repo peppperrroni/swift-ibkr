@@ -25,6 +25,23 @@ extension IBDecoder {
             dividendImpact: try r.optionalDecimal(), dividendsToLastTradeDate: try r.optionalDecimal())))
     }
 
+    /// mktDepthExchanges (80): no version, no reqId.
+    static func depthExchanges(_ r: inout FieldReader) throws -> IBMessage {
+        .depthExchanges(try (0..<wireCount(&r)).map { _ in
+            DepthMarketDataDescription(
+                exchange: try r.string(), secType: try r.string(), listingExchange: try r.string(),
+                serviceDataType: try r.string(), aggGroup: try r.optionalInt())
+        })
+    }
+
+    /// smartComponents (82): no version.
+    static func smartComponents(_ r: inout FieldReader) throws -> IBMessage {
+        let id = try r.int()
+        return .smartComponents(requestID: id, try (0..<wireCount(&r)).map { _ in
+            SmartComponent(bitNumber: try r.int(), exchange: try r.string(), exchangeLetter: try r.string())
+        })
+    }
+
     /// tickNews (84), no version.
     static func news(_ r: inout FieldReader) throws -> IBMessage {
         let id = try r.int()

@@ -1420,6 +1420,24 @@ with a permission text): IB keeps a refused subscription open.
 seconds; `wap` becomes `Bar.average` (`nil` when unset). MIDPOINT, BID and ASK bars carry -1 volume, wap and count,
 kept as historical bars keep them. The reqId routes it to its stream; the stream never ends itself.
 
+### reqMktDepthExchanges (out 82)
+
+`82`; 1 field, no version and no reqId.
+
+### mktDepthExchanges (in 80)
+
+`80, n, n x (exchange, secType, listingExch, serviceDataType, aggGroup)`; no version and no reqId. `aggGroup` is
+`nil` when unset (2147483647). A negative `n` is malformed. Answers `depthExchanges()`, oldest waiter first.
+
+### reqSmartComponents (out 83)
+
+`83, reqId, bboExchange`; 3 fields.
+
+### smartComponents (in 82)
+
+`82, reqId, n, n x (bitNumber, exchange, exchangeLetter)`; no version. A negative `n` is malformed. The reqId routes
+it to `smartComponents(_:)`.
+
 ### reqMktDepth (out 10)
 
 `10, 5, reqId, contract(12), numRows, isSmartDepth, mktDepthOptions`; 18 fields. `mktDepthOptions` is always `""`.

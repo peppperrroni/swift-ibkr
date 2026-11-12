@@ -511,6 +511,23 @@ public actor IBClient {
         return Date(timeIntervalSince1970: Double(seconds))
     }
 
+    /// The exchanges that offer market depth. The reply carries no reqId, so IB cannot name an error for it and
+    /// this call has no IB-error path: it ends only with the answer, the connection, or `.cancelled`.
+    public func depthExchanges() async throws(IBClientError) -> [DepthMarketDataDescription] {
+        try requireConnected()
+        return try await answer(.depthExchanges) { if case .depthExchanges(let d) = $0 { d } else { nil } }
+    }
+
+    /// The exchanges behind a SMART route, for the `bboExchange` that `Tick.requestParameters` reported. Throws
+    /// like `contractDetails` when IB refuses the request.
+    public func smartComponents(_ bboExchange: String) async throws(IBClientError) -> [SmartComponent] {
+        try requireConnected()
+        let id = nextRequestID()
+        return try await answer(.smartComponents(requestID: id, bboExchange: bboExchange), id: id) {
+            if case .smartComponents(_, let c) = $0 { c } else { nil }
+        }
+    }
+
     /// The accounts IB lists for this login now. Only the returned list is fresh: `states()` keeps the accounts seen
     /// at connect.
     public func managedAccounts() async throws(IBClientError) -> [String] {
@@ -633,11 +650,11 @@ public actor IBClient {
              .contractData(let id, _), .contractDataEnd(let id), .symbolSamples(let id, _), .tick(let id, _),
              .historicalData(let id, _), .historicalDataUpdate(let id, _), .realTimeBar(let id, _), .depth(let id, _),
              .tickByTick(let id, _), .tickSnapshotEnd(let id), .userInfo(let id, _), .positionMulti(let id, _), .positionMultiEnd(let id),
-             .accountUpdateMulti(let id, _), .accountUpdateMultiEnd(let id), .pnl(let id, _):
+             .accountUpdateMulti(let id, _), .accountUpdateMultiEnd(let id), .pnl(let id, _), .smartComponents(let id, _):
             if requestStreams[id]?.route(message) == true { requestStreams[id] = nil }   // before any termination hop
         case .openOrder(let m) where m.order.whatIf:   // whatIfOrder's answer, keyed by the order id it took
             if requestStreams[m.orderID]?.route(message) == true { requestStreams[m.orderID] = nil }
-        case .currentTime, .managedAccounts, .nextValidID:   // no reqId: the oldest waiter that takes it gets it
+        case .currentTime, .managedAccounts, .nextValidID, .depthExchanges:   // no reqId: the oldest waiter that takes it gets it
             for key in requestStreams.keys.filter({ $0 < -1 }).sorted(by: >) where requestStreams[key]?.route(message) == true {
                 requestStreams[key] = nil
                 break

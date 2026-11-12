@@ -5,6 +5,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 ## [Unreleased]
 
 ### Added
+- `depthExchanges()` and `smartComponents(_:)`, with `DepthMarketDataDescription` and `SmartComponent`, and the matching `IBRequest` and `IBMessage` cases (out 82/83, in 80/82). New cases in public enums: an exhaustive `switch` over `IBRequest` or `IBMessage` needs new branches.
 - `realTimeBars(_:whatToShow:rth:)`, IB's five-second bars as a stream, with `IBRequest.realTimeBars`, `.cancelRealTimeBars` and `IBMessage.realTimeBar`; error 420 with a permission text ends it with `.noMarketDataPermission`. New cases in public enums: an exhaustive `switch` over `IBRequest` or `IBMessage` needs new branches.
 - `marketData`'s `genericTicks`, `snapshot` and `regulatorySnapshot`; BAG and delta-neutral contracts in
   `marketData`; and `IBMessage.tickSnapshotEnd(requestID:)`, which ends a snapshot stream with no cancel. A new case in

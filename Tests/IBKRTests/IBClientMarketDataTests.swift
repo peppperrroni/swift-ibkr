@@ -149,3 +149,35 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
     }
     #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["51", "1", id])
 }
+
+@Test func depthExchangesAnswers() async throws {
+    let gateway = FakeGateway()
+    gateway.onRequest = { $0 == ["82"] ? [["80", "2", "ISLAND", "STK", "NASDAQ", "Deep2", "1", "NYSE", "STK", "NYSE", "Deep", "2147483647"]] : [] }
+    let client = try await connected(gateway)
+    let got = try await within2s { try await client.depthExchanges() }
+    #expect(got == [
+        DepthMarketDataDescription(exchange: "ISLAND", secType: "STK", listingExchange: "NASDAQ", serviceDataType: "Deep2", aggGroup: 1),
+        DepthMarketDataDescription(exchange: "NYSE", secType: "STK", listingExchange: "NYSE", serviceDataType: "Deep", aggGroup: nil)])
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames] == ["82"])
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func smartComponentsAnswers() async throws {
+    let gateway = FakeGateway()
+    gateway.onRequest = { $0.first == "83" ? [["82", $0[1], "1", "0", "NYSE", "N"]] : [] }
+    let client = try await connected(gateway)
+    let got = try await within2s { try await client.smartComponents("9c0001") }
+    #expect(got == [SmartComponent(bitNumber: 0, exchange: "NYSE", exchangeLetter: "N")])
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames]
+    #expect(sent.count == 3 && sent[0] == "83" && sent[2] == "9c0001")
+}
+
+@Test func smartComponentsFailsOnItsError() async throws {
+    let gateway = FakeGateway()
+    gateway.onRequest = { $0.first == "83" ? [["4", "2", $0[1], "200", "No security definition has been found for the request", ""]] : [] }
+    let client = try await connected(gateway)
+    await #expect(throws: IBClientError.ib(code: 200, text: "No security definition has been found for the request")) {
+        _ = try await within2s { try await client.smartComponents("9c0001") }
+    }
+    #expect(await client.requestStreamCount == 0)
+}

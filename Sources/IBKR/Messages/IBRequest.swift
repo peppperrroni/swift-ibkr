@@ -40,6 +40,8 @@ public enum IBRequest: Sendable, Equatable {
     case tickByTick(requestID: Int, contract: Contract, type: TickByTickType)
     case cancelTickByTick(requestID: Int)
     case currentTime
+    case depthExchanges
+    case smartComponents(requestID: Int, bboExchange: String)
     case managedAccounts
     case userInfo(requestID: Int)
     case serverLogLevel(ServerLogLevel)
@@ -53,6 +55,10 @@ public enum IBRequest: Sendable, Equatable {
             w.add(71); w.add(2); w.add(id); try w.add(caps)
         case .currentTime:
             w.add(49); w.add(1)
+        case .depthExchanges:
+            w.add(82)
+        case .smartComponents(let reqID, let bbo):
+            w.add(83); w.add(reqID); try w.add(bbo)
         case .managedAccounts:
             w.add(17); w.add(1)
         case .userInfo(let reqID):

@@ -22,6 +22,21 @@ import Testing
         guard case .malformed = IBDecoder.decode(body("58", "1", "7", "9")) else { Issue.record("not malformed"); return }
     }
 
+    @Test func depthExchangesAndSmartComponentsCodec() throws {
+        #expect(try IBRequest.depthExchanges.body() == body("82"))
+        #expect(try IBRequest.smartComponents(requestID: 7, bboExchange: "9c0001").body() == body("83", "7", "9c0001"))
+        #expect(IBDecoder.decode(body("80", "2", "ISLAND", "STK", "NASDAQ", "Deep2", "1", "NYSE", "STK", "NYSE", "Deep", "2147483647"))
+            == .depthExchanges([
+                DepthMarketDataDescription(exchange: "ISLAND", secType: "STK", listingExchange: "NASDAQ", serviceDataType: "Deep2", aggGroup: 1),
+                DepthMarketDataDescription(exchange: "NYSE", secType: "STK", listingExchange: "NYSE", serviceDataType: "Deep", aggGroup: nil)]))
+        #expect(IBDecoder.decode(body("82", "7", "2", "0", "NYSE", "N", "1", "ARCA", "P"))
+            == .smartComponents(requestID: 7, [SmartComponent(bitNumber: 0, exchange: "NYSE", exchangeLetter: "N"),
+                                               SmartComponent(bitNumber: 1, exchange: "ARCA", exchangeLetter: "P")]))
+        for frame in [body("80", "-1"), body("82", "7", "-1")] {
+            guard case .malformed = IBDecoder.decode(frame) else { Issue.record("not malformed"); return }
+        }
+    }
+
     @Test func deltaNeutralValidationDecodes() {
         #expect(IBDecoder.decode(body("56", "1", "7", "265598", "0.5", "187.25"))
             == .deltaNeutralValidation(requestID: 7, DeltaNeutralContract(conID: 265598, delta: d("0.5"), price: d("187.25"))))
