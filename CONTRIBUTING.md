@@ -52,7 +52,8 @@ On Windows `python3` may be the Microsoft Store stub; use `python` there.
 The DocC documentation builds on macOS:
 
 ```bash
-xcodebuild docbuild -scheme swift-ibkr-Package -destination 'generic/platform=macOS' \n  OTHER_DOCC_FLAGS=--warnings-as-errors
+xcodebuild docbuild -scheme swift-ibkr-Package -destination 'generic/platform=macOS' \
+  OTHER_DOCC_FLAGS=--warnings-as-errors
 ```
 
 ## The example
