@@ -1,5 +1,7 @@
 import Foundation
 
+public enum ExerciseAction: Int, Sendable { case exercise = 1, lapse = 2 }
+
 public enum OrderAction: String, Sendable { case buy = "BUY", sell = "SELL", shortSell = "SSHORT" }
 
 public struct Order: Sendable, Equatable {

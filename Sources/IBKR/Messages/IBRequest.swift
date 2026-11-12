@@ -4,6 +4,7 @@ public enum IBRequest: Sendable, Equatable {
     case startAPI(clientID: Int, capabilities: String)
     case requestIDs
     case cancelOrder(orderID: Int, manualCancelTime: String)
+    case exerciseOptions(requestID: Int, contract: Contract, action: ExerciseAction, quantity: Int, account: String, override: Bool)
     case openOrders
     case allOpenOrders
     case autoOpenOrders(Bool)
@@ -61,6 +62,13 @@ public enum IBRequest: Sendable, Equatable {
             w.add(8); w.add(1); w.add(1)
         case .cancelOrder(let id, let t):
             w.add(4); w.add(1); w.add(id); try w.add(t)
+        case .exerciseOptions(let id, let c, let action, let quantity, let account, let override):
+            // the 12-field contract block minus primaryExchange, so it cannot reuse `contract`
+            if c.secType == "BAG" { throw .unsupported("secType BAG") }
+            w.add(21); w.add(2); w.add(id); w.add(c.conID); try w.add(c.symbol); try w.add(c.secType)
+            try w.add(c.lastTradeDateOrContractMonth); w.addDouble(c.strike ?? 0); try w.add(c.right)
+            try w.add(c.multiplier); try w.add(c.exchange); try w.add(c.currency); try w.add(c.localSymbol)
+            try w.add(c.tradingClass); w.add(action.rawValue); w.add(quantity); try w.add(account); w.add(override)
         case .openOrders:
             w.add(5); w.add(1)
         case .allOpenOrders:

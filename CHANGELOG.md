@@ -5,6 +5,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 ## [Unreleased]
 
 ### Added
+- `exerciseOptions` and `cancelOrder(_:manualCancelOrderTime:)`.
 - Opt-in reconnect: `connect(reconnect: ReconnectPolicy)` retries a dropped connection with paused attempts until
   `disconnect()` or `maxAttempts`, and probes a silent connection with reqCurrentTime, dropping it with `.timeout`
   when the probe goes unanswered. The order, position and portfolio snapshots stay visible while it retries.

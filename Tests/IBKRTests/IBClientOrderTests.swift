@@ -4,6 +4,12 @@ import Testing
 
 private let aapl = Contract(symbol: "AAPL")
 private let buy = Order(action: .buy, quantity: 1, orderType: "LMT", limitPrice: d("1"))
+private let opt: Contract = {
+    var c = Contract(symbol: "AAPL", secType: "OPT")
+    c.conID = 12345; c.lastTradeDateOrContractMonth = "20261218"; c.strike = d("150"); c.right = "C"
+    c.multiplier = "100"; c.localSymbol = "AAPL  261218C00150000"; c.tradingClass = "AAPL"
+    return c
+}()
 private let unset = "1.7976931348623157E308"
 
 private func connected(_ gateway: FakeGateway) async throws -> IBClient {
@@ -48,6 +54,7 @@ private func until(_ condition: @escaping @Sendable () async -> Bool) async thro
     let client = IBClient(connector: FakeGateway().connector)
     await #expect(throws: IBClientError.notConnected) { try await client.placeOrder(aapl, buy) }
     await #expect(throws: IBClientError.notConnected) { try await client.cancelOrder(1) }
+    await #expect(throws: IBClientError.notConnected) { try await client.exerciseOptions(opt, action: .exercise, quantity: 1, account: "DU1") }
 }
 
 @Test func orderMethodsNeedConnectedState() async throws {
@@ -172,4 +179,39 @@ private func until(_ condition: @escaping @Sendable () async -> Bool) async thro
     #expect(await got.value == nil)
     var it = await client.states().makeAsyncIterator()
     #expect(await it.next() == .disconnected(nil))
+}
+
+@Test func exerciseOptionsSendsItsFrame() async throws {
+    let gateway = FakeGateway(nextValidID: 100)
+    let client = try await connected(gateway)
+    let id = try await client.exerciseOptions(opt, action: .lapse, quantity: 1, account: "DU1", override: true)
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
+    #expect(sent[FakeGateway.syncFrames] == ["21", "2", "\(id)", "12345", "AAPL", "OPT", "20261218", "150.0", "C", "100", "SMART", "USD",
+                                             "AAPL  261218C00150000", "AAPL", "2", "1", "DU1", "1"])
+}
+
+@Test func cancelOrderSendsTheManualCancelTime() async throws {
+    let gateway = FakeGateway(nextValidID: 100)
+    let client = try await connected(gateway)
+    try await client.cancelOrder(101, manualCancelOrderTime: "20261112-15:00:00")
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
+    #expect(sent[FakeGateway.syncFrames] == ["4", "1", "101", "20261112-15:00:00"])
+}
+
+@Test func orderBoundRebindsAManualOrder() async throws {
+    let gateway = FakeGateway(nextValidID: 100)
+    let client = try await connected(gateway)
+    let (_, updates) = await client.orders()
+    gateway.feed(Fixtures.openOrderFields(
+        orderID: 0, permID: 5555, clientID: 0, symbol: "AAPL", action: "BUY", quantity: "1", orderType: "LMT",
+        limitPrice: "1", auxPrice: unset, tif: "DAY", parentID: "0", outsideRTH: "0", orderRef: "", status: "Submitted"))
+    gateway.feed(["100", "5555", "7", "41"])
+    gateway.feed(["3", "41", "Filled", "1", "0", "1", "5555", "0", "1", "7", "", "0"])
+    let last = try await within2s {
+        var last: OrderSnapshot?
+        for await s in updates { last = s; if s.orderID == 41 && s.status == .filled { return s } }
+        throw TimedOut()
+    }
+    #expect(last.orderID == 41 && last.status == .filled)
+    #expect(await client.orders().snapshot.count == 1)
 }

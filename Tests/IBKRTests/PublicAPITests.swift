@@ -48,6 +48,7 @@ import Testing
         orderID: 5, clientID: 4, permID: 3, contract: contract, order: order, status: .submitted,
         filled: 0, remaining: 1, whyHeld: "").rejectReason == nil)
     #expect(ServerLogLevel(rawValue: 5) == .detail)
+    #expect(ExerciseAction(rawValue: 2) == .lapse)
     #expect(ReconnectPolicy().maxAttempts == nil)
     #expect(ReconnectPolicy(probeAfter: nil).probeAfter == nil)
     #expect(TagValue(tag: "a", value: "1").tag == "a")

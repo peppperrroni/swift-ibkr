@@ -1,6 +1,13 @@
 import Testing
 @testable import IBKR
 
+private let opt: Contract = {
+    var c = Contract(symbol: "AAPL", secType: "OPT")
+    c.conID = 12345; c.lastTradeDateOrContractMonth = "20261218"; c.strike = d("150"); c.right = "C"
+    c.multiplier = "100"; c.localSymbol = "AAPL  261218C00150000"; c.tradingClass = "AAPL"
+    return c
+}()
+
 @Suite struct RequestTests {
     @Test func bodyMatchesProtocolTable_startAPI() throws {
         #expect(try IBRequest.startAPI(clientID: 1, capabilities: "").body() == body("71", "2", "1", ""))
@@ -10,6 +17,16 @@ import Testing
     }
     @Test func bodyMatchesProtocolTable_cancelOrder() throws {
         #expect(try IBRequest.cancelOrder(orderID: 42, manualCancelTime: "").body() == body("4", "1", "42", ""))
+    }
+    @Test func exerciseOptionsEncodes() throws {
+        #expect(try IBRequest.exerciseOptions(requestID: 5, contract: opt, action: .exercise, quantity: 2, account: "DU1", override: false).body()
+            == body("21", "2", "5", "12345", "AAPL", "OPT", "20261218", "150.0", "C", "100", "SMART", "USD", "AAPL  261218C00150000", "AAPL", "1", "2", "DU1", "0"))
+    }
+    @Test func exerciseOptionsRefusesABag() {
+        var bag = opt; bag.secType = "BAG"
+        #expect(throws: IBEncodingError.unsupported("secType BAG")) {
+            try IBRequest.exerciseOptions(requestID: 5, contract: bag, action: .lapse, quantity: 1, account: "DU1", override: true).body()
+        }
     }
     @Test func bodyMatchesProtocolTable_openOrders() throws {
         #expect(try IBRequest.openOrders.body() == body("5", "1"))

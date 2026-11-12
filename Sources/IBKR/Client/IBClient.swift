@@ -213,9 +213,20 @@ public actor IBClient {
         }
     }
 
-    public func cancelOrder(_ orderID: Int) throws(IBClientError) {
+    /// `manualCancelOrderTime` (yyyyMMdd-HH:mm:ss) is the time IB records for a cancel made by hand; "" for none.
+    public func cancelOrder(_ orderID: Int, manualCancelOrderTime: String = "") throws(IBClientError) {
         try requireConnected()
-        try send(.cancelOrder(orderID: orderID, manualCancelTime: ""))
+        try send(.cancelOrder(orderID: orderID, manualCancelTime: manualCancelOrderTime))
+    }
+
+    /// Exercises or lets lapse `quantity` contracts of an option; returns the request id. Refuses a `BAG`.
+    @discardableResult
+    public func exerciseOptions(_ contract: Contract, action: ExerciseAction, quantity: Int, account: String,
+                                override: Bool = false) throws(IBClientError) -> Int {
+        try requireConnected()
+        let id = nextRequestID()
+        try send(.exerciseOptions(requestID: id, contract: contract, action: action, quantity: quantity, account: account, override: override))
+        return id
     }
 
     /// The orders known now, then every change from now on, as whole snapshots.

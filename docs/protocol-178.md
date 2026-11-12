@@ -272,9 +272,24 @@ imbalanceOnly 199 are all above).
 | 0 | msgId | int | `4` |
 | 1 | version | int | `1` |
 | 2 | orderId | int | (caller) |
-| 3 | manualOrderCancelTime | string | `""` (gate 169) |
+| 3 | manualOrderCancelTime | string | `""` (gate 169); from `cancelOrder`'s `manualCancelOrderTime` |
 
 Total: 4 fields. The version field is still sent at 178 (it goes away at 192).
+
+### exerciseOptions (out 21)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `21` |
+| 1 | version | int | `2` |
+| 2 | reqId | int | (client) |
+| 3-13 | conId, symbol, secType, lastTradeDateOrContractMonth, strike (double), right, multiplier, exchange, currency, localSymbol, tradingClass | | as the contract block, **without primaryExchange** |
+| 14 | exerciseAction | int | (caller) 1 exercise, 2 lapse |
+| 15 | exerciseQuantity | int | (caller) |
+| 16 | account | string | (caller) |
+| 17 | override | bool | `0` |
+
+Total: 18 fields. A `BAG` contract is refused.
 
 ### reqOpenOrders (out 5)
 

@@ -154,7 +154,8 @@ Task { for await order in updates { print(order.orderID, order.status, order.fil
 let aapl = Contract(symbol: "AAPL")              // stock, SMART routing, USD by default
 let id = try await client.placeOrder(aapl, Order(action: .buy, quantity: 1, orderType: "LMT", limitPrice: 180))
 try await client.modifyOrder(id, aapl, Order(action: .buy, quantity: 1, orderType: "LMT", limitPrice: 181))
-try await client.cancelOrder(id)
+try await client.cancelOrder(id)                 // cancelOrder(id, manualCancelOrderTime: "20261112-15:00:00") records a hand cancel
+try await client.exerciseOptions(option, action: .exercise, quantity: 1, account: "DU0000001")
 ```
 
 To place a bracket, hold the parent back with `transmit = false` and point the children at it by `parentID`.
