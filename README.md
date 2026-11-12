@@ -306,7 +306,7 @@ let sched = try await client.historicalSchedule(aapl, days: 5)                 /
   real-time counterpart.
 - **Bar times.** `Bar.time` is in epoch seconds. Daily bars are stamped 00:00 UTC of their day.
 - **Depth without permissions.** IB sends notice 2152 and then nothing. When the text before «Unknown market data
-  permissions» names no `Depth:` exchange, the depth stream ends with `.noMarketDataPermission(code: 2152, …)` and
+  permissions» (the phrase must be there) names no `Depth:` exchange, the depth stream ends with `.noMarketDataPermission(code: 2152, …)` and
   sends its cancel; otherwise it stays open. The rule rests on one recorded frame (see `docs/DECISIONS.md` and
   [`docs/KNOWN-GAPS.md`](docs/KNOWN-GAPS.md)).
 

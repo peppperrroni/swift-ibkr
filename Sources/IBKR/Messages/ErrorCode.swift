@@ -30,10 +30,10 @@ public enum ErrorCode {
         }
     }
 
-    /// Whether a 2152 grants no depth: the part before «Unknown market data permissions» (the whole text without it)
-    /// lists what the login holds, and none of it is `Depth:`.
+    /// Whether a 2152 refuses all depth: its text carries «Unknown market data permissions» and the part before it
+    /// (what the login holds) names no `Depth:`. A 2152 without that phrase is not read as a refusal.
     static func grantsNoDepth(_ text: String) -> Bool {
-        let granted = text.range(of: "Unknown market data permissions").map { text[..<$0.lowerBound] } ?? text[...]
-        return !granted.contains("Depth:")
+        guard let marker = text.range(of: "Unknown market data permissions") else { return false }
+        return !text[..<marker.lowerBound].contains("Depth:")
     }
 }

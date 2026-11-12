@@ -27,7 +27,7 @@ Still open:
   Error 420 («Invalid Real-time Query:No market data permissions ...») for `realTimeBars` is typed from ib_async's text and unseen live.
 - The depth book uses `ib_async`'s set-at-position model; IB's own sample shifts rows on insert and delete. Check a
   mid-book insert and delete on the first live depth run with a subscription.
-- `marketDepth` ends on a 2152 whose granted part names no `Depth:` exchange (DECISIONS, decision 11). The recorded grant
+- `marketDepth` ends on a 2152 whose granted part names no `Depth:` exchange (docs/DECISIONS.md, the `marketDepth` 2152 row). The recorded grant
   is `Top: IBEOS; OVERNIGHT`, venues closed in regular hours, so both cases are unseen live: a 2152 that grants `Depth:`
   on some exchanges keeps the book open; one that grants `Top:` only on regular venues ends it.
 
