@@ -1,4 +1,4 @@
-# Known gaps after stage 4
+# Known gaps after stage 6
 
 What stages 1 to 4 (codec and merging; socket, `IBClient`, a live paper run; positions, account summary, P&L; market
 data and contract lookups) leave open. Delete a line when it

@@ -47,7 +47,8 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | Orders | place, modify, cancel, brackets, open and completed orders merged | ✅ live-checked |
 | Executions | fills joined with commissions, corrections applied | ✅ live-checked |
 | Positions | synced at connect, whole sets on every change | ✅ live-checked |
-| Account | account summary, per-position P&L | ✅ live-checked |
+| Session | current time, accounts, next id, user info, log level, auto-bind, global cancel, opt-in reconnect | ✅ on the fake gateway; a live run is due in stage 13 |
+| Account | account summary, per-position P&L, portfolio, account values, Multi, account P&L | ✅ summary and per-position P&L live-checked; the rest on the fake gateway, a live run is due in stage 13 |
 | Contract lookup | contract details, matching symbols | ✅ live-checked |
 | Market data | quotes, historical bars, depth book, tick-by-tick, typed «no permission» refusal | ✅ refusals live-checked; the data itself only on hand-built frames (no subscription yet) |
 
