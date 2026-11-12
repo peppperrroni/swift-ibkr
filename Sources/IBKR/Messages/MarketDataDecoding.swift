@@ -103,7 +103,8 @@ extension IBDecoder {
                                 bidSize: try r.decimal(), askSize: try r.decimal())
             default:
                 let mask = try r.int(), price = try r.decimal(), size = try r.decimal()
-                return .trade(time: time, price: price, size: size, exchange: try r.string(), conditions: try r.string(),
+                return .trade(time: time, price: price, size: size, exchange: try r.string(),
+                              conditions: try r.string(),
                               pastLimit: mask & 1 != 0, unreported: mask & 2 != 0)
             }
         }

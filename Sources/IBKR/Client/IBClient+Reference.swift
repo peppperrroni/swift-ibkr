@@ -44,8 +44,9 @@ extension IBClient {
                                 pick: Self.computation)
     }
 
-    /// The price-increment steps of market rule `marketRuleID` (the ids in `ContractDetails.marketRuleIDs`). IB's answer
-    /// carries the rule id and no reqId, so each call takes only its own rule's answer; IB has no error path for it.
+    /// The price-increment steps of market rule `marketRuleID` (the ids in `ContractDetails.marketRuleIDs`).
+    /// IB's answer carries the rule id and no reqId, so each call takes only its own rule's answer; IB has no error
+    /// path for it.
     public func marketRule(_ marketRuleID: Int) async throws(IBClientError) -> [PriceIncrement] {
         try requireConnected()
         return try await answer(.marketRule(marketRuleID: marketRuleID)) {

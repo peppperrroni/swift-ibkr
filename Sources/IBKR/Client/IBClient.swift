@@ -211,7 +211,8 @@ public actor IBClient {
         throws(IBClientError) -> (parent: Int, takeProfit: Int, stopLoss: Int) {
         try requireConnected()
         let ids = (parent: nextRequestID(), takeProfit: nextRequestID(), stopLoss: nextRequestID())
-        var legs = [(ids.parent, bracket.parent), (ids.takeProfit, bracket.takeProfit), (ids.stopLoss, bracket.stopLoss)]
+        var legs = [(ids.parent, bracket.parent), (ids.takeProfit, bracket.takeProfit),
+                    (ids.stopLoss, bracket.stopLoss)]
         for i in legs.indices {
             if i > 0 { legs[i].1.parentID = ids.parent }
             legs[i].1.transmit = i == 2
@@ -270,7 +271,8 @@ public actor IBClient {
 
     /// The fills known now, then every new or corrected fill from now on.
     public func executions() -> (snapshot: [Fill], updates: AsyncStream<Fill>) {
-        (executionTracker.fills, fillSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(fill: id) } })
+        (executionTracker.fills,
+         fillSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(fill: id) } })
     }
 
     /// The positions known now, then every whole new set from now on. Always on: `connect` requests them and
@@ -557,7 +559,8 @@ public actor IBClient {
         throws(IBClientError) -> AsyncThrowingStream<Bar, any Error> {
         try requireConnected()
         let id = nextRequestID()
-        return try openStream(.realTimeBars(requestID: id, contract: contract, whatToShow: whatToShow, rth: rth), id: id,
+        return try openStream(.realTimeBars(requestID: id, contract: contract, whatToShow: whatToShow, rth: rth),
+                              id: id,
                               cancel: .cancelRealTimeBars(requestID: id)) { message, out in
             if case .realTimeBar(_, let bar) = message { out.yield(bar) }
             return false
@@ -657,7 +660,8 @@ public actor IBClient {
         func forward<E: Sendable>(_ s: AsyncThrowingStream<E, any Error>, _ wrap: @escaping @Sendable (E) -> TickerPart)
             -> Task<Void, Never> {
             Task {
-                do { for try await e in s { feed.yield(wrap(e)) }; feed.finish() } catch { feed.finish(throwing: error) }
+                do { for try await e in s { feed.yield(wrap(e)) }; feed.finish() }
+                catch { feed.finish(throwing: error) }
             }
         }
         let readers = [forward(quotes, TickerPart.tick)] + (depth.map { [forward($0, TickerPart.book)] } ?? [])
@@ -741,7 +745,9 @@ public actor IBClient {
     public func userInfo() async throws(IBClientError) -> String {
         try requireConnected()
         let id = nextRequestID()
-        return try await answer(.userInfo(requestID: id), id: id) { if case .userInfo(_, let w) = $0 { w } else { nil } }
+        return try await answer(.userInfo(requestID: id), id: id) {
+            if case .userInfo(_, let w) = $0 { w } else { nil }
+        }
     }
 
     /// How much IB Gateway writes to its own log.

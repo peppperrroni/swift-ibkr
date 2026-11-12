@@ -1,10 +1,15 @@
 import Foundation
 
+/// One completed trade: an execution joined with its commission report.
 public struct Fill: Sendable, Equatable {
+    /// The instrument traded.
     public var contract: Contract
+    /// The execution (execDetails, in 11).
     public var execution: Execution
+    /// Its commission report (in 59), matched by execution id.
     public var commission: CommissionReport
 
+    /// Creates a fill with every field given.
     public init(contract: Contract, execution: Execution, commission: CommissionReport) {
         self.contract = contract
         self.execution = execution
@@ -21,11 +26,13 @@ public struct ExecutionTracker: Sendable {
     private var byCorrectionKey: [String: Int] = [:]
     private var byExecID: [String: Int] = [:]
 
+    /// Creates a tracker with no fills.
     public init() {}
 
     /// First-seen order; a correction replaces its fill in place.
     public var fills: [Fill] { all }
 
+    /// Feeds one message; returns the fills it completes or corrects, else none.
     public mutating func apply(_ message: IBMessage) -> [Fill] {
         switch message {
         case .execDetails(_, let contract, let execution):
@@ -55,7 +62,8 @@ public struct ExecutionTracker: Sendable {
 
     /// Compares the last segments numerically when both parse, else lexically. 
     private static func isNewer(_ a: String, than b: String) -> Bool {
-        let (x, y) = (a.split(separator: ".").last.map(String.init) ?? a, b.split(separator: ".").last.map(String.init) ?? b)
+        let (x, y) = (a.split(separator: ".").last.map(String.init) ?? a,
+                      b.split(separator: ".").last.map(String.init) ?? b)
         if let m = Int(x), let n = Int(y) { return m > n }
         return x > y
     }

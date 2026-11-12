@@ -10,11 +10,13 @@ public struct PositionTracker: Sendable {
     private var pending: [Key: Position] = [:]
     private var reloading = false
 
+    /// Creates a tracker with no positions.
     public init() {}
 
     /// Sorted by account, then conID.
     public var positions: [Position] { Self.sorted(current) }
 
+    /// Starts collecting a fresh set; it replaces the visible one at `positionEnd`.
     public mutating func reload() {
         reloading = true
         pending = [:]

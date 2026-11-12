@@ -184,9 +184,9 @@ extension IBClient {
         return (id, updates)
     }
 
-    /// Shows `contractInfo` (`"265598@SMART"`, or `"none"`) in the group the `displayGroupUpdates` stream of `requestID`
-    /// follows. IB's error for a 69 carries the stream's reqId, so it ends `displayGroupUpdates` with `.ib` and sends
-    /// no 70.
+    /// Shows `contractInfo` (`"265598@SMART"`, or `"none"`) in the group the `displayGroupUpdates` stream of
+    /// `requestID` follows. IB's error for a 69 carries the stream's reqId, so it ends `displayGroupUpdates` with `.ib`
+    /// and sends no 70.
     public func updateDisplayGroup(_ requestID: Int, contractInfo: String) throws(IBClientError) {
         try requireConnected()
         try send(.updateDisplayGroup(requestID: requestID, contractInfo: contractInfo))
