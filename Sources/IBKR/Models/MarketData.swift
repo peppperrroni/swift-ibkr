@@ -8,9 +8,9 @@ public struct ContractDetails: Sendable, Equatable {
     public var marketName: String
     /// The smallest price increment.
     public var minTick: Decimal
-    /// IB's price magnifier; `0` when IB sends none.
+    /// IB's price magnifier, as contractData (10) sends it; `0` on a bond (18).
     public var priceMagnifier: Int
-    /// The instrument's long name, as IB sends it (not unescaped).
+    /// The instrument's long name; contractData (10) is unescaped, a bond's (18) is kept as IB sends it.
     public var longName: String
     /// IB's stock type; empty when not sent.
     public var stockType: String
@@ -195,7 +195,7 @@ public struct Bar: Sendable, Equatable {
     public var open, high, low, close, volume: Decimal
     /// The volume-weighted average price; `nil` when IB sends none.
     public var average: Decimal?
-    /// The number of trades in the bar.
+    /// The number of trades in the bar; IB's `-1` on real-time MIDPOINT, BID and ASK bars is kept.
     public var count: Int
 
     /// Creates a bar with every field given.
