@@ -50,7 +50,8 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | Session | current time, accounts, next id, user info, log level, auto-bind, global cancel, opt-in reconnect | ✅ on the fake gateway; a live run is due in stage 13 |
 | Account | account summary, per-position P&L, portfolio, account values, Multi, account P&L | ✅ summary and per-position P&L live-checked; the rest on the fake gateway, a live run is due in stage 13 |
 | Contract lookup | contract details, matching symbols | ✅ live-checked |
-| Market data | quotes, historical bars, depth book, tick-by-tick, typed «no permission» refusal | ✅ refusals live-checked; the data itself only on hand-built frames (no subscription yet) |
+| Market data | quotes with generic ticks and snapshots, `Ticker` streams and batch snapshots, greeks, EFP, news ticks, real-time bars, depth book, depth exchanges, SMART components, tick-by-tick, BAG, typed «no permission» refusal | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
+| History | bars with keepUpToDate, historical ticks, head timestamp, histogram, trading schedule, BAG | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
 
 What is still unconfirmed against a live gateway is listed in [`docs/KNOWN-GAPS.md`](docs/KNOWN-GAPS.md).
 There are no tagged releases yet, and the API may still change.
@@ -265,24 +266,48 @@ from a real failure.
 // Quotes. Without a subscription ask for delayed data; it is not kept across reconnects, so set it after connect.
 try await client.setMarketDataType(.delayed)
 Task { for try await tick in try await client.marketData(aapl) { print(tick) } }
+// genericTicks: [Int] adds IB's generic tick types (e.g. [233]); snapshot: true ends the stream at tickSnapshotEnd, no cancel.
 // .price, .size, .generic, .string, .dataType, .optionComputation, .efp, .requestParameters, .news
 
-// Historical bars: one .history batch, then the stream ends, unless keepUpToDate, which goes on with .update bars.
-for try await event in try await client.historicalBars(aapl, duration: "1 D", barSize: "5 mins") {
-    if case .history(let bars) = event { print(bars.count) }
-}
+// A whole Ticker (bid/ask/last, OHLC, greeks, the rest keyed by field) after every update; depthRows adds the book.
+Task { for try await t in try await client.tickers(aapl, depthRows: 5) { print(t.bid as Any, t.depth.bids.first as Any) } }
+// Snapshots of many contracts at once, in input order; the first error is thrown and the rest cancelled.
+let snaps = try await client.tickers(for: [aapl, msft])
+
+// Real-time bars (5 seconds, the only size IB allows), as `Bar`.
+Task { for try await bar in try await client.realTimeBars(aapl) { print(bar.close) } }
 
 // The depth book, whole after every update (bids and asks sorted by position); IB's reset (317) empties it.
 Task { for try await book in try await client.marketDepth(aapl, rows: 10) { print(book.bids.first as Any) } }
+let venues = try await client.depthExchanges()          // [DepthMarketDataDescription]
+let parts = try await client.smartComponents("a6")      // [SmartComponent], by the bboExchange from a quote
 
 // Tick-by-tick: every trade (.allLast / .last), quote (.bidAsk) or midpoint as it happens.
 Task { for try await t in try await client.tickByTick(aapl, .allLast) { print(t) } }
 ```
 
+A BAG (combo) contract is accepted by `marketData` (so by `tickers` and `tickers(for:)`), by historical bars and by
+the schedule. Real-time bars, depth, tick-by-tick, historical ticks, the head timestamp and the histogram refuse it.
+
+#### History
+
+```swift
+// Bars: one .history batch, then the stream ends, unless keepUpToDate, which goes on with .update bars.
+for try await event in try await client.historicalBars(aapl, duration: "1 D", barSize: "5 mins") {
+    if case .history(let bars) = event { print(bars.count) }
+}
+let ticks = try await client.historicalTicks(aapl, start: from, count: 1000)   // [TickByTick]; whatToShow "TRADES", "BID_ASK" or "MIDPOINT"
+let first = try await client.headTimeStamp(aapl)                               // Date of the earliest data
+let hist = try await client.histogramData(aapl, period: "1 week")              // [HistogramData] (price, count)
+let sched = try await client.historicalSchedule(aapl, days: 5)                 // HistoricalSchedule, IB's raw strings and time zone
+```
+
 - **Field numbers.** Delayed ticks carry their own field numbers. `TickField.live` maps each one to its
   real-time counterpart.
 - **Bar times.** `Bar.time` is in epoch seconds. Daily bars are stamped 00:00 UTC of their day.
-- **Depth without permissions.** IB sends notice 2152 and then nothing, so the depth stream just stays quiet (see
+- **Depth without permissions.** IB sends notice 2152 and then nothing. When the text before «Unknown market data
+  permissions» names no `Depth:` exchange, the depth stream ends with `.noMarketDataPermission(code: 2152, …)` and
+  sends its cancel; otherwise it stays open. The rule rests on one recorded frame (see `docs/DECISIONS.md` and
   [`docs/KNOWN-GAPS.md`](docs/KNOWN-GAPS.md)).
 
 ### Errors

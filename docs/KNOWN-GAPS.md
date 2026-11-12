@@ -1,8 +1,8 @@
-# Known gaps after stage 7
+# Known gaps after stage 9
 
-What stages 1 to 7 (codec and merging; socket, `IBClient`, a live paper run; positions, account summary, P&L; market
+What stages 1 to 9 (codec and merging; socket, `IBClient`, a live paper run; positions, account summary, P&L; market
 data and contract lookups; session requests, the account stream and reconnect; the full order field set, what-if
-and exercise) leave open. Delete a line when it
+and exercise; market data and history in full) leave open. Delete a line when it
 is settled.
 
 ## To confirm against a live gateway
@@ -22,7 +22,8 @@ Still open:
   «Trading TWS session is connected from a different IP address»; tick-by-tick got 10189 «... No market data
   permissions for ISLAND STK». All three end the stream with `.noMarketDataPermission`, though no other session was
   open: IB's texts for 10197 and 162 name a cause that was not there. The tick, bar, depth and tick-by-tick
-  decoders are checked only against hand-built frames. Rerun `liveMarketData` once there is a subscription.
+  decoders, and every stage 8–9 call (`tickers`, `realTimeBars`, `depthExchanges`, `smartComponents`, `historicalTicks`,
+  `headTimeStamp`, `histogramData`, `historicalSchedule`), are checked only against hand-built frames. Rerun `liveMarketData` once there is a subscription.
   Error 420 («Invalid Real-time Query:No market data permissions ...») for `realTimeBars` is typed from ib_async's text and unseen live.
 - The depth book uses `ib_async`'s set-at-position model; IB's own sample shifts rows on insert and delete. Check a
   mid-book insert and delete on the first live depth run with a subscription.
