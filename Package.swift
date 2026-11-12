@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "swift-ibkr",
-    platforms: [.macOS(.v13)],
+    platforms: [.macOS(.v13), .iOS(.v16)],
     products: [.library(name: "IBKR", targets: ["IBKR"])],
     targets: [
         .target(name: "IBKR"),

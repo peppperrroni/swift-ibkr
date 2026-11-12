@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+# Live tests skip themselves: IBKR_LIVE is never set here.
+jobs:
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: swift --version
+      - run: swift build
+      - run: swift test
+      - run: xcodebuild -list
+      - run: xcodebuild -scheme IBKR -destination 'generic/platform=iOS' build
+
+  linux:
+    runs-on: ubuntu-latest
+    container: swift:${{ matrix.swift }}
+    strategy:
+      fail-fast: false
+      matrix:
+        swift: ["6.0", "latest"]
+    steps:
+      - uses: actions/checkout@v7
+      - run: swift --version
+      - run: swift test
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: compnerd/gha-setup-swift@9ff1ee4c44888c5817fc14d1b257ac8cabb4935f   # v0.5.1
+        with:
+          swift-version: swift-6.4.2-release
+          swift-build: 6.4.2-RELEASE
+      - uses: actions/checkout@v7
+      - run: swift --version
+      - run: swift test
