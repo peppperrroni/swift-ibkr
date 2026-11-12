@@ -1,0 +1,74 @@
+name: Docs
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Doc coverage
+        run: |
+          # Absolute dir: a relative one wrote no graphs on Windows. An unmatched glob stays literal, so the script fails on it.
+          dir="$PWD/.build/symbol-graphs"
+          mkdir -p "$dir"
+          for t in IBKR IBKRFlex; do
+            swift build --target $t -Xswiftc -emit-symbol-graph -Xswiftc -emit-symbol-graph-dir -Xswiftc "$dir"
+          done
+          python3 Scripts/doc-coverage.py "$dir"/*.symbols.json
+      - name: Build the DocC archives
+        run: >
+          xcodebuild docbuild -scheme swift-ibkr-Package -destination 'generic/platform=macOS'
+          -derivedDataPath .build/docbuild OTHER_DOCC_FLAGS=--warnings-as-errors
+      - name: Transform for static hosting
+        run: |
+          for module in IBKR IBKRFlex; do
+            lower=$(echo "$module" | tr '[:upper:]' '[:lower:]')
+            archive=$(find .build/docbuild -type d -name "$module.doccarchive" | head -n 1)
+            test -n "$archive"
+            xcrun docc process-archive transform-for-static-hosting "$archive" \
+              --output-path "site/$lower" --hosting-base-path "swift-ibkr/$lower"
+          done
+          cat > site/index.html <<'HTML'
+          <!doctype html>
+          <html lang="en">
+          <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>swift-ibkr documentation</title></head>
+          <body>
+          <h1>swift-ibkr</h1>
+          <ul>
+          <li><a href="ibkr/documentation/ibkr/">IBKR</a>: the TWS API client</li>
+          <li><a href="ibkrflex/documentation/ibkrflex/">IBKRFlex</a>: Flex Web Service reports</li>
+          </ul>
+          </body>
+          </html>
+          HTML
+          test -f site/ibkr/documentation/ibkr/index.html
+          test -f site/ibkrflex/documentation/ibkrflex/index.html
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
