@@ -49,7 +49,8 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | Positions | synced at connect, whole sets on every change | ✅ live-checked |
 | Session | current time, accounts, next id, user info, log level, auto-bind, global cancel, opt-in reconnect | ✅ on the fake gateway; a live run is due in stage 13 |
 | Account | account summary, per-position P&L, portfolio, account values, Multi, account P&L | ✅ summary and per-position P&L live-checked; the rest on the fake gateway, a live run is due in stage 13 |
-| Contract lookup | contract details, matching symbols, qualification, option chains, option calculations, market rules, family codes, soft-dollar tiers | ✅ details and symbols live-checked; qualification, option chains, option calculations, market rules, family codes and soft-dollar tiers on the fake gateway, a live run is due in stage 13 |
+| Contract lookup | contract details with bonds, matching symbols, factories, qualifyContracts | ✅ details and symbols live-checked; the rest on the fake gateway, a live run is due in stage 13 |
+| Options and reference | option chains, option calculations, market rules, family codes, soft-dollar tiers | ✅ on hand-built frames and the fake gateway; a live run is due in stage 13 |
 | Market data | quotes with generic ticks and snapshots, `Ticker` streams and batch snapshots, greeks, EFP, news ticks, real-time bars, depth book, depth exchanges, SMART components, tick-by-tick, BAG, typed «no permission» refusal | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
 | History | bars with keepUpToDate, historical ticks, head timestamp, histogram, trading schedule, BAG | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
 | Scanner | scan stream, one-shot scan, scanner parameters | ✅ on the fake gateway; a live run is due in stage 13 |
@@ -411,6 +412,41 @@ table, which is in [`docs/DECISIONS.md`](docs/DECISIONS.md):
 - **Everything else** is fatal to the request it belongs to.
 
 All of them, notices included, are still visible on `messages()`.
+
+## ib_async names
+
+Calls keep `ib_async`'s names, minus a leading `req`, with `Id` written `ID`. This table covers the stage 10–11 calls;
+stage 13 extends it to every call.
+
+| ib_async | swift-ibkr |
+|---|---|
+| `qualifyContracts` | `qualifyContracts(_:)` |
+| `Stock`, `Option`, `Future`, `ContFuture`, `Forex`, `Index`, `CFD`, `Commodity`, `Bond`, `FuturesOption`, `MutualFund`, `Warrant`, `Bag`, `Crypto` | `Contract.stock`, `.option`, `.future`, `.contFuture`, `.forex`, `.index`, `.cfd`, `.commodity`, `.bond`, `.futuresOption`, `.mutualFund`, `.warrant`, `.bag`, `.crypto` |
+| `reqSecDefOptParams` | `optionChains(for:futFopExchange:)` |
+| `calculateImpliedVolatility` | `calculateImpliedVolatility(_:optionPrice:underPrice:options:)` |
+| `calculateOptionPrice` | `calculateOptionPrice(_:volatility:underPrice:options:)` |
+| `reqMarketRule` | `marketRule(_:)` |
+| `reqFamilyCodes` | `familyCodes()` |
+| `reqSoftDollarTiers` | `softDollarTiers()` |
+| `reqScannerSubscription` | `scannerSubscription(_:options:filterOptions:)` (a stream) |
+| `reqScannerData` | `scannerData(_:options:filterOptions:)` |
+| `reqScannerParameters` | `scannerParameters()` |
+| `reqNewsProviders` | `newsProviders()` |
+| `reqNewsArticle` | `newsArticle(providerCode:articleID:options:)` |
+| `reqHistoricalNews` | `historicalNews(conID:providerCodes:start:end:totalResults:options:)` |
+| `reqNewsBulletins` | `newsBulletins(allMessages:)` (a stream) |
+| `reqFundamentalData` | `fundamentalData(_:reportType:options:)` |
+| `reqWshMetaData` | `wshMetaData()` |
+| `reqWshEventData` | `wshEventData(_:)` |
+| `requestFA` | `faData(_:)` |
+| `replaceFA` | `replaceFA(_:xml:)` |
+| `queryDisplayGroups` | `displayGroups()` |
+| `subscribeToGroupEvents` | `displayGroupUpdates(_:)` (a stream; stopping it unsubscribes) |
+| `updateDisplayGroup` | `updateDisplayGroup(_:contractInfo:)` |
+| `verifyRequest` | `verifyRequest(apiName:apiVersion:)` |
+| `verifyMessage` | `verifyMessage(_:)` |
+| `verifyAndAuthRequest` | `verifyAndAuthRequest(apiName:apiVersion:opaqueISVKey:)` |
+| `verifyAndAuthMessage` | `verifyAndAuthMessage(_:xyzResponse:)` |
 
 ## Development
 

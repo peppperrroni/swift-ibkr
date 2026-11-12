@@ -1,8 +1,8 @@
-# Known gaps after stage 9
+# Known gaps after stage 11
 
-What stages 1 to 9 (codec and merging; socket, `IBClient`, a live paper run; positions, account summary, P&L; market
+What stages 1 to 11 (codec and merging; socket, `IBClient`, a live paper run; positions, account summary, P&L; market
 data and contract lookups; session requests, the account stream and reconnect; the full order field set, what-if
-and exercise; market data and history in full) leave open. Delete a line when it
+and exercise; market data and history in full; options, reference data, scanner, news and research) leave open. Delete a line when it
 is settled.
 
 ## To confirm against a live gateway
@@ -25,6 +25,7 @@ Still open:
   decoders, and every stage 8–9 call (`tickers`, `realTimeBars`, `depthExchanges`, `smartComponents`, `historicalTicks`,
   `headTimeStamp`, `histogramData`, `historicalSchedule`), are checked only against hand-built frames. Rerun `liveMarketData` once there is a subscription.
   Error 420 («Invalid Real-time Query:No market data permissions ...») for `realTimeBars` is typed from ib_async's text and unseen live.
+- Stages 10–11 are checked only against hand-built frames and the fake gateway: no new call has been seen live. Fundamentals, WSH and news need subscriptions the paper account lacks; the scanner, FA and display groups need a live gateway (TWS, for display groups). Check on the first live run: WSH meta request handling (the meta request stays open until the next `wshMetaData()`, and IB may refuse event data otherwise), the verify calls going out after startApi (IB documents them before it), an IB error on `updateDisplayGroup` ending the stream with `.ib` and no 70, bond details (18), and the news date format (`historicalNews` sends `yyyyMMdd HH:mm:ss UTC`).
 - The depth book uses `ib_async`'s set-at-position model; IB's own sample shifts rows on insert and delete. Check a
   mid-book insert and delete on the first live depth run with a subscription.
 - `marketDepth` ends on a 2152 whose granted part names no `Depth:` exchange (docs/DECISIONS.md, the `marketDepth` 2152 row). The recorded grant
