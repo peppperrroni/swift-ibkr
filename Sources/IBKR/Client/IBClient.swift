@@ -25,6 +25,7 @@ public actor IBClient {
         let cancel: IBRequest?
     }
     private var requestStreams: [Int: RequestStream] = [:]
+    private var localID = -1
 
     // The current connection. `generation` changes whenever one starts or ends, so a late event from an old
     // connection's reader, writer or timer is dropped.
@@ -276,6 +277,64 @@ public actor IBClient {
         }
     }
 
+    /// IB's clock. Throws like `contractDetails` when the connection ends, or `.cancelled`.
+    public func currentTime() async throws(IBClientError) -> Date {
+        try requireConnected()
+        let seconds = try await answer(.currentTime) { if case .currentTime(let t) = $0 { t } else { nil } }
+        return Date(timeIntervalSince1970: Double(seconds))
+    }
+
+    /// The accounts IB lists for this login; the stored list is refreshed too.
+    public func managedAccounts() async throws(IBClientError) -> [String] {
+        try requireConnected()
+        return try await answer(.managedAccounts) { if case .managedAccounts(let a) = $0 { a } else { nil } }
+    }
+
+    /// The id the next `placeOrder` takes, with IB's answer merged by `max` as at connect. Does not consume it.
+    public func nextOrderID() async throws(IBClientError) -> Int {
+        try requireConnected()
+        let told = try await answer(.requestIDs) { if case .nextValidID(let n) = $0 { n } else { nil } }
+        return max(nextID ?? told, told)   // the message already merged into nextID; a lower answer never lowers it
+    }
+
+    /// The white-branding id of the account; `""` for most.
+    public func userInfo() async throws(IBClientError) -> String {
+        try requireConnected()
+        let id = nextRequestID()
+        return try await answer(.userInfo(requestID: id), id: id) { if case .userInfo(_, let w) = $0 { w } else { nil } }
+    }
+
+    /// How much IB Gateway writes to its own log.
+    public func setServerLogLevel(_ level: ServerLogLevel) throws(IBClientError) {
+        try requireConnected()
+        try send(.serverLogLevel(level))
+    }
+
+    /// Whether orders placed by other clients or TWS itself bind to this one. Only client 0 can use it.
+    public func setAutoOpenOrders(_ autoBind: Bool) throws(IBClientError) {
+        try requireConnected()
+        try send(.autoOpenOrders(autoBind))
+    }
+
+    /// Asks IB to cancel every open order, this client's or not; the outcome arrives through `orders()`.
+    public func cancelAllOrders() throws(IBClientError) {
+        try requireConnected()
+        try send(.globalCancel)
+    }
+
+    /// Sends `request` and waits for the first message `pick` takes. Without `id` the waiter is keyed by a local
+    /// negative id and `routeToStream` offers it the id-less messages, oldest waiter first.
+    private func answer<T: Sendable>(_ request: IBRequest, id: Int? = nil, pick: @escaping @Sendable (IBMessage) -> T?)
+        async throws(IBClientError) -> T {
+        let key = id ?? nextLocalID()
+        let stream = try openStream(request, id: key, cancel: nil) { (message, out: AsyncThrowingStream<T, any Error>.Continuation) in
+            guard let value = pick(message) else { return false }
+            out.yield(value); out.finish(); return true
+        }
+        guard let value = try await collect(stream).first else { throw .cancelled }
+        return value
+    }
+
     /// Reads a self-ending stream to its end. It ends without error only when its end marker came, or when the
     /// calling task was cancelled.
     private func collect<E: Sendable>(_ stream: AsyncThrowingStream<E, any Error>) async throws(IBClientError) -> [E] {
@@ -337,8 +396,13 @@ public actor IBClient {
         case .accountSummary(let id, _), .accountSummaryEnd(let id), .pnlSingle(let id, _),
              .contractData(let id, _), .contractDataEnd(let id), .symbolSamples(let id, _), .tick(let id, _),
              .historicalData(let id, _), .historicalDataUpdate(let id, _), .depth(let id, _),
-             .tickByTick(let id, _):
+             .tickByTick(let id, _), .userInfo(let id, _):
             if requestStreams[id]?.route(message) == true { requestStreams[id] = nil }   // before any termination hop
+        case .currentTime, .managedAccounts, .nextValidID:   // no reqId: the oldest waiter that takes it gets it
+            for key in requestStreams.keys.filter({ $0 < -1 }).sorted(by: >) where requestStreams[key]?.route(message) == true {
+                requestStreams[key] = nil
+                break
+            }
         case .error(let e) where ErrorCode.kind(e.code) == .notice:
             if requestStreams[e.requestID]?.route(message) == true { requestStreams[e.requestID] = nil }
         case .error(let e) where ErrorCode.kind(e.code).failsRequest:
@@ -358,6 +422,12 @@ public actor IBClient {
         let id = nextID ?? 0
         nextID = id + 1
         return id
+    }
+
+    /// Keys for waiters with no reqId: -2, -3, ... (-1 is IB's "no request" in errors).
+    private func nextLocalID() -> Int {
+        localID -= 1
+        return localID
     }
 
     private func start(_ t: any Transport, _ gen: Int, _ deadline: ContinuousClock.Instant) {

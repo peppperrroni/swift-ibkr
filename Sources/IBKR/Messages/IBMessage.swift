@@ -20,6 +20,7 @@ public enum IBMessage: Sendable, Equatable {
     case nextValidID(Int)
     case managedAccounts([String])
     case currentTime(Int)
+    case userInfo(requestID: Int, whiteBrandingID: String)
     case openOrder(OpenOrderMessage)
     case openOrderEnd
     case completedOrder(CompletedOrderMessage)

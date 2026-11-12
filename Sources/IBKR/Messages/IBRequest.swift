@@ -27,6 +27,11 @@ public enum IBRequest: Sendable, Equatable {
     case cancelMarketDepth(requestID: Int, smart: Bool)
     case tickByTick(requestID: Int, contract: Contract, type: TickByTickType)
     case cancelTickByTick(requestID: Int)
+    case currentTime
+    case managedAccounts
+    case userInfo(requestID: Int)
+    case serverLogLevel(ServerLogLevel)
+    case globalCancel
 
     /// Fields only; the caller frames them. Field order is docs/protocol-178.md.
     func body() throws(IBEncodingError) -> [UInt8] {
@@ -34,6 +39,16 @@ public enum IBRequest: Sendable, Equatable {
         switch self {
         case .startAPI(let id, let caps):
             w.add(71); w.add(2); w.add(id); try w.add(caps)
+        case .currentTime:
+            w.add(49); w.add(1)
+        case .managedAccounts:
+            w.add(17); w.add(1)
+        case .userInfo(let reqID):
+            w.add(104); w.add(reqID)
+        case .serverLogLevel(let level):
+            w.add(14); w.add(1); w.add(level.rawValue)
+        case .globalCancel:
+            w.add(58); w.add(1)
         case .requestIDs:
             w.add(8); w.add(1); w.add(1)
         case .cancelOrder(let id, let t):

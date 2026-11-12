@@ -32,6 +32,13 @@ import Testing
         #expect(try IBRequest.executions(requestID: 8, filter: f).body()
             == body("7", "3", "8", "5", "DU1", "20261109 09:30:00", "AAPL", "STK", "SMART", "BUY"))
     }
+    @Test func bodyMatchesProtocolTable_session() throws {
+        #expect(try IBRequest.currentTime.body() == body("49", "1"))
+        #expect(try IBRequest.managedAccounts.body() == body("17", "1"))
+        #expect(try IBRequest.userInfo(requestID: 8).body() == body("104", "8"))
+        #expect(try IBRequest.serverLogLevel(.detail).body() == body("14", "1", "5"))
+        #expect(try IBRequest.globalCancel.body() == body("58", "1"))
+    }
     @Test func nonASCIIFieldThrows() {
         #expect(throws: IBEncodingError.nonASCII(field: "é")) {
             try IBRequest.startAPI(clientID: 1, capabilities: "é").body()

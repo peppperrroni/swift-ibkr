@@ -182,6 +182,21 @@ Task {
 }
 ```
 
+### Session
+
+```swift
+let now = try await client.currentTime()           // IB's clock, as a Date
+let accounts = try await client.managedAccounts()  // [String]
+let next = try await client.nextOrderID()          // what the next placeOrder takes; not consumed
+let branding = try await client.userInfo()         // whiteBrandingId, "" for most accounts
+try await client.setServerLogLevel(.detail)        // the gateway's own log
+try await client.setAutoOpenOrders(true)           // bind other clients' orders (clientId 0 only)
+try await client.cancelAllOrders()                 // the outcome arrives through orders()
+```
+
+The first four wait like the contract lookups below: they throw the connection's error when it ends and
+`.cancelled` when the calling task is cancelled. All seven throw `.notConnected` before `connect`.
+
 ### Contract lookup
 
 One-shot calls wait for IB's whole answer. They throw `.ib(code: 200, ...)` when nothing matches, the

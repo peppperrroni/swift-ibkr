@@ -23,6 +23,7 @@ public enum IBDecoder {
                 try r.skip()
                 return .managedAccounts(try r.string().split(separator: ",").map(String.init))
             case 49: try r.skip(); return .currentTime(try r.int())
+            case 107: return .userInfo(requestID: try r.int(), whiteBrandingID: try r.string())
             case 53: return .openOrderEnd
             case 55: try r.skip(); return .execDetailsEnd(requestID: try r.int())
             case 10: return try contractData(&r)

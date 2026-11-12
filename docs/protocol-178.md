@@ -300,6 +300,52 @@ Total: 2 fields.
 
 Total: 3 fields. Meaningful only for clientId 0 (per `ib_async`'s docstring).
 
+### reqCurrentTime (out 49)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `49` |
+| 1 | version | int | `1` |
+
+Total: 2 fields. The reply is `currentTime (in 49)`.
+
+### reqManagedAccts (out 17)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `17` |
+| 1 | version | int | `1` |
+
+Total: 2 fields. The reply is `managedAccounts (in 15)`.
+
+### reqUserInfo (out 104)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `104` |
+| 1 | reqId | int | (caller; no version field) |
+
+Total: 2 fields. The reply is `userInfo (in 107)`; an error for the reqId fails it.
+
+### setServerLogLevel (out 14)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `14` |
+| 1 | version | int | `1` |
+| 2 | logLevel | int | (caller; 1 system, 2 error, 3 warning, 4 information, 5 detail) |
+
+Total: 3 fields. No reply.
+
+### reqGlobalCancel (out 58)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `58` |
+| 1 | version | int | `1` |
+
+Total: 2 fields. No reply; each cancelled order reports through `orderStatus (in 3)`.
+
 ### reqCompletedOrders (out 99)
 
 | # | Field | Type | Default sent |
@@ -720,6 +766,16 @@ Total: 3 fields.
 | 0 | msgId | int | `49` |
 | 1 | version | int | ignored |
 | 2 | time | int | Unix seconds |
+
+Total: 3 fields.
+
+### userInfo (in 107)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `107` |
+| 1 | reqId | int | no version field |
+| 2 | whiteBrandingId | string | `""` for most accounts |
 
 Total: 3 fields.
 

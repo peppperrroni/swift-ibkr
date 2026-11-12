@@ -38,4 +38,5 @@ import Testing
     #expect(OrderSnapshot(
         orderID: 5, clientID: 4, permID: 3, contract: contract, order: order, status: .submitted,
         filled: 0, remaining: 1, whyHeld: "").rejectReason == nil)
+    #expect(ServerLogLevel(rawValue: 5) == .detail)
 }

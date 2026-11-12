@@ -80,3 +80,9 @@ import Testing
     #expect(IBDecoder.decode(body("4", "2", "-1", "2104", text, ""))
         == .error(IBErrorMessage(requestID: -1, code: 2104, text: text, advancedOrderRejectJSON: "")))
 }
+
+@Test func userInfoDecodes() {
+    #expect(IBDecoder.decode(body("107", "8", "IBKR")) == .userInfo(requestID: 8, whiteBrandingID: "IBKR"))
+    guard case .malformed(let id, _, _) = IBDecoder.decode(body("107")) else { Issue.record("not malformed"); return }
+    #expect(id == 107)
+}
