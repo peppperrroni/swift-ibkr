@@ -491,8 +491,8 @@ Total: 12 fields.
 | 1 | version | int | ignored (removed at 194) |
 | 2 | reqId | int | order id / request id; -1 when not order-related (`ib_async` wrapper comment) |
 | 3 | errorCode | int | |
-| 4 | errorString | string | |
-| 5 | advancedOrderRejectJson | string | gate 166; usually empty |
+| 4 | errorString | string | `\uXXXX` escapes are decoded (surrogate pairs joined, malformed ones kept literal) |
+| 5 | advancedOrderRejectJson | string | gate 166; usually empty; kept raw, not unescaped |
 
 Total: 6 fields. errorTime arrives only from 194.
 

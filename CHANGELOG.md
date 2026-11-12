@@ -11,6 +11,8 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 - A `SwiftIBKR.podspec` (pod `SwiftIBKR`, module `IBKR`), linted in CI; trunk publication is pending.
 
 ### Changed
+- `ErrorKind.warning` for 105, 321, 329, 434 and 492, as in `ib_async`: it ends the request stream it names, but never
+  marks an unacknowledged order inactive. Error `text` has its `\uXXXX` escapes decoded.
 - A write that finds the peer gone throws `.connectionClosed`, not `.transport("send: ...")`, whether or not the
   reader has seen the close yet. A peer reset seen by the reader is `.connectionClosed` too.
 

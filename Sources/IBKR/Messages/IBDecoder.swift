@@ -14,7 +14,7 @@ public enum IBDecoder {
             case 3: return .orderStatus(try orderStatus(&r))
             case 4:
                 try r.skip()
-                return .error(IBErrorMessage(requestID: try r.int(), code: try r.int(), text: try r.string(),
+                return .error(IBErrorMessage(requestID: try r.int(), code: try r.int(), text: unescapeUnicode(try r.string()),
                                              advancedOrderRejectJSON: try r.string()))
             case 5: return .openOrder(try openOrder(&r))
             case 9: try r.skip(); return .nextValidID(try r.int())
@@ -226,4 +226,28 @@ public enum IBDecoder {
         }
         return .symbolSamples(requestID: requestID, out)
     }
+}
+
+/// Error text arrives with JSON-style `\uXXXX` escapes. Anything that is not a well-formed escape stays literal.
+func unescapeUnicode(_ s: String) -> String {
+    guard s.contains("\\u") else { return s }
+    let u = Array(s.unicodeScalars)
+    func hex(_ i: Int) -> UInt32? {
+        guard i + 6 <= u.count, u[i] == "\\", u[i + 1] == "u" else { return nil }
+        var v: UInt32 = 0
+        for k in 2..<6 { guard let d = Character(u[i + k]).hexDigitValue else { return nil }; v = v << 4 | UInt32(d) }
+        return v
+    }
+    var out = String.UnicodeScalarView(), i = 0
+    while i < u.count {
+        if let v = hex(i) {
+            if (0xD800..<0xDC00).contains(v), let lo = hex(i + 6), (0xDC00..<0xE000).contains(lo),
+               let c = Unicode.Scalar(0x10000 + ((v - 0xD800) << 10) + (lo - 0xDC00)) {
+                out.append(c); i += 12; continue
+            }
+            if let c = Unicode.Scalar(v) { out.append(c); i += 6; continue }
+        }
+        out.append(u[i]); i += 1
+    }
+    return String(out)
 }

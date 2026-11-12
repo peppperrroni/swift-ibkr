@@ -68,3 +68,15 @@ import Testing
     guard case .malformed(let id, _, _) = IBDecoder.decode(body("abc")) else { Issue.record("not malformed"); return }
     #expect(id == 0)
 }
+
+@Test func escapedErrorTextIsDecoded() {
+    #expect(IBDecoder.decode(body("4", "2", "-1", "2104", "Connexion r\\u00e9ussie \\ud83d\\ude00", "{\"t\":\"\\u0022\"}"))
+        == .error(IBErrorMessage(requestID: -1, code: 2104, text: "Connexion réussie 😀",
+                                 advancedOrderRejectJSON: "{\"t\":\"\\u0022\"}")))
+}
+
+@Test func malformedEscapesStayLiteral() {
+    let text = "a\\u12 b\\uZZZZ c\\ud83d d\\"
+    #expect(IBDecoder.decode(body("4", "2", "-1", "2104", text, ""))
+        == .error(IBErrorMessage(requestID: -1, code: 2104, text: text, advancedOrderRejectJSON: "")))
+}

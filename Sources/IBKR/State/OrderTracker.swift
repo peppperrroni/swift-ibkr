@@ -115,7 +115,7 @@ public struct OrderTracker: Sendable {
         return upsert(key, 0, new: sentSnapshot(key)) { s in
             if kind == .orderCancelled { s.status = .cancelled; return }
             s.rejectReason = e.text
-            if s.status == .apiPending { s.status = .inactive }  // once IB acknowledged the order, its own status wins
+            if kind == .fatal, s.status == .apiPending { s.status = .inactive }  // once IB acknowledged the order, its own status wins
         }
     }
 

@@ -228,6 +228,8 @@ table, which is in [`docs/DECISIONS.md`](docs/DECISIONS.md):
 
 - **Notices** never fail anything. They include 2104 «market data farm connection is OK», 10167 «delayed data»
   and 399.
+- **Warnings** (105, 321, 329, 434, 492, the codes `ib_async` treats as warnings) end the request they name, but do
+  not reject an order that has not been acknowledged yet.
 - **202** confirms a cancel.
 - **Everything else** is fatal to the request it belongs to.
 

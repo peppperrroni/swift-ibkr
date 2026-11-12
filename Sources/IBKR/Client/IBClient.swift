@@ -341,7 +341,7 @@ public actor IBClient {
             if requestStreams[id]?.route(message) == true { requestStreams[id] = nil }   // before any termination hop
         case .error(let e) where ErrorCode.kind(e.code) == .notice:
             if requestStreams[e.requestID]?.route(message) == true { requestStreams[e.requestID] = nil }
-        case .error(let e) where ErrorCode.kind(e.code) == .fatal:
+        case .error(let e) where ErrorCode.kind(e.code).failsRequest:
             guard let s = requestStreams.removeValue(forKey: e.requestID) else { break }
             if ErrorCode.isNoMarketDataPermission(code: e.code, text: e.text) {
                 if let cancel = s.cancel { try? send(cancel) }   // IB keeps a refused subscription open
@@ -411,8 +411,9 @@ public actor IBClient {
         switch message {
         case .nextValidID(let n): nextID = max(nextID ?? n, n)
         case .managedAccounts(let a): accounts = a
-        case .error(let e) where pendingConnect != nil && ErrorCode.kind(e.code) == .fatal
-                && (e.requestID == -1 || syncEnds?.contains(.execDetailsEnd(requestID: e.requestID)) == true):
+        case .error(let e) where pendingConnect != nil
+                && ((e.requestID == -1 && ErrorCode.kind(e.code) == .fatal)
+                    || (ErrorCode.kind(e.code).failsRequest && syncEnds?.contains(.execDetailsEnd(requestID: e.requestID)) == true)):
             return end(.ib(code: e.code, text: e.text))   // -1: the connection itself; else the sync's reqExecutions
         default: break
         }

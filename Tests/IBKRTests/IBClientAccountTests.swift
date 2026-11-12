@@ -182,3 +182,12 @@ func disconnectEndsRequestStreams(peerCloses: Bool) async throws {
     let sent = try await gateway.waitForSent(6)
     #expect(sent.count == 6 && sent[5][0] == "4")
 }
+
+@Test func warningEndsARequestStream() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.accountSummary(tags: ["NetLiquidation"])
+    let id = try await lastRequestID(gateway, 6, at: 2)
+    gateway.feed(["4", "2", id, "321", "Error validating request", ""])
+    #expect(try await ending(stream) == .ib(code: 321, text: "Error validating request"))
+}

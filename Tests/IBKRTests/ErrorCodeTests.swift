@@ -21,3 +21,8 @@ import Testing
 @Test func kindTableAdditions() {
     for c in [317, 10090, 10091] { #expect(ErrorCode.kind(c) == .notice) }
 }
+
+@Test func warningKinds() {
+    for c in [105, 321, 329, 434, 492] { #expect(ErrorCode.kind(c) == .warning) }
+    #expect(ErrorCode.kind(110) == .fatal)
+}

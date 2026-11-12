@@ -28,11 +28,6 @@ Still open:
   nothing. A consumer cannot tell that from a quiet book. Decide in stage 8 (from recorded live frames) whether 2152 on a depth request ends the
   stream (its text can list exchanges that do have permissions).
 
-- Error text may arrive `\uXXXX`-escaped (IB's client unescapes it from server 153): unescape `text` and
-  `advancedOrderRejectJson` if so, with a recorded frame as the test. None of the six recorded errors was escaped.
-- Warning codes missing from the error table (e.g. 10349 «TIF set to DAY by preset»): an unlisted code is fatal,
-  and before IB acknowledges an order a fatal error marks it inactive. The live run sent 2104, 2107, 2158 and 399
-  («will not be placed until the open»), all already notices, and 202 on cancel. The stage-4 run added 2119 («farm is connecting») and 2152, both notices.
 - Whether a rejected order shows up again in `completedOrders` (its tracker snapshot has permID 0, so it would be
   duplicated).
 - Recorded (`Tests/IBKRTests/Recorded/`): the handshake and sync, one limit order placed and cancelled, and one

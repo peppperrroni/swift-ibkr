@@ -169,3 +169,10 @@ private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT"
     #expect(r.count == 1 && r[0].status == .filled && r[0].orderID == 41)
     #expect(t.orders.count == 1)
 }
+
+@Test func warningKeepsAPendingOrderLive() {
+    var t = OrderTracker(clientID: 1)
+    t.sent(orderID: 12, clientID: 1, contract: aapl, order: sentOrder)
+    let r = t.apply(error(12, 321, "Error validating request"))
+    #expect(r.count == 1 && r[0].status == .apiPending && r[0].rejectReason == "Error validating request")
+}
