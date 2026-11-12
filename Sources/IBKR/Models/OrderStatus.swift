@@ -30,4 +30,30 @@ public struct OrderStatusMessage: Sendable, Equatable {
     public var clientID: Int
     public var whyHeld: String
     public var marketCapPrice: Decimal?
+
+    public init(
+        orderID: Int,
+        status: OrderStatus,
+        filled: Decimal,
+        remaining: Decimal,
+        averageFillPrice: Decimal? = nil,
+        permID: Int,
+        parentID: Int,
+        lastFillPrice: Decimal? = nil,
+        clientID: Int,
+        whyHeld: String,
+        marketCapPrice: Decimal? = nil
+    ) {
+        self.orderID = orderID
+        self.status = status
+        self.filled = filled
+        self.remaining = remaining
+        self.averageFillPrice = averageFillPrice
+        self.permID = permID
+        self.parentID = parentID
+        self.lastFillPrice = lastFillPrice
+        self.clientID = clientID
+        self.whyHeld = whyHeld
+        self.marketCapPrice = marketCapPrice
+    }
 }

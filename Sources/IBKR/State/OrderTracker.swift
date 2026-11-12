@@ -14,10 +14,40 @@ public struct OrderSnapshot: Sendable, Equatable {
     public var whyHeld: String
     public var rejectReason: String?
     public var completedTime: String?
+
+    public init(
+        orderID: Int,
+        clientID: Int,
+        permID: Int,
+        contract: Contract,
+        order: Order,
+        status: OrderStatus,
+        filled: Decimal,
+        remaining: Decimal,
+        averageFillPrice: Decimal? = nil,
+        lastFillPrice: Decimal? = nil,
+        whyHeld: String,
+        rejectReason: String? = nil,
+        completedTime: String? = nil
+    ) {
+        self.orderID = orderID
+        self.clientID = clientID
+        self.permID = permID
+        self.contract = contract
+        self.order = order
+        self.status = status
+        self.filled = filled
+        self.remaining = remaining
+        self.averageFillPrice = averageFillPrice
+        self.lastFillPrice = lastFillPrice
+        self.whyHeld = whyHeld
+        self.rejectReason = rejectReason
+        self.completedTime = completedTime
+    }
 }
 
 /// `.api` when the order has an id on this API, else IB's permanent id (manual and completed orders).
-public enum OrderKey: Hashable, Sendable {
+enum OrderKey: Hashable, Sendable {
     case api(clientID: Int, orderID: Int)
     case permanent(Int)
 }

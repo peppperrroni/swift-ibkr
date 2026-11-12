@@ -7,6 +7,15 @@ public struct OpenOrderMessage: Sendable, Equatable {
     public var contract: Contract
     public var order: Order
     public var status: OrderStatus
+
+    public init(orderID: Int, clientID: Int, permID: Int, contract: Contract, order: Order, status: OrderStatus) {
+        self.orderID = orderID
+        self.clientID = clientID
+        self.permID = permID
+        self.contract = contract
+        self.order = order
+        self.status = status
+    }
 }
 
 /// `orderId` and `clientId` are not on the wire at version 178: the key is `permID`.
@@ -18,6 +27,24 @@ public struct CompletedOrderMessage: Sendable, Equatable {
     public var completedTime: String
     public var completedStatus: String
     public var filledQuantity: Decimal
+
+    public init(
+        permID: Int,
+        contract: Contract,
+        order: Order,
+        status: OrderStatus,
+        completedTime: String,
+        completedStatus: String,
+        filledQuantity: Decimal
+    ) {
+        self.permID = permID
+        self.contract = contract
+        self.order = order
+        self.status = status
+        self.completedTime = completedTime
+        self.completedStatus = completedStatus
+        self.filledQuantity = filledQuantity
+    }
 }
 
 /// Field order: docs/protocol-178.md, `openOrder (in 5)` and `completedOrder (in 101)`. Comments give

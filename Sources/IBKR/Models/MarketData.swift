@@ -15,6 +15,38 @@ public struct ContractDetails: Sendable, Equatable {
     public var minSize: Decimal?
     public var sizeIncrement: Decimal?
     public var suggestedSizeIncrement: Decimal?
+
+    public init(
+        contract: Contract,
+        marketName: String,
+        minTick: Decimal,
+        priceMagnifier: Int,
+        longName: String,
+        stockType: String,
+        orderTypes: [String] = [],
+        validExchanges: [String] = [],
+        timeZoneID: String,
+        tradingHours: String,
+        liquidHours: String,
+        minSize: Decimal? = nil,
+        sizeIncrement: Decimal? = nil,
+        suggestedSizeIncrement: Decimal? = nil
+    ) {
+        self.contract = contract
+        self.marketName = marketName
+        self.minTick = minTick
+        self.priceMagnifier = priceMagnifier
+        self.longName = longName
+        self.stockType = stockType
+        self.orderTypes = orderTypes
+        self.validExchanges = validExchanges
+        self.timeZoneID = timeZoneID
+        self.tradingHours = tradingHours
+        self.liquidHours = liquidHours
+        self.minSize = minSize
+        self.sizeIncrement = sizeIncrement
+        self.suggestedSizeIncrement = suggestedSizeIncrement
+    }
 }
 
 /// One reqMatchingSymbols hit. Its contract has no exchange, only a primary one.
@@ -23,6 +55,13 @@ public struct ContractDescription: Sendable, Equatable {
     public var derivativeSecTypes: [String]
     public var description: String
     public var issuerID: String
+
+    public init(contract: Contract, derivativeSecTypes: [String] = [], description: String, issuerID: String) {
+        self.contract = contract
+        self.derivativeSecTypes = derivativeSecTypes
+        self.description = description
+        self.issuerID = issuerID
+    }
 }
 
 /// IB's market-data type: which kind of data `reqMktData` gets without a subscription.
@@ -61,6 +100,26 @@ public struct Bar: Sendable, Equatable {
     public var open, high, low, close, volume: Decimal
     public var average: Decimal?
     public var count: Int
+
+    public init(
+        time: Date,
+        open: Decimal,
+        high: Decimal,
+        low: Decimal,
+        close: Decimal,
+        volume: Decimal,
+        average: Decimal? = nil,
+        count: Int
+    ) {
+        self.time = time
+        self.open = open
+        self.high = high
+        self.low = low
+        self.close = close
+        self.volume = volume
+        self.average = average
+        self.count = count
+    }
 }
 
 public enum BarEvent: Sendable, Equatable {
@@ -92,6 +151,12 @@ public struct DepthLevel: Sendable, Equatable {
     public var price: Decimal
     public var size: Decimal
     public var marketMaker: String
+
+    public init(price: Decimal, size: Decimal, marketMaker: String) {
+        self.price = price
+        self.size = size
+        self.marketMaker = marketMaker
+    }
 }
 
 /// One change to the book, as IB sends it (messages 12 and 13).
@@ -104,4 +169,13 @@ public struct DepthUpdate: Sendable, Equatable {
     public var side: Side
     public var price: Decimal
     public var size: Decimal
+
+    public init(position: Int, marketMaker: String, operation: Operation, side: Side, price: Decimal, size: Decimal) {
+        self.position = position
+        self.marketMaker = marketMaker
+        self.operation = operation
+        self.side = side
+        self.price = price
+        self.size = size
+    }
 }

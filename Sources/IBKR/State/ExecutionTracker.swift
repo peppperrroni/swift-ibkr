@@ -4,6 +4,12 @@ public struct Fill: Sendable, Equatable {
     public var contract: Contract
     public var execution: Execution
     public var commission: CommissionReport
+
+    public init(contract: Contract, execution: Execution, commission: CommissionReport) {
+        self.contract = contract
+        self.execution = execution
+        self.commission = commission
+    }
 }
 
 /// Joins IB's execDetails and commissionReport (matched by execId, in either order) into whole fills. Pure

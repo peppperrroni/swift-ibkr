@@ -74,8 +74,6 @@ Still open:
 - `frameAfterDisconnectIsIgnored` cannot catch a removed generation guard, because FakeGateway closes its stream;
   it needs a mode that stays open after close. The same goes for the generation guard in `IBClient`'s request-stream
   `stopped(...)`, which stops a late consumer-stop from an old connection cancelling a reused reqId.
-- Public memberwise initialisers for the public value types, so consumers (the TWS adapter) can build test values;
-  `OrderKey` is public but used by no public API.
 - completedOrder's `parentPermId` is skipped: after an app restart a fresh tracker loses bracket links of
   completed orders.
 - `rejectReason` is never cleared once set.

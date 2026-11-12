@@ -5,6 +5,13 @@ public struct IBErrorMessage: Sendable, Equatable {
     public var code: Int
     public var text: String
     public var advancedOrderRejectJSON: String
+
+    public init(requestID: Int, code: Int, text: String, advancedOrderRejectJSON: String) {
+        self.requestID = requestID
+        self.code = code
+        self.text = text
+        self.advancedOrderRejectJSON = advancedOrderRejectJSON
+    }
 }
 
 public enum IBMessage: Sendable, Equatable {
