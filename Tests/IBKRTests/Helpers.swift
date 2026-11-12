@@ -23,7 +23,7 @@ private final class Race<T: Sendable>: @unchecked Sendable {
 func within2s<T: Sendable>(_ operation: @escaping @Sendable () async throws -> T) async throws -> T {
     try await withCheckedThrowingContinuation { cont in
         let race = Race(cont)
-        let work = Task { race.finish(await Result { try await operation() }) }
+        let work = Task { do { race.finish(.success(try await operation())) } catch { race.finish(.failure(error)) } }
         let timer = Task {
             try? await Task.sleep(for: .seconds(2))
             if !Task.isCancelled { race.finish(.failure(TimedOut())); work.cancel() }
@@ -55,7 +55,7 @@ struct TimedOutWaiting: Error, CustomStringConvertible { var description: String
 func within<T: Sendable>(_ what: String, seconds: Int = 15, _ operation: @escaping @Sendable () async throws -> T) async throws -> T {
     try await withCheckedThrowingContinuation { cont in
         let race = Race(cont)
-        let work = Task { race.finish(await Result { try await operation() }) }
+        let work = Task { do { race.finish(.success(try await operation())) } catch { race.finish(.failure(error)) } }
         let timer = Task {
             try? await Task.sleep(for: .seconds(seconds))
             if !Task.isCancelled { race.finish(.failure(TimedOutWaiting(description: "timed out after \(seconds) s waiting for \(what)"))); work.cancel() }
