@@ -116,8 +116,20 @@ await client.disconnect()
   - `.cancelled` when the calling task is cancelled; the state turns `.disconnected(.cancelled)`.
 - **Streams.** Every call to `states()` or `messages()` hands out a fresh stream, so any number of consumers
   can listen.
-- **No automatic reconnect.** A lost connection turns the state to `.disconnected(error)`, and nothing
-  reconnects for you: call `connect` again.
+- **Reconnect is opt-in.** Without a policy, a lost connection turns the state to `.disconnected(error)` and
+  nothing reconnects for you: call `connect` again. With one, a connection that was up and then dropped
+  publishes `.disconnected(error)`, then `.connecting`, and is retried until it is back, `maxAttempts` run out
+  (`.disconnected(lastError)`), or you call `disconnect()`:
+
+  ```swift
+  // pauses of 1, 2, 5, 10, 30 s (the last repeats), no attempt limit, a reqCurrentTime probe after 30 s of silence
+  try await client.connect(port: 4002, clientID: 7, reconnect: ReconnectPolicy())
+  ```
+
+  A first `connect` that fails is not retried, and `connect` throws `.alreadyConnected` while attempts run. After
+  `probeAfter` with no incoming frame the client asks IB the time; if as long again passes with nothing, it drops
+  the connection with `.timeout` and reconnects. A reconnect resends only the sync: request streams end at the drop,
+  and `setMarketDataType` must be set again.
 - **Across a reconnect.** Subscribers of `orders()`, `executions()`, `positions()`, `portfolio()` and
   `accountValues()` stay subscribed. Per-request streams such as `accountSummary` and `pnlSingle` end with the
   connection's error instead, so subscribe to them again.

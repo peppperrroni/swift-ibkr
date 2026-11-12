@@ -99,9 +99,17 @@ final class FakeGateway: Transport, @unchecked Sendable {
     }
 }
 
-/// Hands out one gateway per connect, in order.
+/// Hands out one gateway per connect, in order, and refuses once they are used up.
 actor Gateways {
     private var list: [FakeGateway]
+    private(set) var connects = 0   // every attempt, refused ones included
     init(_ list: [FakeGateway]) { self.list = list }
-    func next() -> FakeGateway { list.removeFirst() }
+
+    func next() throws(IBClientError) -> FakeGateway {
+        connects += 1
+        guard !list.isEmpty else { throw .transport("refused") }
+        return list.removeFirst()
+    }
+
+    nonisolated var connector: Connector { { _, _, _ in try await self.next() } }
 }

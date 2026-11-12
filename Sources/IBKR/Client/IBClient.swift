@@ -6,7 +6,8 @@ public enum ConnectionState: Sendable, Equatable {
 }
 
 /// One connection to IB Gateway. Incoming chunks reach the actor in order through one reader task; requests
-/// leave in call order through one throttled writer task. A lost connection is not reconnected automatically.
+/// leave in call order through one throttled writer task. A lost connection is reconnected only under the
+/// `ReconnectPolicy` given to `connect`.
 public actor IBClient {
     private let connector: Connector
     private var state: ConnectionState = .disconnected(nil)
@@ -52,6 +53,13 @@ public actor IBClient {
     private var connectTimer: Task<Void, Never>?
     private var syncEnds: [IBMessage]?
 
+    // Opt-in reconnect: what `connect` was given, the running attempt loop (nil when none: an attempt's `end()`
+    // then publishes), the silence probe, and when the last chunk came in.
+    private var reconnect: (policy: ReconnectPolicy, host: String, port: Int, clientID: Int, timeout: Duration)?
+    private var reconnectTask: Task<Void, Never>?
+    private var probeTask: Task<Void, Never>?
+    private var lastFrame = ContinuousClock.now
+
     public init() {
         self.init(connector: { host, port, timeout in
             try await TCPSocket.connect(host: host, port: port, timeout: timeout)
@@ -63,9 +71,20 @@ public actor IBClient {
     /// Returns once the handshake is done and open orders, completed orders, executions, positions, the portfolio
     /// and the account values are synced.
     /// `timeout` covers all of it. Cancelling the calling task stops it with `.cancelled`.
+    /// With `reconnect`, a connection that reached `.connected` and then ends with an error publishes
+    /// `.disconnected(error)`, then `.connecting`, and is retried under the policy until `disconnect()`; request
+    /// streams still end at the drop, and nothing outside the sync is resent (`setMarketDataType` included).
+    /// While it retries, `connect` throws `.alreadyConnected`. A first connect that fails is not retried.
     public func connect(host: String = "127.0.0.1", port: Int = 4002, clientID: Int,
-                        timeout: Duration = .seconds(10)) async throws(IBClientError) {
+                        timeout: Duration = .seconds(10), reconnect policy: ReconnectPolicy? = nil)
+        async throws(IBClientError) {
         guard case .disconnected = state else { throw .alreadyConnected }
+        reconnect = policy.map { ($0, host, port, clientID, timeout) }   // acts only once this connect succeeds
+        try await open(host: host, port: port, clientID: clientID, timeout: timeout).get()
+    }
+
+    /// The connect path, shared by `connect` and the reconnect attempts.
+    private func open(host: String, port: Int, clientID: Int, timeout: Duration) async -> Result<Void, IBClientError> {
         let deadline = ContinuousClock.now + timeout
         generation += 1
         let gen = generation
@@ -76,7 +95,7 @@ public actor IBClient {
         positionTracker.reload()   // the set is kept too, and replaced whole at the sync's positionEnd
         setState(.connecting)
 
-        try await withTaskCancellationHandler { () async -> Result<Void, IBClientError> in
+        return await withTaskCancellationHandler { () async -> Result<Void, IBClientError> in
             let t: any Transport
             do {
                 t = try await connector(host, port, timeout)
@@ -96,7 +115,43 @@ public actor IBClient {
             }
         } onCancel: {
             Task { await self.cancelConnect(gen) }
-        }.get()
+        }
+    }
+
+    /// Pauses and reruns the connect path until it succeeds, `maxAttempts` run out (then publishes
+    /// `.disconnected` with the last error), or `disconnect()` cancels it (which has published already).
+    private func reconnectLoop(after drop: IBClientError) async {
+        guard let r = reconnect else { return }
+        var lastError = drop, attempt = 0
+        while r.policy.maxAttempts.map({ attempt < $0 }) ?? true {
+            attempt += 1
+            if !r.policy.delays.isEmpty {
+                try? await Task.sleep(for: r.policy.delays[min(attempt, r.policy.delays.count) - 1])
+            }
+            guard !Task.isCancelled else { return }
+            switch await open(host: r.host, port: r.port, clientID: r.clientID, timeout: r.timeout) {
+            case .success: return
+            case .failure(let e): lastError = e
+            }
+        }
+        guard !Task.isCancelled else { return }
+        reconnectTask = nil
+        setState(.disconnected(lastError))
+    }
+
+    /// While connected: after `every` with no incoming chunk, asks IB the time; as long again with nothing ends
+    /// the connection with `.timeout`.
+    private func probe(every: Duration, _ gen: Int) async {
+        var probedAt: ContinuousClock.Instant?
+        while true {
+            guard (try? await Task.sleep(until: (probedAt ?? lastFrame) + every)) != nil, gen == generation else { return }
+            if let p = probedAt {
+                if lastFrame >= p { probedAt = nil } else { return end(.timeout) }
+            } else if ContinuousClock.now - lastFrame >= every {
+                try? send(.currentTime)   // no fields to encode
+                probedAt = .now
+            }
+        }
     }
 
     private func cancelConnect(_ gen: Int) {
@@ -105,8 +160,11 @@ public actor IBClient {
 
     /// Reports `.disconnected(nil)` and ends the request streams at once. From `.connected` it first queues
     /// cancelPositions and lets the queue drain: the writer closes after the last frame, or 2 s later at the
-    /// latest. From `.connecting` it closes at once. Does nothing when already disconnected.
+    /// latest. From `.connecting` it closes at once. Does nothing when already disconnected. Stops reconnecting.
     public func disconnect() {
+        reconnect = nil
+        reconnectTask?.cancel()
+        reconnectTask = nil   // first: the end() below then publishes
         switch state {
         case .disconnected: return
         case .connecting: end(nil)
@@ -559,6 +617,7 @@ public actor IBClient {
 
     private func receive(_ chunk: [UInt8], _ gen: Int) {
         guard gen == generation else { return }
+        lastFrame = .now
         do { try frames.append(chunk) } catch { return end(.protocolError(error)) }
         while gen == generation, let body = frames.next() { handle(body) }
     }
@@ -630,7 +689,11 @@ public actor IBClient {
     private func connected() {
         guard let serverVersion, let accounts else { return }
         connectTimer?.cancel()
-        (connectTimer, syncEnds) = (nil, nil)
+        (connectTimer, syncEnds, reconnectTask) = (nil, nil, nil)   // a reconnect loop ends with this attempt
+        if let every = reconnect?.policy.probeAfter {
+            let gen = generation
+            probeTask = Task { await probe(every: every, gen) }
+        }
         setState(.connected(serverVersion: serverVersion, accounts: accounts))
         pendingConnect?.resume(returning: .success(()))
         pendingConnect = nil
@@ -647,9 +710,14 @@ public actor IBClient {
 
     /// Every exit path ends here: the transport is closed (its reader thread holds it), the outbox finished,
     /// and anything still in flight from this connection is ignored from now on. `draining` (a clean disconnect)
-    /// queues cancelPositions and leaves the close to the writer, with a 2 s bound.
+    /// queues cancelPositions and leaves the close to the writer, with a 2 s bound. A reconnect attempt's end
+    /// publishes nothing; a stored policy turns an error on a `.connected` connection into a reconnect.
     private func end(_ error: IBClientError?, draining: Bool = false) {
+        var drop: IBClientError?
+        if case .connected = state, reconnect != nil { drop = error }
         generation += 1
+        probeTask?.cancel()
+        probeTask = nil
         if draining, let t = transport {
             try? send(.cancelPositions)   // all integers: encodes
             Task.detached { try? await Task.sleep(for: .seconds(2)); t.close() }   // close() needs no actor
@@ -662,12 +730,17 @@ public actor IBClient {
         let streams = requestStreams.values
         requestStreams = [:]   // emptied first: their termination then sends no cancel
         for s in streams { s.finish(error ?? .connectionClosed) }
-        setState(.disconnected(error))
+        if reconnectTask == nil { setState(.disconnected(error)) }
         pendingConnect?.resume(returning: .failure(error ?? .connectionClosed))
         pendingConnect = nil
+        if let drop {
+            setState(.connecting)
+            reconnectTask = Task { await reconnectLoop(after: drop) }
+        }
     }
 
     private func setState(_ new: ConnectionState) {
+        guard new != state else { return }
         state = new
         stateSubscribers.yield(new)
     }

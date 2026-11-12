@@ -108,7 +108,7 @@ private func next<T: Sendable>(_ count: Int, _ stream: AsyncStream<T>) async thr
     one.onRequest = { $0[0] == "6" ? [item("DU1", "1")] : [] }
     two.onRequest = { $0[0] == "6" ? [item("DU1", "2")] : [] }
     let gateways = Gateways([one, two])
-    let client = IBClient(connector: { _, _, _ in await gateways.next() })
+    let client = IBClient(connector: gateways.connector)
     try await connect(client)
     let (snapshot, updates) = await client.portfolio()
     #expect(keys(snapshot) == ["DU1/1"])

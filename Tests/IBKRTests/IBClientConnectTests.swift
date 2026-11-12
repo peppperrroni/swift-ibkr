@@ -82,7 +82,7 @@ private let ready = ConnectionState.connected(serverVersion: 178, accounts: ["DU
 @Test func disconnectReportsNoError() async throws {
     let (one, two) = (FakeGateway(), FakeGateway())
     let gateways = Gateways([one, two])
-    let client = IBClient(connector: { _, _, _ in await gateways.next() })
+    let client = IBClient(connector: gateways.connector)
     try await connect(client)
     await client.disconnect()
     #expect(try await first(client.states()) == .disconnected(nil))
@@ -137,7 +137,7 @@ private let ready = ConnectionState.connected(serverVersion: 178, accounts: ["DU
 @Test func connectHonoursCancellation() async throws {
     let (one, two) = (FakeGateway(answersStartAPI: false), FakeGateway())
     let gateways = Gateways([one, two])
-    let client = IBClient(connector: { _, _, _ in await gateways.next() })
+    let client = IBClient(connector: gateways.connector)
     let connecting = Task { try await client.connect(clientID: 7) }   // outside within2s: a task inside it would not receive this cancel
     _ = try await one.waitForSent(1)
     connecting.cancel()
@@ -170,7 +170,7 @@ private let ready = ConnectionState.connected(serverVersion: 178, accounts: ["DU
     let (one, two) = (FakeGateway(), FakeGateway())
     two.onRequest = { $0[0] == "7" ? [exec, commission] : [] }   // the sync replays the fill
     let gateways = Gateways([one, two])
-    let client = IBClient(connector: { _, _, _ in await gateways.next() })
+    let client = IBClient(connector: gateways.connector)
     try await connect(client)
     let (_, updates) = await client.executions()
     one.feed(exec)
