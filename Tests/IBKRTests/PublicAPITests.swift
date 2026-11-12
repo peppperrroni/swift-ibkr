@@ -34,6 +34,7 @@ import Testing
     #expect(OptionComputation(tickAttrib: 0).delta == nil)
     #expect(EFPData().holdDays == nil)
     #expect(NewsTick(timeStamp: 1, providerCode: "P", articleID: "A", headline: "H").extraData == "")
+    #expect(Ticker(contract: contract).bid == nil)
     #expect(update.size == 2)
     #expect(status.filled == 1)
     #expect(IBErrorMessage(requestID: 1, code: 2104, text: "t", advancedOrderRejectJSON: "").advancedOrderRejectJSON == "")

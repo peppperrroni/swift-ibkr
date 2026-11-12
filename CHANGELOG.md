@@ -5,6 +5,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 ## [Unreleased]
 
 ### Added
+- `Ticker`, a contract's market data as one value, with `apply(_:)` folding each `Tick` into it after `ib_async`'s wrapper: named bid, ask, last, OHLC, volume, last timestamp, greeks and request parameters; every other tick in `prices`, `sizes`, `generics`, `strings` or `efp` by its live field; and a `DepthBook`.
 - `depthExchanges()` and `smartComponents(_:)`, with `DepthMarketDataDescription` and `SmartComponent`, and the matching `IBRequest` and `IBMessage` cases (out 82/83, in 80/82). New cases in public enums: an exhaustive `switch` over `IBRequest` or `IBMessage` needs new branches.
 - `realTimeBars(_:whatToShow:rth:)`, IB's five-second bars as a stream, with `IBRequest.realTimeBars`, `.cancelRealTimeBars` and `IBMessage.realTimeBar`; error 420 with a permission text ends it with `.noMarketDataPermission`. New cases in public enums: an exhaustive `switch` over `IBRequest` or `IBMessage` needs new branches.
 - `marketData`'s `genericTicks`, `snapshot` and `regulatorySnapshot`; BAG and delta-neutral contracts in
