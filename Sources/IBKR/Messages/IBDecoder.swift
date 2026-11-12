@@ -106,6 +106,38 @@ public enum IBDecoder {
                 return .accountSummary(requestID: try r.int(), AccountValue(
                     account: try r.string(), tag: try r.string(), value: try r.string(), currency: try r.string()))
             case 64: try r.skip(); return .accountSummaryEnd(requestID: try r.int())
+            case 6:
+                try r.skip()
+                let tag = try r.string(), value = try r.string(), currency = try r.string()
+                return .accountValue(AccountValue(account: try r.string(), tag: tag, value: value, currency: currency))
+            case 7:
+                try r.skip()
+                var c = try contract(&r)
+                c.primaryExchange = c.exchange; c.exchange = ""  // this layout carries primaryExchange in the exchange slot
+                let quantity = try r.decimal(), price = try r.decimal(), value = try r.decimal(), cost = try r.decimal()
+                let unrealized = try r.optionalDecimal(), realized = try r.optionalDecimal()
+                return .portfolioItem(PortfolioItem(
+                    account: try r.string(), contract: c, quantity: quantity, marketPrice: price, marketValue: value,
+                    averageCost: cost, unrealizedPNL: unrealized, realizedPNL: realized))
+            case 8: try r.skip(); return .accountTime(try r.string())
+            case 54: try r.skip(); return .accountDownloadEnd(account: try r.string())
+            case 71:
+                try r.skip()
+                let reqID = try r.int(), account = try r.string(), c = try contract(&r)
+                let quantity = try r.decimal(), cost = try r.decimal()
+                return .positionMulti(requestID: reqID, Position(
+                    account: account, contract: c, quantity: quantity, averageCost: cost, modelCode: try r.string()))
+            case 72: try r.skip(); return .positionMultiEnd(requestID: try r.int())
+            case 73:
+                try r.skip()
+                let reqID = try r.int(), account = try r.string(), model = try r.string()
+                let tag = try r.string(), value = try r.string()
+                return .accountUpdateMulti(requestID: reqID, AccountValue(
+                    account: account, tag: tag, value: value, currency: try r.string(), modelCode: model))
+            case 74: try r.skip(); return .accountUpdateMultiEnd(requestID: try r.int())
+            case 94:
+                return .pnl(requestID: try r.int(), AccountPnL(
+                    daily: try r.optionalDecimal(), unrealized: try r.optionalDecimal(), realized: try r.optionalDecimal()))
             case 95:
                 return .pnlSingle(requestID: try r.int(), PnL(
                     position: try r.decimal(), daily: try r.optionalDecimal(), unrealized: try r.optionalDecimal(),

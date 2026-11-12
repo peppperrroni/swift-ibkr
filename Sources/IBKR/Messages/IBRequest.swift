@@ -15,6 +15,14 @@ public enum IBRequest: Sendable, Equatable {
     case cancelAccountSummary(requestID: Int)
     case pnlSingle(requestID: Int, account: String, modelCode: String, conID: Int)
     case cancelPnLSingle(requestID: Int)
+    case accountUpdates(subscribe: Bool, account: String)
+    case cancelPositions
+    case positionsMulti(requestID: Int, account: String, modelCode: String)
+    case cancelPositionsMulti(requestID: Int)
+    case accountUpdatesMulti(requestID: Int, account: String, modelCode: String, ledgerAndNLV: Bool)
+    case cancelAccountUpdatesMulti(requestID: Int)
+    case pnl(requestID: Int, account: String, modelCode: String)
+    case cancelPnL(requestID: Int)
     case contractDetails(requestID: Int, contract: Contract)
     case matchingSymbols(requestID: Int, pattern: String)
     case marketDataType(MarketDataType)
@@ -78,6 +86,22 @@ public enum IBRequest: Sendable, Equatable {
             w.add(94); w.add(reqID); try w.add(account); try w.add(modelCode); w.add(conID)
         case .cancelPnLSingle(let reqID):
             w.add(95); w.add(reqID)
+        case .accountUpdates(let subscribe, let account):
+            w.add(6); w.add(2); w.add(subscribe); try w.add(account)
+        case .cancelPositions:
+            w.add(64); w.add(1)
+        case .positionsMulti(let reqID, let account, let model):
+            w.add(74); w.add(1); w.add(reqID); try w.add(account); try w.add(model)
+        case .cancelPositionsMulti(let reqID):
+            w.add(75); w.add(1); w.add(reqID)
+        case .accountUpdatesMulti(let reqID, let account, let model, let ledger):
+            w.add(76); w.add(1); w.add(reqID); try w.add(account); try w.add(model); w.add(ledger)
+        case .cancelAccountUpdatesMulti(let reqID):
+            w.add(77); w.add(1); w.add(reqID)
+        case .pnl(let reqID, let account, let model):
+            w.add(92); w.add(reqID); try w.add(account); try w.add(model)
+        case .cancelPnL(let reqID):
+            w.add(93); w.add(reqID)
         case .contractDetails(let reqID, let c):
             w.add(9); w.add(8); w.add(reqID); try Self.contract(&w, c)
             w.add(false); try w.add(""); try w.add(""); try w.add("")  // includeExpired, secIdType, secId, issuerId

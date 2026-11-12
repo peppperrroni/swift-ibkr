@@ -424,6 +424,91 @@ Total: 5 fields. No version field.
 
 Total: 2 fields. No version field.
 
+### reqAccountUpdates (out 6)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `6` |
+| 1 | version | int | `2` |
+| 2 | subscribe | bool | (caller) |
+| 3 | acctCode | string | (caller) |
+
+Total: 4 fields.
+
+### cancelPositions (out 64)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `64` |
+| 1 | version | int | `1` |
+
+Total: 2 fields.
+
+### reqPositionsMulti (out 74)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `74` |
+| 1 | version | int | `1` |
+| 2 | reqId | int | (caller) |
+| 3 | account | string | (caller) |
+| 4 | modelCode | string | `""` |
+
+Total: 5 fields.
+
+### cancelPositionsMulti (out 75)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `75` |
+| 1 | version | int | `1` |
+| 2 | reqId | int | (caller) |
+
+Total: 3 fields.
+
+### reqAccountUpdatesMulti (out 76)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `76` |
+| 1 | version | int | `1` |
+| 2 | reqId | int | (caller) |
+| 3 | account | string | (caller) |
+| 4 | modelCode | string | `""` |
+| 5 | ledgerAndNLV | bool | `0` |
+
+Total: 6 fields.
+
+### cancelAccountUpdatesMulti (out 77)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `77` |
+| 1 | version | int | `1` |
+| 2 | reqId | int | (caller) |
+
+Total: 3 fields.
+
+### reqPnL (out 92)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `92` |
+| 1 | reqId | int | (caller) |
+| 2 | account | string | (caller) |
+| 3 | modelCode | string | `""` |
+
+Total: 4 fields. No version field.
+
+### cancelPnL (out 93)
+
+| # | Field | Type | Default sent |
+|---|---|---|---|
+| 0 | msgId | int | `93` |
+| 1 | reqId | int | (caller) |
+
+Total: 2 fields.
+
 ### reqContractDetails (out 9)
 
 | # | Field | Type | Notes |
@@ -872,6 +957,118 @@ Total: 3 fields.
 | 6 | value | double | may be the UNSET sentinel |
 
 Total: 7 fields. No version field.
+
+### updateAccountValue (in 6)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `6` |
+| 1 | version | int | ignored |
+| 2 | key | string | |
+| 3 | value | string | text for some keys |
+| 4 | currency | string | |
+| 5 | accountName | string | |
+
+Total: 6 fields.
+
+### updatePortfolio (in 7)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `7` |
+| 1 | version | int | ignored |
+| 2-12 | contract | | conId, symbol, secType, lastTradeDateOrContractMonth, strike, right, multiplier, **primaryExchange**, currency, localSymbol, tradingClass; read as the exchange slot, then moved to `primaryExchange` (`exchange` is `""`) |
+| 13 | position | double | |
+| 14 | marketPrice | double | |
+| 15 | marketValue | double | |
+| 16 | averageCost | double | |
+| 17 | unrealizedPNL | double | may be the UNSET sentinel |
+| 18 | realizedPNL | double | may be the UNSET sentinel |
+| 19 | accountName | string | |
+
+Total: 20 fields.
+
+### updateAccountTime (in 8)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `8` |
+| 1 | version | int | ignored |
+| 2 | timestamp | string | |
+
+Total: 3 fields.
+
+### accountDownloadEnd (in 54)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `54` |
+| 1 | version | int | ignored |
+| 2 | accountName | string | |
+
+Total: 3 fields.
+
+### positionMulti (in 71)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `71` |
+| 1 | version | int | ignored |
+| 2 | reqId | int | |
+| 3 | account | string | |
+| 4-14 | contract | | conId, symbol, secType, lastTradeDateOrContractMonth, strike, right, multiplier, exchange, currency, localSymbol, tradingClass (as in position, in 61) |
+| 15 | position | double | |
+| 16 | avgCost | double | |
+| 17 | modelCode | string | |
+
+Total: 18 fields.
+
+### positionMultiEnd (in 72)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `72` |
+| 1 | version | int | ignored |
+| 2 | reqId | int | |
+
+Total: 3 fields.
+
+### accountUpdateMulti (in 73)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `73` |
+| 1 | version | int | ignored |
+| 2 | reqId | int | |
+| 3 | account | string | |
+| 4 | modelCode | string | |
+| 5 | key | string | |
+| 6 | value | string | |
+| 7 | currency | string | |
+
+Total: 8 fields.
+
+### accountUpdateMultiEnd (in 74)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `74` |
+| 1 | version | int | ignored |
+| 2 | reqId | int | |
+
+Total: 3 fields.
+
+### pnl (in 94)
+
+| # | Field | Type | Notes |
+|---|---|---|---|
+| 0 | msgId | int | `94` |
+| 1 | reqId | int | |
+| 2 | dailyPnL | double | may be the UNSET sentinel |
+| 3 | unrealizedPnL | double | may be the UNSET sentinel |
+| 4 | realizedPnL | double | may be the UNSET sentinel |
+
+Total: 5 fields. No version field.
 
 ### orderBound (in 100)
 

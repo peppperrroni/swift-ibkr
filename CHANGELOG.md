@@ -5,6 +5,8 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 ## [Unreleased]
 
 ### Added
+- Wire codec for the account stream: account values, portfolio items, account time, the `Multi` position and account
+  updates, and account-level P&L, with their requests. `Position` and `AccountValue` gain `modelCode`.
 - Session requests: `currentTime()`, `managedAccounts()`, `nextOrderID()`, `userInfo()`, `setServerLogLevel(_:)`,
   `setAutoOpenOrders(_:)` and `cancelAllOrders()`.
 - Public memberwise initializers on all models.

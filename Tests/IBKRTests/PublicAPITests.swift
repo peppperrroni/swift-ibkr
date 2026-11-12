@@ -18,6 +18,11 @@ import Testing
     #expect(Position(account: "A", contract: contract, quantity: 1, averageCost: 2).quantity == 1)
     #expect(AccountValue(account: "A", tag: "t", value: "v", currency: "USD").tag == "t")
     #expect(PnL(position: 1, daily: 2).daily == 2)
+    #expect(Position(account: "A", contract: contract, quantity: 1, averageCost: 2, modelCode: "M").modelCode == "M")
+    #expect(AccountValue(account: "A", tag: "t", value: "v", currency: "USD", modelCode: "M").modelCode == "M")
+    #expect(PortfolioItem(account: "A", contract: contract, quantity: 1, marketPrice: 2, marketValue: 2, averageCost: 1,
+                          unrealizedPNL: 1).realizedPNL == nil)
+    #expect(AccountPnL(daily: 1).unrealized == nil)
     #expect(execution.execID == "e1")
     #expect(commission.realizedPNL == nil)
     #expect(ContractDetails(
