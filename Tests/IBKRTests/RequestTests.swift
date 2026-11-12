@@ -61,9 +61,12 @@ private let opt: Contract = {
             try IBRequest.startAPI(clientID: 1, capabilities: "é").body()
         }
     }
-    @Test func bagIsStillRefusedOutsidePlaceOrder() {
+    @Test func bagIsRefusedWhereIBSendsNoLegs() {
         #expect(throws: IBEncodingError.unsupported("secType BAG")) {
-            try IBRequest.marketData(requestID: 1, contract: Contract(symbol: "X", secType: "BAG")).body()
+            try IBRequest.marketDepth(requestID: 1, contract: bagContract, rows: 5, smart: true).body()
+        }
+        #expect(throws: IBEncodingError.unsupported("secType BAG")) {
+            try IBRequest.tickByTick(requestID: 1, contract: bagContract, type: .last).body()
         }
     }
     @Test func contractDetailsSendsSecID() throws {

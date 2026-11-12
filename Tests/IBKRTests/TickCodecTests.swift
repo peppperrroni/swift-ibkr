@@ -39,6 +39,28 @@ import Testing
         #expect(try IBRequest.cancelMarketData(requestID: 7).body() == body("2", "2", "7"))
     }
 
+    @Test func marketDataSendsItsParameters() throws {
+        #expect(try IBRequest.marketData(requestID: 7, contract: Contract(symbol: "AAPL"), genericTicks: [100, 101, 104],
+                                         snapshot: true, regulatorySnapshot: true).body()
+            == body(["1", "11", "7"] + aapl + ["0", "100,101,104", "1", "1", ""]))
+    }
+
+    @Test func marketDataSendsTheDeltaNeutralContract() throws {
+        var c = Contract(symbol: "AAPL")
+        c.deltaNeutralContract = DeltaNeutralContract(conID: 265598, delta: d("0.5"), price: d("187.25"))
+        #expect(try IBRequest.marketData(requestID: 7, contract: c).body()
+            == body(["1", "11", "7"] + aapl + ["1", "265598", "0.5", "187.25", "", "0", "0", ""]))
+    }
+
+    @Test func marketDataSendsBagLegs() throws {
+        #expect(try IBRequest.marketData(requestID: 7, contract: bagContract).body()
+            == body(["1", "11", "7"] + bagBlock + bagLegs + ["0", "", "0", "0", ""]))
+    }
+
+    @Test func snapshotEndDecodes() {
+        #expect(IBDecoder.decode(body("57", "1", "7")) == .tickSnapshotEnd(requestID: 7))
+    }
+
     @Test func shortTickFramesAreMalformed() {
         guard case .malformed = IBDecoder.decode(body("1", "6", "7", "1")) else { Issue.record("not malformed"); return }
     }

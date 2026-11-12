@@ -5,6 +5,9 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 ## [Unreleased]
 
 ### Added
+- `marketData`'s `genericTicks`, `snapshot` and `regulatorySnapshot`; BAG and delta-neutral contracts in
+  `marketData`; and `IBMessage.tickSnapshotEnd(requestID:)`, which ends a snapshot stream with no cancel. A new case in
+  a public enum: an exhaustive `switch` over `IBMessage` needs a new branch.
 - Order factories `Order.market/limit/stop/stopLimit`, `Order.bracket` (a `BracketOrder`), `Order.oneCancelsAll` and
   `IBClient.placeBracket`, which links and transmits the three legs and sends none if any fails to encode.
 - `exerciseOptions` with the new `ExerciseAction`, and `cancelOrder(_:manualCancelOrderTime:)`. `IBRequest` gains the
@@ -37,7 +40,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 - BAG combos, delta-neutral orders and contracts, scale and hedge orders: `placeOrder` sends and openOrder /
   completedOrder decode `Contract.comboLegs` and `deltaNeutralContract`, and the `Order` combo-leg prices, smart
   routing params, delta-neutral, scale and hedge fields. New value types `ComboLeg`, `OrderComboLeg` and
-  `DeltaNeutralContract`. Every request other than `placeOrder` still refuses a `BAG` contract.
+  `DeltaNeutralContract`. Every request other than `placeOrder` and `marketData` still refuses a `BAG` contract.
 - Algos, PEG BENCH, BEST and MID, conditions and IBKRATS: `placeOrder` sends and openOrder / completedOrder decode
   `algoStrategy` / `algoParams`, the PEG BENCH reference fields, `conditions` with `conditionsIgnoreRTH` /
   `conditionsCancelOrder`, `minTradeQty`, `minCompeteSize`, `competeAgainstBestOffset` and the mid offsets. New types
@@ -49,6 +52,9 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 - `OrderSnapshot.advancedOrderRejectJSON`: the raw advanced-reject JSON of the last error for the order that had one.
 
 ### Changed
+- `marketData` sends `Contract.deltaNeutralContract`. `IBRequest.marketData` gains three associated values
+  (`genericTicks`, `snapshot`, `regulatorySnapshot`) whose defaults keep construction compiling; a `switch`/`case` on
+  `.marketData` needs the new bindings.
 - `contractDetails` sends the contract's `secIDType` and `secID` instead of empty fields.
 - `connect` sends one more sync request (reqAccountUpdates, or one reqAccountUpdatesMulti per account) and returns
   only after its end marker.

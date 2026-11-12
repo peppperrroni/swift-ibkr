@@ -1,6 +1,18 @@
 import Foundation
+@testable import IBKR
 
 func body(_ fields: [String]) -> [UInt8] { fields.flatMap { Array($0.utf8) + [0] } }
+
+/// A two-leg BAG: the 12-field contract block, then the legs as a request sends them (count, then
+/// conID, ratio, action, exchange per leg).
+let bagContract: Contract = {
+    var c = Contract(symbol: "AAPL", secType: "BAG")
+    c.comboLegs = [ComboLeg(conID: 265598, ratio: 1, action: .buy, exchange: "SMART"),
+                   ComboLeg(conID: 272093, ratio: 2, action: .sell, exchange: "SMART")]
+    return c
+}()
+let bagBlock = ["0", "AAPL", "BAG", "", "0.0", "", "", "SMART", "", "USD", "", ""]
+let bagLegs = ["2", "265598", "1", "BUY", "SMART", "272093", "2", "SELL", "SMART"]
 
 /// Version-178 incoming order messages in their base case (docs/protocol-178.md), every unmodelled
 /// field at what a gateway sends for a plain SMART stock order, except deltaNeutralOrderType: a real

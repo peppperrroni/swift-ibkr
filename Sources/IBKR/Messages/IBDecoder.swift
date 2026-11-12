@@ -87,6 +87,7 @@ public enum IBDecoder {
                 case 4: return .tickByTick(requestID: id, .midPoint(time: time, price: try r.decimal()))
                 default: throw IBProtocolError.badNumber(String(type), index: r.index - 1)
                 }
+            case 57: try r.skip(); return .tickSnapshotEnd(requestID: try r.int())
             case 81:
                 return .tickRequestParameters(requestID: try r.int(), minTick: try r.optionalDecimal(),
                                               bboExchange: try r.string(), snapshotPermissions: try r.int())

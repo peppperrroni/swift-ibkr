@@ -93,7 +93,7 @@ Total: 3 fields.
 No version field at 178 (it stopped at server version 145). Base case: not `BAG`, no delta-neutral
 order type, no scale increment, no hedge, no algo, not PEG BENCH / PEG BEST / PEG MID, no
 conditions, exchange not `IBKRATS`. Every group `ib_async` sends is sent and no layout is refused;
-the legs come from `contract.comboLegs`. Every other request refuses a `BAG` contract.
+the legs come from `contract.comboLegs`. Only marketData also sends a `BAG`'s legs (reqMktData); every other request refuses a `BAG` contract.
 
 | # | Field | Type | Default sent | Notes |
 |---|---|---|---|---|
@@ -570,14 +570,18 @@ Total: 3 fields. Session-global, no reqId; not remembered across a reconnect.
 | 0 | msgId | int | `1` |
 | 1 | version | int | `11` |
 | 2 | reqId | int | |
-| 3-14 | contract | | the 12-field contract block; `BAG` is refused |
-| 15 | deltaNeutralContractPresent | bool | `0` |
-| 16 | genericTickList | string | `""` |
+| 3-14 | contract | | the 12-field contract block |
+| + | comboLegsCount | int | only if secType == `BAG` |
+| + | conId, ratio, action, exchange | int, int, string, string | per leg, only for `BAG` |
+| 15 | deltaNeutralContractPresent | bool | `0`, or `1` when `Contract.deltaNeutralContract` is set |
+| + | conId, delta, price | int, double, double | only after a `1` in row 15 |
+| 16 | genericTickList | string | `genericTicks` comma-joined, `""` when none |
 | 17 | snapshot | bool | `0` |
 | 18 | regulatorySnapshot | bool | `0` |
 | 19 | mktDataOptions | string | `""`, always sent |
 
-Total: 20 fields.
+Row numbers are for a plain contract: 20 fields. A `BAG` adds the count and 4 fields per leg after row 14, and a
+delta-neutral contract adds 3 fields after row 15.
 
 ### cancelMktData (out 2)
 
@@ -1332,6 +1336,10 @@ Total: 7 fields.
 ### marketDataType (in 58)
 
 `58, version, reqId, marketDataType`; 4 fields. A value outside 1-4 is malformed.
+
+### tickSnapshotEnd (in 57)
+
+`57, version, reqId`; 3 fields. Ends a snapshot request: the stream finishes and sends no cancel.
 
 ### tickReqParams (in 81)
 

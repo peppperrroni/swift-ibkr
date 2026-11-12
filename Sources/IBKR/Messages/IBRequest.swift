@@ -27,7 +27,8 @@ public enum IBRequest: Sendable, Equatable {
     case contractDetails(requestID: Int, contract: Contract)
     case matchingSymbols(requestID: Int, pattern: String)
     case marketDataType(MarketDataType)
-    case marketData(requestID: Int, contract: Contract)
+    case marketData(requestID: Int, contract: Contract, genericTicks: [Int] = [], snapshot: Bool = false,
+                    regulatorySnapshot: Bool = false)
     case cancelMarketData(requestID: Int)
     case historicalData(requestID: Int, contract: Contract, end: Date?, barSize: String, duration: String,
                         rth: Bool, whatToShow: String, keepUpToDate: Bool)
@@ -117,9 +118,16 @@ public enum IBRequest: Sendable, Equatable {
             w.add(81); w.add(reqID); try w.add(pattern)
         case .marketDataType(let t):
             w.add(59); w.add(1); w.add(t.rawValue)
-        case .marketData(let reqID, let c):
-            w.add(1); w.add(11); w.add(reqID); try Self.contract(&w, c)
-            w.add(false); try w.add(""); w.add(false); w.add(false); try w.add("")  // delta-neutral, genericTickList, snapshot, regulatorySnapshot, options
+        case .marketData(let reqID, let c, let genericTicks, let snapshot, let regulatorySnapshot):
+            w.add(1); w.add(11); w.add(reqID); try Self.contract(&w, c, allowBag: true)
+            try Self.comboLegs(&w, c)
+            if let dnc = c.deltaNeutralContract {
+                w.add(true); w.add(dnc.conID); w.addDouble(dnc.delta); w.addDouble(dnc.price)
+            } else {
+                w.add(false)
+            }
+            try w.add(genericTicks.map(String.init).joined(separator: ","))
+            w.add(snapshot); w.add(regulatorySnapshot); try w.add("")  // options
         case .cancelMarketData(let reqID):
             w.add(2); w.add(2); w.add(reqID)
         case .historicalData(let reqID, let c, let end, let barSize, let duration, let rth, let what, let keep):
@@ -150,8 +158,16 @@ public enum IBRequest: Sendable, Equatable {
         return f
     }()
 
-    /// The 12-field contract block every outgoing request shares (placeOrder rows 2-13). Only placeOrder sends a
-    /// `BAG`'s legs, so every other request refuses one.
+    /// A `BAG`'s legs as a request sends them: the count, then conID, ratio, action and exchange per leg. Nothing for
+    /// any other secType.
+    static func comboLegs(_ w: inout FieldWriter, _ c: Contract) throws(IBEncodingError) {
+        guard c.secType == "BAG" else { return }
+        w.add(c.comboLegs.count)
+        for l in c.comboLegs { w.add(l.conID); w.add(l.ratio); try w.add(l.action.rawValue); try w.add(l.exchange) }
+    }
+
+    /// The 12-field contract block every outgoing request shares (placeOrder rows 2-13). Only placeOrder and
+    /// marketData pass `allowBag: true` (they send a `BAG`'s legs), so every other request refuses one.
     static func contract(_ w: inout FieldWriter, _ c: Contract, allowBag: Bool = false) throws(IBEncodingError) {
         if c.secType == "BAG" && !allowBag { throw .unsupported("secType BAG") }
         w.add(c.conID); try w.add(c.symbol); try w.add(c.secType); try w.add(c.lastTradeDateOrContractMonth)

@@ -24,6 +24,30 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
     #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["2", "2", id])
 }
 
+@Test func marketDataSendsGenericTicks() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    _ = try await client.marketData(Contract(symbol: "AAPL"), genericTicks: [100, 101, 104])
+    let f = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames]
+    #expect(f[16] == "100,101,104" && f[17] == "0" && f[18] == "0")
+}
+
+@Test func snapshotEndsWithoutCancel() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.marketData(Contract(symbol: "AAPL"), snapshot: true, regulatorySnapshot: true)
+    let f = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames]
+    #expect(f[17] == "1" && f[18] == "1")
+    let id = f[2]
+    gateway.feed(["1", "6", id, "1", "351.5", "200", "0"])
+    gateway.feed(["57", "1", id])
+    let (_, result) = take(0, stream)
+    #expect(try await within2s { try await result.value } == [.price(.bid, price: d("351.5"), size: d("200"))])
+    try await Task.sleep(for: .milliseconds(50))
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).count == FakeGateway.syncFrames + 1)
+    #expect(await client.requestStreamCount == 0)
+}
+
 @Test func delayedNoticeKeepsTheStreamAndMapsFields() async throws {
     let gateway = FakeGateway()
     let client = try await connected(gateway)

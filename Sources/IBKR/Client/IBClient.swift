@@ -413,13 +413,21 @@ public actor IBClient {
     }
 
     /// Every top-of-book tick IB sends for `contract`. Ends like `accountSummary`, with
-    /// `.noMarketDataPermission` when IB refuses for want of a subscription; stopping it cancels.
-    public func marketData(_ contract: Contract) throws(IBClientError) -> AsyncThrowingStream<Tick, any Error> {
+    /// `.noMarketDataPermission` when IB refuses for want of a subscription; stopping it cancels. `genericTicks` are
+    /// IB's generic tick type ids. A `snapshot` stream ends by itself at IB's snapshot end, with no cancel.
+    public func marketData(
+        _ contract: Contract, genericTicks: [Int] = [], snapshot: Bool = false, regulatorySnapshot: Bool = false
+    ) throws(IBClientError) -> AsyncThrowingStream<Tick, any Error> {
         try requireConnected()
         let id = nextRequestID()
-        return try openStream(.marketData(requestID: id, contract: contract), id: id,
+        return try openStream(.marketData(requestID: id, contract: contract, genericTicks: genericTicks, snapshot: snapshot,
+                                          regulatorySnapshot: regulatorySnapshot), id: id,
                               cancel: .cancelMarketData(requestID: id)) { message, out in
-            if case .tick(_, let tick) = message { out.yield(tick) }
+            switch message {
+            case .tick(_, let tick): out.yield(tick)
+            case .tickSnapshotEnd: out.finish(); return true
+            default: break
+            }
             return false
         }
     }
@@ -610,7 +618,7 @@ public actor IBClient {
         case .accountSummary(let id, _), .accountSummaryEnd(let id), .pnlSingle(let id, _),
              .contractData(let id, _), .contractDataEnd(let id), .symbolSamples(let id, _), .tick(let id, _),
              .historicalData(let id, _), .historicalDataUpdate(let id, _), .depth(let id, _),
-             .tickByTick(let id, _), .userInfo(let id, _), .positionMulti(let id, _), .positionMultiEnd(let id),
+             .tickByTick(let id, _), .tickSnapshotEnd(let id), .userInfo(let id, _), .positionMulti(let id, _), .positionMultiEnd(let id),
              .accountUpdateMulti(let id, _), .accountUpdateMultiEnd(let id), .pnl(let id, _):
             if requestStreams[id]?.route(message) == true { requestStreams[id] = nil }   // before any termination hop
         case .openOrder(let m) where m.order.whatIf:   // whatIfOrder's answer, keyed by the order id it took
