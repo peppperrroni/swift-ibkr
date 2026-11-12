@@ -31,6 +31,8 @@ public actor IBClient {
     private var localID = -1
     /// The open `newsBulletins` stream's key; IB holds one bulletin subscription per connection.
     var newsBulletinKey: Int?
+    /// The `wshMetaData` request left open after its answer (R7, as `ib_async`); the next call cancels it.
+    var wshMetaRequestID: Int?
 
     // The current connection. `generation` changes whenever one starts or ends, so a late event from an old
     // connection's reader, writer or timer is dropped.
@@ -1002,6 +1004,7 @@ public actor IBClient {
         (transport, outbox, connectTimer, syncEnds) = (nil, nil, nil, nil)
         let streams = requestStreams.values
         requestStreams = [:]   // emptied first: their termination then sends no cancel
+        wshMetaRequestID = nil   // a reqId belongs to one connection
         for s in streams { s.finish(error ?? .connectionClosed) }
         if reconnectTask == nil { setState(.disconnected(error)) }
         pendingConnect?.resume(returning: .failure(error ?? .connectionClosed))

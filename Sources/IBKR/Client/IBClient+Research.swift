@@ -106,12 +106,27 @@ extension IBClient {
         return xml
     }
 
-    /// Wall Street Horizon's metadata as IB's JSON text, then IB's cancel (101), as `ib_async` does. IB's error throws
-    /// `.ib` and sends no cancel.
+    /// Wall Street Horizon's metadata as IB's JSON text. As `ib_async`'s `getWshMetaDataAsync`, the answered request
+    /// stays open (IB wants it before event data) until the next call, which first sends IB's cancel (101) for it; at
+    /// most one is held, and the connection's end drops it. IB's error throws `.ib` and holds nothing. Cancelling the
+    /// calling task before the answer sends 101.
     public func wshMetaData() async throws(IBClientError) -> String {
-        try await wshText(request: { .wshMetaData(requestID: $0) }, cancel: { .cancelWshMetaData(requestID: $0) }) {
-            if case .wshMetaData(_, let json) = $0 { json } else { nil }
+        try requireConnected()
+        if let held = wshMetaRequestID {
+            wshMetaRequestID = nil
+            try send(.cancelWshMetaData(requestID: held))
         }
+        let id = nextRequestID()
+        let stream = try openStream(.wshMetaData(requestID: id), id: id, cancel: .cancelWshMetaData(requestID: id)) {
+            (message, out: AsyncThrowingStream<String, any Error>.Continuation) in
+            guard case .wshMetaData(_, let json) = message else { return false }
+            out.yield(json); out.finish(); return true   // true: the answer ends it, so no 101 now
+        }
+        guard let json = try await collect(stream).first else { throw .cancelled }
+        guard (try? requireConnected()) != nil else { return json }   // the connection ended meanwhile: hold nothing
+        if let other = wshMetaRequestID { try? send(.cancelWshMetaData(requestID: other)) }   // a concurrent call's
+        wshMetaRequestID = id
+        return json
     }
 
     /// Wall Street Horizon's events for `data` as IB's JSON text, then IB's cancel (103). IB's error throws `.ib` and

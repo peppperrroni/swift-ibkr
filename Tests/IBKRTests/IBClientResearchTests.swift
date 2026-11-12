@@ -227,14 +227,22 @@ private let reportSnapshot = "<ReportSnapshot/>"
     #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["53", "1", id])
 }
 
-@Test func wshMetaDataAnswersThenCancels() async throws {
+/// R7, as ib_async's getWshMetaDataAsync: the answered request stays open until the next call cancels it.
+@Test func wshMetaDataHoldsItsRequestUntilTheNextCall() async throws {
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     gateway.onRequest = { f in f[0] == "100" ? [["104", f[1], "{\"m\":1}"]] : [] }
     #expect(try await within2s { try await client.wshMetaData() } == "{\"m\":1}")
-    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
-    #expect(sent[FakeGateway.syncFrames + 1] == ["101", sent[FakeGateway.syncFrames][1]])
+    try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel
+    let first = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
+    #expect(first.count == FakeGateway.syncFrames + 1)
+    let id1 = first[FakeGateway.syncFrames][1]
     #expect(await client.requestStreamCount == 0)
+    #expect(try await within2s { try await client.wshMetaData() } == "{\"m\":1}")
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 3)
+    #expect(sent[FakeGateway.syncFrames + 1] == ["101", id1])
+    #expect(sent[FakeGateway.syncFrames + 2][0] == "100")
+    #expect(sent[FakeGateway.syncFrames + 2][1] != id1)
 }
 
 @Test func wshMetaDataFailsOnItsError() async throws {
@@ -247,6 +255,34 @@ private let reportSnapshot = "<ReportSnapshot/>"
     try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel
     #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).contains { $0[0] == "101" } == false)
     #expect(await client.requestStreamCount == 0)
+    // nothing is held after an error, so a later call sends no 101 either
+    gateway.onRequest = { f in f[0] == "100" ? [["104", f[1], "{\"m\":1}"]] : [] }
+    #expect(try await within2s { try await client.wshMetaData() } == "{\"m\":1}")
+    try await Task.sleep(for: .milliseconds(50))
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
+    #expect(sent.count == FakeGateway.syncFrames + 2)
+    #expect(sent.contains { $0[0] == "101" } == false)
+}
+
+@Test func wshMetaRequestEndsWithTheConnection() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in f[0] == "100" ? [["104", f[1], "{\"m\":1}"]] : [] }
+    _ = try await within2s { try await client.wshMetaData() }
+    #expect(await client.wshMetaRequestID != nil)
+    gateway.close()
+    try await within2s { while await client.wshMetaRequestID != nil { try await Task.sleep(for: .milliseconds(5)) } }
+}
+
+@Test func wshMetaDataCancelledSendsItsCancel() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let call = Task { try await client.wshMetaData() }
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][1]
+    call.cancel()
+    await #expect(throws: IBClientError.cancelled) { try await call.value }
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["101", id])
+    #expect(await client.wshMetaRequestID == nil)
 }
 
 @Test func wshEventDataAnswersThenCancels() async throws {

@@ -1689,7 +1689,9 @@ reqId fails the call.
 
 ### cancelWshMetaData (out 101)
 
-`101, reqId`; 2 fields. Sent after the answer, as `ib_async` cancels before the next request; not sent after IB's error.
+`101, reqId`; 2 fields. Not sent after the answer: as `ib_async`'s `getWshMetaDataAsync`, the answered request stays open
+until the next `wshMetaData()`, which sends 101 for it just before its own 100. Sent for a caller cancelled before the
+answer; not sent after IB's error. The connection's end drops the held id.
 
 ### reqWshEventData (out 102)
 

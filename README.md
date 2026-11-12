@@ -378,8 +378,9 @@ let events = try await client.wshEventData(WshEventData(conID: 265598, startDate
 
 All three return IB's text as a `String` and throw `.ib` on IB's error (430 when a report is not available). A
 `WshEventData` field left unset goes out as IB's `2147483647`. Ask for `wshMetaData()` before `wshEventData(_:)`, as IB
-requires; the library does not enforce it. A cancelled `fundamentalData` sends IB's cancel; the WSH calls cancel after
-their answer.
+requires; the library does not enforce it. A cancelled `fundamentalData` sends IB's cancel. `wshEventData(_:)` cancels
+after its answer; `wshMetaData()`, as `ib_async`, leaves its answered request open until the next `wshMetaData()` call
+cancels it.
 
 ### FA, display groups and verify
 
