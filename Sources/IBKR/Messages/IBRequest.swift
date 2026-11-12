@@ -75,6 +75,16 @@ public enum IBRequest: Sendable, Equatable {
     case cancelWshMetaData(requestID: Int)
     case wshEventData(requestID: Int, data: WshEventData)
     case cancelWshEventData(requestID: Int)
+    case requestFA(FADataType)
+    case replaceFA(requestID: Int, type: FADataType, xml: String)
+    case queryDisplayGroups(requestID: Int)
+    case subscribeToGroupEvents(requestID: Int, groupID: Int)
+    case updateDisplayGroup(requestID: Int, contractInfo: String)
+    case unsubscribeFromGroupEvents(requestID: Int)
+    case verifyRequest(apiName: String, apiVersion: String)
+    case verifyMessage(apiData: String)
+    case verifyAndAuthRequest(apiName: String, apiVersion: String, opaqueISVKey: String)
+    case verifyAndAuthMessage(apiData: String, xyzResponse: String)
     case managedAccounts
     case userInfo(requestID: Int)
     case serverLogLevel(ServerLogLevel)
@@ -154,6 +164,26 @@ public enum IBRequest: Sendable, Equatable {
             try w.add(d.startDate); try w.add(d.endDate); w.add(d.totalLimit ?? Int(Int32.max))
         case .cancelWshEventData(let reqID):
             w.add(103); w.add(reqID)
+        case .requestFA(let type):
+            w.add(18); w.add(1); w.add(type.rawValue)
+        case .replaceFA(let reqID, let type, let xml):
+            w.add(19); w.add(1); w.add(type.rawValue); try w.addPayload(xml); w.add(reqID)   // reqId last, as ib_async
+        case .queryDisplayGroups(let reqID):
+            w.add(67); w.add(1); w.add(reqID)
+        case .subscribeToGroupEvents(let reqID, let groupID):
+            w.add(68); w.add(1); w.add(reqID); w.add(groupID)
+        case .updateDisplayGroup(let reqID, let info):
+            w.add(69); w.add(1); w.add(reqID); try w.add(info)
+        case .unsubscribeFromGroupEvents(let reqID):
+            w.add(70); w.add(1); w.add(reqID)
+        case .verifyRequest(let name, let version):
+            w.add(65); w.add(1); try w.add(name); try w.add(version)
+        case .verifyMessage(let data):
+            w.add(66); w.add(1); try w.add(data)
+        case .verifyAndAuthRequest(let name, let version, let key):
+            w.add(72); w.add(1); try w.add(name); try w.add(version); try w.add(key)
+        case .verifyAndAuthMessage(let data, let response):
+            w.add(73); w.add(1); try w.add(data); try w.add(response)
         case .managedAccounts:
             w.add(17); w.add(1)
         case .userInfo(let reqID):

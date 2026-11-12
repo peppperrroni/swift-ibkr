@@ -1711,6 +1711,85 @@ enforced. Sent by `wshEventData(_:)`.
 
 `105, reqId, dataJson`; 3 fields, no version. The JSON stays a `String`.
 
+### requestFA (out 18)
+
+`18, 1, faDataType`; 3 fields. `faDataType` is `FADataType`'s raw value: 1 groups, 2 profiles, 3 aliases. No reqId.
+Sent by `faData(_:)`.
+
+### replaceFA (out 19)
+
+`19, 1, faDataType, xml, reqId`; 5 fields, with the reqId last, as `ib_async` sends it. `xml` is IB's FA XML and may hold
+line breaks (tab, LF and CR pass; other control characters and non-ASCII are refused). Sent by `replaceFA(_:xml:)`.
+
+### receiveFA (in 16)
+
+`16, version, faDataType, xml`; 4 fields. No reqId: the oldest `faData` waiter asking for that type takes it, so
+concurrent calls for different types never swap answers. A type other than 1, 2 or 3 is `.malformed`. A login that is
+not an FA account gets an error with no reqId, so `faData` waits until its caller cancels it.
+
+### replaceFAEnd (in 103)
+
+`103, reqId, text`; 3 fields, no version. Answers `replaceFA` with IB's confirmation text; IB's error for the reqId
+fails the call.
+
+### queryDisplayGroups (out 67)
+
+`67, 1, reqId`; 3 fields. Sent by `displayGroups()`.
+
+### subscribeToGroupEvents (out 68)
+
+`68, 1, reqId, groupId`; 4 fields. Sent by `displayGroupUpdates(_:)`, which returns the reqId with the stream.
+
+### updateDisplayGroup (out 69)
+
+`69, 1, reqId, contractInfo`; 4 fields. The reqId is the open `displayGroupUpdates` stream's. Sent by
+`updateDisplayGroup(_:contractInfo:)`.
+
+### unsubscribeFromGroupEvents (out 70)
+
+`70, 1, reqId`; 3 fields. Sent when the `displayGroupUpdates` stream is stopped; not sent after IB's error.
+
+### displayGroupList (in 67)
+
+`67, version, reqId, groups`; 4 fields. `groups` is IB's raw `"1|2|3"`, returned as is.
+
+### displayGroupUpdated (in 68)
+
+`68, version, reqId, contractInfo`; 4 fields. `contractInfo` is IB's text (`"265598@SMART"`); the stream yields it.
+
+### verifyRequest (out 65)
+
+`65, 1, apiName, apiVersion`; 4 fields. Sent by `verifyRequest(apiName:apiVersion:)`. IB documents the verify
+requests before startApi, which `connect` sends itself.
+
+### verifyMessage (out 66)
+
+`66, 1, apiData`; 3 fields. Sent by `verifyMessage(_:)`.
+
+### verifyAndAuthRequest (out 72)
+
+`72, 1, apiName, apiVersion, opaqueIsvKey`; 5 fields. Sent by `verifyAndAuthRequest(apiName:apiVersion:opaqueISVKey:)`.
+
+### verifyAndAuthMessage (out 73)
+
+`73, 1, apiData, xyzResponse`; 4 fields. Sent by `verifyAndAuthMessage(_:xyzResponse:)`.
+
+### verifyMessageAPI (in 65)
+
+`65, version, apiData`; 3 fields. Reaches `messages()` only.
+
+### verifyCompleted (in 66)
+
+`66, version, isSuccessful, errorText`; 4 fields. Reaches `messages()` only.
+
+### verifyAndAuthMessageAPI (in 69)
+
+`69, version, apiData, xyzChallenge`; 4 fields. Reaches `messages()` only.
+
+### verifyAndAuthCompleted (in 70)
+
+`70, version, isSuccessful, errorText`; 4 fields. Reaches `messages()` only.
+
 ### reqMktDepth (out 10)
 
 `10, 5, reqId, contract(12), numRows, isSmartDepth, mktDepthOptions`; 18 fields. `mktDepthOptions` is always `""`.

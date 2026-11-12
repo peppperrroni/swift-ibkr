@@ -1,5 +1,10 @@
 import Foundation
 
+/// Which financial-advisor configuration `faData(_:)` and `replaceFA(_:xml:)` read or write (`ib_async`'s `faDataType`).
+public enum FADataType: Int, Sendable {
+    case groups = 1, profiles = 2, aliases = 3
+}
+
 /// What `wshEventData(_:)` asks Wall Street Horizon for (`ib_async`'s `WshEventData`). `filter` is IB's JSON text;
 /// dates are IB's `yyyyMMdd`. A `nil` `conID` or `totalLimit` goes out as `2147483647`, as `ib_async` sends it.
 public struct WshEventData: Sendable, Equatable {

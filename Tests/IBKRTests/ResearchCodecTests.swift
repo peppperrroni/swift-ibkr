@@ -88,4 +88,39 @@ func scan(_ id: String) -> [String] {
         #expect(IBDecoder.decode(body("14", "1", "3", "1", "Exchange halted", "NYSE"))
                 == .newsBulletin(NewsBulletin(msgID: 3, msgType: 1, message: "Exchange halted", origExchange: "NYSE")))
     }
+
+    @Test func faCodec() throws {
+        #expect(try IBRequest.requestFA(.groups).body() == body("18", "1", "1"))
+        #expect(try IBRequest.replaceFA(requestID: 7, type: .aliases, xml: "<ListOfAccountAliases/>").body()
+                == body("19", "1", "3", "<ListOfAccountAliases/>", "7"))
+        // IB's own FA XML spans lines, and it must go back as it came
+        #expect(try IBRequest.replaceFA(requestID: 7, type: .groups, xml: "<ListOfGroups>\n</ListOfGroups>").body()
+                == body("19", "1", "1", "<ListOfGroups>\n</ListOfGroups>", "7"))
+        #expect(IBDecoder.decode(body("16", "1", "1", "<ListOfGroups/>")) == .receiveFA(type: .groups, xml: "<ListOfGroups/>"))
+        guard case .malformed = IBDecoder.decode(body("16", "1", "9", "x")) else { Issue.record("not malformed"); return }
+        #expect(IBDecoder.decode(body("103", "7", "FA aliases replaced")) == .replaceFAEnd(requestID: 7, "FA aliases replaced"))
+    }
+
+    @Test func displayGroupsCodec() throws {
+        #expect(try IBRequest.queryDisplayGroups(requestID: 7).body() == body("67", "1", "7"))
+        #expect(try IBRequest.subscribeToGroupEvents(requestID: 7, groupID: 1).body() == body("68", "1", "7", "1"))
+        #expect(try IBRequest.updateDisplayGroup(requestID: 7, contractInfo: "265598@SMART").body()
+                == body("69", "1", "7", "265598@SMART"))
+        #expect(try IBRequest.unsubscribeFromGroupEvents(requestID: 7).body() == body("70", "1", "7"))
+        #expect(IBDecoder.decode(body("67", "1", "7", "1|2|3")) == .displayGroupList(requestID: 7, "1|2|3"))
+        #expect(IBDecoder.decode(body("68", "1", "7", "265598@SMART")) == .displayGroupUpdated(requestID: 7, "265598@SMART"))
+    }
+
+    @Test func verifyCodec() throws {
+        #expect(try IBRequest.verifyRequest(apiName: "app", apiVersion: "1.0").body() == body("65", "1", "app", "1.0"))
+        #expect(try IBRequest.verifyMessage(apiData: "d").body() == body("66", "1", "d"))
+        #expect(try IBRequest.verifyAndAuthRequest(apiName: "app", apiVersion: "1.0", opaqueISVKey: "k").body()
+                == body("72", "1", "app", "1.0", "k"))
+        #expect(try IBRequest.verifyAndAuthMessage(apiData: "d", xyzResponse: "r").body() == body("73", "1", "d", "r"))
+        #expect(IBDecoder.decode(body("65", "1", "d")) == .verifyMessageAPI(apiData: "d"))
+        #expect(IBDecoder.decode(body("66", "1", "1", "")) == .verifyCompleted(isSuccessful: true, errorText: ""))
+        #expect(IBDecoder.decode(body("69", "1", "d", "c")) == .verifyAndAuthMessageAPI(apiData: "d", xyzChallenge: "c"))
+        #expect(IBDecoder.decode(body("70", "1", "0", "bad key"))
+                == .verifyAndAuthCompleted(isSuccessful: false, errorText: "bad key"))
+    }
 }

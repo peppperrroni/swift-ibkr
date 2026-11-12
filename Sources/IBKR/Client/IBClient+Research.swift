@@ -134,4 +134,78 @@ extension IBClient {
         guard let json = try await collect(stream).first else { throw .cancelled }
         return json
     }
+
+    /// The account's financial-advisor configuration of `type` as IB's XML text, never parsed. 16 carries no reqId, so
+    /// each call takes only an answer of its own type. A login that is not an FA account gets an error IB addresses
+    /// to no request, so the call then waits until the caller cancels it.
+    public func faData(_ type: FADataType) async throws(IBClientError) -> String {
+        try requireConnected()
+        return try await answer(.requestFA(type)) {
+            if case .receiveFA(type, let xml) = $0 { xml } else { nil }
+        }
+    }
+
+    /// Replaces the account's FA configuration of `type` with `xml` and returns IB's confirmation text (103). IB's
+    /// error throws `.ib`. `ib_async` does not wait for the confirmation; this call does.
+    public func replaceFA(_ type: FADataType, xml: String) async throws(IBClientError) -> String {
+        try requireConnected()
+        let id = nextRequestID()
+        return try await answer(.replaceFA(requestID: id, type: type, xml: xml), id: id) {
+            if case .replaceFAEnd(_, let text) = $0 { text } else { nil }
+        }
+    }
+
+    /// TWS's display groups as IB's raw list, such as `"1|2|3"`.
+    public func displayGroups() async throws(IBClientError) -> String {
+        try requireConnected()
+        let id = nextRequestID()
+        return try await answer(.queryDisplayGroups(requestID: id), id: id) {
+            if case .displayGroupList(_, let groups) = $0 { groups } else { nil }
+        }
+    }
+
+    /// Each contract TWS shows in display group `groupID`, as IB's `contractInfo` text (`"265598@SMART"`). Never ends
+    /// itself; IB's error ends it with `.ib`. Stopping it sends IB's unsubscribe. `requestID` is the one
+    /// `updateDisplayGroup(_:contractInfo:)` takes.
+    public func displayGroupUpdates(_ groupID: Int)
+        throws(IBClientError) -> (requestID: Int, updates: AsyncThrowingStream<String, any Error>) {
+        try requireConnected()
+        let id = nextRequestID()
+        let updates = try openStream(.subscribeToGroupEvents(requestID: id, groupID: groupID), id: id,
+                                     cancel: .unsubscribeFromGroupEvents(requestID: id)) { message, out in
+            if case .displayGroupUpdated(_, let info) = message { out.yield(info) }
+            return false
+        }
+        return (id, updates)
+    }
+
+    /// Shows `contractInfo` (`"265598@SMART"`, or `"none"`) in the group the `displayGroupUpdates` stream of `requestID`
+    /// follows.
+    public func updateDisplayGroup(_ requestID: Int, contractInfo: String) throws(IBClientError) {
+        try requireConnected()
+        try send(.updateDisplayGroup(requestID: requestID, contractInfo: contractInfo))
+    }
+
+    /// IB's verify handshake for third-party API vendors. These four only send; IB's answers (`.verifyMessageAPI`,
+    /// `.verifyCompleted`, `.verifyAndAuthMessageAPI`, `.verifyAndAuthCompleted`) reach `messages()` only. IB documents
+    /// them before startApi, which `connect` sends itself.
+    public func verifyRequest(apiName: String, apiVersion: String) throws(IBClientError) {
+        try requireConnected()
+        try send(.verifyRequest(apiName: apiName, apiVersion: apiVersion))
+    }
+
+    public func verifyMessage(_ apiData: String) throws(IBClientError) {
+        try requireConnected()
+        try send(.verifyMessage(apiData: apiData))
+    }
+
+    public func verifyAndAuthRequest(apiName: String, apiVersion: String, opaqueISVKey: String) throws(IBClientError) {
+        try requireConnected()
+        try send(.verifyAndAuthRequest(apiName: apiName, apiVersion: apiVersion, opaqueISVKey: opaqueISVKey))
+    }
+
+    public func verifyAndAuthMessage(_ apiData: String, xyzResponse: String) throws(IBClientError) {
+        try requireConnected()
+        try send(.verifyAndAuthMessage(apiData: apiData, xyzResponse: xyzResponse))
+    }
 }

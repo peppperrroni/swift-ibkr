@@ -129,6 +129,18 @@ public enum IBDecoder {
             case 51: try r.skip(); return .fundamentalData(requestID: try r.int(), try r.string())
             case 104: return .wshMetaData(requestID: try r.int(), try r.string())
             case 105: return .wshEventData(requestID: try r.int(), try r.string())
+            case 16:
+                try r.skip()
+                let raw = try r.int()
+                guard let type = FADataType(rawValue: raw) else { throw IBProtocolError.badNumber(String(raw), index: r.index - 1) }
+                return .receiveFA(type: type, xml: try r.string())
+            case 103: return .replaceFAEnd(requestID: try r.int(), try r.string())
+            case 67: try r.skip(); return .displayGroupList(requestID: try r.int(), try r.string())
+            case 68: try r.skip(); return .displayGroupUpdated(requestID: try r.int(), try r.string())
+            case 65: try r.skip(); return .verifyMessageAPI(apiData: try r.string())
+            case 66: try r.skip(); return .verifyCompleted(isSuccessful: try r.bool(), errorText: try r.string())
+            case 69: try r.skip(); return .verifyAndAuthMessageAPI(apiData: try r.string(), xyzChallenge: try r.string())
+            case 70: try r.skip(); return .verifyAndAuthCompleted(isSuccessful: try r.bool(), errorText: try r.string())
             case 87: return .historicalNewsEnd(requestID: try r.int(), hasMore: try r.bool())
             case 75: return try optionChain(&r)
             case 76: return .securityDefinitionOptionParameterEnd(requestID: try r.int())

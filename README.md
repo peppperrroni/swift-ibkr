@@ -55,6 +55,7 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | Scanner | scan stream, one-shot scan, scanner parameters | ✅ on the fake gateway; a live run is due in stage 13 |
 | News | providers, article text, historical headlines, bulletins, news ticks through `marketData` | ✅ on the fake gateway; a live run is due in stage 13 |
 | Fundamentals and Wall Street Horizon | fundamentals report XML, WSH metadata and event JSON, all as IB's text | ✅ on the fake gateway; a live run is due in stage 13 |
+| FA, display groups and verify | FA XML read and replace, TWS display groups (list, follow, update), the vendor verify handshake | ✅ on the fake gateway; a live run is due in stage 13 |
 
 What is still unconfirmed against a live gateway is listed in [`docs/KNOWN-GAPS.md`](docs/KNOWN-GAPS.md).
 There are no tagged releases yet, and the API may still change.
@@ -378,6 +379,23 @@ All three return IB's text as a `String` and throw `.ib` on IB's error (430 when
 `WshEventData` field left unset goes out as IB's `2147483647`. Ask for `wshMetaData()` before `wshEventData(_:)`, as IB
 requires; the library does not enforce it. A cancelled `fundamentalData` sends IB's cancel; the WSH calls cancel after
 their answer.
+
+### FA, display groups and verify
+
+```swift
+let groups = try await client.faData(.groups)                        // an FA account's XML, never parsed
+let done = try await client.replaceFA(.groups, xml: groups)           // IB's confirmation text
+let list = try await client.displayGroups()                           // IB's raw "1|2|3"
+let (id, updates) = try await client.displayGroupUpdates(1)
+try await client.updateDisplayGroup(id, contractInfo: "265598@SMART")
+for try await contractInfo in updates { print(contractInfo) }         // "265598@SMART"; stopping it unsubscribes
+```
+
+`faData` takes only IB's answer of its own type, so calls for different types can run at once. IB's refusal for a login
+that is not an FA account names no request, so `faData` then waits until you cancel it. `replaceFA`, `displayGroups`
+and the display-group stream throw `.ib` on IB's error. The four verify calls (`verifyRequest`, `verifyMessage`,
+`verifyAndAuthRequest`, `verifyAndAuthMessage`) only send; IB's answers arrive through `messages()`. IB documents them
+before startApi, which `connect` sends itself.
 
 ### Errors
 

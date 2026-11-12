@@ -76,6 +76,17 @@ public enum IBMessage: Sendable, Equatable {
     case fundamentalData(requestID: Int, String)
     case wshMetaData(requestID: Int, String)
     case wshEventData(requestID: Int, String)
+    /// IB's FA XML for one `FADataType`, and `replaceFA`'s confirmation text.
+    case receiveFA(type: FADataType, xml: String)
+    case replaceFAEnd(requestID: Int, String)
+    /// IB's display groups as its raw `"1|2|3"`, and a group's new contract as IB's `contractInfo` text.
+    case displayGroupList(requestID: Int, String)
+    case displayGroupUpdated(requestID: Int, String)
+    /// The verify handshake's answers; they reach `messages()` only.
+    case verifyMessageAPI(apiData: String)
+    case verifyCompleted(isSuccessful: Bool, errorText: String)
+    case verifyAndAuthMessageAPI(apiData: String, xyzChallenge: String)
+    case verifyAndAuthCompleted(isSuccessful: Bool, errorText: String)
     case rerouteMarketData(requestID: Int, conID: Int, exchange: String)
     case rerouteMarketDepth(requestID: Int, conID: Int, exchange: String)
     case unknown(id: Int, fields: [String])

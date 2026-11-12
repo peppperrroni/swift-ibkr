@@ -270,3 +270,103 @@ private let reportSnapshot = "<ReportSnapshot/>"
     #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).contains { $0[0] == "103" } == false)
     #expect(await client.requestStreamCount == 0)
 }
+
+/// 16 carries no reqId: each faData call takes only the answer of its own type, whatever the order.
+@Test func faDataAnswersByType() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let a = Task { try await client.faData(.groups) }
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames] == ["18", "1", "1"])
+    let b = Task { try await client.faData(.aliases) }
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["18", "1", "3"])
+    gateway.feed(["16", "1", "3", "<aliases/>"])
+    gateway.feed(["16", "1", "1", "<groups/>"])
+    #expect(try await within2s { try await a.value } == "<groups/>")
+    #expect(try await within2s { try await b.value } == "<aliases/>")
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func replaceFAAnswers() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in f[0] == "19" ? [["103", f[4], "done"]] : [] }
+    #expect(try await within2s { try await client.replaceFA(.aliases, xml: "<ListOfAccountAliases/>") } == "done")
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func replaceFAFailsOnItsError() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in f[0] == "19" ? [ibError(f[4], "321", "Error validating request")] : [] }
+    await #expect(throws: IBClientError.ib(code: 321, text: "Error validating request")) {
+        _ = try await within2s { try await client.replaceFA(.aliases, xml: "<ListOfAccountAliases/>") }
+    }
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func displayGroupsAnswer() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in f[0] == "67" ? [["67", "1", f[2], "1|2|3"]] : [] }
+    #expect(try await within2s { try await client.displayGroups() } == "1|2|3")
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func displayGroupsFailOnTheirError() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in f[0] == "67" ? [ibError(f[2], "321", "Error validating request")] : [] }
+    await #expect(throws: IBClientError.ib(code: 321, text: "Error validating request")) {
+        _ = try await within2s { try await client.displayGroups() }
+    }
+    #expect(await client.requestStreamCount == 0)
+}
+
+/// Review Focus 4: updateDisplayGroup sends under the stream's own reqId, and stopping the stream sends 70 for it.
+@Test func displayGroupUpdatesStreamUpdateAndCancel() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let (rid, updates) = try await client.displayGroupUpdates(1)
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames] == ["68", "1", "\(rid)", "1"])
+    let (reader, result) = take(1, updates)
+    gateway.feed(["68", "1", "\(rid)", "265598@SMART"])
+    #expect(try await within2s { try await result.value } == ["265598@SMART"])
+    try await client.updateDisplayGroup(rid, contractInfo: "8314@SMART")
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1]
+            == ["69", "1", "\(rid)", "8314@SMART"])
+    reader.cancel()
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 3)[FakeGateway.syncFrames + 2] == ["70", "1", "\(rid)"])
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func displayGroupUpdatesEndOnTheirError() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let (rid, updates) = try await client.displayGroupUpdates(1)
+    gateway.feed(ibError("\(rid)", "321", "Error validating request"))
+    await #expect(throws: IBClientError.ib(code: 321, text: "Error validating request")) {
+        try await within2s { for try await _ in updates {} }
+    }
+    try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).contains { $0[0] == "70" } == false)
+    #expect(await client.requestStreamCount == 0)
+}
+
+/// The verify calls only send; IB's answers reach messages() and nothing else.
+@Test func verifyCallsSendAndAnswersReachMessages() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let messages = await client.messages()
+    try await client.verifyRequest(apiName: "app", apiVersion: "1.0")
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames] == ["65", "1", "app", "1.0"])
+    gateway.feed(["65", "1", "d"])
+    let got = try await within2s { await messages.first { if case .verifyMessageAPI = $0 { true } else { false } } }
+    #expect(got == .verifyMessageAPI(apiData: "d"))
+    try await client.verifyAndAuthMessage("d", xyzResponse: "r")
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["73", "1", "d", "r"])
+    try await client.verifyMessage("m")
+    try await client.verifyAndAuthRequest(apiName: "app", apiVersion: "1.0", opaqueISVKey: "k")
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 4)
+    #expect(Array(sent[(FakeGateway.syncFrames + 2)...]) == [["66", "1", "m"], ["72", "1", "app", "1.0", "k"]])
+    #expect(await client.requestStreamCount == 0)
+}
