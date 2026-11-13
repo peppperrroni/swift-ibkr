@@ -3,9 +3,10 @@
 What stages 1 to 14 (codec and merging; socket, `IBClient`, a live paper run; positions, account summary, P&L; market
 data and contract lookups; session requests, the account stream and reconnect; the full order field set, what-if
 and exercise; market data and history in full; options, reference data, scanner, news and research; Flex reports;
-the 1.0 release; parity with `ib_async` 2.1.0) leave open. Every line needs something CI does not have and says
-which: a live gateway (a paper IB Gateway or TWS login), a market-data subscription, a Flex token, or an IBC
-install. Delete a line when it is settled.
+the 1.0 release; parity with `ib_async` 2.1.0) leave open. Every line under «To confirm against a live gateway»
+needs something CI does not have and says which: a live gateway (a paper IB Gateway or TWS login), a market-data
+subscription, a Flex token, or an IBC install. «Not covered by CI» and «Owner steps» are standing facts about CI and
+the owner's accounts, not open checks. Delete a line when it is settled.
 
 ## To confirm against a live gateway
 
@@ -101,8 +102,7 @@ CI (`.github/workflows/ci.yml`) builds and tests on macOS, Linux and Windows and
   gateway or to IB's Flex Web Service;
 - try other Swift versions than 6.0 and the latest image on Linux (Ubuntu, x86_64), 6.4.2 on Windows, and the
   runner's Xcode on macOS (6.3 at the time of writing), or any ARM Linux;
-- build the DocC docs anywhere but macOS, or build `Examples/IBKRExample` on Windows;
-- deliver a signal to the socket threads: the EINTR retry is tested through its helper, not on a live `recv`.
+- build the DocC docs anywhere but macOS, or build `Examples/IBKRExample` on Windows.
 
 ## Owner steps
 

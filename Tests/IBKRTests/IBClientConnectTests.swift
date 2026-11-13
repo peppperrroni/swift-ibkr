@@ -252,8 +252,11 @@ private let ready = ConnectionState.connected(serverVersion: 178, accounts: ["DU
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     gateway.blocksWrites = true   // cancelPositions never leaves
+    let start = ContinuousClock.now
     await client.disconnect()
-    try await within("close", seconds: 4) { try await gateway.waitUntilClosed(within: .milliseconds(2500)) }
+    try await Task.sleep(until: start + .milliseconds(1500))
+    #expect(!gateway.isClosed)   // the writer is stuck, so only the 2 s timer can close it
+    try await within("close", seconds: 5) { try await gateway.waitUntilClosed(within: .seconds(3)) }
 }
 
 @Test func liveFillTimeIsTheArrivalAndTheGatewayZoneReadsTheText() async throws {

@@ -32,14 +32,14 @@ private func isTransport(_ error: any Error) -> Bool {
 
 @Test func interruptedCallsAreRetried() {
     var calls = 0
-    let n = retryingInterrupted { () -> Int in
+    let n = retryingSocketEINTR { () -> Int in
         calls += 1
-        guard calls == 3 else { setLastError(interrupted); return -1 }
+        guard calls == 3 else { setLastError(socketEINTR); return -1 }
         return 5
     }
     #expect(n == 5 && calls == 3)
     calls = 0
-    #expect(retryingInterrupted { () -> Int in calls += 1; setLastError(interrupted + 1); return -1 } == -1)
+    #expect(retryingSocketEINTR { () -> Int in calls += 1; setLastError(socketEINTR + 1); return -1 } == -1)
     #expect(calls == 1)   // any other failure returns at once
 }
 

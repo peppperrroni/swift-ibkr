@@ -47,7 +47,7 @@ final class TCPSocket: Transport, @unchecked Sendable {
         var sent = 0
         while sent < bytes.count {
             let n = bytes.withUnsafeBytes { b in
-                retryingInterrupted { sendBytes(handle, b.baseAddress! + sent, b.count - sent) }
+                retryingSocketEINTR { sendBytes(handle, b.baseAddress! + sent, b.count - sent) }
             }
             guard n > 0 else {
                 let code = lastError()
@@ -72,7 +72,7 @@ final class TCPSocket: Transport, @unchecked Sendable {
         var buffer = [UInt8](repeating: 0, count: 65_536)
         while true {
             let n = buffer.withUnsafeMutableBytes { b in
-                retryingInterrupted { recvBytes(handle, b.baseAddress!, b.count) }
+                retryingSocketEINTR { recvBytes(handle, b.baseAddress!, b.count) }
             }
             if n > 0 { continuation.yield(Array(buffer[..<n])); continue }
             let code = lastError()
@@ -133,7 +133,7 @@ final class TCPSocket: Transport, @unchecked Sendable {
                     let (s, atto) = min(deadline - .now, .milliseconds(100)).components
                     let ms = Int32(clamping: s * 1000 + atto / 1_000_000_000_000_000)
                     guard ms > 0 else { throw .timeout }
-                    let ready = retryingInterrupted { pollWritable(h, ms) }
+                    let ready = retryingSocketEINTR { pollWritable(h, ms) }
                     if ready > 0 { break }
                     if ready < 0 { throw .transport("poll: \(lastError())") }
                 }
@@ -160,15 +160,15 @@ private final class CancelFlag: @unchecked Sendable {
 }
 
 /// Runs `call` again while it fails (a negative result) with EINTR / WSAEINTR: a signal is not a socket failure.
-func retryingInterrupted<T: BinaryInteger>(_ call: () -> T) -> T {
+func retryingSocketEINTR<T: BinaryInteger>(_ call: () -> T) -> T {
     while true {
         let result = call()
-        if result >= 0 || lastError() != interrupted { return result }
+        if result >= 0 || lastError() != socketEINTR { return result }
     }
 }
 
 #if os(Windows)
-let interrupted = WSAEINTR
+let socketEINTR = WSAEINTR
 extension TCPSocket {
     typealias Handle = SOCKET
     static let startup: Void = { var data = WSADATA(); _ = WSAStartup(0x0202, &data) }()
@@ -258,7 +258,7 @@ extension TCPSocket {
 private typealias AddrInfo = addrinfo
 private let invalidHandle: Int32 = -1
 private let connectPending = EINPROGRESS
-let interrupted = EINTR
+let socketEINTR = EINTR
 let peerGone = [EPIPE, ECONNRESET]
 #if canImport(Glibc)
 private let sendFlags = Int32(MSG_NOSIGNAL)

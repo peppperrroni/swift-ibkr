@@ -190,6 +190,25 @@ private func until(_ condition: @escaping @Sendable () async -> Bool) async thro
     #expect(await it.next() == .disconnected(nil))
 }
 
+/// The old gateway's last bytes arrive after a reconnect: `receive`'s generation guard keeps them out of the new
+/// connection's frame reader, which would otherwise read the partial header as the start of the next frame.
+@Test func staleChunkAfterReconnectIsIgnored() async throws {
+    let (one, two) = (FakeGateway(staysOpenAfterClose: true), FakeGateway())
+    let client = IBClient(connector: Gateways([one, two]).connector)
+    try await within2s { try await client.connect(clientID: 7) }
+    await client.disconnect()
+    try await within2s { try await client.connect(clientID: 7) }
+    let messages = await client.messages()
+    one.feedRaw([0, 0, 0])   // a partial header from the old connection
+    try await Task.sleep(for: .milliseconds(100))   // lets the old reader hand it over first
+    two.feed(["49", "1", "1700000000"])
+    let got = try await within2s { () async throws -> IBMessage in
+        for await m in messages { return m }
+        throw TimedOut()
+    }
+    #expect(got == .currentTime(1_700_000_000))
+}
+
 /// A consumer stop from the first connection that reaches the actor only after a reconnect reused its reqId. The
 /// stop is the stream's termination hop (`stopped`) called with the old generation: a real one cannot be delayed
 /// past a reconnect on purpose.
