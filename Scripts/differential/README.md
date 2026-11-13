@@ -4,7 +4,8 @@
 every frame of `corpus.json`, then every variant of `variants.py` (`gen/<id>/<variant>`) and the canary
 (`gen/canary/short-openOrder`), the wrapper callbacks its `Decoder` makes at server version 178, or the exception it
 logged. It also writes `encode.json`: for every case of `cases.py`, in order, every argument the `Client` method
-took (`_client`: the `Client` attributes it reads) and the fields it sent. `swift test` reads only the JSON; see CONTRIBUTING «Differential oracle» for the workflow and the allowlist.
+took (`_client`: the `Client` attributes it reads) and the fields it sent. `swift test` reads only the JSON; see
+CONTRIBUTING «Differential oracle» for the workflow and the allowlist.
 
 ```bash
 python3.12 -m venv .venv
@@ -19,10 +20,12 @@ python3.12 -m venv .venv
 - **Recording wrapper.** Any method name is recorded; arguments are bound to `ib_async.wrapper.Wrapper`'s signature
   (a short frame raises as the real wrapper would), named after it (`_1`, `_2`, … for the 9 methods `Wrapper`
   lacks). Zone-less execution times read as UTC (`ib.TimezoneTWS = "UTC"`), zones come from the pinned `tzdata`.
+  A logged exception is recorded as `Type: text`: the one `wrap` failed on, not its own re-raise, and an `OSError`
+  as its type alone, since its errno and text are the platform's (Windows and Linux differ).
 - **Canonical form.** Each argument flattens to `{path: string}`: a dataclass to `<path>.<field>`, a list to
   `<path>.#` and `<path>[i]`, `None` to `""`, a bool to `true`/`false`, IB's unset markers (2147483647,
-  9223372036854775807, -9223372036854775808, 1.7976931348623157e308, NaN) to `""`, ±∞ to `Infinite`/`-Infinite`, other numbers to plain
-  decimal text (`100.0` → `100`), a datetime to epoch seconds.
+  9223372036854775807, -9223372036854775808, 1.7976931348623157e308, NaN) to `""`, ±∞ to `Infinite`/`-Infinite`,
+  other numbers to plain decimal text (`100.0` → `100`), a datetime to epoch seconds.
 - **Encode capture.** A `Client` that never connects: `_serverVersion` 178, `connState` CONNECTED, `sendMsg`
   replaced by a list append; the message is split on `\0`. Arguments go to encode.json as text (`bool`
   `true`/`false`, `float` its `repr`), `None` as null, a dataclass as an object of all its fields plus `_type`; a

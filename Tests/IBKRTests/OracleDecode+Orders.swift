@@ -32,6 +32,7 @@ func orderArgs(_ o: Order, prefix: String) -> [String: String] {
         "minQty": canon(o.minQty), "percentOffset": canon(o.percentOffset),
         "overridePercentageConstraints": canon(o.overridePercentageConstraints),
         "trailStopPrice": canon(o.trailStopPrice), "trailingPercent": canon(o.trailingPercent),
+        // faProfile: read only below server version 177 (decoder.py:924-925, 1188-1189), so order.py:57's ""
         "faGroup": o.faGroup, "faProfile": "", "faMethod": o.faMethod, "faPercentage": o.faPercentage,
         "designatedLocation": o.designatedLocation, "openClose": o.openClose, "origin": canon(o.origin),
         "shortSaleSlot": canon(o.shortSaleSlot), "exemptCode": canon(o.exemptCode),
@@ -180,8 +181,9 @@ func orderCalls(id: Int, _ m: IBMessage) -> [OracleCall]? {
                 "orderState.completedTime": "", "orderState.completedStatus": "",
             ]) { _, constant in constant })
     case .completedOrder(let m):
-        // orderId and clientId are not on completedOrder's wire at 178 (ib_async's default 0); nor are the
-        // margins and commissions (an empty OrderState).
+        // orderId and clientId are not on completedOrder's wire at 178 (its decoder, decoder.py:1149-1359, never sets
+        // them, so order.py:25-26's default 0); nor are the margins and commissions (it reads only status,
+        // completedTime and completedStatus into OrderState(), so order.py:308-325's defaults).
         return call("completedOrder", contractArgs(m.contract, prefix: "contract.")
             .merging(orderArgs(m.order, prefix: "order.")) { a, _ in a }
             .merging(orderStateArgs(OrderState(), prefix: "orderState.")) { a, _ in a }

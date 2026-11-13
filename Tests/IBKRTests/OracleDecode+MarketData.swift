@@ -48,6 +48,7 @@ func marketDataCalls(id: Int, _ m: IBMessage) -> [OracleCall]? {
     case .depth(let reqId, let u):
         var a = ["reqId": canon(reqId), "position": canon(u.position), "operation": canon(u.operation.rawValue),
                  "side": canon(u.side.rawValue), "price": canon(u.price), "size": canon(u.size)]
+        // no marketMaker for 12: not on its wire, nor an argument of ib_async's call (decoder.py:62, wrapper.py:1298)
         if id == 12 { return call("updateMktDepth", a) }
         a["marketMaker"] = u.marketMaker  // 13's isSmartDepth is read and dropped (DECISIONS: the `marketDepth` row)
         return call("updateMktDepthL2", a)
