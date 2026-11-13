@@ -35,7 +35,8 @@ import Testing
     c.conID = 265598; c.strike = 0; c.localSymbol = "AAPL"; c.tradingClass = "NMS"
     let e = Execution(execID: "0000e0d5.6556b5f0.01.01", time: "20251109 10:00:00", account: "DU123456", exchange: "ISLAND",
         side: "BOT", shares: 100, price: d("187.25"), permID: 918273001, clientID: 1, orderID: 12, liquidation: 0,
-        cumulativeQuantity: 100, averagePrice: d("187.25"), orderRef: "", lastLiquidity: 1, pendingPriceRevision: false)
+        cumulativeQuantity: 100, averagePrice: d("187.25"), orderRef: "", lastLiquidity: 1, pendingPriceRevision: false,
+        date: Date(timeIntervalSince1970: 1_762_682_400))   // 2025-11-09 10:00:00 UTC
     #expect(m == .execDetails(requestID: 7, contract: c, execution: e))
 }
 

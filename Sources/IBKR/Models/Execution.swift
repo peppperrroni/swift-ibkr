@@ -4,7 +4,7 @@ import Foundation
 public struct Execution: Sendable, Equatable, Encodable {
     /// IB's execution id; a correction reuses it up to the last `.`-segment.
     public var execID: String
-    /// IB's raw text, in two formats that a consumer parses (see KNOWN-GAPS).
+    /// IB's raw text, in two formats (see KNOWN-GAPS); `date` is it parsed.
     public var time: String
     /// The account id that traded.
     public var account: String
@@ -40,6 +40,9 @@ public struct Execution: Sendable, Equatable, Encodable {
     public var evMultiplier: Decimal?
     /// The order's model code; empty when none.
     public var modelCode: String
+    /// `time` as an instant: a time without a zone is read in `ConnectOptions.gatewayTimeZone`, else UTC; `nil` when
+    /// IB's text is in neither format.
+    public var date: Date?
 
     /// Creates an execution with every field given.
     public init(
@@ -61,7 +64,8 @@ public struct Execution: Sendable, Equatable, Encodable {
         pendingPriceRevision: Bool,
         evRule: String = "",
         evMultiplier: Decimal? = nil,
-        modelCode: String = ""
+        modelCode: String = "",
+        date: Date? = nil
     ) {
         self.execID = execID
         self.time = time
@@ -82,6 +86,7 @@ public struct Execution: Sendable, Equatable, Encodable {
         self.evRule = evRule
         self.evMultiplier = evMultiplier
         self.modelCode = modelCode
+        self.date = date
     }
 }
 

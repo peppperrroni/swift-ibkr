@@ -5,7 +5,8 @@ import Foundation
 public struct FlexReport: Sendable {
     /// The report's XML as received.
     public let data: Data
-    let elements: [FlexElement]
+    /// Every element in document order with its depth (ib_async's `root`, flattened).
+    public let elements: [FlexElement]
 
     /// Throws `FlexError.malformedXML` when `data` is not a well-formed XML document.
     public init(data: Data) throws {

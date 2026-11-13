@@ -563,6 +563,12 @@ library leaves out.
 | `fills`, `executions` | `executions()` (synced at connect) |
 | `reqExecutions` | `executions(filter:)` (the joined fills of the executions IB lists) |
 | `Fill` | `Fill` |
+| `Fill.time`, `Execution.time` as datetime, `TimezoneTWS` | `Fill.time`, `Execution.date`, `ConnectOptions.gatewayTimeZone` |
+| `formatIBDatetime`, `parseIBDatetime` | `IBDate.format(_:)`, `IBDate.parse(_:timeZone:)` |
+| `timeRange`, `timeRangeAsync`, `waitUntil`, `waitUntilAsync` | `IBClient.timeRange(from:to:every:)`, `IBClient.wait(until:)` |
+| `OptionComputation.__add__`, `__sub__`, `__mul__` | `+`, `-` and `* Decimal` on `OptionComputation` |
+| `Forex.pair` | `Contract.pair` |
+| `TradingSession`, `ContractDetails.tradingSessions()`, `liquidSessions()` | `TradingSession`, `ContractDetails.tradingSessions`, `.liquidSessions` |
 | `MarketOrder`, `LimitOrder`, `StopOrder`, `StopLimitOrder` | `Order.market(_:quantity:)`, `.limit(_:quantity:price:)`, `.stop(_:quantity:stopPrice:)`, `.stopLimit(_:quantity:limitPrice:stopPrice:)` |
 | `bracketOrder` | `Order.bracket(_:quantity:limitPrice:takeProfitPrice:stopLossPrice:)`, placed with `placeBracket(_:_:)` |
 | `oneCancelsAll` | `Order.oneCancelsAll(_:group:type:)` |
@@ -635,6 +641,7 @@ library leaves out.
 | `FlexReport(path=)` / `load` / `save` | `FlexReport(data:)` / `report.data.write(to:)` |
 | `extract` | `extract(_:)` (strings; `decimal(_:)` for numbers) |
 | `topics` | `topics` |
+| `root` | `FlexReport.elements` (`FlexElement`: `name`, `attributes`, `depth`, `text`) |
 | `FlexError` | `FlexError` (four cases) |
 | `df` | none |
 

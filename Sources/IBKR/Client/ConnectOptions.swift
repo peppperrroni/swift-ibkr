@@ -27,12 +27,16 @@ public struct ConnectOptions: Sendable, Equatable, Encodable {
     /// How long an id-less one-shot (`currentTime()`, `faData(_:)`, `fetchOpenOrders()`, ...) waits for its answer
     /// before it throws `.timeout`; `nil` waits without bound. IB cannot address an error to these requests.
     public var idlessRequestTimeout: Duration?
+    /// The zone of an `Execution.time` that names none (IB's live format); `nil` reads it as UTC (`ib_async`'s
+    /// `TimezoneTWS`, whose default is the local zone).
+    public var gatewayTimeZone: TimeZone?
 
     /// Creates options; every default is today's behaviour.
     public init(readOnly: Bool = false, account: String? = nil, fetch: StartupFetch = .all,
                 maxSyncedSubAccounts: Int = 50, throwsOnSyncError: Bool = true, maxRequests: Int = 45,
                 requestsInterval: Duration = .seconds(1), connectOptions: String = "",
-                optionalCapabilities: String = "", idlessRequestTimeout: Duration? = .seconds(10)) {
+                optionalCapabilities: String = "", idlessRequestTimeout: Duration? = .seconds(10),
+                gatewayTimeZone: TimeZone? = nil) {
         self.readOnly = readOnly
         self.account = account
         self.fetch = fetch
@@ -43,6 +47,7 @@ public struct ConnectOptions: Sendable, Equatable, Encodable {
         self.connectOptions = connectOptions
         self.optionalCapabilities = optionalCapabilities
         self.idlessRequestTimeout = idlessRequestTimeout
+        self.gatewayTimeZone = gatewayTimeZone
     }
 }
 

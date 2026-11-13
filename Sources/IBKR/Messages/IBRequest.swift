@@ -226,8 +226,8 @@ public enum IBRequest: Sendable, Equatable {
             w.add(84); w.add(reqID); try w.add(provider); try w.add(article); try w.add(Self.tagValues(options))
         case .historicalNews(let reqID, let conID, let providers, let start, let end, let total, let options):
             w.add(86); w.add(reqID); w.add(conID); try w.add(providers.joined(separator: "+"))
-            try w.add(start.map { Self.newsFormat.string(from: $0) } ?? "")
-            try w.add(end.map { Self.newsFormat.string(from: $0) } ?? "")
+            try w.add(start.map { IBDate.format($0) } ?? "")
+            try w.add(end.map { IBDate.format($0) } ?? "")
             w.add(total); try w.add(Self.tagValues(options))
         case .fundamentalData(let reqID, let c, let reportType, let options):
             // the contract block minus strike, right and multiplier, as ib_async sends it
@@ -350,7 +350,7 @@ public enum IBRequest: Sendable, Equatable {
         case .historicalData(let reqID, let c, let end, let barSize, let duration, let rth, let what, let keep,
                              let options):
             w.add(20); w.add(reqID); try Self.contract(&w, c, allowBag: true); w.add(c.includeExpired)
-            try w.add(end.map { Self.endFormat.string(from: $0) } ?? "")
+            try w.add(end.map { IBDate.endFormat.string(from: $0) } ?? "")
             try w.add(barSize); try w.add(duration); w.add(rth); try w.add(what)
             w.add(what == "SCHEDULE" ? 1 : 2)  // formatDate: epoch seconds, but SCHEDULE wants text
             try Self.comboLegs(&w, c)
@@ -386,27 +386,12 @@ public enum IBRequest: Sendable, Equatable {
         case .historicalTicks(let reqID, let c, let start, let end, let count, let what, let rth, let ignoreSize,
                               let options):
             w.add(96); w.add(reqID); try Self.contract(&w, c); w.add(c.includeExpired)
-            try w.add(start.map { Self.endFormat.string(from: $0) } ?? "")
-            try w.add(end.map { Self.endFormat.string(from: $0) } ?? "")
+            try w.add(start.map { IBDate.endFormat.string(from: $0) } ?? "")
+            try w.add(end.map { IBDate.endFormat.string(from: $0) } ?? "")
             w.add(count); try w.add(what); w.add(rth); w.add(ignoreSize); try w.add(Self.tagValues(options))
         }
         return w.body
     }
-
-    /// ib_async's text for a news date (util.py formatIBDatetime), unlike the `-` form history requests use.
-    private static let newsFormat: DateFormatter = {
-        let f = DateFormatter()
-        f.locale = Locale(identifier: "en_US_POSIX"); f.timeZone = TimeZone(identifier: "UTC")
-        f.dateFormat = "yyyyMMdd HH:mm:ss 'UTC'"
-        return f
-    }()
-
-    private static let endFormat: DateFormatter = {
-        let f = DateFormatter()
-        f.locale = Locale(identifier: "en_US_POSIX"); f.timeZone = TimeZone(identifier: "UTC")
-        f.dateFormat = "yyyyMMdd-HH:mm:ss"
-        return f
-    }()
 
     /// A tag-value list as IB takes it: `tag=value;` per pair, with no separator.
     static func tagValues(_ list: [TagValue]) -> String { list.map { "\($0.tag)=\($0.value);" }.joined() }

@@ -154,3 +154,8 @@ extension Contract {
         return c
     }
 }
+
+extension Contract {
+    /// `symbol + currency`, as ib_async's `Forex.pair`: `EURUSD` for `forex("EURUSD")`.
+    public var pair: String { symbol + currency }
+}

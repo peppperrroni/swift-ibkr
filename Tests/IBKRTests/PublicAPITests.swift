@@ -26,7 +26,10 @@ import Testing
     #expect(AccountPnL(daily: 1).unrealized == nil)
     #expect(AccountPnL(daily: 1, account: "A", modelCode: "M").modelCode == "M")
     #expect(PnL(position: 1, account: "A", modelCode: "M", conID: 7).conID == 7)
-    #expect(execution.execID == "e1")
+    #expect(execution.execID == "e1" && execution.date == nil)
+    #expect(Fill(contract: contract, execution: execution, commission: commission).time == nil)
+    #expect(TradingSession(start: Date(timeIntervalSince1970: 0), end: Date(timeIntervalSince1970: 1)).end.timeIntervalSince1970 == 1)
+    #expect(ConnectOptions().gatewayTimeZone == nil)
     #expect(commission.realizedPNL == nil)
     #expect(ContractDetails(
         contract: contract, marketName: "m", minTick: 1, priceMagnifier: 1, longName: "l", stockType: "", timeZoneID: "", tradingHours: "", liquidHours: "").orderTypes.isEmpty)

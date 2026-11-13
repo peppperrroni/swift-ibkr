@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import IBKR
 
@@ -235,4 +236,23 @@ private let ready = ConnectionState.connected(serverVersion: 178, accounts: ["DU
     gateway.feedRaw([0x01, 0, 0, 0])
     #expect(try await first(states, where: isDisconnected) == .disconnected(.protocolError(.frameTooLong(16_777_216))))
     #expect(gateway.isClosed)
+}
+
+@Test func liveFillTimeIsTheArrivalAndTheGatewayZoneReadsTheText() async throws {
+    let id = "0000e0d5.6556b5f0.01.01"
+    let exec = ["11", "-1", "12", "265598", "AAPL", "STK", "", "0", "", "", "SMART", "USD", "AAPL", "NMS",
+                id, "20251109-10:00:00", "DU1", "ISLAND", "BOT", "100", "187.25", "918273001", "7", "0",
+                "100", "187.25", "", "", "", "", "1", "0"]
+    let gateway = FakeGateway()
+    let client = IBClient(connector: gateway.connector)
+    try await within2s {
+        try await client.connect(clientID: 7, options: ConnectOptions(gatewayTimeZone: TimeZone(identifier: "US/Eastern")))
+    }
+    let (_, updates) = await client.executions()
+    gateway.feed(exec)
+    gateway.feed(["59", "1", id, "1.5", "USD", "1.7976931348623157E308", "1.7976931348623157E308", ""])
+    let fill = try await first(updates)
+    let time = try #require(fill.time)
+    #expect(abs(time.timeIntervalSinceNow) < 2)
+    #expect(fill.execution.date == Date(timeIntervalSince1970: 1_762_682_400 + 5 * 3600))   // read as Eastern
 }

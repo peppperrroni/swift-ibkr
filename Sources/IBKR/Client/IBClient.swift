@@ -1203,10 +1203,11 @@ public actor IBClient {
             return
         }
         frameTap?(FieldReader(body).fields)
-        let message = IBDecoder.decode(body)
+        let message = IBDecoder.decode(body, gatewayTimeZone: options.gatewayTimeZone)
         messageSubscribers.yield(message)
         for snapshot in orderTracker.apply(message) { orderSubscribers.yield(snapshot) }
-        let fills = executionTracker.apply(message)
+        let live = if case .execDetails(-1, _, _) = message { Date() } else { nil as Date? }
+        let fills = executionTracker.apply(message, receivedAt: live)
         for fill in fills {
             fillSubscribers.yield(fill)
             let e = fill.execution

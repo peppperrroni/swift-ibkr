@@ -8,12 +8,15 @@ public struct Fill: Sendable, Equatable, Encodable {
     public var execution: Execution
     /// Its commission report (in 59), matched by execution id.
     public var commission: CommissionReport
+    /// When the fill happened as the client knows it: a live execDetails' arrival, else `execution.date`.
+    public var time: Date?
 
     /// Creates a fill with every field given.
-    public init(contract: Contract, execution: Execution, commission: CommissionReport) {
+    public init(contract: Contract, execution: Execution, commission: CommissionReport, time: Date? = nil) {
         self.contract = contract
         self.execution = execution
         self.commission = commission
+        self.time = time
     }
 }
 
@@ -21,7 +24,7 @@ public struct Fill: Sendable, Equatable, Encodable {
 /// value, no I/O: the owner publishes whatever `apply` returns.
 public struct ExecutionTracker: Sendable {
     private var all: [Fill] = []
-    private var pendingExecs: [String: (contract: Contract, execution: Execution)] = [:]
+    private var pendingExecs: [String: (contract: Contract, execution: Execution, time: Date?)] = [:]
     private var pendingCommissions: [String: CommissionReport] = [:]
     private var byCorrectionKey: [String: Int] = [:]
     private var byExecID: [String: Int] = [:]
@@ -35,12 +38,13 @@ public struct ExecutionTracker: Sendable {
     /// The whole fill for `execID`, or the correction that replaced it; `nil` while a half is missing.
     func fill(execID: String) -> Fill? { byExecID[execID].map { all[$0] } }
 
-    /// Feeds one message; returns the fills it completes or corrects, else none.
-    public mutating func apply(_ message: IBMessage) -> [Fill] {
+    /// Feeds one message; returns the fills it completes or corrects, else none. `receivedAt` is the arrival time of a
+    /// live execDetails (reqId -1); without it a fill's time is `execution.date`, as `ib_async` does for a request's reply.
+    public mutating func apply(_ message: IBMessage, receivedAt: Date? = nil) -> [Fill] {
         switch message {
         case .execDetails(_, let contract, let execution):
             guard !isSuperseded(execution.execID) else { return [] }
-            pendingExecs[execution.execID] = (contract, execution)
+            pendingExecs[execution.execID] = (contract, execution, receivedAt ?? execution.date)
             return join(execution.execID)
         case .commissionReport(let report):
             guard !isSuperseded(report.execID) else { return [] }
@@ -74,11 +78,14 @@ public struct ExecutionTracker: Sendable {
     private mutating func join(_ id: String) -> [Fill] {
         guard let e = pendingExecs[id], let c = pendingCommissions[id] else { return [] }
         pendingExecs[id] = nil; pendingCommissions[id] = nil
-        let fill = Fill(contract: e.contract, execution: e.execution, commission: c)
+        let fill = Fill(contract: e.contract, execution: e.execution, commission: c, time: e.time)
         let key = Self.correctionKey(id)
         let i = byCorrectionKey[key] ?? all.count
         if i < all.count {
-            guard !Self.isNewer(all[i].execution.execID, than: id), all[i] != fill else { return [] }
+            let old = all[i]   // a resend differs in `time` only
+            guard !Self.isNewer(old.execution.execID, than: id),
+                  old.contract != fill.contract || old.execution != fill.execution || old.commission != fill.commission
+            else { return [] }
             all[i] = fill
         } else {
             all.append(fill)

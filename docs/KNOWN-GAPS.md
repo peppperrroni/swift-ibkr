@@ -62,7 +62,9 @@ Still open:
 - A filled order replayed by completedOrders (the connect-time sync) has `order.totalQuantity` 0: its size is only
   in `filled`. The tracker keeps the 0 and clamps `remaining` at 0; a consumer reads the size from `filled`.
 - execDetails `time` comes in two formats: `20261110-11:56:31` (UTC, no zone) on a live fill and
-  `20261110 06:56:31 US/Eastern` in the reqExecutions reply. It stays a raw string; a consumer parses both.
+  `20261110 06:56:31 US/Eastern` in the reqExecutions reply. `Execution.time` stays the raw string and
+  `Execution.date` reads both; the live format's UTC is evidence from one recording, so a gateway whose login
+  zone differs needs `ConnectOptions.gatewayTimeZone` (unverified live).
 - `ConnectOptions` is checked on the fake gateway only: a read-only API login, `+PACEAPI`, a non-empty
   `optionalCapabilities`, client 0's auto-bind with TWS's manual orders, and more than 50 sub-accounts have not
   been seen live.

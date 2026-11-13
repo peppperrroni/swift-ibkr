@@ -68,3 +68,10 @@ let flexReportXML = """
         }
     }
 }
+
+@Test func elementsArePublic() {
+    let report = try! FlexReport(data: Data(flexReportXML.utf8))
+    let first = report.elements[0]
+    #expect(first.name == "FlexQueryResponse" && first.depth == 0 && first.attributes["type"] == "AF")
+    #expect(first == FlexElement(name: first.name, attributes: first.attributes, depth: 0, text: first.text))
+}

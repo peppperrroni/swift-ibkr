@@ -56,7 +56,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `RequestTimeout` | — | n/a | timeout of the synchronous wrappers only; cancel the calling task |
 | `RaiseRequestErrors` | thrown `IBClientError` | present | the `True` mode only; ib_async's default `False` (log, resolve empty or partial, wrapper.py:1647) is deliberately not offered (DECISIONS rows 61 and 74) |
 | `MaxSyncedSubAccounts` | `ConnectOptions.maxSyncedSubAccounts` | added | 50: with more accounts the sync sends no reqAccountUpdatesMulti; with one account none goes out while reqAccountUpdates covers it (ib_async sends one for it too, DECISIONS) |
-| `TimezoneTWS` | — | MISSING | `ConnectOptions.gatewayTimeZone: TimeZone?`, used to read `Execution.time` as a `Date` |
+| `TimezoneTWS` | `ConnectOptions.gatewayTimeZone` | added | `TimeZone?`; reads an `Execution.time` that names no zone (IB's live `yyyyMMdd-HH:mm:ss`), UTC when `nil` where ib_async falls back to the machine's zone (DECISIONS) |
 | `StartupFetch` | `StartupFetch` | added | `OptionSet` with `positions`, `ordersOpen`, `ordersComplete`, `accountUpdates`, `subAccountUpdates`, `executions`, as `ConnectOptions.fetch`; `.positions` gates reqPositions, which ib_async always sends |
 | `StartupFetchALL`, `StartupFetchNONE` | `StartupFetch.all`, `StartupFetch.none` | added | `.none` is `[]`; in an optional context write `StartupFetch.none` |
 | `__enter__`, `__exit__`, `__del__`, `__repr__` | — | n/a | Python dunders |
@@ -73,7 +73,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `waitOnUpdate`, `loopUntil` | — | n/a | synchronous wrappers over `updateEvent`; `for await` on a stream |
 | `setTimeout` | `idleTimeouts(after:)` | added | see `timeoutEvent` |
 | `run`, `schedule`, `sleep` | — | n/a | event-loop glue (`util` aliases); `Task.sleep` |
-| `timeRange`, `timeRangeAsync`, `waitUntil` | — | MISSING | aliases of the `util` rows of the same names |
+| `timeRange`, `timeRangeAsync`, `waitUntil` | `IBClient.timeRange(from:to:every:)`, `IBClient.wait(until:)` | added | aliases of the `util` rows of the same names |
 | `managedAccounts` | `managedAccounts()`; `states()` → `.connected(accounts:)` | present | Swift asks IB afresh; the state keeps the list seen at connect |
 | `accountValues` | `accountValues()` | present | filter by account with `.filter { $0.account == a }` |
 | `accountSummary` / `accountSummaryAsync` | `accountSummary(tags:group:)` | present | |
@@ -257,11 +257,11 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `DOMLevel` | `DepthLevel` | present | |
 | `Execution` | `Execution` | present | |
 | `Execution.evRule`, `evMultiplier`, `modelCode` | `Execution.evRule`, `.evMultiplier`, `.modelCode` | added | decoded from execDetails (in 11) after `orderRef`; `evMultiplier` is `Decimal?` |
-| `Execution.time` as datetime | `Execution.time` (IB's string) | MISSING | field type `Date`, read in `TimezoneTWS` when IB names no zone (decoder.py:468) |
+| `Execution.time` as datetime | `Execution.date` | added | `Date?` beside `Execution.time`, which stays IB's raw string; a text without a zone reads in `ConnectOptions.gatewayTimeZone` ?? UTC, a named zone wins (decoder.py:468) |
 | `ExecutionFilter` | `ExecutionFilter` | present | |
 | `FamilyCode` | `FamilyCode` | present | |
 | `Fill` | `Fill` | present | |
-| `Fill.time` | — | MISSING | field `Fill.time: Date`: arrival time for a live fill, execution time for a replayed one (wrapper.py:823) |
+| `Fill.time` | `Fill.time` | added | `Date?`: the arrival time for a live execDetails (reqId -1), `execution.date` for a replay or a reply (wrapper.py:821-823); `ExecutionTracker.apply(_:receivedAt:)` |
 | `FundamentalRatios` | `FundamentalRatios` | added | IB's text per tag (`values`, subscript), `decimal(_:)` reads a number (`-99999.99` → `nil`); see `Ticker.fundamentalRatios` |
 | `HistogramData` | `HistogramData` | present | |
 | `HistoricalNews` | `HistoricalNews` | present | `time` stays IB's string (DECISIONS) |
@@ -277,7 +277,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `NewsTick` | `NewsTick` | present | |
 | `OptionChain` | `OptionChain` | present | |
 | `OptionComputation` | `OptionComputation` | present | |
-| `OptionComputation.__add__`, `__sub__`, `__mul__` | — | MISSING | model helper: `+`, `-` and `* Decimal` on `OptionComputation` (greeks of a position, objects.py:370) |
+| `OptionComputation.__add__`, `__sub__`, `__mul__` | `OptionComputation.+`, `.-`, `.*` (with a `Decimal`) | added | the six fields impliedVol, delta, optPrice, gamma, vega, theta with unset read as 0 (a result is never `nil` there); `pvDividend` dropped, `undPrice` from the left, `tickAttrib` 0 (objects.py:370-413) |
 | `PnL` | `AccountPnL` | present | `account` and `modelCode` (stage 14) are the subscription's, set by the `pnl` stream; empty in a decoded message |
 | `PnLSingle` | `PnL` | present | `account`, `modelCode` and `conID` (stage 14) are the subscription's, set by the `pnlSingle` stream; empty and 0 in a decoded message |
 | `PortfolioItem` | `PortfolioItem` | present | |
@@ -314,14 +314,14 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `Contract.recreate` | — | n/a | turns a `Contract` into its Python subclass; Swift has no subclasses |
 | `Contract.isHashable`, `__eq__`, `__hash__` | — | n/a | Python dunders; ib_async compares by `conId` when set (contract.py:145-161), Swift's `==` compares every field; the conID lookup is in the `ticker(contract)` row |
 | `Stock`, `Option`, `Future`, `ContFuture`, `Forex`, `Index`, `CFD`, `Commodity`, `Bond`, `FuturesOption`, `MutualFund`, `Warrant`, `Bag`, `Crypto` | `Contract.stock`, `.option`, `.future`, `.contFuture`, `.forex`, `.index`, `.cfd`, `.commodity`, `.bond`, `.futuresOption`, `.mutualFund`, `.warrant`, `.bag`, `.crypto` | present | |
-| `Forex.pair` | — | MISSING | model helper `Contract.pair: String` (symbol + currency) |
+| `Forex.pair` | `Contract.pair` | added | `symbol + currency` on any `Contract` |
 | `TagValue` | `TagValue` | present | |
 | `ComboLeg` | `ComboLeg` | present | |
 | `DeltaNeutralContract` | `DeltaNeutralContract` | present | |
-| `TradingSession` | — | MISSING | model `TradingSession(start: Date, end: Date)` |
+| `TradingSession` | `TradingSession` | added | `TradingSession(start: Date, end: Date)` |
 | `ContractDetails` | `ContractDetails` | present | `mdSizeMultiplier` is obsolete and skipped by both |
-| `ContractDetails.tradingSessions` | — | MISSING | model helper `tradingSessions: [TradingSession]` from `tradingHours` in `timeZoneID` (contract.py:599) |
-| `ContractDetails.liquidSessions` | — | MISSING | model helper `liquidSessions` from `liquidHours` |
+| `ContractDetails.tradingSessions` | `ContractDetails.tradingSessions` | added | read from `tradingHours` in `timeZoneID`; `CLOSED` days skipped, an unknown zone gives `[]` (contract.py:599) |
+| `ContractDetails.liquidSessions` | `ContractDetails.liquidSessions` | added | the same from `liquidHours` |
 | `ContractDescription` | `ContractDescription` | present | |
 | `ScanData` | `ScanData` | present | carries `contract` and `marketName`, all the frame has |
 
@@ -391,11 +391,11 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `formatSI` | `ConnectionStats.description` | added | internal `formatSI(_:)` for `Int` and `Double` (util.py:274-299), behind the description; a negative integer keeps its sign, which ib_async drops |
 | `timeit` | — | n/a | Python context manager; `ContinuousClock().measure {}` |
 | `run`, `schedule`, `sleep` | — | n/a | event-loop glue |
-| `timeRange`, `timeRangeAsync` | — | MISSING | request stream `timeRange(from:to:every:) -> AsyncStream<Date>`: waits for each point and yields it, skipping past ones |
-| `waitUntil`, `waitUntilAsync` | — | MISSING | `wait(until: Date) async` |
+| `timeRange`, `timeRangeAsync` | `IBClient.timeRange(from:to:every:)` | added | `AsyncStream<Date>`: waits for each point and yields it, skipping past ones; stopping the consumer ends it |
+| `waitUntil`, `waitUntilAsync` | `IBClient.wait(until:)` | added | `async throws`; returns at once for a past date, throws `CancellationError` on cancel |
 | `patchAsyncio`, `getLoop`, `startLoop`, `useQt` | — | n/a | event-loop, Jupyter and Qt glue |
-| `formatIBDatetime` | — | MISSING | model helper `IBDate.format(_:)`: `yyyyMMdd HH:mm:ss UTC`, a date as 23:59:59 local; Swift's formatters are private (IBRequest.swift:395) |
-| `parseIBDatetime` | — | MISSING | model helper `IBDate.parse(_:)`: `yyyyMMdd`, epoch seconds, `yyyyMMdd HH:mm:ss Zone`, `yyyyMMdd  HH:mm:ss` |
+| `formatIBDatetime` | `IBDate.format(_:)` | added | `yyyyMMdd HH:mm:ss UTC` for a `Date`; ib_async's `date` form (23:59:59 local) and string pass-through are not offered |
+| `parseIBDatetime` | `IBDate.parse(_:timeZone:)` | added | `yyyyMMdd` (that day's start), epoch seconds, `yyyyMMdd HH:mm:ss Zone`, `yyyyMMdd  HH:mm:ss`, `yyyy-MM-dd HH:mm:ss.0`; `timeZone` (UTC by default) stands where ib_async uses naive local time; `nil` for anything else |
 
 ## ibcontroller.py
 
@@ -441,7 +441,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `save` | `FlexReport.data` + `Data.write(to:)` | present | |
 | `get_url` (`IB_FLEXREPORT_URL`) | `download(…url:)` | present | the caller reads the variable (DECISIONS) |
 | `data` | `FlexReport.data` | present | |
-| `root` | — | MISSING | model helper: the parsed elements (`FlexReport.elements`), today private |
+| `root` | `FlexReport.elements` | added | public `[FlexElement]` (`name`, `attributes`, `depth`, `text`) in document order; the tree is flattened with depths |
 | `topics` | `FlexReport.topics` | present | |
 | `extract(topic, parseNumbers)` | `FlexReport.extract(_:)` + `FlexRecord.decimal(_:)` | present | strings with a strict `Decimal` accessor instead of guessing (DECISIONS) |
 | `df` | — | n/a | pandas |
@@ -494,4 +494,4 @@ connect), **model helper** (a computed property or method on a model), **factory
 
 ## Totals
 
-Rows, where one row may carry several names: `present` 218 · `added` 126 · `MISSING` 39 · `n/a` 33.
+Rows, where one row may carry several names: `present` 218 · `added` 140 · `MISSING` 25 · `n/a` 33.

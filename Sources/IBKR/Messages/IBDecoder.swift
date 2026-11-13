@@ -3,7 +3,10 @@ import Foundation
 /// Turns one frame body into an `IBMessage` (incoming message ids per docs/protocol-178.md).
 public enum IBDecoder {
     /// Never throws. A non-numeric message id is `.malformed` with id 0.
-    public static func decode(_ body: [UInt8]) -> IBMessage {
+    public static func decode(_ body: [UInt8]) -> IBMessage { decode(body, gatewayTimeZone: nil) }
+
+    /// `decode(_:)`, reading an execution time that names no zone in `gatewayTimeZone` (UTC when `nil`).
+    static func decode(_ body: [UInt8], gatewayTimeZone: TimeZone?) -> IBMessage {
         var r = FieldReader(body)
         let fields = r.fields
         guard let first = fields.first, let id = Int(first) else {
@@ -20,7 +23,7 @@ public enum IBDecoder {
                                              advancedOrderRejectJSON: try r.string()))
             case 5: return .openOrder(try openOrder(&r))
             case 9: try r.skip(); return .nextValidID(try r.int())
-            case 11: return try execDetails(&r)
+            case 11: return try execDetails(&r, gatewayTimeZone)
             case 15:
                 try r.skip()
                 return .managedAccounts(try r.string().split(separator: ",").map(String.init))
@@ -239,7 +242,7 @@ public enum IBDecoder {
             whyHeld: try r.string(), marketCapPrice: try r.optionalDecimal())
     }
 
-    private static func execDetails(_ r: inout FieldReader) throws -> IBMessage {
+    private static func execDetails(_ r: inout FieldReader, _ zone: TimeZone?) throws -> IBMessage {
         let requestID = try r.int()
         let orderID = try r.int()
         let c = try contract(&r)
@@ -254,7 +257,8 @@ public enum IBDecoder {
             price: price, permID: permID, clientID: clientID, orderID: orderID, liquidation: liquidation,
             cumulativeQuantity: cumQty, averagePrice: avgPrice, orderRef: orderRef,
             lastLiquidity: lastLiquidity, pendingPriceRevision: pending, evRule: evRule, evMultiplier: evMultiplier,
-            modelCode: modelCode))
+            modelCode: modelCode,
+            date: IBDate.parse(time, timeZone: zone ?? TimeZone(identifier: "UTC")!)))
     }
 
     /// scannerData (20): one whole scan, 16 fields per row.

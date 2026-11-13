@@ -512,3 +512,29 @@ public struct DepthUpdate: Sendable, Equatable, Encodable {
         self.size = size
     }
 }
+
+extension OptionComputation {
+    /// ib_async's `+`: the six fields add with an unset one read as 0, so a result is never `nil` there; `undPrice`
+    /// is the left one's, `pvDividend` is dropped and `tickAttrib` is 0.
+    public static func + (a: OptionComputation, b: OptionComputation) -> OptionComputation {
+        a.sixFields(b) { ($0 ?? 0) + ($1 ?? 0) }
+    }
+
+    /// ib_async's `-`: as `+`, subtracting.
+    public static func - (a: OptionComputation, b: OptionComputation) -> OptionComputation {
+        a.sixFields(b) { ($0 ?? 0) - ($1 ?? 0) }
+    }
+
+    /// ib_async's `*`: each of the six fields times `k`, an unset one read as 0; `undPrice` is kept.
+    public static func * (a: OptionComputation, k: Decimal) -> OptionComputation {
+        a.sixFields(a) { x, _ in (x ?? 0) * k }
+    }
+
+    /// `f` applied to the left and right value of impliedVol, delta, optPrice, gamma, vega and theta.
+    private func sixFields(_ b: OptionComputation, _ f: (Decimal?, Decimal?) -> Decimal) -> OptionComputation {
+        OptionComputation(
+            tickAttrib: 0, impliedVol: f(impliedVol, b.impliedVol), delta: f(delta, b.delta),
+            optPrice: f(optPrice, b.optPrice), gamma: f(gamma, b.gamma), vega: f(vega, b.vega),
+            theta: f(theta, b.theta), undPrice: undPrice)
+    }
+}

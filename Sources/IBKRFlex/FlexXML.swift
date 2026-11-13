@@ -3,13 +3,24 @@ import Foundation
 import FoundationXML
 #endif
 
-struct FlexElement: Sendable {
-    let name: String
-    let attributes: [String: String]
+/// One element of a Flex report, in document order: ib_async's `FlexReport.root`, flattened with each depth.
+public struct FlexElement: Sendable, Equatable, Encodable {
+    /// The tag name.
+    public let name: String
+    /// The attributes, by name.
+    public let attributes: [String: String]
     /// The root is 0.
-    let depth: Int
+    public let depth: Int
     /// The element's own character data, untrimmed.
-    var text: String
+    public var text: String
+
+    /// Creates an element with every field given.
+    public init(name: String, attributes: [String: String], depth: Int, text: String) {
+        self.name = name
+        self.attributes = attributes
+        self.depth = depth
+        self.text = text
+    }
 }
 
 func parseFlexXML(_ data: Data) throws -> [FlexElement] {
