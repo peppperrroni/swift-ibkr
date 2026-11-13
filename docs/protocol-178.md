@@ -1958,8 +1958,8 @@ agrees type by type. The differences are in default values and value formatting 
    decodes to 0 (any other unset value too), where `ib_async` keeps the sentinel (`""` in the oracle). A `modifyOrder`
    with a decoded order therefore re-sends `0` where `ib_async` sends `""` (KNOWN-GAPS, the modify line; the encode
    oracle's `placeOrder/modify/recorded-openOrder` case shows it, and no other field of that re-send differs but
-   number formatting, item 4). That is the decoder-level re-send; an `ib_async` user's modify differs further
-   (item 20).
+   number formatting, item 4). That is the decoder-level re-send; a modify of an order the client placed re-sends
+   the caller's own order in both (item 20).
 16. **An empty tickPrice price makes no tick in `ib_async`.** Its decoder calls the wrapper only `if price:`
    (decoder.py:200-206), so a frame whose price field is empty gives no call at all; swift-ibkr decodes the frame to
    `.tick(.price(…, price: nil, …))` (unset is `nil`). No recorded live frame has an empty price. On such a frame a `Ticker` field can be cleared where `ib_async`
@@ -1989,18 +1989,20 @@ agrees type by type. The differences are in default values and value formatting 
    `evMultiplier: int = 0`, so `parse()` calls `int()` on the text (contract.py:569, 590; decoder.py:192-193) and
    rejects the whole frame for a decimal text (a bond's `3.45`, `5.0` too) or a double `MAX`; swift-ibkr decodes both as
    `Decimal` (`MAX` is `nil`). An `ib_async` defect; swift-ibkr is unchanged. Messages 10 (evMultiplier) and 18.
-20. **A modify re-sends IB's echo of the order, where an `ib_async` user re-sends their own.** swift-ibkr's order
-   tracker replaces an order's contract and order with each decoded openOrder (`OrderTracker.applyOpen`), for the
-   orders it placed too, so `modifyOrder(id, snapshot.contract, snapshot.order)` re-sends what the gateway echoed:
-   contract `right` `?`, deltaNeutralOpenClose `?`, displaySize 0 (item 15), deltaNeutralOrderType and
-   adjustedOrderType `None`, clearingIntent `IB` (the live echo, item 9). `ib_async` keeps the user's own `Contract`
-   and `Order` for a trade it placed and copies only permId, totalQuantity, lmtPrice, auxPrice, orderType and
-   orderRef from openOrder into them (wrapper.py:687-693); it drops IB's `?` values from the order only for a trade
-   it did not place (wrapper.py:695-698). So an `ib_async` user's modify of their own order re-sends their own values.
-   The decoders and encoders agree (`placeOrder/modify/recorded-openOrder`); the difference is in the tracker, outside
-   the oracle's layer. Whether the gateway accepts the echo back is unchecked live (KNOWN-GAPS); swift-ibkr is
-   unchanged until it is, and whether a later stage keeps the caller's own order for orders it placed is the
-   owner's call.
+20. **A modify of an order the client placed re-sends the caller's own order, as in `ib_async`.** For an order this
+   client placed or modified, swift-ibkr's order tracker (`OrderTracker.applyOpen`) keeps the caller's own `Contract`
+   and `Order` and copies only permId, totalQuantity, lmtPrice, auxPrice, orderType and orderRef from each openOrder
+   into them, as `ib_async` does (wrapper.py:687-693); so `modifyOrder(id, snapshot.contract, snapshot.order)`
+   re-sends the caller's values, not the gateway's echo (contract `right` `?`, deltaNeutralOpenClose `?`,
+   displaySize 0 (item 15), deltaNeutralOrderType and adjustedOrderType `None`, clearingIntent `IB`; item 9). Any
+   other order (another client's, the sync's, client 0's auto-bound ones) takes the decoded order with every `String`
+   field IB sent as `?` set to `Order`'s default (`tif` `DAY`, item 21; `openClose` `O`; `""` for the rest), as
+   `ib_async` drops `?` from the order of a trade it did not place (wrapper.py:695-698); the contract stays as
+   decoded (`Contract.recreate` keeps `right` `?`). One difference remains: swift-ibkr takes the whole decoded order
+   from every openOrder of such an order, where `ib_async` takes it from the first and then copies the six fields.
+   Until 2026-11-13 swift-ibkr replaced the contract and order with each openOrder for its own orders too; the
+   owner chose `ib_async`'s rule. The decoders and encoders agree (`placeOrder/modify/recorded-openOrder`); the rule
+   is in the tracker, outside the oracle's layer.
 21. **placeOrder `tif` default.** swift-ibkr's `Order(action:quantity:orderType:)` defaults `tif` to `DAY`;
    `ib_async`'s `Order()` (and `LimitOrder`, `MarketOrder`, …) sends `""`, which leaves the time in force to the
    gateway's order preset. swift-ibkr names the day order every caller gets unless they set one; every live order

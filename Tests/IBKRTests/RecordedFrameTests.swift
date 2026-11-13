@@ -43,6 +43,21 @@ func everyRecordedFrameDecodes(_ name: String) throws {
     })
 }
 
+/// An order this client did not place takes the decoded order with IB's `?` dropped to `Order`'s defaults, as
+/// ib_async does (wrapper.py:695-698); the contract stays as decoded (`Contract.recreate` keeps `right` `?`).
+@Test func untrackedOpenOrderDropsQuestionMarks() throws {
+    let frame = try #require(try recording("liveLimitOrderPlacesAndCancels").first { $0.first == "5" })
+    var tracker = OrderTracker(clientID: 0)
+    let s = try #require(tracker.apply(IBDecoder.decode(body(frame))).first)
+    #expect(s.order.deltaNeutralOpenClose == "")
+    #expect(s.order.deltaNeutralOrderType == "None" && s.order.clearingIntent == "IB" && s.order.account == "DU0000001")
+    #expect(s.contract.right == "?")
+    // fields whose default is not "": tif (18) and openClose (21)
+    var other = OrderTracker(clientID: 0)
+    let t = try #require(other.apply(IBDecoder.decode(body(replacing(frame, [18: "?", 21: "?"])))).first)
+    #expect(t.order.tif == "DAY" && t.order.openClose == "O")
+}
+
 @Test func recordedLimitOrderEndsCancelled() throws {
     var tracker = OrderTracker(clientID: 77)
     for f in try recording("liveLimitOrderPlacesAndCancels") { _ = tracker.apply(IBDecoder.decode(body(f))) }

@@ -467,3 +467,9 @@ private func fill(_ execID: String, orderID: Int = 12, permID: Int = 918273001, 
     #expect(t.add(fill("f.01.01", orderID: 0), at: t3).first?.fills.count == 2, "found by permID")
     #expect(t.add(fill("g.01.01", orderID: 77, permID: 5), at: t3).isEmpty, "unknown order")
 }
+
+/// `droppingUnknown` must reach every `String` field of `Order`: a new one is a new place IB's `?` can land.
+@Test func droppingUnknownCoversEveryStringField() {
+    let order = Order(action: .buy, quantity: 1, orderType: "LMT")
+    #expect(OrderTracker.stringFields.count == Mirror(reflecting: order).children.filter { $0.value is String }.count)
+}

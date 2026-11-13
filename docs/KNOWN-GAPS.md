@@ -68,11 +68,12 @@ realized P&L. The stage-4 run of 2026-11-11 (paper account, no market-data subsc
 - **Live gateway.** A modify that re-sends an order decoded from a live openOrder (deltaNeutralOrderType `None` with
   its 8 fields, adjustedOrderType `None`) is unchecked live. ib_async 2.1.0's `Client` re-sends the same decoded
   order with the same values except displaySize: swift-ibkr sends `0` where `ib_async` sends `""` (the gateway's
-  `2147483647` decodes to 0; protocol-178 Disagreements 15). But the tracker keeps IB's echo for the orders the
-  client placed too, so `modifyOrder(id, snapshot.contract, snapshot.order)` re-sends `right` `?`,
-  deltaNeutralOpenClose `?`, displaySize 0, `None` and clearingIntent `IB`, where an `ib_async` user re-sends their
-  own order (Disagreements 20). Live check to run: modify a placed order from its snapshot and see whether the
-  gateway accepts the `?` and `None` values back. Also unchecked: an order sent with the `Order` init's `tif` `DAY`
+  `2147483647` decodes to 0; protocol-178 Disagreements 15). For an order the client placed, the tracker keeps the
+  caller's own order, as `ib_async` does, so `modifyOrder(id, snapshot.contract, snapshot.order)` re-sends the
+  caller's values; only another client's, the sync's or client 0's auto-bound order carries the echo (its `?` texts
+  dropped, `right` `?`, `None` and clearingIntent `IB` kept; Disagreements 20). Live check to run: modify a client 0
+  auto-bound order from its snapshot and see whether the gateway accepts the `?` and `None` values back. Also
+  unchecked: an order sent with the `Order` init's `tif` `DAY`
   where `ib_async`'s `""` follows the login's preset (Disagreements 21).
 - **Live gateway.** Conditions, algos, PEG and combo orders are cross-checked against ib_async 2.1.0 both ways,
   unseen live: no live order has carried one.

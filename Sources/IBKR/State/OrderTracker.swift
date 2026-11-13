@@ -11,7 +11,8 @@ public struct OrderSnapshot: Sendable, Equatable, Encodable {
     public var permID: Int
     /// The order's contract.
     public var contract: Contract
-    /// The order as IB last reported it, or as this client last sent it.
+    /// The order this client last sent, with openOrder's quantity, limit and aux prices, order type and orderRef
+    /// (`ib_async`'s rule); any other order as IB last reported it, its `?` texts dropped to `Order`'s defaults.
     public var order: Order
     /// The order's status: IB's, or the local `.pendingSubmit`, `.pendingCancel`, `.cancelled` or
     /// `.validationError` this client set.
@@ -106,6 +107,8 @@ public struct OrderTracker: Sendable {
     private var held: [OrderKey: OrderStatusMessage] = [:]
     // Filled openOrders that came before their fill's orderStatus
     private var heldOpen: [OrderKey: OpenOrderMessage] = [:]
+    // Indexes of the snapshots `placed` recorded: openOrder keeps their own contract and order
+    private var own: Set<Int> = []
     private let ownClientID: Int
 
     /// `clientID` is this connection's: IB sends order errors only to the owning client, so errors match its
@@ -124,6 +127,7 @@ public struct OrderTracker: Sendable {
         let key = OrderKey.api(clientID: clientID, orderID: orderID)
         if let i = keyIndex[key] {
             guard !snaps[i].status.isFinal else { return [] }
+            own.insert(i)
             return upsert(key, 0, new: nil) { s in
                 let parentPermID = s.order.parentPermID
                 s.contract = contract; s.order = order; s.rejectReason = nil
@@ -134,6 +138,7 @@ public struct OrderTracker: Sendable {
         var s = Self.blank(contract, order)
         s.orderID = orderID; s.clientID = clientID; s.status = .pendingSubmit
         s.log = [TradeLogEntry(time: time, status: .pendingSubmit)]
+        own.insert(snaps.count)
         return upsert(key, 0, new: s) { _ in }
     }
 
@@ -184,11 +189,11 @@ public struct OrderTracker: Sendable {
             return []   // a what-if answer, not a live order: whatIfOrder takes it
         case .openOrder(let m):
             let key = Self.key(m.orderID, m.clientID, m.permID)
-            let known = index(key, m.permID) != nil
+            let known = index(key, m.permID) != nil, mine = isOwn(key, m.permID)
             let heldStatus = held.removeValue(forKey: key)
             let edit = { (s: inout OrderSnapshot) in
                 let prior = s.status
-                Self.applyOpen(m, into: &s)
+                Self.applyOpen(m, into: &s, own: mine)
                 if let h = heldStatus { Self.merge(h, into: &s) }
                 // ib_async's openOrder never sets the status; here it does, so its change is logged as orderStatus's
                 if known && s.status != prior { s.log.append(TradeLogEntry(time: time, status: s.status)) }
@@ -208,9 +213,10 @@ public struct OrderTracker: Sendable {
             let key = Self.key(m.orderID, m.clientID, m.permID)
             let open = takeHeldOpen(key, m.permID)
             guard index(key, m.permID) != nil || open != nil else { held[key] = m; return [] }
+            let mine = isOwn(key, m.permID)
             return upsert(key, m.permID, new: open.map { Self.blank($0.contract, $0.order) }) { s in
                 let before = s
-                if let o = open { Self.applyOpen(o, into: &s) }
+                if let o = open { Self.applyOpen(o, into: &s, own: mine) }
                 Self.merge(m, into: &s)
                 if s != before {
                     s.log.append(TradeLogEntry(time: time, status: s.status))
@@ -224,10 +230,10 @@ public struct OrderTracker: Sendable {
             var fresh = open.map { Self.blank($0.contract, $0.order) } ?? Self.blank(m.contract, m.order)
             fresh.permID = m.permID
             let key = open.map { Self.key($0.orderID, $0.clientID, $0.permID) } ?? .permanent(m.permID)
-            let known = index(key, m.permID) != nil
+            let known = index(key, m.permID) != nil, mine = isOwn(key, m.permID)
             return upsert(key, m.permID, new: fresh) { s in
                 let prior = s.status
-                if let o = open { Self.applyOpen(o, into: &s) }
+                if let o = open { Self.applyOpen(o, into: &s, own: mine) }
                 if m.filledQuantity > s.filled {
                     // a filled one arrives with totalQuantity 0: the remaining uses the snapshot's
                     s.filled = m.filledQuantity; s.remaining = max(0, s.order.totalQuantity - s.filled)
@@ -291,13 +297,46 @@ public struct OrderTracker: Sendable {
                       filled: 0, remaining: order.totalQuantity, whyHeld: "")
     }
 
-    private static func applyOpen(_ m: OpenOrderMessage, into s: inout OrderSnapshot) {
+    /// An order this client placed keeps its own contract and order and takes six fields from openOrder
+    /// (wrapper.py:687-693); any other takes the decoded ones with IB's `?` dropped (wrapper.py:695-699).
+    private static func applyOpen(_ m: OpenOrderMessage, into s: inout OrderSnapshot, own: Bool) {
         let prior = s.status
         s.orderID = m.orderID; s.clientID = m.clientID; s.permID = m.permID
         let parentPermID = s.order.parentPermID   // openOrder never carries it: keep what a completedOrder gave
-        s.contract = m.contract; s.order = m.order; s.status = m.status
+        if own {
+            s.order.totalQuantity = m.order.totalQuantity; s.order.limitPrice = m.order.limitPrice
+            s.order.auxPrice = m.order.auxPrice; s.order.orderType = m.order.orderType; s.order.orderRef = m.order.orderRef
+        } else {
+            s.contract = m.contract; s.order = droppingUnknown(m.order)
+        }
+        s.status = m.status
         s.order.parentPermID = m.order.parentPermID ?? parentPermID
         if prior.isFinal && !m.status.isFinal { s.status = prior }
+    }
+
+    /// The order with every `String` field IB sent as `?` set to `Order`'s default, as `ib_async` drops them.
+    static func droppingUnknown(_ order: Order) -> Order {
+        let defaults = Order(action: order.action, quantity: 0, orderType: "")
+        var o = order
+        for k in stringFields where o[keyPath: k] == "?" { o[keyPath: k] = defaults[keyPath: k] }
+        return o
+    }
+
+    /// Every `String` property of `Order` (`OrderTrackerTests` checks the count against `Mirror`).
+    static var stringFields: [WritableKeyPath<Order, String>] {
+        [\.orderType, \.tif, \.ocaGroup, \.orderRef, \.account, \.openClose, \.goodAfterTime, \.goodTillDate, \.faGroup,
+         \.faMethod, \.faPercentage, \.modelCode, \.designatedLocation, \.rule80A, \.settlingFirm,
+         \.deltaNeutralOrderType, \.deltaNeutralSettlingFirm, \.deltaNeutralClearingAccount,
+         \.deltaNeutralClearingIntent, \.deltaNeutralOpenClose, \.deltaNeutralDesignatedLocation, \.scaleTable,
+         \.activeStartTime, \.activeStopTime, \.hedgeType, \.hedgeParam, \.clearingAccount, \.clearingIntent,
+         \.algoStrategy, \.algoID, \.referenceExchangeID, \.adjustedOrderType, \.extOperator, \.mifid2DecisionMaker,
+         \.mifid2DecisionAlgo, \.mifid2ExecutionTrader, \.mifid2ExecutionAlgo, \.advancedErrorOverride,
+         \.manualOrderTime, \.autoCancelDate, \.shareholder]
+    }
+
+    /// Whether the order at this key or permID is one `placed` recorded.
+    private func isOwn(_ key: OrderKey, _ permID: Int) -> Bool {
+        index(key, permID).map(own.contains) ?? false
     }
 
     /// The held Filled openOrder for this key, else for this permID.

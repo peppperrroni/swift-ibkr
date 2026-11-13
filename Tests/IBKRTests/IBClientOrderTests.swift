@@ -122,6 +122,31 @@ private func until(_ condition: @escaping @Sendable () async -> Bool) async thro
     #expect(Array(sent[FakeGateway.syncFrames + 1].prefix(2)) == ["3", "101"] && sent[FakeGateway.syncFrames + 1][19] == "2" && sent[FakeGateway.syncFrames][19] == "1")
 }
 
+/// ib_async keeps the caller's own order for a trade it placed and copies permId, totalQuantity, lmtPrice,
+/// auxPrice, orderType and orderRef from openOrder (wrapper.py:687-693): a modify from the snapshot re-sends the
+/// caller's values, not the gateway's echo (`right` `?`, deltaNeutralOpenClose `?`, clearingIntent `IB`, …).
+@Test func modifyFromSnapshotResendsTheCallersOwnOrder() async throws {
+    let echo = try #require(try recording("liveLimitOrderPlacesAndCancels").first { $0.first == "5" })
+    let gateway = FakeGateway(nextValidID: 1)
+    let client = IBClient(connector: gateway.connector)
+    try await within2s { try await client.connect(clientID: 77) }
+    let (_, updates) = await client.orders()
+    var mine = buy
+    mine.totalQuantity = 3; mine.limitPrice = d("2"); mine.orderRef = "mine"
+    #expect(try await client.placeOrder(aapl, mine) == 2)
+    gateway.feed(echo)   // orderID 2, client 77, permID 610467324, 1 @ 1, auxPrice 0, orderRef ""
+    let s = try await next(updates) { $0.permID == 610467324 }
+    var expected = mine
+    expected.totalQuantity = 1; expected.limitPrice = d("1"); expected.auxPrice = 0; expected.orderRef = ""
+    #expect(s.contract == aapl)
+    #expect(s.order == expected)
+    #expect(s.status == .preSubmitted)
+    try await client.modifyOrder(2, s.contract, s.order)
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
+    let own = FieldReader(try IBRequest.placeOrder(orderID: 2, contract: aapl, order: expected).body()).fields
+    #expect(sent[FakeGateway.syncFrames + 1] == own)
+}
+
 @Test func encodingErrorThrowsAndSendsNothing() async throws {
     let gateway = FakeGateway(nextValidID: 100)
     let client = try await connected(gateway)

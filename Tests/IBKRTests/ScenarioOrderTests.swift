@@ -141,8 +141,9 @@ private func placePartialFill(_ client: IBClient, _ broker: SimulatedBroker, cli
     await expectInCorpus(broker.emitted, source: "sim/syncReplaysTheBook")
 }
 
-/// A modify re-sends the order as swift-ibkr decoded it from IB's openOrder (R24, `?` placeholders and the live
-/// `None` delta-neutral type included) with a new limit; IB echoes openOrder + orderStatus.
+/// A modify re-sends the caller's own order from the snapshot (openOrder's echo, with its `?` placeholders and the
+/// live `None` delta-neutral type, only updates the quantity, prices, type and orderRef) with a new limit; IB echoes
+/// openOrder + orderStatus.
 @Test func modifyKeepsTheOrderAndLogsModified() async throws {
     let broker = SimulatedBroker()
     let client = try await connected(broker, clientID: 7)
