@@ -123,8 +123,8 @@ func request(for c: EncodeCase) throws -> IBRequest {
     throw CaseError("no family maps \(c.method)")
 }
 
-@Test func everyRequestKindHasACase() throws {
-    let file: OracleEncodeFile = try oracleFile("encode.json")
+@Test func everyRequestKindHasACase() async throws {
+    let file: OracleEncodeFile = try await oracleEncode()
     #expect(ibAsyncRequestIDs.count == 80)
     #expect(Set(ibAsyncRequestIDs.values).count == 80)
     let methods = Set(file.cases.map(\.method))
@@ -134,9 +134,9 @@ func request(for c: EncodeCase) throws -> IBRequest {
     }
 }
 
-@Test func ibAsyncEncodesLikeSwiftIBKR() throws {
-    let file: OracleEncodeFile = try oracleFile("encode.json")
-    let allow: [AllowEntry] = try oracleAllowlist.get()
+@Test func ibAsyncEncodesLikeSwiftIBKR() async throws {
+    let file: OracleEncodeFile = try await oracleEncode()
+    let allow: [AllowEntry] = try await oracleAllowlist()
     var used: Set<Int> = []
     for c in file.cases {
         let built: IBRequest

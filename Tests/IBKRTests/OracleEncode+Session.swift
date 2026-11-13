@@ -87,8 +87,8 @@ private func enumValue<T: RawRepresentable>(_: T.Type, _ raw: T.RawValue, _ c: E
 }
 
 /// The tag string ib.py:2247-2258 joins, which reqAccountSummary/set passes, is swift-ibkr's default tag list.
-@Test func defaultAccountSummaryTagsAreIbAsyncs() throws {
-    let file: OracleEncodeFile = try oracleFile("encode.json")
+@Test func defaultAccountSummaryTagsAreIbAsyncs() async throws {
+    let file: OracleEncodeFile = try await oracleEncode()
     let c = try #require(file.cases.first { $0.name == "reqAccountSummary/set" })
     guard case .text(let tags)? = c.args["tags"] else { Issue.record("no tags"); return }
     #expect(tags == IBClient.defaultAccountSummaryTags.joined(separator: ","))

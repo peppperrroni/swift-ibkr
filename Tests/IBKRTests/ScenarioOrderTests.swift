@@ -92,7 +92,7 @@ private func placePartialFill(_ client: IBClient, _ broker: SimulatedBroker, cli
     let broker = SimulatedBroker()
     let client = try await connected(broker, clientID: 7)
     try await placePartialFill(client, broker, clientID: 7)
-    expectInCorpus(broker.emitted, source: "sim/placedOrderGoesSubmittedPartialFilled")
+    await expectInCorpus(broker.emitted, source: "sim/placedOrderGoesSubmittedPartialFilled")
 }
 
 /// The same lifecycle with the client on a real TCP socket: loopback, bridged to the broker's gateway.
@@ -110,7 +110,7 @@ private func placePartialFill(_ client: IBClient, _ broker: SimulatedBroker, cli
     try await placePartialFill(client, broker, clientID: 7)
     await client.disconnect()
     try await within2s { await pump.value }
-    expectInCorpus(broker.emitted, source: "sim/placedOrderGoesSubmittedPartialFilledOverLoopback")
+    await expectInCorpus(broker.emitted, source: "sim/placedOrderGoesSubmittedPartialFilledOverLoopback")
 }
 
 @Test func syncReplaysTheBook() async throws {
@@ -138,7 +138,7 @@ private func placePartialFill(_ client: IBClient, _ broker: SimulatedBroker, cli
     #expect(fills.last?.commission.realizedPNL == d("1.5"))
     let positions = await second.positions().snapshot
     #expect(positions.map(\.quantity) == [30] && positions.map(\.averageCost) == [d("187.225")])
-    expectInCorpus(broker.emitted, source: "sim/syncReplaysTheBook")
+    await expectInCorpus(broker.emitted, source: "sim/syncReplaysTheBook")
 }
 
 /// A modify re-sends the order as swift-ibkr decoded it from IB's openOrder (R24, `?` placeholders and the live
@@ -163,7 +163,7 @@ private func placePartialFill(_ client: IBClient, _ broker: SimulatedBroker, cli
     #expect(acknowledged.permID == working.permID)
     let booked = broker.order(clientID: 7, orderID: id)
     #expect(booked?.limitPrice == d("187.5") && booked?.permID == working.permID && booked?.status == .submitted)
-    expectInCorpus(broker.emitted, source: "sim/modifyKeepsTheOrderAndLogsModified")
+    await expectInCorpus(broker.emitted, source: "sim/modifyKeepsTheOrderAndLogsModified")
 }
 
 /// cancelOrder → openOrder + PendingCancel twice, Cancelled, then 202 with a bare reason, which leaves
@@ -185,7 +185,7 @@ private func placePartialFill(_ client: IBClient, _ broker: SimulatedBroker, cli
     #expect(cancelled.log.suffix(3).map(\.status) == [.pendingCancel, .cancelled, .cancelled])
     #expect(cancelled.log.last?.message == "Order Canceled - reason:")
     #expect(broker.order(clientID: 7, orderID: id)?.status == .cancelled)
-    expectInCorpus(broker.emitted, source: "sim/cancelFollowsTheRecordedSequence")
+    await expectInCorpus(broker.emitted, source: "sim/cancelFollowsTheRecordedSequence")
 }
 
 /// IB refuses a new order with 201 before acknowledging it: the client ends it `.inactive` with IB's text.
@@ -201,7 +201,7 @@ private func placePartialFill(_ client: IBClient, _ broker: SimulatedBroker, cli
     #expect(rejected.status == .inactive && rejected.rejectReason == text && rejected.permID == 0)
     #expect(rejected.log.last?.errorCode == 201)
     #expect(broker.order(clientID: 7, orderID: id) == nil)
-    expectInCorpus(broker.emitted, source: "sim/rejectedOrderEndsInactive")
+    await expectInCorpus(broker.emitted, source: "sim/rejectedOrderEndsInactive")
 }
 
 /// A warning on a modification (105) leaves the order working at IB with its old terms; the client marks it
@@ -221,7 +221,7 @@ private func placePartialFill(_ client: IBClient, _ broker: SimulatedBroker, cli
     #expect(warned.status == .validationError && warned.isActive && warned.rejectReason == text)
     let booked = broker.order(clientID: 7, orderID: id)
     #expect(booked?.limitPrice == d("187.25") && booked?.status == .submitted)
-    expectInCorpus(broker.emitted, source: "sim/warnedModifyKeepsTheOrderLive")
+    await expectInCorpus(broker.emitted, source: "sim/warnedModifyKeepsTheOrderLive")
 }
 
 /// placeBracket: the legs sent with transmit off get no answer until the stop-loss transmits the group; the
@@ -252,7 +252,7 @@ private func placePartialFill(_ client: IBClient, _ broker: SimulatedBroker, cli
     #expect(done[ids.stopLoss]?.filled == 0 && done[ids.stopLoss]?.isActive == false)
     #expect(broker.order(clientID: 7, orderID: ids.stopLoss)?.status == .cancelled)
     #expect(broker.position(account: "DU0000001", conID: 265598).quantity == 0)
-    expectInCorpus(broker.emitted, source: "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling")
+    await expectInCorpus(broker.emitted, source: "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling")
 }
 
 /// Two limits in one OCA group (type 1, cancel the rest): one fills, IB cancels the other.
@@ -268,7 +268,7 @@ private func placePartialFill(_ client: IBClient, _ broker: SimulatedBroker, cli
     let done = try await until(orders) { s in s[first]?.status == .filled && s[second]?.status == .cancelled }
     #expect(done[second]?.order.ocaGroup == "exit-1" && done[second]?.filled == 0)
     #expect(broker.order(clientID: 7, orderID: second)?.status == .cancelled)
-    expectInCorpus(broker.emitted, source: "sim/ocaFillCancelsTheOthers")
+    await expectInCorpus(broker.emitted, source: "sim/ocaFillCancelsTheOthers")
 }
 
 /// whatIfOrder: one openOrder with whatIf set and the margins; no orderStatus, nothing booked on either side.
@@ -284,5 +284,5 @@ private func placePartialFill(_ client: IBClient, _ broker: SimulatedBroker, cli
     #expect(state.commission == 1 && state.commissionCurrency == "USD")
     #expect(await client.orders().snapshot.isEmpty)
     #expect(broker.bookedOrders.isEmpty && !broker.emitted.contains { $0.first == "3" })
-    expectInCorpus(broker.emitted, source: "sim/whatIfReturnsMarginsAndBooksNothing")
+    await expectInCorpus(broker.emitted, source: "sim/whatIfReturnsMarginsAndBooksNothing")
 }

@@ -12,8 +12,8 @@ func ibAsyncCalls(id: Int, _ m: IBMessage) -> [OracleCall]? {
 }
 
 /// Review Focus 1: a frame ib_async rejects carries `error`, and swift-ibkr rejects it too.
-@Test func oracleRecordsIbAsyncExceptions() throws {
-    let file: OracleDecodeFile = try oracleDecode.get()
+@Test func oracleRecordsIbAsyncExceptions() async throws {
+    let file: OracleDecodeFile = try await oracleDecode()
     let canary = try #require(file.frames.first { $0.name == "gen/canary/short-openOrder" })
     #expect(canary.fields == ["5", "1"])
     #expect(canary.error?.isEmpty == false)
@@ -36,10 +36,11 @@ func ibAsyncCalls(id: Int, _ m: IBMessage) -> [OracleCall]? {
 
 /// Review Focus 4: every entry is narrow and cites one recorded row (whether each is used is checked by
 /// `ibAsyncDecodesLikeSwiftIBKR`); the checks reject the bad entries they exist for.
-@Test func allowlistEntriesAreNarrowCitedAndUsed() throws {
-    let allow: [AllowEntry] = try oracleAllowlist.get()
+@Test func allowlistEntriesAreNarrowCitedAndUsed() async throws {
+    let allow: [AllowEntry] = try await oracleAllowlist()
     let docs = try oracleDocs()
-    for p in allowlistProblems(allow, decisions: docs.decisions, protocol178: docs.protocol178) { Issue.record("\(p)") }
+    let problems = try await offPool { allowlistProblems(allow, decisions: docs.decisions, protocol178: docs.protocol178) }
+    for p in problems { Issue.record("\(p)") }
 
     func entry(_ scope: String = "in 4", _ field: String = "errorString", frames: String? = "f",
                pair: [String]? = ["a", "b"], numbers: Bool? = nil, cite: String = "protocol-178 Disagreements 8")
@@ -79,9 +80,14 @@ func ibAsyncCalls(id: Int, _ m: IBMessage) -> [OracleCall]? {
     #expect(unusedDecodeEntries([unused], used: used).count == 1)
 }
 
-@Test func ibAsyncDecodesLikeSwiftIBKR() throws {
-    let file: OracleDecodeFile = try oracleDecode.get()
-    let allow: [AllowEntry] = try oracleAllowlist.get()
+@Test func ibAsyncDecodesLikeSwiftIBKR() async throws {
+    let file = try await oracleDecode(), allow = try await oracleAllowlist()
+    for p in try await offPool({ decodeProblems(file, allow) }) { Issue.record("\(p)") }
+}
+
+/// Every difference between IBDecoder and ib_async that no entry accepts, and every entry that accepted none.
+func decodeProblems(_ file: OracleDecodeFile, _ allow: [AllowEntry]) -> [String] {
+    var problems: [String] = []
     var used: Set<Int> = []
     // every entry names one exact frame, so each frame is offered only its own (a linear scan of all is seconds)
     let byFrame = Dictionary(grouping: allow.indices) { allow[$0].frames ?? "" }
@@ -89,7 +95,7 @@ func ibAsyncCalls(id: Int, _ m: IBMessage) -> [OracleCall]? {
         let mine = byFrame[frame.name] ?? [], own = mine.map { allow[$0] }
         var usedHere: Set<Int> = []
         defer { used.formUnion(usedHere.map { mine[$0] }) }
-        guard let id = Int(frame.fields[0]) else { Issue.record("\(frame.name): no message id"); continue }
+        guard let id = Int(frame.fields[0]) else { problems.append("\(frame.name): no message id"); continue }
         let scope = "in \(id)"
         let ours = IBDecoder.decode(body(frame.fields))
         var mismatches: [Mismatch] = []
@@ -103,11 +109,12 @@ func ibAsyncCalls(id: Int, _ m: IBMessage) -> [OracleCall]? {
         } else if let calls = ibAsyncCalls(id: id, ours) {
             mismatches = compare(calls, frame.calls ?? [], name: frame.name, scope: scope, allow: own, used: &usedHere)
         } else {
-            Issue.record("\(frame.name): no ib_async mapping for \(ours)")
+            problems.append("\(frame.name): no ib_async mapping for \(ours)")
         }
-        for m in unallowed(mismatches, allow: own, used: &usedHere) { Issue.record("\(m)") }
+        for m in unallowed(mismatches, allow: own, used: &usedHere) { problems.append("\(m)") }
     }
     for e in unusedDecodeEntries(allow, used: used) {
-        Issue.record("allowlist entry \(e.scope) \(e.field) (\(e.frames ?? "*")) accepts no mismatch: remove it")
+        problems.append("allowlist entry \(e.scope) \(e.field) (\(e.frames ?? "*")) accepts no mismatch: remove it")
     }
+    return problems
 }

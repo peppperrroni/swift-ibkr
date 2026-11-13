@@ -117,12 +117,12 @@ final class SimulatedBroker: @unchecked Sendable {
 
     /// A mid-stream disconnect: closes every live gateway, then runs `outage` while connects are refused, so what it
     /// books (a fill) happens while every client is down, whatever a reconnect policy's delay.
-    func drop(during outage: () -> Void = {}) {
+    func drop(during outage: () async -> Void = {}) async {
         lock.withLock {
             down = true
             _gateways.forEach { $0.close() }
         }
-        outage()
+        await outage()
         lock.withLock { down = false }
     }
 

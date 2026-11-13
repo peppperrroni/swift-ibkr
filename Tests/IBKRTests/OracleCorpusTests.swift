@@ -4,17 +4,17 @@ import Testing
 
 // The oracle's inputs: every frame the tests build is in corpus.json, and every corpus frame has ib_async's answer.
 
-@Test func everyRecordedFrameIsInTheCorpus() throws {
-    for name in recordings { expectInCorpus(try recording(name), source: "recorded/\(name).json") }
+@Test func everyRecordedFrameIsInTheCorpus() async throws {
+    for name in recordings { await expectInCorpus(try recording(name), source: "recorded/\(name).json") }
 }
 
-@Test func everyFixtureFrameIsInTheCorpus() {
-    for f in Fixtures.corpusFrames { expectInCorpus([f.fields], source: "fixtures/\(f.name)") }
+@Test func everyFixtureFrameIsInTheCorpus() async {
+    for f in Fixtures.corpusFrames { await expectInCorpus([f.fields], source: "fixtures/\(f.name)") }
 }
 
-@Test func everyCorpusFrameHasAnOracleAnswer() throws {
+@Test func everyCorpusFrameHasAnOracleAnswer() async throws {
     let corpus: [CorpusFrame] = try oracleFile("corpus.json")
-    let answers = Dictionary(try oracleDecode.get().frames.map { ($0.name, $0.fields) },
+    let answers = Dictionary(try await oracleDecode().frames.map { ($0.name, $0.fields) },
                              uniquingKeysWith: { a, _ in a })
     #expect(Set(corpus.map(\.name)).count == corpus.count, "corpus names are unique")
     #expect(Set(corpus.map(\.fields)).count == corpus.count, "corpus frames are unique")
@@ -23,8 +23,8 @@ import Testing
     }
 }
 
-@Test func oracleRunsIbAsync210At178() throws {
-    let file: OracleDecodeFile = try oracleDecode.get()
+@Test func oracleRunsIbAsync210At178() async throws {
+    let file: OracleDecodeFile = try await oracleDecode()
     #expect(file.ibAsync == "2.1.0")
     #expect(file.serverVersion == 178)
     #expect(file.handlers.count == 82)
@@ -32,9 +32,9 @@ import Testing
 
 /// C6: every message ib_async decodes at 178 has a frame it accepts, unless an `#uncovered` entry says why not. A
 /// request body (`sweep/outgoing/…`) is not a frame of the incoming message that shares its id.
-@Test func everyHandlerHasACorpusEntry() throws {
-    let file: OracleDecodeFile = try oracleDecode.get()
-    let allow: [AllowEntry] = try oracleAllowlist.get()
+@Test func everyHandlerHasACorpusEntry() async throws {
+    let file: OracleDecodeFile = try await oracleDecode()
+    let allow: [AllowEntry] = try await oracleAllowlist()
     let covered = Set(file.frames.filter { $0.error == nil && !$0.name.hasPrefix("sweep/outgoing/") }
         .compactMap { Int($0.fields[0]) })
     let excused = Set(allow.filter { $0.field == "#uncovered" }.map(\.scope))

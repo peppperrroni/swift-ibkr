@@ -71,7 +71,7 @@ private func until(_ condition: @escaping @Sendable () -> Bool) async throws {
     #expect(single.unrealized == valued.first?.unrealizedPNL && account.unrealized == single.unrealized)
     #expect(single.value == valued.first?.marketValue && single.daily == account.daily)
     #expect(broker.position(account: "DU0000001", conID: 265598) == (60, d("187.25")))
-    expectInCorpus(broker.emitted, source: "sim/positionsPnlAndExecutionsAgreeAfterFills")
+    await expectInCorpus(broker.emitted, source: "sim/positionsPnlAndExecutionsAgreeAfterFills")
 }
 
 /// A drop with an order working and a quote stream open: the stream ends, the state goes disconnected → connecting →
@@ -91,8 +91,8 @@ private func until(_ condition: @escaping @Sendable () -> Bool) async throws {
 
     // booked while connects are refused, so the policy's 20 ms cannot let the client back in first; an outage longer
     // than that only adds refused attempts, during which the client stays .connecting
-    broker.drop {
-        Thread.sleep(forTimeInterval: 0.1)
+    await broker.drop {
+        try? await Task.sleep(for: .milliseconds(100))
         broker.fill(orderID: id, clientID: 7, shares: 60, price: d("187.25"))
     }
     await #expect(throws: IBClientError.connectionClosed) { try await within2s { try await quotes.value } }
@@ -117,7 +117,7 @@ private func until(_ condition: @escaping @Sendable () -> Bool) async throws {
     let positions = await client.positions().snapshot
     #expect(positions.map(\.quantity) == [held.quantity] && positions.map(\.averageCost) == [held.averageCost])
     #expect(broker.openMarketData.isEmpty && broker.gateways.count == 2)   // nothing outside the sync is resent
-    expectInCorpus(broker.emitted, source: "sim/reconnectMidStreamRecoversTheBook")
+    await expectInCorpus(broker.emitted, source: "sim/reconnectMidStreamRecoversTheBook")
     await client.disconnect()
 }
 
@@ -157,7 +157,7 @@ private func until(_ condition: @escaping @Sendable () -> Bool) async throws {
     #expect(await two.executions().snapshot.map(\.execution.clientID) == [2])
     let theirs = try await within2s { try await one.executions(filter: ExecutionFilter(clientID: 2)) }
     #expect(theirs.map(\.execution.clientID) == [2] && theirs.map(\.execution.shares) == [50])
-    expectInCorpus(broker.emitted, source: "sim/twoClientsSeeTheirOwnOrdersAndOneBook")
+    await expectInCorpus(broker.emitted, source: "sim/twoClientsSeeTheirOwnOrdersAndOneBook")
 }
 
 /// A consumer that stops its quotes, P&L or ticker sends the cancel (2, 93, 2); the broker then feeds no tick.
@@ -182,7 +182,7 @@ private func until(_ condition: @escaping @Sendable () -> Bool) async throws {
     let fed = broker.emitted.count
     broker.tick(conID: 265598, field: 4, price: 188)
     #expect(broker.emitted.count == fed)
-    expectInCorpus(broker.emitted, source: "sim/stoppingAStreamSendsItsCancelAndTheBrokerStops")
+    await expectInCorpus(broker.emitted, source: "sim/stoppingAStreamSendsItsCancelAndTheBrokerStops")
 }
 
 /// An injected IB error reaches the stream as its typed error, and delayed replies still answer.
@@ -217,7 +217,7 @@ private func until(_ condition: @escaping @Sendable () -> Bool) async throws {
     let time = try await within2s { try await client.currentTime() }
     #expect(ContinuousClock.now - asked >= .milliseconds(30))
     #expect(time == Date(timeIntervalSince1970: 1_794_321_000))
-    expectInCorpus(broker.emitted, source: "sim/faultsSurfaceTyped")
+    await expectInCorpus(broker.emitted, source: "sim/faultsSurfaceTyped")
 }
 
 /// A request answered after its gateway closed feeds nothing, so `emitted` holds only frames a client read.

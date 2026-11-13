@@ -28,7 +28,7 @@ struct OracleDecodeFile: Decodable, Sendable {
 
 /// One argument of an encode.json case (plan decision 10): a scalar as text (`bool` `true`/`false`, `float` its
 /// `repr`), a list, a dataclass as an object of all its fields plus `_type`, or `None`.
-indirect enum CaseValue: Decodable {
+indirect enum CaseValue: Decodable, Sendable {
     case text(String), list([CaseValue]), object([String: CaseValue]), null
 
     init(from decoder: any Decoder) throws {
@@ -42,14 +42,14 @@ indirect enum CaseValue: Decodable {
 
 /// One encode.json case: the `Client` method ib_async ran, every argument it took (`_client`: the `Client` attributes
 /// it read), and the fields it sent.
-struct EncodeCase: Decodable {
+struct EncodeCase: Decodable, Sendable {
     var name: String
     var method: String
     var args: [String: CaseValue]
     var fields: [String]
 }
 
-struct OracleEncodeFile: Decodable {
+struct OracleEncodeFile: Decodable, Sendable {
     var cases: [EncodeCase]
 }
 
@@ -187,7 +187,7 @@ func contract(from v: CaseValue) throws -> Contract {
 
 /// One input frame of corpus.json: `recorded/<file>#<i>`, `fixtures/<name>`, `fakegateway/<name>`,
 /// `sweep/<File>.swift:<line>` (`sweep/outgoing/…` for a request body a test built), `sim/<scenario>/<n>`.
-struct CorpusFrame: Codable {
+struct CorpusFrame: Codable, Sendable {
     var name: String
     var source: String
     var fields: [String]
@@ -218,10 +218,21 @@ func oracleFile<T: Decodable>(_ name: String, file: String = #filePath) throws -
     return try JSONDecoder().decode(T.self, from: Data(contentsOf: url))
 }
 
-// Read once for every test: each read is a CPU-bound fraction of a second, and parallel copies on a small CI runner
-// starve the timed tests that run beside them.
-let oracleDecode = Result { () throws -> OracleDecodeFile in try oracleFile("decode.json") }
-let oracleAllowlist = Result { () throws -> [AllowEntry] in try oracleFile("allowlist.json") }
+// The oracle's CPU-bound work (reading the JSON, comparing 2000+ frames) runs once and off the cooperative pool: a CI
+// runner has two or three pool threads, and timed tests beside it (a 50 ms probe) starve when the oracle holds them.
+private let decodeFile = Result { () throws -> OracleDecodeFile in try oracleFile("decode.json") }
+private let allowlistFile = Result { () throws -> [AllowEntry] in try oracleFile("allowlist.json") }
+private let encodeFile = Result { () throws -> OracleEncodeFile in try oracleFile("encode.json") }
+private let corpusFile = Result { () throws -> [CorpusFrame] in try oracleFile("corpus.json") }
+
+func oracleDecode() async throws -> OracleDecodeFile { try await offPool { try decodeFile.get() } }
+func oracleAllowlist() async throws -> [AllowEntry] { try await offPool { try allowlistFile.get() } }
+func oracleEncode() async throws -> OracleEncodeFile { try await offPool { try encodeFile.get() } }
+
+/// `work` on a thread of its own, so a waiting test task holds no cooperative thread.
+func offPool<T: Sendable>(_ work: @escaping @Sendable () throws -> T) async throws -> T {
+    try await withCheckedThrowingContinuation { c in Thread { c.resume(with: Result(catching: work)) }.start() }
+}
 
 // The canonical form never folds a sentinel: a Swift value that kept IB's 2147483647 shows as a mismatch.
 func canon(_ d: Decimal?) -> String { d.map { "\($0)" } ?? "" }
@@ -355,9 +366,9 @@ func oracleDocs(file: String = #filePath) throws -> (decisions: String, protocol
 }
 
 /// Records one issue per frame missing from corpus.json, with the entry to paste.
-func expectInCorpus(_ frames: [[String]], source: String, sourceLocation: SourceLocation = #_sourceLocation) {
+func expectInCorpus(_ frames: [[String]], source: String, sourceLocation: SourceLocation = #_sourceLocation) async {
     let corpus: [CorpusFrame]
-    do { corpus = try oracleFile("corpus.json") } catch {
+    do { corpus = try await offPool { try corpusFile.get() } } catch {
         Issue.record("cannot read Tests/IBKRTests/Oracle/corpus.json: \(error)", sourceLocation: sourceLocation)
         return
     }
