@@ -26,13 +26,19 @@ public actor IBClient {
 
     /// A per-request stream, by reqId: `route` gets what IB sends for it, `finish` ends it, `cancel` is sent
     /// when the consumer stops it (`nil`: nothing to send). `route` returns true when it finished the stream
-    /// itself, and the entry is then removed. Every entry belongs to the current connection; `end()` clears them all.
+    /// itself, and the entry is then removed. On IB error `resend.onCode` for its reqId the client sends `cancel`
+    /// and then `resend.request` again, and the stream stays open. Every entry belongs to the current connection;
+    /// `end()` clears them all.
     private struct RequestStream {
         let route: (IBMessage) -> Bool
         let finish: (IBClientError) -> Void
         let cancel: IBRequest?
+        let resend: (onCode: Int, request: IBRequest)?
     }
     private var requestStreams: [Int: RequestStream] = [:]
+    /// The open `realTimeBars` and `liveHistoricalBars` subscriptions, by reqId; an entry goes with its stream.
+    var liveBars: [Int: LiveBars] = [:]
+    var barUpdateSubscribers = Subscribers<LiveBars>()
     private var localID = -1
     /// The open `newsBulletins` stream's key; IB holds one bulletin subscription per connection.
     var newsBulletinKey: Int?
@@ -473,7 +479,9 @@ public actor IBClient {
     }
 
     /// Historical bars as one `.history` batch. Without `keepUpToDate` the stream then ends, with no cancel; with it,
-    /// every IB update follows raw as `.update` (a same-time update replaces the forming bar; the consumer merges).
+    /// every IB update follows raw as `.update` (a same-time update replaces the forming bar; the consumer merges, or
+    /// uses `liveHistoricalBars`). With `keepUpToDate`, IB's 10225 (bust event) cancels and resends the same request
+    /// under the same reqId and the stream goes on; IB's new batch then comes as another `.history`.
     /// `end` nil is now; `duration`, `barSize` and `whatToShow` are IB's strings ("1 D", "5 mins", "TRADES").
     /// A BAG sends its legs. `whatToShow` "SCHEDULE" is refused: use `historicalSchedule`. `options` are IB's chart
     /// options.
@@ -487,7 +495,8 @@ public actor IBClient {
         return try openStream(.historicalData(requestID: id, contract: contract, end: end, barSize: barSize,
                                               duration: duration, rth: rth, whatToShow: whatToShow,
                                               keepUpToDate: keepUpToDate, options: options),
-                              id: id, cancel: .cancelHistoricalData(requestID: id)) { message, out in
+                              id: id, cancel: .cancelHistoricalData(requestID: id),
+                              resendOn: keepUpToDate ? 10225 : nil) { message, out in
             switch message {
             case .historicalData(_, let bars):
                 out.yield(.history(bars))
@@ -574,20 +583,26 @@ public actor IBClient {
 
     /// IB's five-second bars for `contract`, one per bar, never ending itself; ends like `marketData` on a refusal.
     /// `whatToShow` is "TRADES", "MIDPOINT", "BID" or "ASK". MIDPOINT/BID/ASK bars carry -1 volume, average and
-    /// count, as historical bars do. 10225 (bust event) ends the stream; the consumer subscribes again. `options` are
-    /// IB's real-time bar options.
+    /// count, as historical bars do. IB's 10225 (bust event) cancels and resends the same request under the same
+    /// reqId, as `ib_async` does, and the stream goes on. While open it is listed by `liveBarSubscriptions()`, where
+    /// its bars accumulate, and each bar goes to `barUpdates()`. `options` are IB's real-time bar options.
     public func realTimeBars(_ contract: Contract, whatToShow: String = "TRADES", rth: Bool = true,
                              options: [TagValue] = [])
         throws(IBClientError) -> AsyncThrowingStream<Bar, any Error> {
         try requireConnected()
         let id = nextRequestID()
-        return try openStream(.realTimeBars(requestID: id, contract: contract, whatToShow: whatToShow, rth: rth,
-                                            options: options),
-                              id: id,
-                              cancel: .cancelRealTimeBars(requestID: id)) { message, out in
-            if case .realTimeBar(_, let bar) = message { out.yield(bar) }
+        let stream = try openStream(.realTimeBars(requestID: id, contract: contract, whatToShow: whatToShow, rth: rth,
+                                                  options: options),
+                                    id: id, cancel: .cancelRealTimeBars(requestID: id), resendOn: 10225) { message, out in
+            if case .realTimeBar(_, let bar) = message {
+                out.yield(bar)
+                _ = self.foldLiveBar(id, bar, append: true)
+            }
             return false
         }
+        liveBars[id] = LiveBars(requestID: id, contract: contract, barSize: "5 secs", whatToShow: whatToShow, bars: [],
+                                hasNewBar: false)
+        return stream
     }
 
     /// The whole depth book after every update (12 and 13 both feed it). IB's depth reset (317) empties the book,
@@ -891,9 +906,10 @@ public actor IBClient {
         outbox.yield(frame)
     }
 
-    /// Sends `request`, then registers its stream; nothing is registered when it does not encode.
+    /// Sends `request`, then registers its stream; nothing is registered when it does not encode. `resendOn` is the IB
+    /// error code on which the same request is cancelled and sent again (`RequestStream.resend`).
     func openStream<Element: Sendable>(
-        _ request: IBRequest, id: Int, cancel: IBRequest?,
+        _ request: IBRequest, id: Int, cancel: IBRequest?, resendOn: Int? = nil,
         buffering: AsyncThrowingStream<Element, any Error>.Continuation.BufferingPolicy = .unbounded,
         route: @escaping (IBMessage, AsyncThrowingStream<Element, any Error>.Continuation) -> Bool
     ) throws(IBClientError) -> AsyncThrowingStream<Element, any Error> {
@@ -901,7 +917,7 @@ public actor IBClient {
         let (stream, out) = AsyncThrowingStream.makeStream(of: Element.self, throwing: (any Error).self,
                                                            bufferingPolicy: buffering)
         requestStreams[id] = RequestStream(route: { route($0, out) }, finish: { out.finish(throwing: $0) },
-                                           cancel: cancel)
+                                           cancel: cancel, resend: resendOn.map { ($0, request) })
         let gen = generation
         out.onTermination = { [weak self] _ in Task { await self?.stopped(id, gen) } }
         return stream
@@ -911,6 +927,7 @@ public actor IBClient {
     /// `gen` keeps a late stop from touching a stream that reuses the reqId on a later connection.
     private func stopped(_ id: Int, _ gen: Int) {
         guard gen == generation, let s = requestStreams.removeValue(forKey: id) else { return }
+        liveBars[id] = nil
         if let cancel = s.cancel { try? send(cancel) }   // the cancel encodes: it is all integers
     }
 
@@ -939,10 +956,16 @@ public actor IBClient {
                 requestStreams[key] = nil
                 break
             }
+        case .error(let e) where requestStreams[e.requestID]?.resend?.onCode == e.code:
+            // ib_async's resubscribe (wrapper.py:1694-1721): the same request, same reqId; the stream stays open
+            guard let s = requestStreams[e.requestID], let resend = s.resend else { break }
+            if let cancel = s.cancel { try? send(cancel) }
+            try? send(resend.request)   // it encoded when the stream opened
         case .error(let e) where ErrorCode.kind(e.code) == .notice:
             if requestStreams[e.requestID]?.route(message) == true { requestStreams[e.requestID] = nil }
         case .error(let e) where ErrorCode.kind(e.code).failsRequest:
             guard let s = requestStreams.removeValue(forKey: e.requestID) else { break }
+            liveBars[e.requestID] = nil
             if ErrorCode.isNoMarketDataPermission(code: e.code, text: e.text) {
                 if let cancel = s.cancel { try? send(cancel) }   // IB keeps a refused subscription open
                 s.finish(.noMarketDataPermission(code: e.code, text: e.text))
@@ -1123,6 +1146,7 @@ public actor IBClient {
         (transport, outbox, connectTimer, syncEnds) = (nil, nil, nil, nil)
         let streams = requestStreams.values
         requestStreams = [:]   // emptied first: their termination then sends no cancel
+        liveBars = [:]
         wshMetaRequestID = nil   // a reqId belongs to one connection
         for s in streams { s.finish(error ?? .connectionClosed) }
         if reconnectTask == nil { setState(.disconnected(error)) }

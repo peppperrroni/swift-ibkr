@@ -67,6 +67,7 @@ synced at connect and offered as a snapshot plus a stream of changes; every othe
 ### History
 - ``Bar``
 - ``BarEvent``
+- ``LiveBars``
 - ``HistoricalSchedule``
 - ``HistoricalSession``
 - ``HistogramData``

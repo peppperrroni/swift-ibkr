@@ -24,7 +24,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `disconnectedEvent` | `states()` → `.disconnected(_:)` | present | |
 | `updateEvent` | `messages()` | present | one element per decoded message, where ib_async fires once per network packet |
 | `pendingTickersEvent` | — | MISSING | snapshot+stream across every open ticker subscription: `pendingTickers() -> AsyncStream<[Ticker]>`; each `tickers(_:…)` stream only yields its own |
-| `barUpdateEvent` | — | MISSING | request stream across every live bar subscription, `(bars, hasNewBar)`: `barUpdates()`; needs the keepUpToDate fold (`BarDataList.updateEvent`) |
+| `barUpdateEvent` | `barUpdates()` → `LiveBars` | added | a fresh stream per call of every change of any `realTimeBars` or `liveHistoricalBars` subscription: the whole `LiveBars` (request id, contract, bar size, whatToShow, `bars`, `hasNewBar`); not the first keepUpToDate batch, as in ib_async |
 | `newOrderEvent` | `orders()` updates | present | the first `orders()` update of an id this client placed: the local `.pendingSubmit` snapshot `placeOrder` publishes at once (ib.py:812); `orders()` also fires on every later change, from any client |
 | `orderModifyEvent` | `orderEvents()` → `OrderEvent.modified` | added | at `modifyOrder` of a known order that is not final; the snapshot's log ends `Modify` |
 | `cancelOrderEvent` | `orderEvents()` → `OrderEvent.cancelRequested` | added | at `cancelOrder` of a known order that is not final, with the local `.pendingCancel` / `.cancelled` |
@@ -91,7 +91,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `ticker(contract)` | — | MISSING | snapshot of an open ticker subscription by contract: `ticker(for:) -> Ticker?`; needs a subscription registry, matched by `conID` as ib_async's `__eq__`/`__hash__` do (contract.py:145-161), not by Swift's field-wise `==` |
 | `tickers` | — | MISSING | `activeTickers() -> [Ticker]`; registry |
 | `pendingTickers` | — | MISSING | `pendingTickers()` (see `pendingTickersEvent`); registry |
-| `realtimeBars` | — | MISSING | `liveBarSubscriptions()`: the open real-time and keepUpToDate bar lists; registry |
+| `realtimeBars` | `liveBarSubscriptions()` → `[LiveBars]` | added | the open `realTimeBars` and `liveHistoricalBars` subscriptions by request id, with their bars so far; an entry leaves when its stream ends (consumer stop, IB error, connection end); `historicalBars(keepUpToDate: true)`, the raw stream, is not listed |
 | `newsTicks` | — | MISSING | snapshot+stream of every news tick received on any subscription: `newsTicks()` |
 | `newsBulletins` | — | MISSING | snapshot of the bulletins received, by msgId: `receivedBulletins() -> [NewsBulletin]` |
 | `reqTickers` / `reqTickersAsync` | `tickers(for:regulatorySnapshot:)` | present | Swift throws the first error where ib_async returns partial tickers (DECISIONS) |
@@ -122,7 +122,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `reqMarketRule` / `reqMarketRuleAsync` | `marketRule(_:)` | present | |
 | `reqRealTimeBars` | `realTimeBars(_:whatToShow:rth:options:)` | present | bar size is IB's only one, 5 |
 | `cancelRealTimeBars` | stop `realTimeBars` | present | |
-| `reqRealTimeBars` / `reqHistoricalData(keepUpToDate)`: resubscribe on 10225 | — | MISSING | behaviour: on bust event 10225 cancel and resend the same request under the same reqId (wrapper.py:1694); reverses the «10225 stays fatal» half of the DECISIONS row |
+| `reqRealTimeBars` / `reqHistoricalData(keepUpToDate)`: resubscribe on 10225 | `realTimeBars(_:whatToShow:rth:options:)`, `liveHistoricalBars(_:duration:barSize:whatToShow:rth:options:)`, `historicalBars(_:end:duration:barSize:whatToShow:rth:keepUpToDate:options:)` with `keepUpToDate` | added | on 10225 the client sends the cancel, then the same request (options included) under the same reqId, and the stream goes on (wrapper.py:1694-1721); `liveHistoricalBars` ignores the batch IB answers it with, as ib_async's popped `_results` does, while the raw `historicalBars` yields it as another `.history`; reverses the «10225 stays fatal» half of the DECISIONS row |
 | `reqHistoricalData` / `reqHistoricalDataAsync` | `historicalBars(_:end:duration:barSize:whatToShow:rth:keepUpToDate:options:)` | present | `formatDate` is fixed (bars carry a `Date`); no 60 s timeout: cancel the task |
 | `cancelHistoricalData` | stop `historicalBars` | present | |
 | `reqHistoricalSchedule` / `reqHistoricalScheduleAsync` | `historicalSchedule(_:days:end:rth:)` | present | |
@@ -249,7 +249,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `AccountValue` | `AccountValue` | present | |
 | `BarData` | `Bar` | present | |
 | `BarDataList` | `historicalBars(…)` → `BarEvent.history([Bar])` | present | the request parameters are the caller's own |
-| `BarDataList.updateEvent` (keepUpToDate) | — | MISSING | keepUpToDate fold: request stream of `(bars: [Bar], hasNewBar: Bool)`, dropping older bars and replacing the forming one (wrapper.py:923); Swift yields raw `BarEvent.update` |
+| `BarDataList.updateEvent` (keepUpToDate) | `liveHistoricalBars(_:duration:barSize:whatToShow:rth:options:)` → `BarList`, `BarList.apply(_:)` | added | the first batch (`hasNewBar` true), then the whole list after each update that changes it: an older bar is dropped, a later one appended (`hasNewBar` true), one at the last bar's time replaces it (`false`) unless identical (wrapper.py:923-942). Unlike ib_async (`if not bars: return`), an update after an empty batch is appended rather than dropped; updates before the batch are dropped as in ib_async. `historicalBars(…keepUpToDate: true)` still yields raw `BarEvent.update` |
 | `CommissionReport` | `CommissionReport` | present | |
 | `ConnectionStats` | — | MISSING | model `ConnectionStats` (start time, duration, bytes and messages each way); see `Client.connectionStats` |
 | `DepthMktDataDescription` | `DepthMarketDataDescription` | present | |
@@ -284,7 +284,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `Position` | `Position` | present | |
 | `PriceIncrement` | `PriceIncrement` | present | |
 | `RealTimeBar` | `Bar` | present | `wap` is `average` |
-| `RealTimeBarList` (+ `updateEvent`) | `realTimeBars(…)` | present | every element is a new bar (`hasNewBar` is always true) |
+| `RealTimeBarList` (+ `updateEvent`) | `realTimeBars(_:whatToShow:rth:options:)`, `liveBarSubscriptions()` | present | every element of the stream is a new bar (`hasNewBar` is always true); the accumulated list is the stream's `LiveBars` in `liveBarSubscriptions()` (bar size `"5 secs"`), growing for the subscription's lifetime as in ib_async |
 | `ScanDataList` (+ `updateEvent`) | `scannerSubscription(…)` | present | every element is the whole scan |
 | `ScannerSubscription` | `ScannerSubscription` | present | |
 | `SmartComponent` | `SmartComponent` | present | |
@@ -494,4 +494,4 @@ connect), **model helper** (a computed property or method on a model), **factory
 
 ## Totals
 
-Rows, where one row may carry several names: `present` 218 · `added` 89 · `MISSING` 76 · `n/a` 33.
+Rows, where one row may carry several names: `present` 218 · `added` 93 · `MISSING` 72 · `n/a` 33.

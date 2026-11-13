@@ -60,6 +60,8 @@ import Testing
     #expect(TickData(time: Date(timeIntervalSince1970: 0), field: .bid, price: 1, size: 2).size == 2)
     #expect(TickPoint(time: Date(timeIntervalSince1970: 0), price: 1, size: 2).size == 2)
     #expect(BarList(bars: [], hasNewBar: true).hasNewBar)
+    #expect(LiveBars(requestID: 1, contract: contract, barSize: "5 secs", whatToShow: "TRADES", bars: [],
+                     hasNewBar: false).barSize == "5 secs")
     #expect(DepthTick(time: Date(timeIntervalSince1970: 0), update: update).update == update)
     #expect(Dividends(past12Months: 1).nextDate == nil)
     #expect(FundamentalRatios(values: ["MKTCAP": "1"]).decimal("MKTCAP") == 1)

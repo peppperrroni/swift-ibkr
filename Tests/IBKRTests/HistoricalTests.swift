@@ -334,3 +334,62 @@ private let hmdsNoData = "Historical Market Data Service error message:HMDS quer
     #expect(try await within2s { await task.value } == .cancelled)
     #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["89", id])
 }
+
+private func bar(_ time: Double, close: Decimal) -> Bar {
+    Bar(time: Date(timeIntervalSince1970: time), open: 1, high: 2, low: 0, close: close, volume: 1, count: 1)
+}
+
+/// The four cases of ib_async's historicalDataUpdate (wrapper.py:923-942), plus a first bar into an empty list.
+@Test func barListFoldFollowsIbAsync() {
+    var list = BarList(bars: [bar(60, close: 1), bar(120, close: 1)], hasNewBar: true)
+    let older = list.apply(bar(60, close: 5))   // dropped
+    #expect(!older && list == BarList(bars: [bar(60, close: 1), bar(120, close: 1)], hasNewBar: true))
+    let changed = list.apply(bar(120, close: 2))   // same time, changed: replaces the forming bar
+    #expect(changed && list == BarList(bars: [bar(60, close: 1), bar(120, close: 2)], hasNewBar: false))
+    let identical = list.apply(bar(120, close: 2))   // nothing
+    #expect(!identical && !list.hasNewBar)
+    let later = list.apply(bar(180, close: 3))   // a new bar
+    #expect(later && list == BarList(bars: [bar(60, close: 1), bar(120, close: 2), bar(180, close: 3)], hasNewBar: true))
+    var empty = BarList(bars: [], hasNewBar: false)
+    let first = empty.apply(bar(60, close: 1))
+    #expect(first && empty == BarList(bars: [bar(60, close: 1)], hasNewBar: true))
+}
+
+/// A two-bar batch at 1794321000 and 1794321300 for `id`.
+private func liveBatch(_ id: String) -> [String] {
+    ["17", id, "20261110  09:30:00", "20261110  16:00:00", "2",
+     "1794321000", "351.0", "352.0", "350.5", "351.5", "1000", "351.2", "42",
+     "1794321300", "351.5", "352.5", "351.0", "352.0", "800", "351.8", "30"]
+}
+
+@Test func liveHistoricalBarsFoldUpdates() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.liveHistoricalBars(Contract(symbol: "AAPL"), duration: "1 D", barSize: "5 mins")
+    let request = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames]
+    let id = request[1]
+    #expect(request[0] == "20" && Array(request[15...22]) == ["", "5 mins", "1 D", "1", "TRADES", "2", "1", ""])
+    gateway.feed(liveBatch(id))
+    gateway.feed(["90", id, "31", "1794321300", "351.5", "352.2", "352.5", "351.0", "351.8", "900"])   // the forming bar
+    gateway.feed(["90", id, "5", "1794321000", "351.0", "351.5", "352.0", "350.5", "351.2", "1"])   // older: nothing
+    gateway.feed(["90", id, "1", "1794321600", "352.2", "352.3", "352.3", "352.2", "352.2", "10"])   // a new bar
+    let (reader, result) = take(3, stream)
+    let got = try await within2s { try await result.value }
+    #expect(got.map(\.bars.count) == [2, 2, 3])
+    #expect(got.map(\.hasNewBar) == [true, false, true])
+    #expect(got[1].bars[1].close == d("352.2") && got[2].bars[1].close == d("352.2"))
+    reader.cancel()
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["25", "1", id])
+}
+
+@Test func liveHistoricalBarsFailOnTheirError() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.liveHistoricalBars(Contract(symbol: "AAPL"), duration: "1 D", barSize: "5 mins")
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][1]
+    let text = "Historical Market Data Service error message:API historical data query cancelled: 1"
+    gateway.feed(ibError(id, "162", text))
+    let (_, result) = take(0, stream)
+    await #expect(throws: IBClientError.ib(code: 162, text: text)) { _ = try await within2s { try await result.value } }
+    #expect(await client.liveBarSubscriptions().isEmpty)
+}

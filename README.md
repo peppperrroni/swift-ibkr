@@ -56,7 +56,7 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | Contract lookup | contract details with bonds, matching symbols, factories, qualifyContracts | ✅ details (not bonds) and symbols live-checked; the rest on the fake gateway, not yet run live (see KNOWN-GAPS) |
 | Options and reference | option chains, option calculations, market rules, family codes, soft-dollar tiers | ✅ on hand-built frames and the fake gateway; not yet run live (see KNOWN-GAPS) |
 | Market data | quotes with generic ticks and snapshots, `Ticker` streams and batch snapshots, greeks, EFP, news ticks, real-time bars, depth book, depth exchanges, SMART components, tick-by-tick (alone or folded into a `Ticker`), BAG, typed «no permission» refusal | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
-| History | bars with keepUpToDate, historical ticks, head timestamp, histogram, trading schedule, BAG | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
+| History | bars with keepUpToDate (raw, or folded into whole bar lists), the live-bar registry, the 10225 resend, historical ticks, head timestamp, histogram, trading schedule, BAG | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
 | Scanner | scan stream, one-shot scan, scanner parameters | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
 | News | providers, article text, historical headlines, bulletins, news ticks through `marketData` | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
 | Fundamentals and Wall Street Horizon | fundamentals report XML, WSH metadata and event JSON, all as IB's text | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
@@ -361,6 +361,12 @@ the schedule. Real-time bars, depth, tick-by-tick, historical ticks, the head ti
 for try await event in try await client.historicalBars(aapl, duration: "1 D", barSize: "5 mins") {
     if case .history(let bars) = event { print(bars.count) }
 }
+// Live bars folded as ib_async's BarDataList: the whole list after each change, hasNewBar when a bar was added.
+// IB's bust event (10225) resends the request under the same id; the stream goes on.
+Task { for try await list in try await client.liveHistoricalBars(aapl, duration: "1 D", barSize: "5 mins") {
+    print(list.bars.count, list.hasNewBar) } }
+Task { for await live in await client.barUpdates() { print(live.requestID, live.bars.last as Any) } }   // every live subscription
+let open = await client.liveBarSubscriptions()                                 // [LiveBars], by request id
 let ticks = try await client.historicalTicks(aapl, start: from, count: 1000)   // [TickByTick]; whatToShow "TRADES", "BID_ASK" or "MIDPOINT"
 let first = try await client.headTimeStamp(aapl)                               // Date of the earliest data
 let hist = try await client.histogramData(aapl, period: "1 week")              // [HistogramData] (price, count)
@@ -547,8 +553,10 @@ library leaves out.
 | `reqMktDepthExchanges` | `depthExchanges()` |
 | `reqSmartComponents` | `smartComponents(_:)` |
 | `reqTickByTickData` | `tickByTick(_:_:count:ignoreSize:)` |
-| `reqRealTimeBars`, `realtimeBars` | `realTimeBars(_:whatToShow:rth:options:)` |
-| `reqHistoricalData` | `historicalBars(_:end:duration:barSize:whatToShow:rth:keepUpToDate:options:)` |
+| `reqRealTimeBars` | `realTimeBars(_:whatToShow:rth:options:)` |
+| `realtimeBars` | `liveBarSubscriptions()` (`[LiveBars]`: the open real-time and live-history subscriptions with their bars) |
+| `barUpdateEvent`, `BarDataList.updateEvent` | `barUpdates()` (every `LiveBars` change), `liveHistoricalBars(_:duration:barSize:whatToShow:rth:options:)` (`BarList`) |
+| `reqHistoricalData` | `historicalBars(_:end:duration:barSize:whatToShow:rth:keepUpToDate:options:)`, or `liveHistoricalBars` for keepUpToDate folded into `BarList` |
 | `reqHistoricalTicks` | `historicalTicks(_:start:end:count:whatToShow:rth:ignoreSize:options:)` |
 | `reqHeadTimeStamp` | `headTimeStamp(_:whatToShow:rth:)` |
 | `reqHistogramData` | `histogramData(_:period:rth:)` |

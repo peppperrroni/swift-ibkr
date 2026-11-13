@@ -64,7 +64,10 @@ stream ends with a permission error and sends its cancel.
 ## History
 
 ``IBClient/historicalBars(_:end:duration:barSize:whatToShow:rth:keepUpToDate:options:)`` yields one `.history` batch and ends,
-unless `keepUpToDate`, which goes on with `.update` bars. ``IBClient/historicalTicks(_:start:end:count:whatToShow:rth:ignoreSize:options:)``,
+unless `keepUpToDate`, which goes on with `.update` bars;
+``IBClient/liveHistoricalBars(_:duration:barSize:whatToShow:rth:options:)`` folds those updates into a whole
+``BarList`` as `ib_async` does, and ``IBClient/liveBarSubscriptions()`` and ``IBClient/barUpdates()`` follow every
+live bar subscription. IB's bust event (10225) resends a live bar request under the same id. ``IBClient/historicalTicks(_:start:end:count:whatToShow:rth:ignoreSize:options:)``,
 ``IBClient/headTimeStamp(_:whatToShow:rth:)``, ``IBClient/histogramData(_:period:rth:)`` and
 ``IBClient/historicalSchedule(_:days:end:rth:)`` are one-shot calls. `Bar.time` is in epoch seconds, and daily bars
 are stamped 00:00 UTC of their day.

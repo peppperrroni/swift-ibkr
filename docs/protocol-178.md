@@ -1426,7 +1426,7 @@ otherwise; `chartOptions` is `options` as `tag=value;` per pair, `""` when none.
 
 ### cancelHistoricalData (out 25)
 
-`25, 1, reqId`; 3 fields. Sent when the consumer stops a stream still registered, including a keepUpToDate one. Also sent when IB refuses the stream for want of permission (162 with a permission text): IB keeps a refused subscription open.
+`25, 1, reqId`; 3 fields. Sent when the consumer stops a stream still registered, including a keepUpToDate one. Also sent when IB refuses the stream for want of permission (162 with a permission text): IB keeps a refused subscription open. On 10225 (bust event) for a keepUpToDate stream it is sent and followed by the same reqHistoricalData under the same reqId, as `ib_async` does.
 
 ### historicalData (in 17)
 
@@ -1500,7 +1500,8 @@ refused.
 ### cancelRealTimeBars (out 51)
 
 `51, 1, reqId`; 3 fields. Sent when the consumer stops the stream, and when IB refuses it for want of permission (420
-with a permission text): IB keeps a refused subscription open.
+with a permission text): IB keeps a refused subscription open. On 10225 (bust event) it is sent and followed by the
+same reqRealTimeBars under the same reqId, as `ib_async` does.
 
 ### realtimeBar (in 50)
 

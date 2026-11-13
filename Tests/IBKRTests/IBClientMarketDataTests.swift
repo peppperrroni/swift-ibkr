@@ -463,3 +463,77 @@ private let aapl = Contract(symbol: "AAPL")
     #expect(ticks.map(\.field) == [.last, .last, .last, .close])
     #expect(ticks.map(\.price) == [10, 11, 12, 99])
 }
+
+/// R6: 10225 (bust event) cancels and resends the same request, options included, under the same reqId, and the
+/// stream goes on; a batch IB sends after the resend is ignored by `liveHistoricalBars`, as ib_async drops it.
+@Test func bustEventResendsUnderTheSameID() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let c = Contract(symbol: "AAPL"), options = [TagValue(tag: "a", value: "1")]
+    let realTime = try await client.realTimeBars(c, options: options)
+    let live = try await client.liveHistoricalBars(c, duration: "1 D", barSize: "5 mins", options: options)
+    let raw = try await client.historicalBars(c, duration: "1 D", barSize: "5 mins", keepUpToDate: true, options: options)
+    let n = FakeGateway.syncFrames
+    let requests = Array(try await gateway.waitForSent(n + 3)[n...])
+    let ids = [requests[0][2], requests[1][1], requests[2][1]]
+    let batch = { (id: String) in ["17", id, "", "", "1", "1794321000", "1", "2", "0", "1", "5", "1", "1"] }
+    gateway.feed(batch(ids[1]))
+    gateway.feed(batch(ids[2]))
+    for (i, cancel) in ["51", "25", "25"].enumerated() {
+        gateway.feed(ibError(ids[i], "10225", "Bust event occurred, current subscription is deactivated."))
+        let sent = try await gateway.waitForSent(n + 5 + 2 * i)
+        #expect(sent[n + 3 + 2 * i] == [cancel, "1", ids[i]])
+        #expect(sent[n + 4 + 2 * i] == requests[i])
+        #expect(requests[i].last == "a=1;")
+    }
+    gateway.feed(["50", "3", ids[0], "1794321005", "1", "2", "0", "1", "5", "1", "1"])
+    for id in ids.suffix(2) {
+        gateway.feed(["17", id, "", "", "1", "1794321300", "1", "2", "0", "1", "5", "1", "1"])   // after the resend
+        gateway.feed(["90", id, "1", "1794321600", "1", "1", "2", "0", "1", "5"])
+    }
+    let (_, rtBars) = take(1, realTime)
+    let (_, liveLists) = take(2, live)
+    let (_, rawEvents) = take(3, raw)
+    #expect(try await within2s { try await rtBars.value }.map(\.time) == [Date(timeIntervalSince1970: 1794321005)])
+    let lists = try await within2s { try await liveLists.value }
+    #expect(lists.map(\.bars.count) == [1, 2] && lists.map(\.hasNewBar) == [true, true])
+    let events = try await within2s { try await rawEvents.value }   // the raw stream passes IB's new batch on
+    guard events.count == 3, case .history = events[0], case .history = events[1], case .update = events[2] else {
+        Issue.record("wrong sequence: \(events)"); return
+    }
+}
+
+@Test func liveBarSubscriptionsAndBarUpdates() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let updates = await client.barUpdates()
+    let aapl = Contract(symbol: "AAPL"), spy = Contract(symbol: "SPY")
+    let realTime = try await client.realTimeBars(aapl, whatToShow: "MIDPOINT")
+    let live = try await client.liveHistoricalBars(spy, duration: "1 D", barSize: "5 mins")
+    let n = FakeGateway.syncFrames
+    let sent = try await gateway.waitForSent(n + 2)
+    let (rtID, liveID) = (Int(sent[n][2])!, Int(sent[n + 1][1])!)
+    #expect(await client.liveBarSubscriptions() == [
+        LiveBars(requestID: rtID, contract: aapl, barSize: "5 secs", whatToShow: "MIDPOINT", bars: [], hasNewBar: false),
+        LiveBars(requestID: liveID, contract: spy, barSize: "5 mins", whatToShow: "TRADES", bars: [], hasNewBar: false)])
+    gateway.feed(["17", "\(liveID)", "", "", "1", "1794321000", "1", "2", "0", "1", "5", "1", "1"])
+    gateway.feed(["50", "3", "\(rtID)", "1794321005", "1", "2", "0", "1", "5", "1", "1"])
+    gateway.feed(["90", "\(liveID)", "1", "1794321300", "1", "1", "2", "0", "1", "5"])
+    let (rtReader, _) = take(0, realTime)
+    let (_, liveLists) = take(2, live)
+    _ = try await within2s { try await liveLists.value }
+    let got = try await within2s {
+        var got: [LiveBars] = []
+        for await u in updates { got.append(u); if got.count == 2 { break } }
+        return got
+    }
+    #expect(got.map(\.requestID) == [rtID, liveID])   // the batch itself is no update, as in ib_async
+    #expect(got.map(\.bars.count) == [1, 2] && got.map(\.hasNewBar) == [true, true])
+    #expect(await client.liveBarSubscriptions().map(\.bars.count) == [1, 2])
+    rtReader.cancel()
+    #expect(try await gateway.waitForSent(n + 3)[n + 2] == ["51", "1", "\(rtID)"])
+    #expect(await client.liveBarSubscriptions().map(\.requestID) == [liveID])
+    await client.disconnect()
+    #expect(await client.liveBarSubscriptions().isEmpty)
+    withExtendedLifetime(live) {}
+}
