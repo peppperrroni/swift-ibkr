@@ -304,65 +304,731 @@
   "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
  },
  {
-  "scope": "in 3",
-  "field": "avgFillPrice",
- "frames": "gen/3/unset-empty-avgFillPrice",
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "recorded/liveAccountSummary.json#10",
   "pair": ["", "0"],
   "cite": "DECISIONS: One shared unset set",
-  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (wrap 143-174, float(x) of '' is read as 0 by parse; decoder.py:49-53)"
- },
- {
-  "scope": "in 3",
-  "field": "lastFillPrice",
- "frames": "gen/3/unset-empty-lastFillPrice",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (wrap 143-174, float(x) of '' is read as 0 by parse; decoder.py:49-53)"
- },
- {
-  "scope": "in 3",
-  "field": "mktCapPrice",
- "frames": "gen/3/unset-empty-mktCapPrice",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (wrap 143-174, float(x) of '' is read as 0 by parse; decoder.py:49-53)"
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
  },
  {
   "scope": "in 11",
   "field": "execution.evMultiplier",
+  "frames": "recorded/liveAccountSummary.json#11",
   "pair": ["", "0"],
   "cite": "DECISIONS: One shared unset set",
-  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (decoder.py:426-475, parse(ex))"
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
  },
  {
   "scope": "in 59",
   "field": "commissionReport.yieldRedemptionDate",
+  "frames": "recorded/liveAccountSummary.json#12",
   "pair": ["", "0"],
   "cite": "DECISIONS: One shared unset set",
-  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (decoder.py:586-593, int(x or 0))"
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
  },
  {
   "scope": "in 59",
-  "field": "commissionReport.yield_",
- "frames": "gen/59/unset-empty-yield",
+  "field": "commissionReport.yieldRedemptionDate",
+  "frames": "recorded/liveAccountSummary.json#13",
   "pair": ["", "0"],
   "cite": "DECISIONS: One shared unset set",
-  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (decoder.py:586-593, float(x or 0))"
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "recorded/liveOrderFillsWithCommission.json#14",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "recorded/liveOrderFillsWithCommission.json#15",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "recorded/liveOrderFillsWithCommission.json#16",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "recorded/liveOrderFillsWithCommission.json#17",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
  },
  {
   "scope": "in 59",
-  "field": "commissionReport.realizedPNL",
- "frames": "gen/59/unset-empty-realizedPNL",
+  "field": "commissionReport.yieldRedemptionDate",
+  "frames": "recorded/liveOrderFillsWithCommission.json#20",
   "pair": ["", "0"],
   "cite": "DECISIONS: One shared unset set",
-  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (decoder.py:586-593, float(x or 0))"
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
+ },
+ {
+  "scope": "in 59",
+  "field": "commissionReport.yieldRedemptionDate",
+  "frames": "recorded/liveOrderFillsWithCommission.json#21",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "recorded/liveOrderFillsWithCommission.json#30",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 59",
+  "field": "commissionReport.yieldRedemptionDate",
+  "frames": "recorded/liveOrderFillsWithCommission.json#35",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "recorded/liveOrderFillsWithCommission.json#44",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 59",
+  "field": "commissionReport.yieldRedemptionDate",
+  "frames": "recorded/liveOrderFillsWithCommission.json#49",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "sweep/DecoderTests.swift:31",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 59",
+  "field": "commissionReport.yieldRedemptionDate",
+  "frames": "sweep/DecoderTests.swift:57",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "sweep/FakeGateway.swift:87#20",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "sweep/FakeGateway.swift:87#21",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "sweep/FakeGateway.swift:87#22",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 59",
+  "field": "commissionReport.yieldRedemptionDate",
+  "frames": "sweep/FakeGateway.swift:87#70",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "sweep/IBClientConnectTests.swift:273",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "sweep/IBClientOrderTests.swift:416",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "sweep/IBDateTests.swift:36#1",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "sweep/IBDateTests.swift:36#2",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 3",
+  "field": "orderId",
+  "frames": "gen/3/unset-max-orderId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174 (float(field or 0)))"
+ },
+ {
+  "scope": "in 3",
+  "field": "filled",
+  "frames": "gen/3/unset-max-filled",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174 (float(field or 0)))"
+ },
+ {
+  "scope": "in 3",
+  "field": "remaining",
+  "frames": "gen/3/unset-max-remaining",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174 (float(field or 0)))"
+ },
+ {
+  "scope": "in 3",
+  "field": "avgFillPrice",
+  "frames": "gen/3/unset-empty-avgFillPrice",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (wrap, decoder.py:143-174 (float(field or 0)))"
+ },
+ {
+  "scope": "in 3",
+  "field": "permId",
+  "frames": "gen/3/unset-max-permId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174 (float(field or 0)))"
+ },
+ {
+  "scope": "in 3",
+  "field": "parentId",
+  "frames": "gen/3/unset-max-parentId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174 (float(field or 0)))"
+ },
+ {
+  "scope": "in 3",
+  "field": "lastFillPrice",
+  "frames": "gen/3/unset-empty-lastFillPrice",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (wrap, decoder.py:143-174 (float(field or 0)))"
+ },
+ {
+  "scope": "in 3",
+  "field": "clientId",
+  "frames": "gen/3/unset-max-clientId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174 (float(field or 0)))"
+ },
+ {
+  "scope": "in 3",
+  "field": "mktCapPrice",
+  "frames": "gen/3/unset-empty-mktCapPrice",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (wrap, decoder.py:143-174 (float(field or 0)))"
+ },
+ {
+  "scope": "in 3",
+  "field": "permId",
+  "frames": "gen/3/long-max-permId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174 (float(field or 0)))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/base",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/time-with-zone",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/time-with-utc",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/ev-rule",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/pending-price-revision",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/sold",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "#error",
+  "frames": "gen/11/bad-time",
+  "pair": ["decoded", "ValueError: time data 'yesterday' does not match format '%Y%m%d%H:%M:%S'"],
+  "cite": "DECISIONS: Execution and order times stay IB's raw strings",
+  "note": "Execution.date is a Date?, nil for text IB sends in no known format; ib_async's parseIBDatetime raises (decoder.py:468)"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/long-max-permId",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.permId",
+  "frames": "gen/11/long-max-permId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-empty-orderId",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-max-orderId",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.orderId",
+  "frames": "gen/11/unset-max-orderId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-empty-conId",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "contract.conId",
+  "frames": "gen/11/unset-max-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-max-conId",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "contract.strike",
+  "frames": "gen/11/unset-empty-strike",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-empty-strike",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-max-strike",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-empty-shares",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-max-shares",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.shares",
+  "frames": "gen/11/unset-max-shares",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-empty-price",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-max-price",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.price",
+  "frames": "gen/11/unset-max-price",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-empty-permId",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-max-permId",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.permId",
+  "frames": "gen/11/unset-max-permId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-empty-clientId",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.clientId",
+  "frames": "gen/11/unset-max-clientId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-max-clientId",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-empty-liquidation",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-max-liquidation",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.liquidation",
+  "frames": "gen/11/unset-max-liquidation",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-empty-cumQty",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.cumQty",
+  "frames": "gen/11/unset-max-cumQty",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-max-cumQty",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-empty-avgPrice",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.avgPrice",
+  "frames": "gen/11/unset-max-avgPrice",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-max-avgPrice",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-empty-evMultiplier",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-empty-lastLiquidity",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-max-lastLiquidity",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.lastLiquidity",
+  "frames": "gen/11/unset-max-lastLiquidity",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 59",
+  "field": "commissionReport.yieldRedemptionDate",
+  "frames": "gen/59/base",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
+ },
+ {
+  "scope": "in 59",
+  "field": "commissionReport.yieldRedemptionDate",
+  "frames": "gen/59/unset-empty-commission",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
  },
  {
   "scope": "in 59",
   "field": "commissionReport.commission",
- "frames": "gen/59/unset-max-commission",
+  "frames": "gen/59/unset-max-commission",
   "pair": ["0", ""],
   "cite": "protocol-178 Disagreements 13",
-  "note": "commission is non-optional here and reads an unset value as 0; ib_async keeps the sentinel (decoder.py:586-593)"
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:586-593)"
+ },
+ {
+  "scope": "in 59",
+  "field": "commissionReport.yieldRedemptionDate",
+  "frames": "gen/59/unset-max-commission",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
+ },
+ {
+  "scope": "in 59",
+  "field": "commissionReport.realizedPNL",
+  "frames": "gen/59/unset-empty-realizedPNL",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, float(x or 0))"
+ },
+ {
+  "scope": "in 59",
+  "field": "commissionReport.yieldRedemptionDate",
+  "frames": "gen/59/unset-empty-realizedPNL",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
+ },
+ {
+  "scope": "in 59",
+  "field": "commissionReport.yieldRedemptionDate",
+  "frames": "gen/59/unset-max-realizedPNL",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
+ },
+ {
+  "scope": "in 59",
+  "field": "commissionReport.yieldRedemptionDate",
+  "frames": "gen/59/unset-empty-yield",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
+ },
+ {
+  "scope": "in 59",
+  "field": "commissionReport.yield_",
+  "frames": "gen/59/unset-empty-yield",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, float(x or 0))"
+ },
+ {
+  "scope": "in 59",
+  "field": "commissionReport.yieldRedemptionDate",
+  "frames": "gen/59/unset-max-yield",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
+ },
+ {
+  "scope": "in 59",
+  "field": "commissionReport.yieldRedemptionDate",
+  "frames": "gen/59/unset-empty-yieldRedemptionDate",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
+ },
+ {
+  "scope": "in 100",
+  "field": "reqId",
+  "frames": "gen/100/unset-max-permId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174 (int(field or 0)))"
+ },
+ {
+  "scope": "in 100",
+  "field": "apiClientId",
+  "frames": "gen/100/unset-max-apiClientId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174 (int(field or 0)))"
+ },
+ {
+  "scope": "in 100",
+  "field": "apiOrderId",
+  "frames": "gen/100/unset-max-apiOrderId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174 (int(field or 0)))"
  }
 ]

@@ -118,7 +118,11 @@ VARIANTS[3] = [
     ("base", _STATUS),
     ("mkt-cap-price", [*_STATUS[:11], "12.5"]),
     ("why-held", [*_STATUS[:10], "locate", "0"]),
-    *_unset(_STATUS, {"avgFillPrice": (5, "double"), "lastFillPrice": (8, "double"), "mktCapPrice": (11, "double")}),
+    *_unset(_STATUS, {"orderId": (1, "int"), "filled": (3, "double"), "remaining": (4, "double"),
+                      "avgFillPrice": (5, "double"), "permId": (6, "int"), "parentId": (7, "int"),
+                      "lastFillPrice": (8, "double"), "clientId": (9, "int"), "mktCapPrice": (11, "double")}),
+    ("long-max-permId", [*_STATUS[:6], "9223372036854775807", *_STATUS[7:]]),
+    ("short-after-status", _STATUS[:3]),
 ]
 _EXEC = ["11", "-1", "5", "265598", "AAPL", "STK", "", "0", "", "", "ISLAND", "USD", "AAPL", "NMS",
          "0000e0d5.6564a7b1.01.01", "20261110-11:56:31", "DU0000001", "ISLAND", "BOT", "40", "351.5", "610467324",
@@ -139,7 +143,15 @@ VARIANTS[11] = [
     ("ev-rule", _exec(27, "Vwap")),
     ("pending-price-revision", _exec(31, "1")),
     ("sold", _exec(18, "SLD")),
-    *_unset(_EXEC, {"evMultiplier": (28, "double")}),
+    ("bad-time", _exec(15, "yesterday")),
+    ("long-max-permId", _exec(21, "9223372036854775807")),
+    ("without-pending-price-revision", _EXEC[:31]),
+    ("short-after-model-code", _EXEC[:30]),
+    ("short-after-exec-id", _EXEC[:15]),
+    *_unset(_EXEC, {"orderId": (2, "int"), "conId": (3, "int"), "strike": (7, "double"), "shares": (19, "double"),
+                    "price": (20, "double"), "permId": (21, "int"), "clientId": (22, "int"),
+                    "liquidation": (23, "int"), "cumQty": (24, "double"), "avgPrice": (25, "double"),
+                    "evMultiplier": (28, "double"), "lastLiquidity": (30, "int")}),
 ]
 VARIANTS[53] = [("base", ["53", "1"])]
 VARIANTS[55] = [("base", ["55", "1", "9"])]
@@ -147,9 +159,15 @@ _COMMISSION = ["59", "1", "0000e0d5.6564a7b1.01.01", "1", "USD", MAX_DOUBLE, MAX
 VARIANTS[59] = [
     ("base", _COMMISSION),
     ("realized-and-yield", [*_COMMISSION[:5], "-12.5", "0.045", "20271115"]),
-    *_unset(_COMMISSION, {"commission": (3, "double"), "realizedPNL": (5, "double"), "yield": (6, "double")}),
+    *_unset(_COMMISSION, {"commission": (3, "double"), "realizedPNL": (5, "double"), "yield": (6, "double"),
+                          "yieldRedemptionDate": (7, "int")}),
+    ("short-after-currency", _COMMISSION[:5]),
 ]
-VARIANTS[100] = [("base", ["100", "610467324", "7", "5"])]
+VARIANTS[100] = [
+    ("base", ["100", "610467324", "7", "5"]),
+    *_unset(["100", "610467324", "7", "5"], {"permId": (1, "int"), "apiClientId": (2, "int"), "apiOrderId": (3, "int")}),
+    ("short", ["100", "610467324"]),
+]
 VARIANTS[102] = [("base", ["102", "1"])]
 
 # A frame ib_async rejects (openOrder cut after its id): the oracle must record the exception, not «no calls».
