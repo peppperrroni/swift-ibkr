@@ -34,6 +34,12 @@ public struct Execution: Sendable, Equatable, Encodable {
     public var lastLiquidity: Int
     /// execDetails' `pendingPriceRevision` flag.
     public var pendingPriceRevision: Bool
+    /// IB's EV rule text, with `evMultiplier`; empty when none.
+    public var evRule: String
+    /// IB's EV multiplier; `nil` when none.
+    public var evMultiplier: Decimal?
+    /// The order's model code; empty when none.
+    public var modelCode: String
 
     /// Creates an execution with every field given.
     public init(
@@ -52,7 +58,10 @@ public struct Execution: Sendable, Equatable, Encodable {
         averagePrice: Decimal,
         orderRef: String,
         lastLiquidity: Int,
-        pendingPriceRevision: Bool
+        pendingPriceRevision: Bool,
+        evRule: String = "",
+        evMultiplier: Decimal? = nil,
+        modelCode: String = ""
     ) {
         self.execID = execID
         self.time = time
@@ -70,6 +79,9 @@ public struct Execution: Sendable, Equatable, Encodable {
         self.orderRef = orderRef
         self.lastLiquidity = lastLiquidity
         self.pendingPriceRevision = pendingPriceRevision
+        self.evRule = evRule
+        self.evMultiplier = evMultiplier
+        self.modelCode = modelCode
     }
 }
 

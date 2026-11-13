@@ -16,7 +16,23 @@ private let aapl = ["0", "AAPL", "STK", "", "0.0", "", "", "SMART", "", "USD", "
         guard case .tickByTick(8, let t) = IBDecoder.decode(
             body("99", "8", "3", "1794321000", "351.4", "351.6", "300", "200", "3")) else { Issue.record("not 99"); return }
         #expect(t == .bidAsk(time: Date(timeIntervalSince1970: 1794321000), bidPrice: d("351.4"), askPrice: d("351.6"),
-                             bidSize: d("300"), askSize: d("200")))
+                             bidSize: d("300"), askSize: d("200"), bidPastLow: true, askPastHigh: true))
+    }
+
+    /// tickByTick 99 reads bit 0 as bidPastLow (decoder.py:865), the reverse of historicalTicks 97.
+    @Test func tickByTickBidAskDecodesItsMask() {
+        for (mask, low, high) in [("1", true, false), ("2", false, true)] {
+            guard case .tickByTick(8, let t) = IBDecoder.decode(
+                body("99", "8", "3", "1794321000", "351.4", "351.6", "300", "200", mask)) else { Issue.record("not 99"); return }
+            #expect(t == .bidAsk(time: Date(timeIntervalSince1970: 1794321000), bidPrice: d("351.4"), askPrice: d("351.6"),
+                                 bidSize: d("300"), askSize: d("200"), bidPastLow: low, askPastHigh: high))
+        }
+    }
+
+    @Test func tickByTickSendsCountAndIgnoreSize() throws {
+        #expect(try IBRequest.tickByTick(requestID: 7, contract: Contract(symbol: "AAPL"), type: .last, count: 10,
+                                         ignoreSize: true).body()
+            == body(["97", "7"] + aapl + ["Last", "10", "1"]))
     }
 
     @Test func midPointTickDecodes() {

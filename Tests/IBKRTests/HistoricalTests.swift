@@ -34,6 +34,42 @@ private let expectedSchedule = HistoricalSchedule(
         #expect(try IBRequest.cancelHistoricalData(requestID: 9).body() == body("25", "1", "9"))
     }
 
+    @Test func historicalDataSendsIncludeExpiredAndChartOptions() throws {
+        var c = Contract(symbol: "AAPL")
+        c.includeExpired = true
+        #expect(try IBRequest.historicalData(requestID: 9, contract: c, end: nil, barSize: "5 mins", duration: "1 D",
+                                             rth: true, whatToShow: "TRADES", keepUpToDate: true,
+                                             options: [TagValue(tag: "a", value: "1")]).body()
+            == body(["20", "9"] + aapl + ["1", "", "5 mins", "1 D", "1", "TRADES", "2", "1", "a=1;"]))
+    }
+
+    @Test func headTimeStampAndHistogramSendIncludeExpired() throws {
+        var c = Contract(symbol: "AAPL")
+        c.includeExpired = true
+        #expect(try IBRequest.headTimeStamp(requestID: 9, contract: c, whatToShow: "TRADES", rth: true).body()
+            == body(["87", "9"] + aapl + ["1", "1", "TRADES", "2"]))
+        #expect(try IBRequest.histogramData(requestID: 9, contract: c, rth: true, period: "3 days").body()
+            == body(["88", "9"] + aapl + ["1", "1", "3 days"]))
+    }
+
+    @Test func historicalTicksSendIncludeExpiredAndMiscOptions() throws {
+        var c = Contract(symbol: "AAPL")
+        c.includeExpired = true
+        let f = FieldReader(try IBRequest.historicalTicks(requestID: 7, contract: c, start: nil, end: nil, count: 100,
+                                                          whatToShow: "TRADES", rth: true, ignoreSize: false,
+                                                          options: [TagValue(tag: "a", value: "1")]).body()).fields
+        #expect(f[14] == "1")
+        #expect(f.suffix(3) == ["1", "0", "a=1;"])
+    }
+
+    /// historicalTicksBidAsk reads bit 0 as askPastHigh (decoder.py:803), the reverse of tick-by-tick 99.
+    @Test func historicalTicksBidAskDecodesItsMask() {
+        #expect(IBDecoder.decode(body("97", "9", "1", "1794321000", "1", "351.4", "351.6", "300", "200", "1"))
+            == .historicalTicks(requestID: 9, [.bidAsk(time: Date(timeIntervalSince1970: 1794321000), bidPrice: d("351.4"),
+                                                       askPrice: d("351.6"), bidSize: 300, askSize: 200,
+                                                       bidPastLow: false, askPastHigh: true)], done: true))
+    }
+
     @Test func historicalBagSendsLegs() throws {
         #expect(try IBRequest.historicalData(requestID: 9, contract: bagContract, end: nil, barSize: "1 day", duration: "5 D",
                                              rth: true, whatToShow: "TRADES", keepUpToDate: false).body()
@@ -95,7 +131,7 @@ private let expectedSchedule = HistoricalSchedule(
         #expect(IBDecoder.decode(body("96", "7", "2", "1794321000", "0", "351.5", "0", "1794321001", "0", "351.55", "0", "1"))
             == .historicalTicks(requestID: 7, [.midPoint(time: t, price: d("351.5")), .midPoint(time: t + 1, price: d("351.55"))], done: true))
         #expect(IBDecoder.decode(body("97", "7", "1", "1794321000", "3", "351.5", "351.6", "100", "200", "1"))
-            == .historicalTicks(requestID: 7, [.bidAsk(time: t, bidPrice: d("351.5"), askPrice: d("351.6"), bidSize: 100, askSize: 200)], done: true))
+            == .historicalTicks(requestID: 7, [.bidAsk(time: t, bidPrice: d("351.5"), askPrice: d("351.6"), bidSize: 100, askSize: 200, bidPastLow: true, askPastHigh: true)], done: true))
         #expect(IBDecoder.decode(body("98", "7", "1", "1794321000", "2", "351.5", "100", "ISLAND", "T", "0"))
             == .historicalTicks(requestID: 7, [.trade(time: t, price: d("351.5"), size: 100, exchange: "ISLAND", conditions: "T", pastLimit: false, unreported: true)], done: false))
         guard case .malformed = IBDecoder.decode(body("98", "7", "-1", "0")) else { Issue.record("not malformed"); return }

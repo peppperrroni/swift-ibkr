@@ -245,8 +245,9 @@ public enum BarEvent: Sendable, Equatable, Encodable {
 
 /// One market-data tick, as `reqMktData` streams them; each case names the IB message it comes from.
 public enum Tick: Sendable, Equatable, Encodable {
-    /// tickPrice (1): a price with its size. `price` and `size` are `nil` where IB sends an empty or unset value.
-    case price(TickField, price: Decimal?, size: Decimal?)
+    /// tickPrice (1): a price with its size and attributes. `price` and `size` are `nil` where IB sends an empty or
+    /// unset value.
+    case price(TickField, price: Decimal?, size: Decimal?, attributes: TickAttrib = TickAttrib())
     /// tickSize (2). The size is `nil` where IB sends an empty or unset value.
     case size(TickField, Decimal?)
     /// tickGeneric (45).
@@ -263,6 +264,29 @@ public enum Tick: Sendable, Equatable, Encodable {
     case requestParameters(minTick: Decimal?, bboExchange: String, snapshotPermissions: Int)
     /// tickNews (84).
     case news(NewsTick)
+}
+
+/// tickPrice's (1) attribute mask, `ib_async`'s `TickAttrib`. ib_async drops the mask; the bits are IB's API
+/// documentation (0 `canAutoExecute`, 1 `pastLimit`, 2 `preOpen`), not yet seen live.
+public struct TickAttrib: Sendable, Equatable, Encodable {
+    /// Whether the quote can be executed automatically.
+    public var canAutoExecute: Bool
+    /// Whether the bid is below the day's low or the ask above the day's high.
+    public var pastLimit: Bool
+    /// Whether the quote is from the pre-open session.
+    public var preOpen: Bool
+
+    /// Creates attributes with every flag given; all `false` by default.
+    public init(canAutoExecute: Bool = false, pastLimit: Bool = false, preOpen: Bool = false) {
+        self.canAutoExecute = canAutoExecute
+        self.pastLimit = pastLimit
+        self.preOpen = preOpen
+    }
+
+    /// Reads IB's mask: bit 0 `canAutoExecute`, bit 1 `pastLimit`, bit 2 `preOpen`.
+    public init(mask: Int) {
+        self.init(canAutoExecute: mask & 1 != 0, pastLimit: mask & 2 != 0, preOpen: mask & 4 != 0)
+    }
 }
 
 /// One tickOptionComputation (21). A value IB has not computed (`-1` for impliedVol, optPrice, pvDividend and
@@ -371,14 +395,17 @@ public enum TickByTickType: String, Sendable, Encodable {
 }
 
 /// One tick-by-tick event. `time` is IB's epoch seconds. The attribute masks are read: a trade's become
-/// `pastLimit` (bit 0) and `unreported` (bit 1); a quote's is dropped.
+/// `pastLimit` (bit 0) and `unreported` (bit 1); a quote's become `bidPastLow` and `askPastHigh`, whose bit order
+/// differs between tickByTick (99) and historicalTicks (97), as in `ib_async`.
 public enum TickByTick: Sendable, Equatable, Encodable {
     /// A trade, from the `Last` and `AllLast` types (tickByTick 99, type 1 and 2).
     case trade(
         time: Date, price: Decimal, size: Decimal, exchange: String, conditions: String,
         pastLimit: Bool, unreported: Bool)
-    /// A bid and ask quote, from the `BidAsk` type (tickByTick 99, type 3).
-    case bidAsk(time: Date, bidPrice: Decimal, askPrice: Decimal, bidSize: Decimal, askSize: Decimal)
+    /// A bid and ask quote, from the `BidAsk` type (tickByTick 99, type 3) or historicalTicks (97). `bidPastLow` and
+    /// `askPastHigh` are `ib_async`'s `TickAttribBidAsk`.
+    case bidAsk(time: Date, bidPrice: Decimal, askPrice: Decimal, bidSize: Decimal, askSize: Decimal,
+                bidPastLow: Bool = false, askPastHigh: Bool = false)
     /// A midpoint, from the `MidPoint` type (tickByTick 99, type 4).
     case midPoint(time: Date, price: Decimal)
 }

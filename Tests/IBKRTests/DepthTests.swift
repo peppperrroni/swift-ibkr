@@ -39,6 +39,12 @@ private func upd(_ pos: Int, _ op: DepthUpdate.Operation, _ side: DepthUpdate.Si
             == body(["10", "5", "4"] + aapl + ["10", "1", ""]))
         #expect(try IBRequest.cancelMarketDepth(requestID: 4, smart: false).body() == body("11", "1", "4", "0"))
     }
+
+    @Test func marketDepthSendsOptions() throws {
+        #expect(try IBRequest.marketDepth(requestID: 7, contract: Contract(symbol: "AAPL"), rows: 5, smart: true,
+                                          options: [TagValue(tag: "a", value: "1")]).body()
+            == body(["10", "5", "7"] + aapl + ["5", "1", "a=1;"]))
+    }
 }
 
 @Test func bookInsertUpdateDelete() {

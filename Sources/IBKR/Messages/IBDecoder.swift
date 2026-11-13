@@ -35,8 +35,8 @@ public enum IBDecoder {
             case 1:
                 try r.skip(); let id = try r.int(), f = TickField(rawValue: try r.int())
                 let price = try r.optionalDecimal(), size = try r.optionalDecimal()
-                try r.skip()  // attribMask
-                return .tick(requestID: id, .price(f, price: price, size: size))
+                let attributes = TickAttrib(mask: try r.int())
+                return .tick(requestID: id, .price(f, price: price, size: size, attributes: attributes))
             case 2:
                 try r.skip(); let id = try r.int(), f = TickField(rawValue: try r.int())
                 return .tick(requestID: id, .size(f, try r.optionalDecimal()))
@@ -95,10 +95,10 @@ public enum IBDecoder {
                         pastLimit: mask & 1 != 0, unreported: mask & 2 != 0))
                 case 3:
                     let bid = try r.decimal(), ask = try r.decimal()
-                    let bidSize = try r.decimal(), askSize = try r.decimal()
-                    try r.skip()  // attribMask
-                    return .tickByTick(requestID: id, .bidAsk(
-                        time: time, bidPrice: bid, askPrice: ask, bidSize: bidSize, askSize: askSize))
+                    let bidSize = try r.decimal(), askSize = try r.decimal(), mask = try r.int()
+                    return .tickByTick(requestID: id, .bidAsk(   // bit 0 bidPastLow here, askPastHigh in 97
+                        time: time, bidPrice: bid, askPrice: ask, bidSize: bidSize, askSize: askSize,
+                        bidPastLow: mask & 1 != 0, askPastHigh: mask & 2 != 0))
                 case 4: return .tickByTick(requestID: id, .midPoint(time: time, price: try r.decimal()))
                 default: throw IBProtocolError.badNumber(String(type), index: r.index - 1)
                 }
@@ -247,13 +247,14 @@ public enum IBDecoder {
         let side = try r.string(), shares = try r.decimal(), price = try r.decimal()
         let permID = try r.int(), clientID = try r.int(), liquidation = try r.int()
         let cumQty = try r.decimal(), avgPrice = try r.decimal(), orderRef = try r.string()
-        try r.skip(3)  // evRule, evMultiplier, modelCode
+        let evRule = try r.string(), evMultiplier = try r.optionalDecimal(), modelCode = try r.string()
         let lastLiquidity = try r.int(), pending = try r.bool()
         return .execDetails(requestID: requestID, contract: c, execution: Execution(
             execID: execID, time: time, account: account, exchange: exchange, side: side, shares: shares,
             price: price, permID: permID, clientID: clientID, orderID: orderID, liquidation: liquidation,
             cumulativeQuantity: cumQty, averagePrice: avgPrice, orderRef: orderRef,
-            lastLiquidity: lastLiquidity, pendingPriceRevision: pending))
+            lastLiquidity: lastLiquidity, pendingPriceRevision: pending, evRule: evRule, evMultiplier: evMultiplier,
+            modelCode: modelCode))
     }
 
     /// scannerData (20): one whole scan, 16 fields per row.

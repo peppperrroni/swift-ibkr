@@ -17,11 +17,11 @@ try await client.setMarketDataType(.delayed)
 
 ## Quotes and tickers
 
-``IBClient/marketData(_:genericTicks:snapshot:regulatorySnapshot:)`` streams raw ``Tick`` values.
+``IBClient/marketData(_:genericTicks:snapshot:regulatorySnapshot:options:)`` streams raw ``Tick`` values.
 `genericTicks` adds IB's generic ticks: numbers (`[233]`) or tagged entries (`["mdoff", "292:BRFG"]` for news);
 `snapshot: true` ends the stream at tickSnapshotEnd, with no cancel.
 
-``IBClient/tickers(_:genericTicks:depthRows:smartDepth:)`` yields a whole ``Ticker`` after every update, built with
+``IBClient/tickers(_:genericTicks:depthRows:smartDepth:options:)`` yields a whole ``Ticker`` after every update, built with
 ``Ticker/apply(_:)``; `depthRows` adds the book. ``IBClient/tickers(for:regulatorySnapshot:)`` takes snapshots of many
 contracts at once, in input order; the first error is thrown and the rest cancelled.
 
@@ -40,9 +40,9 @@ Delayed ticks carry their own field numbers; `TickField.live` maps each one to i
 
 ## Bars, depth and tick-by-tick
 
-``IBClient/realTimeBars(_:whatToShow:rth:)`` yields 5-second ``Bar`` values (the only size IB allows).
-``IBClient/marketDepth(_:rows:smart:)`` yields the whole ``DepthBook`` after every update, and
-``IBClient/tickByTick(_:_:)`` yields every trade, quote or midpoint as it happens.
+``IBClient/realTimeBars(_:whatToShow:rth:options:)`` yields 5-second ``Bar`` values (the only size IB allows).
+``IBClient/marketDepth(_:rows:smart:options:)`` yields the whole ``DepthBook`` after every update, and
+``IBClient/tickByTick(_:_:count:ignoreSize:)`` yields every trade, quote or midpoint as it happens.
 
 ```swift
 // Real-time bars (5 seconds, the only size IB allows), as `Bar`.
@@ -60,8 +60,8 @@ stream ends with a permission error and sends its cancel.
 
 ## History
 
-``IBClient/historicalBars(_:end:duration:barSize:whatToShow:rth:keepUpToDate:)`` yields one `.history` batch and ends,
-unless `keepUpToDate`, which goes on with `.update` bars. ``IBClient/historicalTicks(_:start:end:count:whatToShow:rth:ignoreSize:)``,
+``IBClient/historicalBars(_:end:duration:barSize:whatToShow:rth:keepUpToDate:options:)`` yields one `.history` batch and ends,
+unless `keepUpToDate`, which goes on with `.update` bars. ``IBClient/historicalTicks(_:start:end:count:whatToShow:rth:ignoreSize:options:)``,
 ``IBClient/headTimeStamp(_:whatToShow:rth:)``, ``IBClient/histogramData(_:period:rth:)`` and
 ``IBClient/historicalSchedule(_:days:end:rth:)`` are one-shot calls. `Bar.time` is in epoch seconds, and daily bars
 are stamped 00:00 UTC of their day.

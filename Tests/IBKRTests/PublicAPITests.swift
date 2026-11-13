@@ -48,6 +48,13 @@ import Testing
     #expect(DepthLevel(price: 1, size: 2, marketMaker: "").marketMaker == "")
     #expect(OptionComputation(tickAttrib: 0).delta == nil)
     #expect(EFPData().holdDays == nil)
+    #expect(TickAttrib(canAutoExecute: true, pastLimit: true, preOpen: true) == TickAttrib(mask: 7))
+    #expect(Contract(symbol: "AAPL").includeExpired == false && contract.issuerID == "")
+    #expect(execution.evRule == "" && execution.evMultiplier == nil && execution.modelCode == "")
+    #expect(Execution(
+        execID: "e1", time: "t", account: "A", exchange: "X", side: "BOT", shares: 1, price: 2, permID: 3,
+        clientID: 4, orderID: 5, liquidation: 0, cumulativeQuantity: 1, averagePrice: 2, orderRef: "",
+        lastLiquidity: 0, pendingPriceRevision: false, evRule: "R", evMultiplier: 1, modelCode: "M").modelCode == "M")
     #expect(NewsTick(timeStamp: 1, providerCode: "P", articleID: "A", headline: "H").extraData == "")
     #expect(Ticker(contract: contract).bid == nil)
     #expect(update.size == 2)

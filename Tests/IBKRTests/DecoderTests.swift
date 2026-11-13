@@ -39,6 +39,19 @@ import Testing
     #expect(m == .execDetails(requestID: 7, contract: c, execution: e))
 }
 
+@Test func execDetailsDecodesEVAndModel() {
+    func execution(_ ev: [String]) -> Execution? {
+        guard case .execDetails(_, _, let e) = IBDecoder.decode(body(["11", "7", "12", "265598", "AAPL", "STK", "", "0", "",
+            "", "SMART", "USD", "AAPL", "NMS", "0000e0d5.6556b5f0.01.01", "20251109 10:00:00", "DU123456", "ISLAND", "BOT",
+            "100", "187.25", "918273001", "1", "0", "100", "187.25", ""] + ev + ["1", "0"])) else { return nil }
+        return e
+    }
+    let e = execution(["EVR", "0.5", "M1"])
+    #expect(e?.evRule == "EVR" && e?.evMultiplier == d("0.5") && e?.modelCode == "M1")
+    let old = execution(["", "", ""])
+    #expect(old != nil && old?.evRule == "" && old?.evMultiplier == nil && old?.modelCode == "")
+}
+
 @Test func commissionReportDecodes() {
     #expect(IBDecoder.decode(body("59", "1", "0000e0d5.6556b5f0.01.01", "1.0", "USD", "1.7976931348623157E308", "1.7976931348623157E308", "")) ==
         .commissionReport(CommissionReport(execID: "0000e0d5.6556b5f0.01.01", commission: d("1.0"), currency: "USD",

@@ -57,29 +57,29 @@ public enum IBRequest: Sendable, Equatable {
     case marketDataType(MarketDataType)
     /// reqMktData (out 1).
     case marketData(requestID: Int, contract: Contract, genericTicks: [GenericTick] = [], snapshot: Bool = false,
-                    regulatorySnapshot: Bool = false)
+                    regulatorySnapshot: Bool = false, options: [TagValue] = [])
     /// cancelMktData (out 2).
     case cancelMarketData(requestID: Int)
     /// reqHistoricalData (out 20).
     case historicalData(requestID: Int, contract: Contract, end: Date?, barSize: String, duration: String,
-                        rth: Bool, whatToShow: String, keepUpToDate: Bool)
+                        rth: Bool, whatToShow: String, keepUpToDate: Bool, options: [TagValue] = [])
     /// cancelHistoricalData (out 25).
     case cancelHistoricalData(requestID: Int)
     /// reqRealTimeBars (out 50).
-    case realTimeBars(requestID: Int, contract: Contract, whatToShow: String, rth: Bool)
+    case realTimeBars(requestID: Int, contract: Contract, whatToShow: String, rth: Bool, options: [TagValue] = [])
     /// cancelRealTimeBars (out 51).
     case cancelRealTimeBars(requestID: Int)
     /// reqMktDepth (out 10).
-    case marketDepth(requestID: Int, contract: Contract, rows: Int, smart: Bool)
+    case marketDepth(requestID: Int, contract: Contract, rows: Int, smart: Bool, options: [TagValue] = [])
     /// cancelMktDepth (out 11).
     case cancelMarketDepth(requestID: Int, smart: Bool)
     /// reqTickByTickData (out 97).
-    case tickByTick(requestID: Int, contract: Contract, type: TickByTickType)
+    case tickByTick(requestID: Int, contract: Contract, type: TickByTickType, count: Int = 0, ignoreSize: Bool = false)
     /// cancelTickByTickData (out 98).
     case cancelTickByTick(requestID: Int)
     /// reqHistoricalTicks (out 96).
     case historicalTicks(requestID: Int, contract: Contract, start: Date?, end: Date?, count: Int, whatToShow: String,
-                         rth: Bool, ignoreSize: Bool)
+                         rth: Bool, ignoreSize: Bool, options: [TagValue] = [])
     /// reqHeadTimeStamp (out 87).
     case headTimeStamp(requestID: Int, contract: Contract, whatToShow: String, rth: Bool)
     /// cancelHeadTimeStamp (out 90).
@@ -330,13 +330,12 @@ public enum IBRequest: Sendable, Equatable {
             w.add(93); w.add(reqID)
         case .contractDetails(let reqID, let c):
             w.add(9); w.add(8); w.add(reqID); try Self.contract(&w, c)
-            // includeExpired, secIdType, secId, issuerId
-            w.add(false); try w.add(c.secIDType); try w.add(c.secID); try w.add("")
+            w.add(c.includeExpired); try w.add(c.secIDType); try w.add(c.secID); try w.add(c.issuerID)
         case .matchingSymbols(let reqID, let pattern):
             w.add(81); w.add(reqID); try w.add(pattern)
         case .marketDataType(let t):
             w.add(59); w.add(1); w.add(t.rawValue)
-        case .marketData(let reqID, let c, let genericTicks, let snapshot, let regulatorySnapshot):
+        case .marketData(let reqID, let c, let genericTicks, let snapshot, let regulatorySnapshot, let options):
             w.add(1); w.add(11); w.add(reqID); try Self.contract(&w, c, allowBag: true)
             try Self.comboLegs(&w, c)
             if let dnc = c.deltaNeutralContract {
@@ -345,48 +344,51 @@ public enum IBRequest: Sendable, Equatable {
                 w.add(false)
             }
             try w.add(genericTicks.map(\.rawValue).joined(separator: ","))
-            w.add(snapshot); w.add(regulatorySnapshot); try w.add("")  // options
+            w.add(snapshot); w.add(regulatorySnapshot); try w.add(Self.tagValues(options))
         case .cancelMarketData(let reqID):
             w.add(2); w.add(2); w.add(reqID)
-        case .historicalData(let reqID, let c, let end, let barSize, let duration, let rth, let what, let keep):
-            w.add(20); w.add(reqID); try Self.contract(&w, c, allowBag: true); w.add(false)  // includeExpired
+        case .historicalData(let reqID, let c, let end, let barSize, let duration, let rth, let what, let keep,
+                             let options):
+            w.add(20); w.add(reqID); try Self.contract(&w, c, allowBag: true); w.add(c.includeExpired)
             try w.add(end.map { Self.endFormat.string(from: $0) } ?? "")
             try w.add(barSize); try w.add(duration); w.add(rth); try w.add(what)
             w.add(what == "SCHEDULE" ? 1 : 2)  // formatDate: epoch seconds, but SCHEDULE wants text
             try Self.comboLegs(&w, c)
-            w.add(keep); try w.add("")  // keepUpToDate, chartOptions
-        case .realTimeBars(let reqID, let c, let what, let rth):
+            w.add(keep); try w.add(Self.tagValues(options))  // keepUpToDate, chartOptions
+        case .realTimeBars(let reqID, let c, let what, let rth, let options):
             w.add(50); w.add(3); w.add(reqID); try Self.contract(&w, c)
-            w.add(5); try w.add(what); w.add(rth); try w.add("")  // barSize (IB supports only 5), useRTH, options
+            w.add(5); try w.add(what); w.add(rth); try w.add(Self.tagValues(options))  // barSize: IB supports only 5
         case .cancelRealTimeBars(let reqID):
             w.add(51); w.add(1); w.add(reqID)
         case .cancelHistoricalData(let reqID):
             w.add(25); w.add(1); w.add(reqID)
-        case .marketDepth(let reqID, let c, let rows, let smart):
+        case .marketDepth(let reqID, let c, let rows, let smart, let options):
             w.add(10); w.add(5); w.add(reqID); try Self.contract(&w, c)
-            w.add(rows); w.add(smart); try w.add("")  // numRows, isSmartDepth, options
+            w.add(rows); w.add(smart); try w.add(Self.tagValues(options))  // numRows, isSmartDepth, options
         case .cancelMarketDepth(let reqID, let smart):
             w.add(11); w.add(1); w.add(reqID); w.add(smart)
-        case .tickByTick(let reqID, let c, let type):
+        case .tickByTick(let reqID, let c, let type, let count, let ignoreSize):
             w.add(97); w.add(reqID); try Self.contract(&w, c)
-            try w.add(type.rawValue); w.add(0); w.add(false)  // numberOfTicks (unlimited), ignoreSize
+            try w.add(type.rawValue); w.add(count); w.add(ignoreSize)  // numberOfTicks, ignoreSize
         case .cancelTickByTick(let reqID):
             w.add(98); w.add(reqID)
         case .headTimeStamp(let reqID, let c, let what, let rth):
             // includeExpired, useRTH, whatToShow, formatDate
-            w.add(87); w.add(reqID); try Self.contract(&w, c); w.add(false); w.add(rth); try w.add(what); w.add(2)
+            w.add(87); w.add(reqID); try Self.contract(&w, c); w.add(c.includeExpired); w.add(rth); try w.add(what)
+            w.add(2)
         case .cancelHeadTimeStamp(let reqID):
             w.add(90); w.add(reqID)
         case .histogramData(let reqID, let c, let rth, let period):
             // includeExpired, useRTH, timePeriod
-            w.add(88); w.add(reqID); try Self.contract(&w, c); w.add(false); w.add(rth); try w.add(period)
+            w.add(88); w.add(reqID); try Self.contract(&w, c); w.add(c.includeExpired); w.add(rth); try w.add(period)
         case .cancelHistogramData(let reqID):
             w.add(89); w.add(reqID)
-        case .historicalTicks(let reqID, let c, let start, let end, let count, let what, let rth, let ignoreSize):
-            w.add(96); w.add(reqID); try Self.contract(&w, c); w.add(false)  // includeExpired
+        case .historicalTicks(let reqID, let c, let start, let end, let count, let what, let rth, let ignoreSize,
+                              let options):
+            w.add(96); w.add(reqID); try Self.contract(&w, c); w.add(c.includeExpired)
             try w.add(start.map { Self.endFormat.string(from: $0) } ?? "")
             try w.add(end.map { Self.endFormat.string(from: $0) } ?? "")
-            w.add(count); try w.add(what); w.add(rth); w.add(ignoreSize); try w.add("")  // miscOptions
+            w.add(count); try w.add(what); w.add(rth); w.add(ignoreSize); try w.add(Self.tagValues(options))
         }
         return w.body
     }

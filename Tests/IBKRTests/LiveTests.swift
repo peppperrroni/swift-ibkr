@@ -187,7 +187,7 @@ struct LiveTests {
                         var type: MarketDataType?, fields: [Int] = []
                         for try await tick in quotes {
                             if case .dataType(let t) = tick { type = t }
-                            if case .price(let f, let p, _) = tick, p != nil { fields.append(f.rawValue) }
+                            if case .price(let f, let p, _, _) = tick, p != nil { fields.append(f.rawValue) }
                             if type != nil && !fields.isEmpty { return (type, fields) }
                         }
                         throw LiveFailure(description: "quote stream ended before a dataType and a price")

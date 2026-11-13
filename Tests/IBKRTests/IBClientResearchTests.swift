@@ -33,6 +33,38 @@ private let cancelled = "Historical Market Data Service error message:API scanne
     #expect(await client.requestStreamCount == 0)
 }
 
+private let noItems = "Historical Market Data Service query message:no items retrieved"
+
+/// wrapper.py:1670-1675: notice 165 empties the scan, and the subscription stays open for the next one.
+@Test func scanEmptiedBy165YieldsEmpty() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let scans = try await client.scannerSubscription(top)
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][1]
+    let (counts, seen) = AsyncStream.makeStream(of: Int.self)
+    let reader = Task {
+        do { for try await s in scans { seen.yield(s.count) } } catch {}
+    }
+    // each feed waits for the element before it, so the newest-only buffer drops nothing
+    gateway.feed(scan(id))
+    #expect(try await within2s { await counts.first { _ in true } } == 2)
+    gateway.feed(ibError(id, "165", noItems))
+    #expect(try await within2s { await counts.first { _ in true } } == 0)
+    gateway.feed(["20", "3", id, "1"] + scan(id)[4...19])
+    #expect(try await within2s { await counts.first { _ in true } } == 1)
+    #expect(await client.requestStreamCount == 1)
+    reader.cancel()
+}
+
+@Test func scanDataAnsweredBy165IsEmpty() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.onRequest = { f in f[0] == "22" ? [ibError(f[1], "165", noItems)] : [] }
+    #expect(try await within2s { try await client.scannerData(top) } == [])
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
+    #expect(sent[FakeGateway.syncFrames + 1] == ["23", "1", sent[FakeGateway.syncFrames][1]])
+}
+
 @Test func scannerSubscriptionEndsOnItsError() async throws {
     let gateway = FakeGateway()
     let client = try await connected(gateway)

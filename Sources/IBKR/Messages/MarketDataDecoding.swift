@@ -97,10 +97,10 @@ extension IBDecoder {
                 try r.skip()  // size
                 return .midPoint(time: time, price: price)
             case 97:
-                try r.skip()  // attribMask
-                let bid = try r.decimal(), ask = try r.decimal()
-                return .bidAsk(time: time, bidPrice: bid, askPrice: ask,
-                                bidSize: try r.decimal(), askSize: try r.decimal())
+                let mask = try r.int(), bid = try r.decimal(), ask = try r.decimal()
+                return .bidAsk(time: time, bidPrice: bid, askPrice: ask,   // bit 0 askPastHigh here, bidPastLow in 99
+                               bidSize: try r.decimal(), askSize: try r.decimal(),
+                               bidPastLow: mask & 2 != 0, askPastHigh: mask & 1 != 0)
             default:
                 let mask = try r.int(), price = try r.decimal(), size = try r.decimal()
                 return .trade(time: time, price: price, size: size, exchange: try r.string(),

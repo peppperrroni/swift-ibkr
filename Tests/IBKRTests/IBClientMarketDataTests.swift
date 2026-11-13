@@ -91,7 +91,7 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
     gateway.feed(["1", "6", id, "66", "351.4", "100", "0"])
     let tick = try await within2s { try await result.value }
     #expect(tick == [.price(TickField(rawValue: 66), price: d("351.4"), size: d("100"))])
-    guard case .price(let f, _, _)? = tick.first else { Issue.record("not a price"); return }
+    guard case .price(let f, _, _, _)? = tick.first else { Issue.record("not a price"); return }
     #expect(f.live == .bid)
 }
 
@@ -121,6 +121,51 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
     }
     try await Task.sleep(for: .milliseconds(50))   // room for a wrong cancel
     #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1).count == FakeGateway.syncFrames + 1)
+}
+
+/// Every request whose payload gained a field still ends (or throws) on its own IB error.
+@Test func changedRequestsFailOnTheirError() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let text = "No security definition has been found"
+    gateway.onRequest = { f in
+        switch f[0] {
+        case "1", "9", "10", "50": [ibError(f[2], "200", text)]   // the reqId follows a version
+        case "20", "87", "88", "96", "97": [ibError(f[1], "200", text)]
+        default: []
+        }
+    }
+    let ib = IBClientError.ib(code: 200, text: text)
+    let options = [TagValue(tag: "a", value: "1")]
+    let c: Contract = { var c = Contract(symbol: "AAPL"); c.includeExpired = true; return c }()
+    func drain<E: Sendable>(_ s: AsyncThrowingStream<E, any Error>) async throws {
+        try await within2s { for try await _ in s {} }
+    }
+    await #expect(throws: ib) { try await drain(try await client.marketData(c, options: options)) }
+    await #expect(throws: ib) {
+        try await drain(try await client.historicalBars(c, duration: "1 D", barSize: "5 mins", keepUpToDate: true,
+                                                        options: options))
+    }
+    await #expect(throws: ib) { try await drain(try await client.realTimeBars(c, options: options)) }
+    await #expect(throws: ib) { try await drain(try await client.marketDepth(c, rows: 5, options: options)) }
+    await #expect(throws: ib) { try await drain(try await client.tickByTick(c, .last, count: 10, ignoreSize: true)) }
+    await #expect(throws: ib) { _ = try await within2s { try await client.historicalTicks(c, count: 10, options: options) } }
+    await #expect(throws: ib) { _ = try await within2s { try await client.contractDetails(c) } }
+    await #expect(throws: ib) { _ = try await within2s { try await client.headTimeStamp(c) } }
+    await #expect(throws: ib) { _ = try await within2s { try await client.histogramData(c, period: "3 days") } }
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 9)
+    #expect(sent[FakeGateway.syncFrames].last == "a=1;")
+    #expect(sent[FakeGateway.syncFrames + 4].suffix(3) == ["Last", "10", "1"])
+}
+
+@Test func tickersSendTheirOptionsWithTheMarketDataRequestOnly() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.tickers(Contract(symbol: "AAPL"), depthRows: 5, options: [TagValue(tag: "a", value: "1")])
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
+    #expect(sent[FakeGateway.syncFrames].first == "10" && sent[FakeGateway.syncFrames].last == "")
+    #expect(sent[FakeGateway.syncFrames + 1].first == "1" && sent[FakeGateway.syncFrames + 1].last == "a=1;")
+    withExtendedLifetime(stream) {}
 }
 
 @Test func realTimeBarsStreamAndCancel() async throws {

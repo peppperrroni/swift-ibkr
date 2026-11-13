@@ -504,19 +504,19 @@ library leaves out.
 | `reqMarketRule` | `marketRule(_:)` |
 | `reqFamilyCodes` | `familyCodes()` |
 | `reqSoftDollarTiers` | `softDollarTiers()` |
-| `reqMktData`, `ticker` | `marketData(_:genericTicks:snapshot:regulatorySnapshot:)` (raw ticks) or `tickers(_:genericTicks:depthRows:smartDepth:)` (whole `Ticker`s), both streams |
+| `reqMktData`, `ticker` | `marketData(_:genericTicks:snapshot:regulatorySnapshot:options:)` (raw ticks) or `tickers(_:genericTicks:depthRows:smartDepth:options:)` (whole `Ticker`s), both streams |
 | `reqTickers` | `tickers(for:regulatorySnapshot:)` |
 | `pendingTickers` | none: each `tickers` stream yields its own `Ticker` |
 | `Ticker` | `Ticker` |
 | `Ticker.marketPrice`, `Ticker.midpoint`, the tick filters and bar builders | none |
 | `newsTicks` | `Tick.news` from `marketData` with the news generic ticks |
-| `reqMktDepth` | `marketDepth(_:rows:smart:)` (whole `DepthBook`s), or `tickers` with `depthRows` |
+| `reqMktDepth` | `marketDepth(_:rows:smart:options:)` (whole `DepthBook`s), or `tickers` with `depthRows` |
 | `reqMktDepthExchanges` | `depthExchanges()` |
 | `reqSmartComponents` | `smartComponents(_:)` |
-| `reqTickByTickData` | `tickByTick(_:_:)` |
-| `reqRealTimeBars`, `realtimeBars` | `realTimeBars(_:whatToShow:rth:)` |
-| `reqHistoricalData` | `historicalBars(_:end:duration:barSize:whatToShow:rth:keepUpToDate:)` |
-| `reqHistoricalTicks` | `historicalTicks(_:start:end:count:whatToShow:rth:ignoreSize:)` |
+| `reqTickByTickData` | `tickByTick(_:_:count:ignoreSize:)` |
+| `reqRealTimeBars`, `realtimeBars` | `realTimeBars(_:whatToShow:rth:options:)` |
+| `reqHistoricalData` | `historicalBars(_:end:duration:barSize:whatToShow:rth:keepUpToDate:options:)` |
+| `reqHistoricalTicks` | `historicalTicks(_:start:end:count:whatToShow:rth:ignoreSize:options:)` |
 | `reqHeadTimeStamp` | `headTimeStamp(_:whatToShow:rth:)` |
 | `reqHistogramData` | `histogramData(_:period:rth:)` |
 | `reqHistoricalSchedule` | `historicalSchedule(_:days:end:rth:)` |

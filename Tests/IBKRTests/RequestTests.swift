@@ -96,4 +96,10 @@ private let opt: Contract = {
         let f = FieldReader(try IBRequest.contractDetails(requestID: 1, contract: c).body()).fields
         #expect(f.suffix(4) == ["0", "ISIN", "US0378331005", ""])  // includeExpired, secIdType, secId, issuerId
     }
+    @Test func contractDetailsSendsIncludeExpiredAndIssuerID() throws {
+        var c = Contract(symbol: "AAPL")
+        c.includeExpired = true; c.issuerID = "e1"
+        #expect(try IBRequest.contractDetails(requestID: 4, contract: c).body()
+            == body(["9", "8", "4", "0", "AAPL", "STK", "", "0.0", "", "", "SMART", "", "USD", "", ""] + ["1", "", "", "e1"]))
+    }
 }

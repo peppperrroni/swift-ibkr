@@ -37,6 +37,11 @@ public struct Contract: Sendable, Equatable, Hashable, Encodable {
     public var comboLegsDescrip = ""
     /// The delta-neutral hedge, decoded from openOrder and sent in placeOrder (out 3); `nil` for none.
     public var deltaNeutralContract: DeltaNeutralContract?
+    /// Whether contract details, history, head time stamp, histogram and historical tick requests also cover expired
+    /// contracts. Sent, never decoded.
+    public var includeExpired = false
+    /// IB's issuer id, sent with a contract details request; empty for none. Sent, never decoded.
+    public var issuerID = ""
 
     /// Creates a contract for `symbol`; `SMART` and `USD` unless given, every other field unset.
     public init(symbol: String, secType: String = "STK", exchange: String = "SMART",

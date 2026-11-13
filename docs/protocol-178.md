@@ -535,10 +535,10 @@ Total: 2 fields.
 | 1 | version | int | `8` |
 | 2 | reqId | int | |
 | 3-14 | contract | | the 12-field contract block (rows 2-13 of placeOrder); `BAG` is refused |
-| 15 | includeExpired | bool | `0` |
+| 15 | includeExpired | bool | the contract's `includeExpired` (default `0`) |
 | 16 | secIdType | string | the contract's `secIDType` |
 | 17 | secId | string | the contract's `secID` |
-| 18 | issuerId | string | `""` |
+| 18 | issuerId | string | the contract's `issuerID` (default `""`; sent from server version 176) |
 
 Total: 19 fields.
 
@@ -577,7 +577,7 @@ Total: 3 fields. Session-global, no reqId; not remembered across a reconnect.
 | 16 | genericTickList | string | `genericTicks` comma-joined: IB's numbers or tagged entries (`100,mdoff,292:BRFG`), `""` when none |
 | 17 | snapshot | bool | `snapshot` (`0`/`1`, default `0`) |
 | 18 | regulatorySnapshot | bool | `regulatorySnapshot` (`0`/`1`, default `0`) |
-| 19 | mktDataOptions | string | `""`, always sent |
+| 19 | mktDataOptions | string | `options` as `tag=value;` per pair (`a=1;b=2;`), `""` when none; always sent |
 
 Row numbers are for a plain contract: 20 fields. A `BAG` adds the count and 4 fields per leg after row 14, and a
 delta-neutral contract adds 3 fields after row 15.
@@ -853,9 +853,9 @@ No version field at 178 (it stopped at 136).
 | 24 | cumQty | decimal | |
 | 25 | avgPrice | double | |
 | 26 | orderRef | string | |
-| 27 | evRule | string | |
-| 28 | evMultiplier | double | |
-| 29 | modelCode | string | |
+| 27 | evRule | string | `Execution.evRule` |
+| 28 | evMultiplier | double | `Execution.evMultiplier`; empty/unset is `nil` |
+| 29 | modelCode | string | `Execution.modelCode` |
 | 30 | lastLiquidity | int | |
 | 31 | pendingPriceRevision | bool | gate 178 — present |
 
@@ -1350,7 +1350,7 @@ Entry size is 8 + m fields.
 | 3 | tickType | int | kept whole as a `TickField` |
 | 4 | price | decimal | empty/unset is `nil`; IB's `-1` stays `-1` |
 | 5 | size | decimal | empty/unset is `nil` |
-| 6 | attribMask | int | read and dropped |
+| 6 | attribMask | int | `TickAttrib(mask:)`: bit 0 canAutoExecute, bit 1 pastLimit, bit 2 preOpen (IB's documentation; `ib_async` drops the mask, Disagreements 11) |
 
 Total: 7 fields.
 
@@ -1416,9 +1416,10 @@ Same layout as 91 (`92, reqId, conId, exchange`), for `reqMktDepth`; it reaches 
 
 ### reqHistoricalData (out 20)
 
-No version field. 23 fields: `20, reqId, contract(12), includeExpired (0), endDateTime, barSize, duration, useRTH,
+No version field. 23 fields: `20, reqId, contract(12), includeExpired, endDateTime, barSize, duration, useRTH,
 whatToShow, formatDate, keepUpToDate, chartOptions`. Barsize comes before duration and useRTH before whatToShow.
-`formatDate` is `1` for `whatToShow` `SCHEDULE` (text times) and `2` otherwise; `chartOptions` always `""`.
+`includeExpired` is the contract's (default `0`). `formatDate` is `1` for `whatToShow` `SCHEDULE` (text times) and `2`
+otherwise; `chartOptions` is `options` as `tag=value;` per pair, `""` when none.
 `endDateTime` is `yyyyMMdd-HH:mm:ss` in UTC, or `""` for now (`keepUpToDate` needs `""`). A `BAG` adds
 `comboLegsCount` and 4 fields per leg (`conId, ratio, action, exchange`) after `formatDate`, before `keepUpToDate`.
 `historicalBars` refuses `SCHEDULE` (its answer is 106, not 17); use `historicalSchedule`.
@@ -1445,21 +1446,23 @@ usual error, and a permission refusal needs the cancel (25). A negative count ma
 
 ### reqHistoricalTicks (out 96)
 
-No version. 22 fields: `96, reqId, contract(12), includeExpired (0), startDateTime, endDateTime, numberOfTicks,
-whatToShow, useRth, ignoreSize, miscOptions ("")`. Each date is `yyyyMMdd-HH:mm:ss` UTC, or `""` for unset. A BAG contract
+No version. 22 fields: `96, reqId, contract(12), includeExpired, startDateTime, endDateTime, numberOfTicks,
+whatToShow, useRth, ignoreSize, miscOptions`. `includeExpired` is the contract's (default `0`); `miscOptions` is
+`options` as `tag=value;` per pair, `""` when none. Each date is `yyyyMMdd-HH:mm:ss` UTC, or `""` for unset. A BAG contract
 is refused. IB has no cancel for it.
 
 ### historicalTicks / historicalTicksBidAsk / historicalTicksLast (in 96, 97, 98)
 
 No version, one reqId; the same frame shape: `id, reqId, n, n rows, done`, with `done` a bool that ends the answer.
 Rows: 96 (midpoint) `time, unused, price, size`; 97 (bid/ask) `time, mask, bidPrice, askPrice, bidSize, askSize`;
-98 (last) `time, mask, price, size, exchange, specialConditions`. `time` is Unix seconds. The 96 size and the 97 mask are
-read and dropped; the 98 mask is bit 0 pastLimit, bit 1 unreported. A negative `n` makes the frame malformed.
+98 (last) `time, mask, price, size, exchange, specialConditions`. `time` is Unix seconds. The 96 size is read and
+dropped. The 97 mask is bit 0 **askPastHigh**, bit 1 bidPastLow (decoder.py:803; the reverse of 99, Disagreements 10);
+the 98 mask is bit 0 pastLimit, bit 1 unreported. A negative `n` makes the frame malformed.
 
 ### reqHeadTimeStamp (out 87)
 
-No version. 18 fields: `87, reqId, contract(12), includeExpired (0), useRth, whatToShow, formatDate (2)`. A BAG
-contract is refused.
+No version. 18 fields: `87, reqId, contract(12), includeExpired, useRth, whatToShow, formatDate (2)`;
+`includeExpired` is the contract's (default `0`). A BAG contract is refused.
 
 ### cancelHeadTimeStamp (out 90)
 
@@ -1472,7 +1475,8 @@ No version. `88, reqId, headTimestamp`: epoch seconds, or an 8-character `yyyyMM
 
 ### reqHistogramData (out 88)
 
-No version. 17 fields: `88, reqId, contract(12), includeExpired (0), useRth, timePeriod`. A BAG contract is refused.
+No version. 17 fields: `88, reqId, contract(12), includeExpired, useRth, timePeriod`; `includeExpired` is the
+contract's (default `0`). A BAG contract is refused.
 
 ### cancelHistogramData (out 89)
 
@@ -1490,7 +1494,8 @@ No version. `90, reqId, barCount, date, open, close, high, low, average, volume`
 ### reqRealTimeBars (out 50)
 
 `50, 3, reqId, contract(12), barSize, whatToShow, useRTH, realTimeBarsOptions`; 19 fields. `barSize` is always `5` (the
-only size IB offers), `realTimeBarsOptions` always `""`. A BAG contract is refused.
+only size IB offers), `realTimeBarsOptions` is `options` as `tag=value;` per pair, `""` when none. A BAG contract is
+refused.
 
 ### cancelRealTimeBars (out 51)
 
@@ -1795,7 +1800,8 @@ requests before startApi, which `connect` sends itself.
 
 ### reqMktDepth (out 10)
 
-`10, 5, reqId, contract(12), numRows, isSmartDepth, mktDepthOptions`; 18 fields. `mktDepthOptions` is always `""`.
+`10, 5, reqId, contract(12), numRows, isSmartDepth, mktDepthOptions`; 18 fields. `mktDepthOptions` is `options` as
+`tag=value;` per pair, `""` when none (`tickers` sends none: its options go with reqMktData).
 A BAG contract is refused.
 
 ### cancelMktDepth (out 11)
@@ -1821,7 +1827,8 @@ regular hours, so a `Depth:` grant and a `Top:` grant on regular venues are both
 ### reqTickByTickData (out 97)
 
 `97, reqId, contract(12), tickType, numberOfTicks, ignoreSize`; 17 fields. **No version field.** `tickType` is text: `Last`,
-`AllLast`, `BidAsk` or `MidPoint`. We send `numberOfTicks` 0 (unlimited) and `ignoreSize` false. A BAG contract is refused.
+`AllLast`, `BidAsk` or `MidPoint`. `numberOfTicks` is `count` (default `0`, no past ticks) and `ignoreSize` is
+`ignoreSize` (default `0`). A BAG contract is refused.
 
 ### cancelTickByTickData (out 98)
 
@@ -1833,8 +1840,8 @@ permission (10189 with a permission text): IB keeps a refused subscription open.
 `99, reqId, tickType, time, ...`; no version. `tickType` is an int, unlike the request: 1 Last and 2 AllLast
 (price, size, attribMask, exchange, specialConditions; 9 fields), 3 BidAsk (bidPrice, askPrice, bidSize, askSize,
 attribMask; 9), 4 MidPoint (midPoint; 5). `time` is Unix seconds; a non-numeric one is malformed. Any other tickType is
-malformed. Trade mask: bit 0 pastLimit, bit 1 unreported. The BidAsk mask is read and dropped. The reqId routes it to
-its stream; the stream never ends itself.
+malformed. Trade mask: bit 0 pastLimit, bit 1 unreported. BidAsk mask: bit 0 bidPastLow, bit 1 askPastHigh
+(decoder.py:865; the reverse of 97, Disagreements 10). The reqId routes it to its stream; the stream never ends itself.
 
 ## Disagreements
 
@@ -1879,6 +1886,13 @@ agrees type by type. The differences are in default values and value formatting 
    `""`. The gateway accepted placeOrder as encoded here (items 1–3: `openClose` `O`, not rejected, echoed back as `""`;
    `usePriceMgmtAlgo` `0`, unset numbers `""`, deltaNeutralOrderType `""` with no group), and
    answered the handshake with 178. Recorded frames: `Tests/IBKRTests/Recorded/`.
+10. **TickAttribBidAsk bit order.** `ib_async`'s two decoders read the bid/ask mask the opposite way: tickByTick (99,
+   decoder.py:865) takes bit 0 as bidPastLow and bit 1 as askPastHigh; historicalTicksBidAsk (97, decoder.py:803)
+   takes bit 0 as askPastHigh and bit 1 as bidPastLow. Each message is decoded as `ib_async` decodes it, so the same
+   mask on the two messages gives opposite flags. Neither order has been seen live.
+11. **TickAttrib is not from `ib_async`.** `ib_async`'s priceSizeTick drops tickPrice's mask (decoder.py:200-206), so
+   it gives no layout. `TickAttrib(mask:)` follows IB's public API documentation: bit 0 canAutoExecute, bit 1
+   pastLimit, bit 2 preOpen. Not yet seen live.
 
 No row in this document is unverified: every table was checked line by line against the
 verbatim source of both clients.

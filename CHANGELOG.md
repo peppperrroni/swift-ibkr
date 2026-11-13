@@ -7,6 +7,18 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 ### Added
 - `Encodable` (never `Decodable`) on every public model of `IBKR` and on `FlexRecord`, ib_async's `util.tree`: `TickField` is `CodingKeyRepresentable`, so the `Ticker` dictionaries encode as JSON objects; `IBClient`, the trackers, `IBRequest`, the error enums, `ConnectionState`, `ReconnectPolicy` and `ErrorKind` are left out.
 - `Order.eTradeOnly`, `.firmQuoteOnly` and `.nbboPriceCap`, IB's deprecated placeOrder rows 52-54 (openOrder fields 54-56) as optionals: `nil` sends the wire default as before and the default decodes back to `nil`.
+- `Contract.includeExpired` (sent by reqContractDetails, reqHistoricalData, reqHeadTimeStamp, reqHistogramData and reqHistoricalTicks) and `Contract.issuerID` (sent by reqContractDetails), both defaulted (`false`, `""`).
+- An `options: [TagValue] = []` parameter on `marketData`, `tickers` (passed to the market-data request only), `historicalBars`, `realTimeBars`, `marketDepth` and `historicalTicks`, sent as IB's market-data, chart, real-time-bar, depth and misc options; `tickByTick(_:_:count:ignoreSize:)` sends IB's numberOfTicks and ignoreSize.
+- `TickAttrib` (`canAutoExecute`, `pastLimit`, `preOpen`, with `init(mask:)`), decoded from tickPrice's mask after IB's documentation (ib_async drops it), and `bidPastLow`/`askPastHigh` on `TickByTick.bidAsk`, decoded from tickByTick (99) and historicalTicks (97) with the opposite bit orders ib_async uses.
+- `Execution.evRule`, `.evMultiplier` and `.modelCode`, decoded from execDetails (in 11) instead of skipped; defaulted init parameters.
+- Notice 165 («no items retrieved») on a scanner yields an empty scan `[]`: `scannerSubscription` stays open, `scannerData` returns `[]`.
+
+### Changed
+- **Breaking:** `Tick.price` gains a fourth associated value, `attributes: TickAttrib = TickAttrib()`. Constructing it compiles as before; a pattern such as `case .price(let f, let p, let s)` needs a fourth binding (`case .price(let f, let p, let s, _)`).
+- **Breaking:** `TickByTick.bidAsk` gains `bidPastLow: Bool = false, askPastHigh: Bool = false`. Construction compiles as before; a pattern with five bindings needs seven.
+- **Breaking:** the `IBRequest` cases `marketData`, `historicalData`, `realTimeBars`, `marketDepth` and `historicalTicks` gain `options: [TagValue] = []`, and `tickByTick` gains `count: Int = 0, ignoreSize: Bool = false`. Construction compiles as before; a pattern with the old number of bindings does not.
+- **Breaking:** `marketData`, `tickers(_:…)`, `historicalBars`, `realTimeBars`, `marketDepth`, `historicalTicks` and `tickByTick` gain defaulted parameters, last. Calls compile as before; a reference by full name (`IBClient.tickByTick(_:_:)`, a DocC link) needs the new labels (`tickByTick(_:_:count:ignoreSize:)`).
+- `Execution`'s memberwise init gains `evRule`, `evMultiplier` and `modelCode`, defaulted and last, so existing calls compile.
 
 ## [1.0.0] - 2026-11-12
 

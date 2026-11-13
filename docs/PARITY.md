@@ -120,30 +120,30 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `reqContractDetails` / `reqContractDetailsAsync` | `contractDetails(_:)` | present | |
 | `reqMatchingSymbols` / `reqMatchingSymbolsAsync` | `matchingSymbols(_:)` | present | no 4 s timeout: cancel the task |
 | `reqMarketRule` / `reqMarketRuleAsync` | `marketRule(_:)` | present | |
-| `reqRealTimeBars` | `realTimeBars(_:whatToShow:rth:)` | present | bar size is IB's only one, 5 |
+| `reqRealTimeBars` | `realTimeBars(_:whatToShow:rth:options:)` | present | bar size is IB's only one, 5 |
 | `cancelRealTimeBars` | stop `realTimeBars` | present | |
 | `reqRealTimeBars` / `reqHistoricalData(keepUpToDate)`: resubscribe on 10225 | — | MISSING | behaviour: on bust event 10225 cancel and resend the same request under the same reqId (wrapper.py:1694); reverses the «10225 stays fatal» half of the DECISIONS row |
-| `reqHistoricalData` / `reqHistoricalDataAsync` | `historicalBars(_:end:duration:barSize:whatToShow:rth:keepUpToDate:)` | present | `formatDate` is fixed (bars carry a `Date`); no 60 s timeout: cancel the task |
+| `reqHistoricalData` / `reqHistoricalDataAsync` | `historicalBars(_:end:duration:barSize:whatToShow:rth:keepUpToDate:options:)` | present | `formatDate` is fixed (bars carry a `Date`); no 60 s timeout: cancel the task |
 | `cancelHistoricalData` | stop `historicalBars` | present | |
 | `reqHistoricalSchedule` / `reqHistoricalScheduleAsync` | `historicalSchedule(_:days:end:rth:)` | present | |
-| `reqHistoricalTicks` / `reqHistoricalTicksAsync` | `historicalTicks(_:start:end:count:whatToShow:rth:ignoreSize:)` | present | |
+| `reqHistoricalTicks` / `reqHistoricalTicksAsync` | `historicalTicks(_:start:end:count:whatToShow:rth:ignoreSize:options:)` | present | |
 | `reqMarketDataType` | `setMarketDataType(_:)` | present | |
 | `reqHeadTimeStamp` / `reqHeadTimeStampAsync` | `headTimeStamp(_:whatToShow:rth:)` | present | `formatDate` fixed to 2 (`Date`) |
-| `reqMktData` | `marketData(_:genericTicks:snapshot:regulatorySnapshot:)`; `tickers(_:genericTicks:depthRows:smartDepth:)` | present | raw ticks, or a whole `Ticker` after each |
+| `reqMktData` | `marketData(_:genericTicks:snapshot:regulatorySnapshot:options:)`; `tickers(_:genericTicks:depthRows:smartDepth:options:)` | present | raw ticks, or a whole `Ticker` after each |
 | `cancelMktData` | stop the stream | present | |
-| `reqTickByTickData` | `tickByTick(_:_:)` | present | |
-| `reqTickByTickData(numberOfTicks:ignoreSize:)` | — | MISSING | parameters `count: Int = 0`, `ignoreSize: Bool = false` on `tickByTick`; Swift sends 0 and false (IBRequest.swift:372) |
+| `reqTickByTickData` | `tickByTick(_:_:count:ignoreSize:)` | present | |
+| `reqTickByTickData(numberOfTicks:ignoreSize:)` | `tickByTick(_:_:count:ignoreSize:)` | added | `count: Int = 0`, `ignoreSize: Bool = false`, sent as numberOfTicks and ignoreSize |
 | `cancelTickByTickData` | stop `tickByTick` | present | |
 | `reqSmartComponents` / `reqSmartComponentsAsync` | `smartComponents(_:)` | present | |
 | `reqMktDepthExchanges` / `reqMktDepthExchangesAsync` | `depthExchanges()` | present | |
-| `reqMktDepth` | `marketDepth(_:rows:smart:)`; `tickers(_:depthRows:smartDepth:)` | present | Swift's `smart` defaults to true, ib_async's `isSmartDepth` to False |
+| `reqMktDepth` | `marketDepth(_:rows:smart:options:)`; `tickers(_:depthRows:smartDepth:)` | present | Swift's `smart` defaults to true, ib_async's `isSmartDepth` to False |
 | `cancelMktDepth` | stop the stream | present | |
-| `mktDataOptions`, `chartOptions`, `realTimeBarsOptions`, `mktDepthOptions`, `miscOptions` | — | MISSING | parameter `options: [TagValue] = []` on `marketData`, `tickers`, `historicalBars`, `realTimeBars`, `marketDepth`, `historicalTicks`; Swift sends `""` (IB: internal use) |
+| `mktDataOptions`, `chartOptions`, `realTimeBarsOptions`, `mktDepthOptions`, `miscOptions` | `options:` on `marketData`, `tickers`, `historicalBars`, `realTimeBars`, `marketDepth`, `historicalTicks` | added | `[TagValue] = []`, sent as `tag=value;` per pair (IB: internal use); `tickers` sends its options with the market-data request only |
 | `reqHistogramData` / `reqHistogramDataAsync` | `histogramData(_:period:rth:)` | present | |
 | `reqFundamentalData` / `reqFundamentalDataAsync` | `fundamentalData(_:reportType:options:)` | present | |
 | `reqScannerData` / `reqScannerDataAsync` | `scannerData(_:options:filterOptions:)` | present | |
 | `reqScannerSubscription` | `scannerSubscription(_:options:filterOptions:)` | present | |
-| `reqScannerSubscription`: empty scan on 165 | — | MISSING | behaviour: notice 165 («no more matching items») clears the scan and yields `[]` (wrapper.py:1670); Swift treats 165 as a plain notice |
+| `reqScannerSubscription`: empty scan on 165 | `scannerSubscription` yields `[]`; `scannerData` returns `[]` | added | notice 165 («no items retrieved») empties the scan (wrapper.py:1670); the subscription stays open |
 | `cancelScannerSubscription` | stop `scannerSubscription` | present | |
 | `reqScannerParameters` / `reqScannerParametersAsync` | `scannerParameters()` | present | |
 | `calculateImpliedVolatility` / `calculateImpliedVolatilityAsync` | `calculateImpliedVolatility(_:optionPrice:underPrice:options:)` | present | no 4 s timeout |
@@ -165,7 +165,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | ib_async | swift-ibkr | Status | Note |
 |---|---|---|---|
 | `Ticker` | `Ticker` | present | |
-| `Ticker.updateEvent` | `tickers(_:genericTicks:depthRows:smartDepth:)` | present | yields the whole ticker after each update |
+| `Ticker.updateEvent` | `tickers(_:genericTicks:depthRows:smartDepth:options:)` | present | yields the whole ticker after each update |
 | `Ticker.events`, `defaults`, `created`, `__post_init__`, `__eq__`, `__hash__`, `__repr__`, `__str__` | — | n/a | eventkit, dataclass and dunder mechanics; `defaults` is the `IBDefaults` row |
 | `contract` | `Ticker.contract` | present | |
 | `time` | — | MISSING | field `Ticker.time: Date?`, the arrival time of the last update (wrapper.py:1739) |
@@ -256,7 +256,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `Dividends` | — | MISSING | model `Dividends` (past12Months, next12Months, nextDate, nextAmount); see `Ticker.dividends` |
 | `DOMLevel` | `DepthLevel` | present | |
 | `Execution` | `Execution` | present | |
-| `Execution.evRule`, `evMultiplier`, `modelCode` | — | MISSING | fields; decoded from execDetails (in 11) after `orderRef`, Swift reads past them |
+| `Execution.evRule`, `evMultiplier`, `modelCode` | `Execution.evRule`, `.evMultiplier`, `.modelCode` | added | decoded from execDetails (in 11) after `orderRef`; `evMultiplier` is `Decimal?` |
 | `Execution.time` as datetime | `Execution.time` (IB's string) | MISSING | field type `Date`, read in `TimezoneTWS` when IB names no zone (decoder.py:468) |
 | `ExecutionFilter` | `ExecutionFilter` | present | |
 | `FamilyCode` | `FamilyCode` | present | |
@@ -267,7 +267,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `HistoricalNews` | `HistoricalNews` | present | `time` stays IB's string (DECISIONS) |
 | `HistoricalSchedule`, `HistoricalSession` | `HistoricalSchedule`, `HistoricalSession` | present | |
 | `HistoricalTick` | `TickByTick.midPoint` | present | without `size` |
-| `HistoricalTickBidAsk` | `TickByTick.bidAsk` | present | without the attributes (`TickAttribBidAsk` row) |
+| `HistoricalTickBidAsk` | `TickByTick.bidAsk` | present | the attributes are its `bidPastLow`, `askPastHigh` (`TickAttribBidAsk` row) |
 | `HistoricalTickLast` | `TickByTick.trade` | present | |
 | `IBDefaults` | — | n/a | configures the NaN/-1/0 placeholders of Python's float fields (Swift models use `nil`) and `timezone`, the zone of the log-entry times (Swift's `Date` carries no zone); nothing to configure |
 | `MktDepthData` | `DepthUpdate` (`messages()` → `.depth`) | present | no arrival time |
@@ -290,11 +290,11 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `SmartComponent` | `SmartComponent` | present | |
 | `SoftDollarTier` | `SoftDollarTier` | present | |
 | `SoftDollarTier.__bool__` | — | n/a | Python dunder |
-| `TickAttrib` | — | MISSING | `canAutoExecute`, `pastLimit`, `preOpen` (bits 0/1/2, from IB's API documentation, unseen live) on `Tick.price`; ib_async exports it but its decoder drops the mask (decoder.py:201), Swift skips it too (IBDecoder.swift:38) |
-| `TickAttribBidAsk` | — | MISSING | `bidPastLow`, `askPastHigh` on `TickByTick.bidAsk`, bits per message as ib_async's two decoders read them (they disagree: decoder.py:802, 864) |
+| `TickAttrib` | `TickAttrib`, on `Tick.price(…, attributes:)` | added | `canAutoExecute`, `pastLimit`, `preOpen` (bits 0/1/2, from IB's API documentation, unseen live); ib_async exports it but its decoder drops the mask (decoder.py:201) |
+| `TickAttribBidAsk` | `TickByTick.bidAsk(…bidPastLow:askPastHigh:)` | added | bits per message as ib_async's two decoders read them (they disagree: decoder.py:802, 864; protocol-178 Disagreements 10) |
 | `TickAttribLast` | `TickByTick.trade(…pastLimit:unreported:)` | present | |
 | `TickByTickAllLast` | `TickByTick.trade` | present | |
-| `TickByTickBidAsk` | `TickByTick.bidAsk` | present | without the attributes |
+| `TickByTickBidAsk` | `TickByTick.bidAsk` | present | with `bidPastLow`, `askPastHigh` |
 | `TickByTickMidPoint` | `TickByTick.midPoint` | present | |
 | `TickData` | `Tick` | present | no arrival time (see `Ticker.ticks`) |
 | `TradeLogEntry` | — | MISSING | model (time, status, message, errorCode) for `Trade.log` |
@@ -307,8 +307,8 @@ connect), **model helper** (a computed property or method on a model), **factory
 | ib_async | swift-ibkr | Status | Note |
 |---|---|---|---|
 | `Contract` | `Contract` | present | |
-| `Contract.includeExpired` | — | MISSING | field; sent in contractDetails (9), historicalData (20), historicalTicks (96), headTimeStamp (87), histogram (88); Swift always sends 0 |
-| `Contract.issuerId` | — | MISSING | field `Contract.issuerID`, sent as the last field of contractDetails (9) at 176+ where Swift sends `""`; the received value is already on `ContractDescription.issuerID` |
+| `Contract.includeExpired` | `Contract.includeExpired` | added | `false` by default; sent in contractDetails (9), historicalData (20), historicalTicks (96), headTimeStamp (87), histogram (88) |
+| `Contract.issuerId` | `Contract.issuerID` | added | `""` by default; sent as the last field of contractDetails (9) at 176+; the received value is on `ContractDescription.issuerID` |
 | `Contract.description` | `ContractDescription.description` | present | |
 | `Contract.create` | `Contract(…secType:…)` | present | one struct for every type |
 | `Contract.recreate` | — | n/a | turns a `Contract` into its Python subclass; Swift has no subclasses |
@@ -494,4 +494,4 @@ connect), **model helper** (a computed property or method on a model), **factory
 
 ## Totals
 
-Rows, where one row may carry several names: `present` 219 · `added` 2 · `MISSING` 162 · `n/a` 33.
+Rows, where one row may carry several names: `present` 219 · `added` 10 · `MISSING` 154 · `n/a` 33.

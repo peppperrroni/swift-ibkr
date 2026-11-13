@@ -103,7 +103,7 @@ public struct Ticker: Sendable, Equatable, Encodable {
     /// tickOptionComputation), without its `prev…` fields.
     public mutating func apply(_ tick: Tick) {
         switch tick {
-        case let .price(field, p, s):
+        case let .price(field, p, s, _):
             switch field.live {
             case .bid: bid = s == 0 ? nil : p; bidSize = s
             case .ask: ask = s == 0 ? nil : p; askSize = s

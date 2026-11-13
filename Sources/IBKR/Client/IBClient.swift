@@ -434,15 +434,16 @@ public actor IBClient {
     /// Every top-of-book tick IB sends for `contract`. Ends like `accountSummary`, with
     /// `.noMarketDataPermission` when IB refuses for want of a subscription; stopping it cancels. `genericTicks` are
     /// IB's generic tick numbers or tagged entries (`"mdoff"`, `"292:BRFG"` for news ticks). A `snapshot` stream
-    /// ends by itself at IB's snapshot end, with no cancel.
+    /// ends by itself at IB's snapshot end, with no cancel. `options` are IB's market data options.
     public func marketData(
-        _ contract: Contract, genericTicks: [GenericTick] = [], snapshot: Bool = false, regulatorySnapshot: Bool = false
+        _ contract: Contract, genericTicks: [GenericTick] = [], snapshot: Bool = false,
+        regulatorySnapshot: Bool = false, options: [TagValue] = []
     ) throws(IBClientError) -> AsyncThrowingStream<Tick, any Error> {
         try requireConnected()
         let id = nextRequestID()
         return try openStream(.marketData(requestID: id, contract: contract, genericTicks: genericTicks,
                                           snapshot: snapshot,
-                                          regulatorySnapshot: regulatorySnapshot), id: id,
+                                          regulatorySnapshot: regulatorySnapshot, options: options), id: id,
                               cancel: .cancelMarketData(requestID: id)) { message, out in
             switch message {
             case .tick(_, let tick): out.yield(tick)
@@ -456,17 +457,18 @@ public actor IBClient {
     /// Historical bars as one `.history` batch. Without `keepUpToDate` the stream then ends, with no cancel; with it,
     /// every IB update follows raw as `.update` (a same-time update replaces the forming bar; the consumer merges).
     /// `end` nil is now; `duration`, `barSize` and `whatToShow` are IB's strings ("1 D", "5 mins", "TRADES").
-    /// A BAG sends its legs. `whatToShow` "SCHEDULE" is refused: use `historicalSchedule`.
+    /// A BAG sends its legs. `whatToShow` "SCHEDULE" is refused: use `historicalSchedule`. `options` are IB's chart
+    /// options.
     public func historicalBars(
         _ contract: Contract, end: Date? = nil, duration: String, barSize: String, whatToShow: String = "TRADES",
-        rth: Bool = true, keepUpToDate: Bool = false
+        rth: Bool = true, keepUpToDate: Bool = false, options: [TagValue] = []
     ) throws(IBClientError) -> AsyncThrowingStream<BarEvent, any Error> {
         try requireConnected()
         if whatToShow == "SCHEDULE" { throw .encoding(.unsupported("whatToShow SCHEDULE")) }
         let id = nextRequestID()
         return try openStream(.historicalData(requestID: id, contract: contract, end: end, barSize: barSize,
                                               duration: duration, rth: rth, whatToShow: whatToShow,
-                                              keepUpToDate: keepUpToDate),
+                                              keepUpToDate: keepUpToDate, options: options),
                               id: id, cancel: .cancelHistoricalData(requestID: id)) { message, out in
             switch message {
             case .historicalData(_, let bars):
@@ -500,16 +502,16 @@ public actor IBClient {
 
     /// Historical midpoint (`whatToShow` "MIDPOINT"), bid/ask ("BID_ASK") or trade ("TRADES") ticks, up to `count`,
     /// from `start` or up to `end` (nil is unset). IB has no cancel for it, so none is sent. Throws like
-    /// `contractDetails`.
+    /// `contractDetails`. `options` are IB's misc options.
     public func historicalTicks(
         _ contract: Contract, start: Date? = nil, end: Date? = nil, count: Int, whatToShow: String = "TRADES",
-        rth: Bool = true, ignoreSize: Bool = false
+        rth: Bool = true, ignoreSize: Bool = false, options: [TagValue] = []
     ) async throws(IBClientError) -> [TickByTick] {
         try requireConnected()
         let id = nextRequestID()
         let stream = try openStream(.historicalTicks(requestID: id, contract: contract, start: start, end: end,
-                                                     count: count,
-                                                     whatToShow: whatToShow, rth: rth, ignoreSize: ignoreSize),
+                                                     count: count, whatToShow: whatToShow, rth: rth,
+                                                     ignoreSize: ignoreSize, options: options),
                                     id: id, cancel: nil) {
             (message, out: AsyncThrowingStream<TickByTick, any Error>.Continuation) in
             guard case .historicalTicks(_, let ticks, let done) = message else { return false }
@@ -554,12 +556,15 @@ public actor IBClient {
 
     /// IB's five-second bars for `contract`, one per bar, never ending itself; ends like `marketData` on a refusal.
     /// `whatToShow` is "TRADES", "MIDPOINT", "BID" or "ASK". MIDPOINT/BID/ASK bars carry -1 volume, average and
-    /// count, as historical bars do. 10225 (bust event) ends the stream; the consumer subscribes again.
-    public func realTimeBars(_ contract: Contract, whatToShow: String = "TRADES", rth: Bool = true)
+    /// count, as historical bars do. 10225 (bust event) ends the stream; the consumer subscribes again. `options` are
+    /// IB's real-time bar options.
+    public func realTimeBars(_ contract: Contract, whatToShow: String = "TRADES", rth: Bool = true,
+                             options: [TagValue] = [])
         throws(IBClientError) -> AsyncThrowingStream<Bar, any Error> {
         try requireConnected()
         let id = nextRequestID()
-        return try openStream(.realTimeBars(requestID: id, contract: contract, whatToShow: whatToShow, rth: rth),
+        return try openStream(.realTimeBars(requestID: id, contract: contract, whatToShow: whatToShow, rth: rth,
+                                            options: options),
                               id: id,
                               cancel: .cancelRealTimeBars(requestID: id)) { message, out in
             if case .realTimeBar(_, let bar) = message { out.yield(bar) }
@@ -572,13 +577,14 @@ public actor IBClient {
     /// refuses depth with notice 2152 and nothing else, so a 2152 that carries «Unknown market data permissions» and
     /// whose part before it names no `Depth:` exchange ends the stream with `.noMarketDataPermission(code: 2152, …)`;
     /// any other 2152 leaves the book open.
-    /// Every element is a whole book, so a slow consumer keeps only the newest.
-    public func marketDepth(_ contract: Contract, rows: Int, smart: Bool = true)
+    /// Every element is a whole book, so a slow consumer keeps only the newest. `options` are IB's depth options.
+    public func marketDepth(_ contract: Contract, rows: Int, smart: Bool = true, options: [TagValue] = [])
         throws(IBClientError) -> AsyncThrowingStream<DepthBook, any Error> {
         try requireConnected()
         let id = nextRequestID()
         var book = DepthBook()
-        return try openStream(.marketDepth(requestID: id, contract: contract, rows: rows, smart: smart), id: id,
+        return try openStream(.marketDepth(requestID: id, contract: contract, rows: rows, smart: smart,
+                                           options: options), id: id,
                               cancel: .cancelMarketDepth(requestID: id, smart: smart),
                               buffering: .bufferingNewest(1)) { message, out in
             switch message {
@@ -595,14 +601,17 @@ public actor IBClient {
     /// `contract`'s market data folded into one `Ticker`, yielded whole after every tick or depth book, with no
     /// deduplication; a slow consumer keeps only the newest. `depthRows` adds `marketDepth`'s book; it is opened
     /// first, since it refuses everything `marketData` refuses and BAG too. The first inner error ends the stream with
-    /// that error, and however it ends, every request still open is cancelled.
+    /// that error, and however it ends, every request still open is cancelled. `options` go with the market data
+    /// request only.
     public func tickers(_ contract: Contract, genericTicks: [GenericTick] = [], depthRows: Int? = nil,
-                        smartDepth: Bool = true)
+                        smartDepth: Bool = true, options: [TagValue] = [])
         throws(IBClientError) -> AsyncThrowingStream<Ticker, any Error> {
         var depth: AsyncThrowingStream<DepthBook, any Error>?
         if let depthRows { depth = try marketDepth(contract, rows: depthRows, smart: smartDepth) }
         let quotes: AsyncThrowingStream<Tick, any Error>
-        do throws(IBClientError) { quotes = try marketData(contract, genericTicks: genericTicks) } catch {
+        do throws(IBClientError) {
+            quotes = try marketData(contract, genericTicks: genericTicks, options: options)
+        } catch {
             if let depth { Self.stop(depth) }
             throw error
         }
@@ -690,13 +699,15 @@ public actor IBClient {
         Task { for try await _ in stream {} }.cancel()
     }
 
-    /// Every trade, quote or midpoint IB reports for `contract`, unlimited and with size-only quote changes kept.
-    /// Never ends itself; ends like `marketData` on a refusal.
-    public func tickByTick(_ contract: Contract, _ type: TickByTickType)
+    /// Every trade, quote or midpoint IB reports for `contract`. `count` above 0 asks IB for that many past ticks
+    /// first; `ignoreSize` drops quote changes that move only the size. Never ends itself; ends like `marketData` on
+    /// a refusal.
+    public func tickByTick(_ contract: Contract, _ type: TickByTickType, count: Int = 0, ignoreSize: Bool = false)
         throws(IBClientError) -> AsyncThrowingStream<TickByTick, any Error> {
         try requireConnected()
         let id = nextRequestID()
-        return try openStream(.tickByTick(requestID: id, contract: contract, type: type), id: id,
+        return try openStream(.tickByTick(requestID: id, contract: contract, type: type, count: count,
+                                          ignoreSize: ignoreSize), id: id,
                               cancel: .cancelTickByTick(requestID: id)) { message, out in
             if case .tickByTick(_, let t) = message { out.yield(t) }
             return false

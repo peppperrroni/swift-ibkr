@@ -5,6 +5,7 @@ extension IBClient {
     /// sends no 23, except a permission refusal, which sends 23 and throws `.noMarketDataPermission`.
     /// Every element is a whole scan, so a slow consumer keeps only the newest. Stopping it sends IB's cancel.
     /// `filterOptions` are the scanner's filter tags (from `scannerParameters()`), `options` IB's scanner options.
+    /// IB's notice 165 («no items retrieved») yields an empty scan and leaves the stream open, as `ib_async` does.
     public func scannerSubscription(_ subscription: ScannerSubscription, options: [TagValue] = [],
                                     filterOptions: [TagValue] = [])
         throws(IBClientError) -> AsyncThrowingStream<[ScanData], any Error> {
@@ -14,14 +15,18 @@ extension IBClient {
                                                    filterOptions: filterOptions),
                               id: id, cancel: .cancelScannerSubscription(requestID: id),
                               buffering: .bufferingNewest(1)) { message, out in
-            if case .scannerData(_, let rows) = message { out.yield(rows) }
+            switch message {
+            case .error(let e) where e.code == 165: out.yield([])
+            case .scannerData(_, let rows): out.yield(rows)
+            default: break
+            }
             return false
         }
     }
 
     /// The first scan IB sends for `subscription`, then IB's cancel, as `ib_async`'s `reqScannerDataAsync` does.
-    /// IB's error throws `.ib` and sends no cancel, except a permission refusal, which sends 23 and throws
-    /// `.noMarketDataPermission`.
+    /// Notice 165 («no items retrieved») answers `[]`. IB's error throws `.ib` and sends no cancel, except a
+    /// permission refusal, which sends 23 and throws `.noMarketDataPermission`.
     public func scannerData(_ subscription: ScannerSubscription, options: [TagValue] = [],
                             filterOptions: [TagValue] = []) async throws(IBClientError) -> [ScanData] {
         try requireConnected()
@@ -29,7 +34,11 @@ extension IBClient {
         return try await answer(.scannerSubscription(requestID: id, subscription: subscription, options: options,
                                                      filterOptions: filterOptions),
                                 id: id, cancel: .cancelScannerSubscription(requestID: id), thenCancel: true) {
-            if case .scannerData(_, let rows) = $0 { rows } else { nil }
+            switch $0 {
+            case .error(let e) where e.code == 165: []
+            case .scannerData(_, let rows): rows
+            default: nil
+            }
         }
     }
 

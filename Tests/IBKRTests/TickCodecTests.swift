@@ -7,7 +7,30 @@ import Testing
 
     @Test func tickPriceDecodes() {
         #expect(IBDecoder.decode(body("1", "6", "7", "1", "351.5", "200", "1"))
-            == .tick(requestID: 7, .price(.bid, price: d("351.5"), size: d("200"))))
+            == .tick(requestID: 7, .price(.bid, price: d("351.5"), size: d("200"),
+                                          attributes: TickAttrib(canAutoExecute: true))))
+    }
+
+    /// ib_async drops the mask (decoder.py:200-206); the bits are IB's documentation (R14).
+    @Test func tickPriceDecodesItsAttributes() {
+        #expect(IBDecoder.decode(body("1", "6", "7", "1", "351.5", "200", "5"))
+            == .tick(requestID: 7, .price(.bid, price: d("351.5"), size: d("200"),
+                                          attributes: TickAttrib(canAutoExecute: true, pastLimit: false, preOpen: true))))
+        #expect(IBDecoder.decode(body("1", "6", "7", "1", "351.5", "200", "0"))
+            == .tick(requestID: 7, .price(.bid, price: d("351.5"), size: d("200"), attributes: TickAttrib())))
+        #expect(TickAttrib(mask: 2) == TickAttrib(pastLimit: true))
+    }
+
+    @Test func marketDataSendsOptions() throws {
+        #expect(try IBRequest.marketData(requestID: 7, contract: Contract(symbol: "AAPL"),
+                                         options: [TagValue(tag: "a", value: "1"), TagValue(tag: "b", value: "2")]).body()
+            == body(["1", "11", "7"] + aapl + ["0", "", "0", "0", "a=1;b=2;"]))
+    }
+
+    @Test func realTimeBarsSendOptions() throws {
+        #expect(try IBRequest.realTimeBars(requestID: 7, contract: Contract(symbol: "AAPL"), whatToShow: "TRADES", rth: true,
+                                           options: [TagValue(tag: "a", value: "1")]).body()
+            == body(["50", "3", "7"] + aapl + ["5", "TRADES", "1", "a=1;"]))
     }
 
     @Test func tickSizeGenericStringDecode() {
