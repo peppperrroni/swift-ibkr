@@ -62055,6 +62055,110 @@
    "calls": [
     {
      "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/empty-date"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "20260102  09:30:00",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "20260102  09:30:00",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/text-date"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "-1"
+   ],
+   "name": "gen/17/negative-count"
+  },
+  {
+   "calls": [
+    {
+     "args": {
       "delta": "0.55",
       "gamma": "0.03",
       "impliedVol": "0.25",
@@ -72633,6 +72737,40 @@
    "calls": [
     {
      "args": {
+      "headTimestamp": "",
+      "reqId": "7"
+     },
+     "method": "headTimestamp"
+    }
+   ],
+   "fields": [
+    "88",
+    "7",
+    ""
+   ],
+   "name": "gen/88/empty-date"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "headTimestamp": "20260102  09:30:00",
+      "reqId": "7"
+     },
+     "method": "headTimestamp"
+    }
+   ],
+   "fields": [
+    "88",
+    "7",
+    "20260102  09:30:00"
+   ],
+   "name": "gen/88/text-date"
+  },
+  {
+   "calls": [
+    {
+     "args": {
       "items.#": "0",
       "reqId": "7"
      },
@@ -73051,6 +73189,44 @@
     "351.5"
    ],
    "name": "gen/89/short-second-item"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "items.#": "0",
+      "reqId": "7"
+     },
+     "method": "histogramData"
+    }
+   ],
+   "fields": [
+    "89",
+    "7",
+    "-1"
+   ],
+   "name": "gen/89/negative-count"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "items.#": "1",
+      "items[0].count": "-3",
+      "items[0].price": "351",
+      "reqId": "7"
+     },
+     "method": "histogramData"
+    }
+   ],
+   "fields": [
+    "89",
+    "7",
+    "1",
+    "351.0",
+    "-3"
+   ],
+   "name": "gen/89/negative-item-count"
   },
   {
    "calls": [
@@ -74377,6 +74553,68 @@
     "1794321000"
    ],
    "name": "gen/90/short-after-date"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/empty-date"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "20260102  09:30:00",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "20260102  09:30:00",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/text-date"
   },
   {
    "calls": [
@@ -75739,6 +75977,29 @@
    "name": "gen/96/unset-long-max-n"
   },
   {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "0"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "7",
+    "-9223372036854775808",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "1"
+   ],
+   "name": "gen/96/unset-long-min-n"
+  },
+  {
    "error": "ValueError: invalid literal for int() with base 10: ''",
    "fields": [
     "96",
@@ -76145,6 +76406,52 @@
     "-9223372036854775808"
    ],
    "name": "gen/96/unset-long-min-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "3",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1]": "351.5",
+      "ticks[0][2]": "100"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "2"
+   ],
+   "name": "gen/96/done-2"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "0"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "7",
+    "-1",
+    "1"
+   ],
+   "name": "gen/96/negative-count"
   },
   {
    "error": "ValueError: could not convert string to float: ''",
@@ -76631,6 +76938,31 @@
     "1"
    ],
    "name": "gen/97/unset-long-max-n"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "0"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "-9223372036854775808",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-long-min-n"
   },
   {
    "error": "ValueError: invalid literal for int() with base 10: ''",
@@ -77536,6 +77868,58 @@
    "name": "gen/97/unset-long-min-done"
   },
   {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "2"
+   ],
+   "name": "gen/97/done-2"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "0"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "-1",
+    "1"
+   ],
+   "name": "gen/97/negative-count"
+  },
+  {
    "error": "ValueError: could not convert string to float: ''",
    "fields": [
     "97",
@@ -78170,6 +78554,31 @@
    "name": "gen/98/unset-long-max-n"
   },
   {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "0"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "-9223372036854775808",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-long-min-n"
+  },
+  {
    "error": "ValueError: invalid literal for int() with base 10: ''",
    "fields": [
     "98",
@@ -78775,6 +79184,58 @@
     "-9223372036854775808"
    ],
    "name": "gen/98/unset-long-min-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "2"
+   ],
+   "name": "gen/98/done-2"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "0"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "-1",
+    "1"
+   ],
+   "name": "gen/98/negative-count"
   },
   {
    "error": "ValueError: could not convert string to float: ''",
@@ -96264,6 +96725,35 @@
     "20260105-21:00:00"
    ],
    "name": "gen/106/short-second-session"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "endDateTime": "20260106-21:00:00",
+      "reqId": "7",
+      "sessions.#": "0",
+      "startDateTime": "20260102-14:30:00",
+      "timeZone": "US/Eastern"
+     },
+     "method": "historicalSchedule"
+    }
+   ],
+   "fields": [
+    "106",
+    "7",
+    "20260102-14:30:00",
+    "20260106-21:00:00",
+    "US/Eastern",
+    "-1",
+    "20260102-14:30:00",
+    "20260102-21:00:00",
+    "20260102",
+    "20260105-14:30:00",
+    "20260105-21:00:00",
+    "20260105"
+   ],
+   "name": "gen/106/negative-count"
   },
   {
    "calls": [

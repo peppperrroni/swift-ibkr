@@ -1941,10 +1941,14 @@ agrees type by type. The differences are in default values and value formatting 
    (decoder.py:200-206), so a frame whose price field is empty gives no call at all; swift-ibkr decodes the frame to
    `.tick(.price(…, price: nil, …))` (unset is `nil`). No recorded live frame has an empty price. On such a frame a `Ticker` field can be cleared where `ib_async`
    keeps the old value.
-17. **A value outside IB's documented enum is malformed.** swift-ibkr reports `.malformed` for an unknown
+17. **A value outside what IB sends is malformed, or a flag other than 0/1 reads false.** swift-ibkr reports `.malformed` for an unknown
    tickByTick type (99), marketDataType id (58, an empty one included) and depth operation or side (12, 13), where
    `ib_async` passes the value through (58, 12, 13) or makes no call and logs nothing (99). Same pattern as the
    unknown condition type and `ComboLeg.action` rows of DECISIONS.
+   The same holds for a negative count (17's numBars, 89's n and count, 96-98's n, 106's count) and an empty or unparseable
+   date text (a bar or head-timestamp date that is neither 8 characters nor all digits, e.g. formatDate 1 text; 17, 88,
+   90): `.malformed`, where `ib_async` reads an empty range or keeps the text. A flag other than 0/1 (historicalTicks'
+   `done`, `2`) reads false, because swift-ibkr takes only `1` as true; `ib_async`'s `bool(int(x))` reads it true.
 18. **historicalData's start and end texts are dropped.** `ib_async`'s decoder passes the two header strings of 17
    (startDate, endDate) to `historicalDataEnd(reqId, _start, _end)` (decoder.py:477-494); swift-ibkr reads and drops
    them, and the answer is the whole batch. `ib_async`'s own wrapper ignores them too (`historicalDataEnd` ends the

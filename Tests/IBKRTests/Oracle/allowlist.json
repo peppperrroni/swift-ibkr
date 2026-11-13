@@ -12670,5 +12670,165 @@
   "pair": ["decoded", "StopIteration: "],
   "cite": "protocol-178 Disagreements 13",
   "note": "a non-optional number reads an unset value as 0 here; ib_async reads the unset count as a number and runs out of fields (decoder.py:1361-1370)"
+ },
+ {
+  "scope": "in 17",
+  "field": "#error",
+  "frames": "gen/17/empty-date",
+  "pair": ["malformed: unexpectedValue(\"\", index: 5)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an empty or formatDate-1 text date is .malformed here; ib_async reads an empty range or keeps the text (decoder.py:477-494)"
+ },
+ {
+  "scope": "in 17",
+  "field": "#error",
+  "frames": "gen/17/text-date",
+  "pair": ["malformed: unexpectedValue(\"20260102  09:30:00\", index: 5)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an empty or formatDate-1 text date is .malformed here; ib_async reads an empty range or keeps the text (decoder.py:477-494)"
+ },
+ {
+  "scope": "in 17",
+  "field": "#error",
+  "frames": "gen/17/negative-count",
+  "pair": ["malformed: badNumber(\"-1\", index: 4)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a negative count is .malformed here; ib_async reads an empty range or keeps the text (decoder.py:477-494)"
+ },
+ {
+  "scope": "in 88",
+  "field": "#error",
+  "frames": "gen/88/empty-date",
+  "pair": ["malformed: unexpectedValue(\"\", index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an empty or formatDate-1 text date is .malformed here; ib_async reads an empty range or keeps the text (decoder.py:119 (wrap, int(field or 0)))"
+ },
+ {
+  "scope": "in 88",
+  "field": "#error",
+  "frames": "gen/88/text-date",
+  "pair": ["malformed: unexpectedValue(\"20260102  09:30:00\", index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an empty or formatDate-1 text date is .malformed here; ib_async reads an empty range or keeps the text (decoder.py:119 (wrap, int(field or 0)))"
+ },
+ {
+  "scope": "in 89",
+  "field": "#error",
+  "frames": "gen/89/negative-count",
+  "pair": ["malformed: badNumber(\"-1\", index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a negative count is .malformed here; ib_async reads an empty range or keeps the text (decoder.py:757-766)"
+ },
+ {
+  "scope": "in 89",
+  "field": "#error",
+  "frames": "gen/89/negative-item-count",
+  "pair": ["malformed: badNumber(\"-3\", index: 4)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a negative count is .malformed here; ib_async reads an empty range or keeps the text (decoder.py:757-766)"
+ },
+ {
+  "scope": "in 90",
+  "field": "#error",
+  "frames": "gen/90/empty-date",
+  "pair": ["malformed: unexpectedValue(\"\", index: 3)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an empty or formatDate-1 text date is .malformed here; ib_async reads an empty range or keeps the text (decoder.py:496-511)"
+ },
+ {
+  "scope": "in 90",
+  "field": "#error",
+  "frames": "gen/90/text-date",
+  "pair": ["malformed: unexpectedValue(\"20260102  09:30:00\", index: 3)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an empty or formatDate-1 text date is .malformed here; ib_async reads an empty range or keeps the text (decoder.py:496-511)"
+ },
+ {
+  "scope": "in 96",
+  "field": "done",
+  "frames": "gen/96/unset-long-min-n",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset count reads 0 here, so the flag slot is the first tick's time (not 1) and reads false; ib_async's negative range is empty and bool(int(time)) is true (decoder.py:778-792)"
+ },
+ {
+  "scope": "in 96",
+  "field": "done",
+  "frames": "gen/96/done-2",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a flag other than 0/1 reads false here (only 1 is true); ib_async's bool(int(x)) reads 2 as true (decoder.py:778-792)"
+ },
+ {
+  "scope": "in 96",
+  "field": "ticks[][]",
+  "frames": "gen/96/done-2",
+  "pair": ["<absent>", "100"],
+  "cite": "DECISIONS: the midpoint size is dropped",
+  "note": "ib_async's HistoricalTick keeps the size (decoder.py:785-789); swift-ibkr's .midPoint drops it"
+ },
+ {
+  "scope": "in 96",
+  "field": "#error",
+  "frames": "gen/96/negative-count",
+  "pair": ["malformed: badNumber(\"-1\", index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a negative count is .malformed here; ib_async reads an empty range or keeps the text (decoder.py:778-792)"
+ },
+ {
+  "scope": "in 97",
+  "field": "done",
+  "frames": "gen/97/unset-long-min-n",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset count reads 0 here, so the flag slot is the first tick's time (not 1) and reads false; ib_async's negative range is empty and bool(int(time)) is true (decoder.py:794-815)"
+ },
+ {
+  "scope": "in 97",
+  "field": "done",
+  "frames": "gen/97/done-2",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a flag other than 0/1 reads false here (only 1 is true); ib_async's bool(int(x)) reads 2 as true (decoder.py:794-815)"
+ },
+ {
+  "scope": "in 97",
+  "field": "#error",
+  "frames": "gen/97/negative-count",
+  "pair": ["malformed: badNumber(\"-1\", index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a negative count is .malformed here; ib_async reads an empty range or keeps the text (decoder.py:794-815)"
+ },
+ {
+  "scope": "in 98",
+  "field": "done",
+  "frames": "gen/98/unset-long-min-n",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset count reads 0 here, so the flag slot is the first tick's time (not 1) and reads false; ib_async's negative range is empty and bool(int(time)) is true (decoder.py:817-838)"
+ },
+ {
+  "scope": "in 98",
+  "field": "done",
+  "frames": "gen/98/done-2",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a flag other than 0/1 reads false here (only 1 is true); ib_async's bool(int(x)) reads 2 as true (decoder.py:817-838)"
+ },
+ {
+  "scope": "in 98",
+  "field": "#error",
+  "frames": "gen/98/negative-count",
+  "pair": ["malformed: badNumber(\"-1\", index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a negative count is .malformed here; ib_async reads an empty range or keeps the text (decoder.py:817-838)"
+ },
+ {
+  "scope": "in 106",
+  "field": "#error",
+  "frames": "gen/106/negative-count",
+  "pair": ["malformed: badNumber(\"-1\", index: 5)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a negative count is .malformed here; ib_async reads an empty range or keeps the text (decoder.py:1361-1370)"
  }
 ]

@@ -722,8 +722,9 @@ def _tick_variants(msg: str, rows: list[list[str]], numeric: dict[str, int]) -> 
         ("one-tick-not-done", _ticks(msg, rows[:1], "0")),
         ("three-ticks-done", three),
         ("three-ticks-not-done", _ticks(msg, rows, "0")),
-        *[v for v in _unset_all(one, {"reqId": 1, "n": 2, **{k: 3 + v for k, v in numeric.items()}, "done": 3 + width})
-          if v[0] != "unset-long-min-n"],  # held: the flag after it reads a time, not 0/1
+        *_unset_all(one, {"reqId": 1, "n": 2, **{k: 3 + v for k, v in numeric.items()}, "done": 3 + width}),
+        ("done-2", _ticks(msg, rows[:1], "2")),
+        ("negative-count", [msg, "7", "-1", "1"]),
         ("tick3-empty-last-number", _at(three, **{f"i{last_number}": ""})),
         ("short-after-count", one[:3]),
         ("short-mid-tick", one[:5]),
@@ -771,6 +772,14 @@ VARIANTS[106] = [
     ("short-mid-session", _SCHEDULE[:8]),
     ("short-second-session", _SCHEDULE[:11]),
 ]
+
+# A value outside what IB sends (Disagreements 17): a date that is empty or formatDate-1 text, a negative count.
+VARIANTS[17] += [("empty-date", _at(_ONE_BAR, i5="")), ("text-date", _at(_ONE_BAR, i5="20260102  09:30:00")),
+                 ("negative-count", ["17", "7", _START, _END, "-1"])]
+VARIANTS[90] += [("empty-date", _at(_UPDATE, i3="")), ("text-date", _at(_UPDATE, i3="20260102  09:30:00"))]
+VARIANTS[88] += [("empty-date", ["88", "7", ""]), ("text-date", ["88", "7", "20260102  09:30:00"])]
+VARIANTS[89] += [("negative-count", ["89", "7", "-1"]), ("negative-item-count", ["89", "7", "1", "351.0", "-3"])]
+VARIANTS[106] += [("negative-count", _at(_SCHEDULE, i5="-1"))]
 
 # A frame ib_async rejects (openOrder cut after its id): the oracle must record the exception, not «no calls».
 CANARY: tuple[str, list[str]] = ("gen/canary/short-openOrder", ["5", "1"])
