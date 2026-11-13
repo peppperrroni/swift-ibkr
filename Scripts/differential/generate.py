@@ -1,4 +1,5 @@
-"""Differential oracle: run ib_async 2.1.0's Decoder offline over every corpus frame and write decode.json.
+"""Differential oracle: run ib_async 2.1.0 offline; write decode.json (its Decoder over every corpus frame) and
+encode.json (what its Client sends for every case of cases.py).
 
 Run with `python -I Scripts/differential/generate.py` (`--self-test` runs the startup checks and writes nothing).
 Network-free by construction: nothing connects, and every socket factory raises (docs/DECISIONS.md, the oracle row).
@@ -27,9 +28,11 @@ from decimal import Decimal
 zoneinfo.reset_tzpath(to=[])  # zones from the pinned tzdata package, never the OS's copy: Windows and CI agree
 
 import ib_async  # noqa: F401  (imported before the guard: asyncio's ssl subclasses socket.socket at import)
+from ib_async.client import Client
 from ib_async.decoder import Decoder
 from ib_async.wrapper import Wrapper
 
+from cases import CASES, CLIENT_ATTRS
 from variants import CANARY, VARIANTS
 
 SERVER_VERSION = 178
@@ -166,6 +169,53 @@ def record(fields):
     return {"calls": calls}
 
 
+# --- encode capture (decisions 9, 10; C3, P2, P15) ------------------------------------------------------------------
+
+def case_value(value):
+    """An argument as encode.json holds it: scalars as strings (float as repr), None as null, a dataclass as an object
+    of all its fields plus `_type`, a list as an array."""
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return value
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, int):
+        return str(value)
+    if isinstance(value, float):
+        return repr(value)
+    if isinstance(value, (datetime.datetime, datetime.date)):  # P2: ib.py formats dates before the Client sees them
+        raise TypeError(f"{value!r}: pass the text ib.py would send, through cases.ib_datetime")
+    if dataclasses.is_dataclass(value) and not isinstance(value, type):
+        out = {f.name: case_value(getattr(value, f.name)) for f in dataclasses.fields(value)}
+        out["_type"] = type(value).__name__
+        return out
+    if isinstance(value, (list, tuple)):
+        return [case_value(v) for v in value]
+    raise TypeError(f"no case form for {type(value).__name__}: {value!r}")
+
+
+def encode(name, method, kwargs):
+    """The case as encode.json holds it: every argument (defaults included) and the fields the Client sent."""
+    sent = []
+    client = Client(Recorder())
+    client._serverVersion = SERVER_VERSION
+    client.connState = Client.CONNECTED  # send() refuses otherwise (client.py:250-251); nothing is connected
+    client.sendMsg = sent.append  # send() ends in self.sendMsg(generated) (client.py:321)
+    kwargs = dict(kwargs)
+    for attr, value in kwargs.pop("_client", {}).items():
+        assert attr in CLIENT_ATTRS.get(method, ()), f"{name}: {method} does not read Client.{attr}"
+        setattr(client, attr, value)
+    bound = inspect.signature(getattr(Client, method)).bind(client, **kwargs)
+    bound.apply_defaults()
+    getattr(client, method)(**kwargs)
+    assert len(sent) == 1 and sent[0].endswith("\0"), f"{name}: expected one message, got {sent!r}"
+    args = {k: case_value(v) for k, v in list(bound.arguments.items())[1:]}
+    if method in CLIENT_ATTRS:
+        args["_client"] = {a: case_value(getattr(client, a)) for a in CLIENT_ATTRS[method]}
+    return {"name": name, "method": method, "args": args, "fields": sent[0].split("\0")[:-1]}
+
+
 # --- I/O (decisions 6, 13) ----------------------------------------------------------------------------------------
 
 def self_test():
@@ -183,6 +233,7 @@ def self_test():
     assert canon(-0.0) == "0"
     assert importlib.metadata.version("ib_async") == "2.1.0"
     assert "error" in record(CANARY[1]), "a frame ib_async rejects must come out as an error"
+    assert encode("check", "cancelOrder", {"orderId": 5})["fields"] == ["4", "1", "5", ""]
 
 
 def main():
@@ -202,8 +253,11 @@ def main():
         "handlers": sorted(Decoder(Recorder(), SERVER_VERSION).handlers),
         "frames": [{"name": name, "fields": fields, **record(fields)} for name, fields in frames],
     }
-    with open(os.path.join(ORACLE, "decode.json"), "w", encoding="utf-8", newline="\n") as f:
-        f.write(json.dumps(out, indent=1, sort_keys=True, ensure_ascii=False) + "\n")
+    assert len({c[0] for c in CASES}) == len(CASES), "case names must be unique"
+    encoded = {"cases": [encode(*c) for c in CASES]}
+    for file, value in (("decode.json", out), ("encode.json", encoded)):
+        with open(os.path.join(ORACLE, file), "w", encoding="utf-8", newline="\n") as f:
+            f.write(json.dumps(value, indent=1, sort_keys=True, ensure_ascii=False) + "\n")
 
 
 if __name__ == "__main__":

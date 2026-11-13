@@ -51,8 +51,8 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | Orders | place, modify, cancel, every placeOrder field (conditions, algos, pegged, combos, delta neutral), brackets, OCA, what-if, exercise, open and completed orders merged with ib_async's local states, trade log and fills, open/completed-order and filtered-execution one-shots, id reservation, raw send | ✅ plain orders live-checked; the rest on hand-built frames, not yet run live (see KNOWN-GAPS) |
 | Executions | fills joined with commissions, corrections applied | ✅ live-checked |
 | Positions | synced at connect, whole sets on every change | ✅ live-checked |
-| Session | current time, accounts, next id, user info, log level, auto-bind, global cancel, opt-in reconnect | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
-| Account | account summary, per-position P&L, portfolio, account values, Multi, account P&L, the latest P&L of each open subscription | ✅ summary and per-position P&L live-checked; the rest on the fake gateway, not yet run live (see KNOWN-GAPS) |
+| Session | current time, accounts, next id, user info, log level, auto-bind, global cancel, opt-in reconnect | ✅ cross-checked against ib_async 2.1.0 and on the fake gateway; not yet run live (see KNOWN-GAPS) |
+| Account | account summary, per-position P&L, portfolio, account values, Multi, account P&L, the latest P&L of each open subscription | ✅ summary and per-position P&L live-checked; the rest cross-checked against ib_async 2.1.0 and on the fake gateway; not yet run live (see KNOWN-GAPS) |
 | Contract lookup | contract details with bonds, matching symbols, factories, qualifyContracts | ✅ details (not bonds) and symbols live-checked; the rest on the fake gateway, not yet run live (see KNOWN-GAPS) |
 | Options and reference | option chains, option calculations, market rules, family codes, soft-dollar tiers | ✅ on hand-built frames and the fake gateway; not yet run live (see KNOWN-GAPS) |
 | Market data | quotes with generic ticks and snapshots, `Ticker` streams and batch snapshots, the open-ticker registry, greeks, EFP, news ticks, real-time bars, depth book, depth exchanges, SMART components, tick-by-tick (alone or folded into a `Ticker`), BAG, typed «no permission» refusal | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
@@ -684,8 +684,10 @@ swift test
 The decoder is also cross-checked against `ib_async` 2.1.0 itself, run offline: `Tests/IBKRTests/Oracle/` holds
 the frames the tests use (the recordings, the fixtures, the fake gateway's replies and the frames the codec tests
 build) with the wrapper calls `ib_async` makes for each, and `swift test` compares `IBDecoder` with them. All 82
-messages `ib_async`'s decoder handles at protocol 178 are compared. Python
-is needed only to regenerate the answers (`python -I Scripts/differential/generate.py`, see
+messages `ib_async`'s decoder handles at protocol 178 are compared. Requests are checked the same way:
+`encode.json` holds the fields `ib_async`'s `Client` sends for each case of `Scripts/differential/cases.py`, and
+`swift test` builds the same `IBRequest` and compares its body with them (the session, account and order-side
+requests so far). Python is needed only to regenerate the answers (`python -I Scripts/differential/generate.py`, see
 [CONTRIBUTING](CONTRIBUTING.md#differential-oracle)); CI regenerates them and fails on any difference.
 
 The live tests run against a **paper** IB Gateway on 127.0.0.1:4002 and are skipped unless you ask for them.

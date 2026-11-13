@@ -1,0 +1,746 @@
+{
+ "cases": [
+  {
+   "args": {
+    "_client": {
+     "clientId": "-1",
+     "optCapab": ""
+    }
+   },
+   "fields": [
+    "71",
+    "2",
+    "-1",
+    ""
+   ],
+   "method": "startApi",
+   "name": "startApi/default"
+  },
+  {
+   "args": {
+    "_client": {
+     "clientId": "7",
+     "optCapab": "+PACEAPI"
+    }
+   },
+   "fields": [
+    "71",
+    "2",
+    "7",
+    "+PACEAPI"
+   ],
+   "method": "startApi",
+   "name": "startApi/set"
+  },
+  {
+   "args": {
+    "numIds": "1"
+   },
+   "fields": [
+    "8",
+    "1",
+    "1"
+   ],
+   "method": "reqIds",
+   "name": "reqIds/one"
+  },
+  {
+   "args": {},
+   "fields": [
+    "49",
+    "1"
+   ],
+   "method": "reqCurrentTime",
+   "name": "reqCurrentTime/default"
+  },
+  {
+   "args": {},
+   "fields": [
+    "17",
+    "1"
+   ],
+   "method": "reqManagedAccts",
+   "name": "reqManagedAccts/default"
+  },
+  {
+   "args": {
+    "reqId": "0"
+   },
+   "fields": [
+    "104",
+    "0"
+   ],
+   "method": "reqUserInfo",
+   "name": "reqUserInfo/default"
+  },
+  {
+   "args": {
+    "reqId": "41"
+   },
+   "fields": [
+    "104",
+    "41"
+   ],
+   "method": "reqUserInfo",
+   "name": "reqUserInfo/set"
+  },
+  {
+   "args": {
+    "logLevel": "1"
+   },
+   "fields": [
+    "14",
+    "1",
+    "1"
+   ],
+   "method": "setServerLogLevel",
+   "name": "setServerLogLevel/default"
+  },
+  {
+   "args": {
+    "logLevel": "5"
+   },
+   "fields": [
+    "14",
+    "1",
+    "5"
+   ],
+   "method": "setServerLogLevel",
+   "name": "setServerLogLevel/set"
+  },
+  {
+   "args": {
+    "marketDataType": "1"
+   },
+   "fields": [
+    "59",
+    "1",
+    "1"
+   ],
+   "method": "reqMarketDataType",
+   "name": "reqMarketDataType/default"
+  },
+  {
+   "args": {
+    "marketDataType": "4"
+   },
+   "fields": [
+    "59",
+    "1",
+    "4"
+   ],
+   "method": "reqMarketDataType",
+   "name": "reqMarketDataType/set"
+  },
+  {
+   "args": {},
+   "fields": [
+    "61",
+    "1"
+   ],
+   "method": "reqPositions",
+   "name": "reqPositions/default"
+  },
+  {
+   "args": {},
+   "fields": [
+    "64",
+    "1"
+   ],
+   "method": "cancelPositions",
+   "name": "cancelPositions/default"
+  },
+  {
+   "args": {
+    "groupName": "",
+    "reqId": "0",
+    "tags": ""
+   },
+   "fields": [
+    "62",
+    "1",
+    "0",
+    "",
+    ""
+   ],
+   "method": "reqAccountSummary",
+   "name": "reqAccountSummary/default"
+  },
+  {
+   "args": {
+    "groupName": "All",
+    "reqId": "12",
+    "tags": "AccountType,NetLiquidation,TotalCashValue,SettledCash,AccruedCash,BuyingPower,EquityWithLoanValue,PreviousDayEquityWithLoanValue,GrossPositionValue,RegTEquity,RegTMargin,SMA,InitMarginReq,MaintMarginReq,AvailableFunds,ExcessLiquidity,Cushion,FullInitMarginReq,FullMaintMarginReq,FullAvailableFunds,FullExcessLiquidity,LookAheadNextChange,LookAheadInitMarginReq,LookAheadMaintMarginReq,LookAheadAvailableFunds,LookAheadExcessLiquidity,HighestSeverity,DayTradesRemaining,DayTradesRemainingT+1,DayTradesRemainingT+2,DayTradesRemainingT+3,DayTradesRemainingT+4,Leverage,$LEDGER:ALL"
+   },
+   "fields": [
+    "62",
+    "1",
+    "12",
+    "All",
+    "AccountType,NetLiquidation,TotalCashValue,SettledCash,AccruedCash,BuyingPower,EquityWithLoanValue,PreviousDayEquityWithLoanValue,GrossPositionValue,RegTEquity,RegTMargin,SMA,InitMarginReq,MaintMarginReq,AvailableFunds,ExcessLiquidity,Cushion,FullInitMarginReq,FullMaintMarginReq,FullAvailableFunds,FullExcessLiquidity,LookAheadNextChange,LookAheadInitMarginReq,LookAheadMaintMarginReq,LookAheadAvailableFunds,LookAheadExcessLiquidity,HighestSeverity,DayTradesRemaining,DayTradesRemainingT+1,DayTradesRemainingT+2,DayTradesRemainingT+3,DayTradesRemainingT+4,Leverage,$LEDGER:ALL"
+   ],
+   "method": "reqAccountSummary",
+   "name": "reqAccountSummary/set"
+  },
+  {
+   "args": {
+    "reqId": "0"
+   },
+   "fields": [
+    "63",
+    "1",
+    "0"
+   ],
+   "method": "cancelAccountSummary",
+   "name": "cancelAccountSummary/default"
+  },
+  {
+   "args": {
+    "reqId": "13"
+   },
+   "fields": [
+    "63",
+    "1",
+    "13"
+   ],
+   "method": "cancelAccountSummary",
+   "name": "cancelAccountSummary/set"
+  },
+  {
+   "args": {
+    "account": "",
+    "conid": "0",
+    "modelCode": "",
+    "reqId": "0"
+   },
+   "fields": [
+    "94",
+    "0",
+    "",
+    "",
+    "0"
+   ],
+   "method": "reqPnLSingle",
+   "name": "reqPnLSingle/default"
+  },
+  {
+   "args": {
+    "account": "DU0000001",
+    "conid": "265598",
+    "modelCode": "MODEL1",
+    "reqId": "14"
+   },
+   "fields": [
+    "94",
+    "14",
+    "DU0000001",
+    "MODEL1",
+    "265598"
+   ],
+   "method": "reqPnLSingle",
+   "name": "reqPnLSingle/set"
+  },
+  {
+   "args": {
+    "reqId": "0"
+   },
+   "fields": [
+    "95",
+    "0"
+   ],
+   "method": "cancelPnLSingle",
+   "name": "cancelPnLSingle/default"
+  },
+  {
+   "args": {
+    "reqId": "15"
+   },
+   "fields": [
+    "95",
+    "15"
+   ],
+   "method": "cancelPnLSingle",
+   "name": "cancelPnLSingle/set"
+  },
+  {
+   "args": {
+    "acctCode": "",
+    "subscribe": "false"
+   },
+   "fields": [
+    "6",
+    "2",
+    "0",
+    ""
+   ],
+   "method": "reqAccountUpdates",
+   "name": "reqAccountUpdates/default"
+  },
+  {
+   "args": {
+    "acctCode": "DU0000001",
+    "subscribe": "true"
+   },
+   "fields": [
+    "6",
+    "2",
+    "1",
+    "DU0000001"
+   ],
+   "method": "reqAccountUpdates",
+   "name": "reqAccountUpdates/set"
+  },
+  {
+   "args": {
+    "account": "",
+    "modelCode": "",
+    "reqId": "0"
+   },
+   "fields": [
+    "74",
+    "1",
+    "0",
+    "",
+    ""
+   ],
+   "method": "reqPositionsMulti",
+   "name": "reqPositionsMulti/default"
+  },
+  {
+   "args": {
+    "account": "DU0000001",
+    "modelCode": "MODEL1",
+    "reqId": "16"
+   },
+   "fields": [
+    "74",
+    "1",
+    "16",
+    "DU0000001",
+    "MODEL1"
+   ],
+   "method": "reqPositionsMulti",
+   "name": "reqPositionsMulti/set"
+  },
+  {
+   "args": {
+    "reqId": "0"
+   },
+   "fields": [
+    "75",
+    "1",
+    "0"
+   ],
+   "method": "cancelPositionsMulti",
+   "name": "cancelPositionsMulti/default"
+  },
+  {
+   "args": {
+    "reqId": "17"
+   },
+   "fields": [
+    "75",
+    "1",
+    "17"
+   ],
+   "method": "cancelPositionsMulti",
+   "name": "cancelPositionsMulti/set"
+  },
+  {
+   "args": {
+    "account": "",
+    "ledgerAndNLV": "false",
+    "modelCode": "",
+    "reqId": "0"
+   },
+   "fields": [
+    "76",
+    "1",
+    "0",
+    "",
+    "",
+    "0"
+   ],
+   "method": "reqAccountUpdatesMulti",
+   "name": "reqAccountUpdatesMulti/default"
+  },
+  {
+   "args": {
+    "account": "DU0000001",
+    "ledgerAndNLV": "true",
+    "modelCode": "MODEL1",
+    "reqId": "18"
+   },
+   "fields": [
+    "76",
+    "1",
+    "18",
+    "DU0000001",
+    "MODEL1",
+    "1"
+   ],
+   "method": "reqAccountUpdatesMulti",
+   "name": "reqAccountUpdatesMulti/set"
+  },
+  {
+   "args": {
+    "reqId": "0"
+   },
+   "fields": [
+    "77",
+    "1",
+    "0"
+   ],
+   "method": "cancelAccountUpdatesMulti",
+   "name": "cancelAccountUpdatesMulti/default"
+  },
+  {
+   "args": {
+    "reqId": "19"
+   },
+   "fields": [
+    "77",
+    "1",
+    "19"
+   ],
+   "method": "cancelAccountUpdatesMulti",
+   "name": "cancelAccountUpdatesMulti/set"
+  },
+  {
+   "args": {
+    "account": "",
+    "modelCode": "",
+    "reqId": "0"
+   },
+   "fields": [
+    "92",
+    "0",
+    "",
+    ""
+   ],
+   "method": "reqPnL",
+   "name": "reqPnL/default"
+  },
+  {
+   "args": {
+    "account": "DU0000001",
+    "modelCode": "MODEL1",
+    "reqId": "20"
+   },
+   "fields": [
+    "92",
+    "20",
+    "DU0000001",
+    "MODEL1"
+   ],
+   "method": "reqPnL",
+   "name": "reqPnL/set"
+  },
+  {
+   "args": {
+    "reqId": "0"
+   },
+   "fields": [
+    "93",
+    "0"
+   ],
+   "method": "cancelPnL",
+   "name": "cancelPnL/default"
+  },
+  {
+   "args": {
+    "reqId": "21"
+   },
+   "fields": [
+    "93",
+    "21"
+   ],
+   "method": "cancelPnL",
+   "name": "cancelPnL/set"
+  },
+  {
+   "args": {
+    "manualCancelOrderTime": "",
+    "orderId": "0"
+   },
+   "fields": [
+    "4",
+    "1",
+    "0",
+    ""
+   ],
+   "method": "cancelOrder",
+   "name": "cancelOrder/default"
+  },
+  {
+   "args": {
+    "manualCancelOrderTime": "20261113-10:15:00",
+    "orderId": "22"
+   },
+   "fields": [
+    "4",
+    "1",
+    "22",
+    "20261113-10:15:00"
+   ],
+   "method": "cancelOrder",
+   "name": "cancelOrder/set"
+  },
+  {
+   "args": {
+    "account": "",
+    "contract": {
+     "_type": "Contract",
+     "comboLegs": [],
+     "comboLegsDescrip": "",
+     "conId": "0",
+     "currency": "",
+     "deltaNeutralContract": null,
+     "description": "",
+     "exchange": "",
+     "includeExpired": "false",
+     "issuerId": "",
+     "lastTradeDateOrContractMonth": "",
+     "localSymbol": "",
+     "multiplier": "",
+     "primaryExchange": "",
+     "right": "",
+     "secId": "",
+     "secIdType": "",
+     "secType": "",
+     "strike": "0.0",
+     "symbol": "",
+     "tradingClass": ""
+    },
+    "exerciseAction": "1",
+    "exerciseQuantity": "0",
+    "override": "0",
+    "reqId": "0"
+   },
+   "fields": [
+    "21",
+    "2",
+    "0",
+    "0",
+    "",
+    "",
+    "",
+    "0.0",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "1",
+    "0",
+    "",
+    "0"
+   ],
+   "method": "exerciseOptions",
+   "name": "exerciseOptions/default"
+  },
+  {
+   "args": {
+    "account": "DU0000001",
+    "contract": {
+     "_type": "Contract",
+     "comboLegs": [
+      {
+       "_type": "ComboLeg",
+       "action": "SELL",
+       "conId": "8314",
+       "designatedLocation": "LOC",
+       "exchange": "CBOE",
+       "exemptCode": "3",
+       "openClose": "1",
+       "ratio": "2",
+       "shortSaleSlot": "2"
+      }
+     ],
+     "comboLegsDescrip": "leg text",
+     "conId": "681734412",
+     "currency": "USD",
+     "deltaNeutralContract": {
+      "_type": "DeltaNeutralContract",
+      "conId": "265598",
+      "delta": "0.25",
+      "price": "181.75"
+     },
+     "description": "",
+     "exchange": "SMART",
+     "includeExpired": "true",
+     "issuerId": "e1234567",
+     "lastTradeDateOrContractMonth": "20261218",
+     "localSymbol": "AAPL  261218C00182500",
+     "multiplier": "100",
+     "primaryExchange": "CBOE",
+     "right": "C",
+     "secId": "US0378331005",
+     "secIdType": "ISIN",
+     "secType": "OPT",
+     "strike": "182.5",
+     "symbol": "AAPL",
+     "tradingClass": "AAPL"
+    },
+    "exerciseAction": "2",
+    "exerciseQuantity": "3",
+    "override": "1",
+    "reqId": "23"
+   },
+   "fields": [
+    "21",
+    "2",
+    "23",
+    "681734412",
+    "AAPL",
+    "OPT",
+    "20261218",
+    "182.5",
+    "C",
+    "100",
+    "SMART",
+    "USD",
+    "AAPL  261218C00182500",
+    "AAPL",
+    "2",
+    "3",
+    "DU0000001",
+    "1"
+   ],
+   "method": "exerciseOptions",
+   "name": "exerciseOptions/set"
+  },
+  {
+   "args": {},
+   "fields": [
+    "58",
+    "1"
+   ],
+   "method": "reqGlobalCancel",
+   "name": "reqGlobalCancel/default"
+  },
+  {
+   "args": {},
+   "fields": [
+    "5",
+    "1"
+   ],
+   "method": "reqOpenOrders",
+   "name": "reqOpenOrders/default"
+  },
+  {
+   "args": {},
+   "fields": [
+    "16",
+    "1"
+   ],
+   "method": "reqAllOpenOrders",
+   "name": "reqAllOpenOrders/default"
+  },
+  {
+   "args": {
+    "bAutoBind": "false"
+   },
+   "fields": [
+    "15",
+    "1",
+    "0"
+   ],
+   "method": "reqAutoOpenOrders",
+   "name": "reqAutoOpenOrders/default"
+  },
+  {
+   "args": {
+    "bAutoBind": "true"
+   },
+   "fields": [
+    "15",
+    "1",
+    "1"
+   ],
+   "method": "reqAutoOpenOrders",
+   "name": "reqAutoOpenOrders/set"
+  },
+  {
+   "args": {
+    "apiOnly": "false"
+   },
+   "fields": [
+    "99",
+    "0"
+   ],
+   "method": "reqCompletedOrders",
+   "name": "reqCompletedOrders/default"
+  },
+  {
+   "args": {
+    "apiOnly": "true"
+   },
+   "fields": [
+    "99",
+    "1"
+   ],
+   "method": "reqCompletedOrders",
+   "name": "reqCompletedOrders/set"
+  },
+  {
+   "args": {
+    "execFilter": {
+     "_type": "ExecutionFilter",
+     "acctCode": "",
+     "clientId": "0",
+     "exchange": "",
+     "secType": "",
+     "side": "",
+     "symbol": "",
+     "time": ""
+    },
+    "reqId": "0"
+   },
+   "fields": [
+    "7",
+    "3",
+    "0",
+    "0",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "method": "reqExecutions",
+   "name": "reqExecutions/default"
+  },
+  {
+   "args": {
+    "execFilter": {
+     "_type": "ExecutionFilter",
+     "acctCode": "DU0000001",
+     "clientId": "3",
+     "exchange": "ISLAND",
+     "secType": "STK",
+     "side": "BOT",
+     "symbol": "AAPL",
+     "time": "20261113-09:30:00"
+    },
+    "reqId": "24"
+   },
+   "fields": [
+    "7",
+    "3",
+    "24",
+    "3",
+    "DU0000001",
+    "20261113-09:30:00",
+    "AAPL",
+    "STK",
+    "ISLAND",
+    "BOT"
+   ],
+   "method": "reqExecutions",
+   "name": "reqExecutions/set"
+  }
+ ]
+}

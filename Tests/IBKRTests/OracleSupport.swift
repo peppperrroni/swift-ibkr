@@ -26,6 +26,165 @@ struct OracleDecodeFile: Decodable {
     var frames: [OracleFrame]
 }
 
+/// One argument of an encode.json case (plan decision 10): a scalar as text (`bool` `true`/`false`, `float` its
+/// `repr`), a list, a dataclass as an object of all its fields plus `_type`, or `None`.
+indirect enum CaseValue: Decodable {
+    case text(String), list([CaseValue]), object([String: CaseValue]), null
+
+    init(from decoder: any Decoder) throws {
+        let c = try decoder.singleValueContainer()
+        if c.decodeNil() { self = .null }
+        else if let s = try? c.decode(String.self) { self = .text(s) }
+        else if let l = try? c.decode([CaseValue].self) { self = .list(l) }
+        else { self = .object(try c.decode([String: CaseValue].self)) }
+    }
+}
+
+/// One encode.json case: the `Client` method ib_async ran, every argument it took (`_client`: the `Client` attributes
+/// it read), and the fields it sent.
+struct EncodeCase: Decodable {
+    var name: String
+    var method: String
+    var args: [String: CaseValue]
+    var fields: [String]
+}
+
+struct OracleEncodeFile: Decodable {
+    var cases: [EncodeCase]
+}
+
+struct CaseError: Error, CustomStringConvertible {
+    var description: String
+    init(_ description: String) { self.description = description }
+}
+
+/// The arguments of a case, or the fields of one object in it, read by ib_async name and parsed by the Swift type
+/// (numbers through `FieldReader.plainDecimal`, never `Double`); `done()` throws on a key nothing read.
+struct CaseArgs {
+    private let values: [String: CaseValue]
+    private let context: String
+    private var read: Set<String> = []
+
+    init(_ values: [String: CaseValue], _ context: String) { self.values = values; self.context = context }
+
+    /// An object argument; `type` (when given) must be its `_type`.
+    init(_ value: CaseValue, type: String?, _ context: String) throws {
+        guard case .object(let o) = value else { throw CaseError("\(context): not an object: \(value)") }
+        if let type {
+            guard case .text(let t)? = o["_type"], t == type else { throw CaseError("\(context): _type is not \(type)") }
+        }
+        self.init(o, context)
+        read.insert("_type")
+    }
+
+    mutating func value(_ key: String) throws -> CaseValue {
+        guard let v = values[key] else { throw CaseError("\(context): no \(key)") }
+        read.insert(key)
+        return v
+    }
+
+    mutating func text(_ key: String) throws -> String {
+        guard case .text(let s) = try value(key) else { throw CaseError("\(context).\(key): not text") }
+        return s
+    }
+
+    mutating func int(_ key: String) throws -> Int {
+        let s = try text(key)
+        guard let i = Int(s) else { throw CaseError("\(context).\(key): not an int: \(s)") }
+        return i
+    }
+
+    /// A Python `bool` (`true`/`false`).
+    mutating func bool(_ key: String) throws -> Bool {
+        switch try text(key) {
+        case "true": return true
+        case "false": return false
+        case let s: throw CaseError("\(context).\(key): not a bool: \(s)")
+        }
+    }
+
+    /// An int flag ib.py passes as 0 or 1.
+    mutating func flag(_ key: String) throws -> Bool {
+        switch try text(key) {
+        case "1": return true
+        case "0": return false
+        case let s: throw CaseError("\(context).\(key): not 0 or 1: \(s)")
+        }
+    }
+
+    mutating func decimal(_ key: String) throws -> Decimal {
+        let s = try text(key)
+        guard let d = FieldReader.plainDecimal(s) else { throw CaseError("\(context).\(key): not a number: \(s)") }
+        return d
+    }
+
+    mutating func list(_ key: String) throws -> [CaseValue] {
+        guard case .list(let l) = try value(key) else { throw CaseError("\(context).\(key): not a list") }
+        return l
+    }
+
+    /// A value swift-ibkr does not model: it must hold ib_async's default, or the case cannot be built.
+    mutating func unmodelled(_ key: String, default expected: String) throws {
+        let s = try text(key)
+        if s != expected { throw CaseError("\(context).\(key): swift-ibkr does not model it, so it must be «\(expected)», not «\(s)»") }
+    }
+
+    /// Throws if the case holds a key nothing read.
+    func done() throws {
+        let unread = Set(values.keys).subtracting(read)
+        if !unread.isEmpty { throw CaseError("\(context): unmapped \(unread.sorted())") }
+    }
+}
+
+/// An ib_async `Contract` (any subclass): every attribute is read; `description`, which swift-ibkr does not model,
+/// must be empty.
+func contract(from v: CaseValue) throws -> Contract {
+    var a = try CaseArgs(v, type: nil, "contract")
+    var c = Contract(symbol: try a.text("symbol"))
+    c.secType = try a.text("secType")
+    c.exchange = try a.text("exchange")
+    c.currency = try a.text("currency")
+    c.primaryExchange = try a.text("primaryExchange")
+    c.conID = try a.int("conId")
+    c.lastTradeDateOrContractMonth = try a.text("lastTradeDateOrContractMonth")
+    c.strike = try a.decimal("strike")
+    c.right = try a.text("right")
+    c.multiplier = try a.text("multiplier")
+    c.localSymbol = try a.text("localSymbol")
+    c.tradingClass = try a.text("tradingClass")
+    c.includeExpired = try a.bool("includeExpired")
+    c.secIDType = try a.text("secIdType")
+    c.secID = try a.text("secId")
+    try a.unmodelled("description", default: "")
+    c.issuerID = try a.text("issuerId")
+    c.comboLegsDescrip = try a.text("comboLegsDescrip")
+    c.comboLegs = try a.list("comboLegs").map { leg in
+        var l = try CaseArgs(leg, type: "ComboLeg", "contract.comboLegs[]")
+        let action = try l.text("action")
+        guard let side = OrderAction(rawValue: action) else { throw CaseError("contract.comboLegs[].action: \(action)") }
+        var built = ComboLeg(conID: try l.int("conId"), ratio: 0, action: side, exchange: "")
+        built.ratio = try l.int("ratio")
+        built.exchange = try l.text("exchange")
+        built.openClose = try l.int("openClose")
+        built.shortSaleSlot = try l.int("shortSaleSlot")
+        built.designatedLocation = try l.text("designatedLocation")
+        built.exemptCode = try l.int("exemptCode")
+        try l.done()
+        return built
+    }
+    let dnc = try a.value("deltaNeutralContract")
+    if case .null = dnc {
+        c.deltaNeutralContract = nil
+    } else {
+        var d = try CaseArgs(dnc, type: "DeltaNeutralContract", "contract.deltaNeutralContract")
+        let conID = try d.int("conId"), delta = try d.decimal("delta"), price = try d.decimal("price")
+        c.deltaNeutralContract = DeltaNeutralContract(conID: conID, delta: delta, price: price)
+        try d.done()
+    }
+    try a.done()
+    return c
+}
+
 /// One input frame of corpus.json: `recorded/<file>#<i>`, `fixtures/<name>`, `fakegateway/<name>`,
 /// `sweep/<File>.swift:<line>` (`sweep/outgoing/…` for a request body a test built), `sim/<scenario>/<n>`.
 struct CorpusFrame: Codable {
@@ -141,7 +300,8 @@ private func sameNumber(_ ours: String, _ theirs: String) -> Bool {
 }
 
 /// What is wrong with `entries`: an unknown scope or field word, a bare `*`, a bare placeOrder index across every
-/// case, or a citation that does not name exactly one DECISIONS row or Disagreements item.
+/// case, an encode entry (not placeOrder) whose field is not an index, `#count` or `#error` or that globs its case,
+/// or a citation that does not name exactly one DECISIONS row or Disagreements item.
 func allowlistProblems(_ entries: [AllowEntry], decisions: String, protocol178: String) -> [String] {
     let rows = decisions.split(whereSeparator: \.isNewline).filter { $0.hasPrefix("|") }
     let disagreements = protocol178.components(separatedBy: "## Disagreements").dropFirst().joined()
@@ -154,6 +314,10 @@ func allowlistProblems(_ entries: [AllowEntry], decisions: String, protocol178: 
         if e.field.isEmpty || e.field.contains("*") { problem("field is empty or a glob") }
         if e.field.hasPrefix("#"), !["#calls", "#error", "#uncovered", "#count"].contains(e.field) { problem("unknown field word") }
         if e.scope == "out 3", Int(e.field) != nil, (e.frames ?? "*") == "*" { problem("a bare placeOrder index needs a case glob") }
+        if e.scope.hasPrefix("out "), e.scope != "out 3" {  // P7: placeOrder alone may name a field or glob its cases
+            if Int(e.field) == nil, !["#count", "#error"].contains(e.field) { problem("an encode field is an index, #count or #error") }
+            if (e.frames ?? "*").contains(where: { $0 == "*" || $0 == "?" }) { problem("an encode entry names one exact case") }
+        }
         if let pair = e.pair, pair.count != 2 { problem("pair is not [ours, theirs]") }
         if e.pair != nil, e.equalAsNumbers == true { problem("pair and equalAsNumbers together") }
         let decision = "DECISIONS: ", disagreement = "protocol-178 Disagreements "

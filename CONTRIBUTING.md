@@ -82,13 +82,14 @@ No code from IB's official API (`ibapi`) or from other clients. Wire layouts fol
 
 ## Differential oracle
 
-`Tests/IBKRTests/Oracle/` holds `ib_async` 2.1.0's answers for every frame the tests use, and the Swift tests
-compare `IBDecoder` with them. Python is needed only to regenerate them:
+`Tests/IBKRTests/Oracle/` holds `ib_async` 2.1.0's answers for every frame the tests use and the fields its `Client`
+sends for every encode case, and the Swift tests compare `IBDecoder` and `IBRequest.body()` with them. Python is
+needed only to regenerate them:
 
 ```bash
 python3.12 -m venv .venv            # Windows: py -3.12 -m venv .venv
 .venv/bin/pip install -r Scripts/differential/requirements.txt   # Windows: .venv\Scripts\pip
-.venv/bin/python -I Scripts/differential/generate.py             # rewrites decode.json
+.venv/bin/python -I Scripts/differential/generate.py             # rewrites decode.json and encode.json
 ```
 
 - **A new frame.** A new recording or a new `Fixtures.corpusFrames` entry (a new `Fixtures` builder or base call
@@ -97,10 +98,19 @@ python3.12 -m venv .venv            # Windows: py -3.12 -m venv .venv
   `sim/<scenario>/<n>`), regenerate and commit both files. A frame a new codec test builds inline is not found
   automatically: add it the same way. Variants of a message (unset values, counts, branches) go in
   `Scripts/differential/variants.py`.
+- **A new encode case.** A case is `(name, Client method, kwargs)` in `Scripts/differential/cases.py`, named
+  `<method>/<variant>`, with the arguments `ib.py` would pass the `Client` (a prepared one names the ib.py line;
+  dates go through `cases.ib_datetime`, tz-aware UTC only); a `Client` attribute the method reads instead of an
+  argument goes under `_client` and in `CLIENT_ATTRS`. Each request has a case at its defaults and one with every
+  argument non-default, neighbouring arguments of one kind distinct. Regenerate, then map the method in its family's
+  `OracleEncode+<Family>.swift` (`CaseArgs` reads every argument by its Swift type; `contract(from:)` reads a
+  `Contract`). An `IBRequest` case without a mapping does not compile (`ibAsyncMethod`); a method with no case fails
+  `everyRequestKindHasACase`.
 - **A difference.** Our bug: a failing codec test first, then the fix. A recorded deliberate difference: one entry in
-  `allowlist.json` with `scope` (`in 4`), `field` (the argument path, `[]` for any index, never `*`), `frames` (a glob
-  over frame names), `pair` (`[ours, theirs]`, the exact pair) or `equalAsNumbers`, and `cite`: `protocol-178
-  Disagreements <n>` or `DECISIONS: <verbatim text of exactly one row>`, plus an optional `note`. An entry that cites
-  nothing, or that no mismatch uses, fails the tests. A difference with no row is not allowlisted until one is
-  written.
+  `allowlist.json` with `scope` (`in 4`, `out 4`), `field` (the argument path, `[]` for any index, never `*`; for a
+  request the field's index, `#count` or `#error`), `frames` (a glob over frame names; one exact case name for a
+  request, except placeOrder's protocol-178 field names or case globs), `pair` (`[ours, theirs]`, the exact pair)
+  or `equalAsNumbers`, and `cite`: `protocol-178 Disagreements <n>` or `DECISIONS: <verbatim text of exactly one
+  row>`, plus an optional `note`. An entry that cites nothing, or that no mismatch uses, fails the tests. A
+  difference with no row is not allowlisted until one is written.
 - CI's `oracle` job regenerates the JSON and fails on any diff, so commit the generator's output as it wrote it.
