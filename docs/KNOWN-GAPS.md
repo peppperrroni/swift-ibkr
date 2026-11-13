@@ -34,8 +34,8 @@ realized P&L. The stage-4 run of 2026-11-11 (paper account, no market-data subsc
   frames. Rerun `liveMarketData` once there is a subscription. Error 420 («Invalid Real-time Query:No market data
   permissions ...») for `realTimeBars` is typed from ib_async's text and unseen live.
 - **Market-data subscription.** The `TickAttrib` bits of tickPrice (canAutoExecute, pastLimit, preOpen as bits 0, 1,
-  2, from IB's API documentation: `ib_async` drops the mask) and the two `TickAttribBidAsk` layouts (protocol-178,
-  Disagreements) are unseen live.
+  2, from IB's API documentation: `ib_async` drops the mask, so the oracle cannot check it) and the two
+  `TickAttribBidAsk` layouts (protocol-178, Disagreements) are unseen live.
 - **Market-data subscription.** IB's 10225 (bust event), on which `realTimeBars`, `liveHistoricalBars` and
   `historicalBars(keepUpToDate: true)` resend their request under the same reqId, has never been received.
 - **Market-data subscription.** The depth book uses `ib_async`'s set-at-position model; IB's own sample shifts rows

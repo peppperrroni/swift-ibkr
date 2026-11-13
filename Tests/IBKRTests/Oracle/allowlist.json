@@ -6246,5 +6246,3701 @@
   "pair": ["malformed: unexpectedValue(\"\", index: 77)", "decoded"],
   "cite": "DECISIONS: an unknown condition type or conjunction makes openOrder / completedOrder `.malformed`",
   "note": "ib_async keeps the conjunction text (decoder.py:1149-1359)"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "sweep/DepthTests.swift:24",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "sweep/DepthTests.swift:74#4",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "sweep/TickByTickTests.swift:10",
+  "pair": ["<absent>", "2"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "sweep/TickByTickTests.swift:67",
+  "pair": ["<absent>", "2"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 21",
+  "field": "delta",
+  "frames": "sweep/TickCodecTests.swift:89",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "gamma",
+  "frames": "sweep/TickCodecTests.swift:89",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "impliedVol",
+  "frames": "sweep/TickCodecTests.swift:89",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "optPrice",
+  "frames": "sweep/TickCodecTests.swift:89",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "pvDividend",
+  "frames": "sweep/TickCodecTests.swift:89",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "theta",
+  "frames": "sweep/TickCodecTests.swift:89",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+ },
+ {
+  "scope": "in 21",
+  "field": "undPrice",
+  "frames": "sweep/TickCodecTests.swift:89",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "vega",
+  "frames": "sweep/TickCodecTests.swift:89",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+ },
+ {
+  "scope": "in 21",
+  "field": "#error",
+  "frames": "sweep/TickCodecTests.swift:91",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty greek is unset (nil) here; ib_async's float('') rejects the frame (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 1",
+  "field": "#calls",
+  "frames": "gen/1/empty-price-1",
+  "pair": ["[\"priceSizeTick\"]", "[]"],
+  "cite": "protocol-178 Disagreements 16",
+  "note": "ib_async calls nothing for an empty price (`if price:`, decoder.py:200-206); swift-ibkr yields a tick with a nil price"
+ },
+ {
+  "scope": "in 1",
+  "field": "#calls",
+  "frames": "gen/1/empty-price-2",
+  "pair": ["[\"priceSizeTick\"]", "[]"],
+  "cite": "protocol-178 Disagreements 16",
+  "note": "ib_async calls nothing for an empty price (`if price:`, decoder.py:200-206); swift-ibkr yields a tick with a nil price"
+ },
+ {
+  "scope": "in 1",
+  "field": "#calls",
+  "frames": "gen/1/empty-price-4",
+  "pair": ["[\"priceSizeTick\"]", "[]"],
+  "cite": "protocol-178 Disagreements 16",
+  "note": "ib_async calls nothing for an empty price (`if price:`, decoder.py:200-206); swift-ibkr yields a tick with a nil price"
+ },
+ {
+  "scope": "in 1",
+  "field": "#calls",
+  "frames": "gen/1/empty-price-6",
+  "pair": ["[\"priceSizeTick\"]", "[]"],
+  "cite": "protocol-178 Disagreements 16",
+  "note": "ib_async calls nothing for an empty price (`if price:`, decoder.py:200-206); swift-ibkr yields a tick with a nil price"
+ },
+ {
+  "scope": "in 1",
+  "field": "#calls",
+  "frames": "gen/1/empty-price-66",
+  "pair": ["[\"priceSizeTick\"]", "[]"],
+  "cite": "protocol-178 Disagreements 16",
+  "note": "ib_async calls nothing for an empty price (`if price:`, decoder.py:200-206); swift-ibkr yields a tick with a nil price"
+ },
+ {
+  "scope": "in 1",
+  "field": "#calls",
+  "frames": "gen/1/empty-price-with-size",
+  "pair": ["[\"priceSizeTick\"]", "[]"],
+  "cite": "protocol-178 Disagreements 16",
+  "note": "ib_async calls nothing for an empty price (`if price:`, decoder.py:200-206); swift-ibkr yields a tick with a nil price"
+ },
+ {
+  "scope": "in 1",
+  "field": "#error",
+  "frames": "gen/1/unset-empty-reqId",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads empty as 0 here; ib_async's int() / float() rejects the frame (decoder.py:200-206)"
+ },
+ {
+  "scope": "in 1",
+  "field": "reqId",
+  "frames": "gen/1/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:200-206)"
+ },
+ {
+  "scope": "in 1",
+  "field": "reqId",
+  "frames": "gen/1/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:200-206)"
+ },
+ {
+  "scope": "in 1",
+  "field": "reqId",
+  "frames": "gen/1/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:200-206)"
+ },
+ {
+  "scope": "in 1",
+  "field": "#error",
+  "frames": "gen/1/unset-empty-tickType",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads empty as 0 here; ib_async's int() / float() rejects the frame (decoder.py:200-206)"
+ },
+ {
+  "scope": "in 1",
+  "field": "tickType",
+  "frames": "gen/1/unset-max-tickType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:200-206)"
+ },
+ {
+  "scope": "in 1",
+  "field": "tickType",
+  "frames": "gen/1/unset-long-max-tickType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:200-206)"
+ },
+ {
+  "scope": "in 1",
+  "field": "tickType",
+  "frames": "gen/1/unset-long-min-tickType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:200-206)"
+ },
+ {
+  "scope": "in 1",
+  "field": "#calls",
+  "frames": "gen/1/unset-empty-price",
+  "pair": ["[\"priceSizeTick\"]", "[]"],
+  "cite": "protocol-178 Disagreements 16",
+  "note": "ib_async calls nothing for an empty price (`if price:`, decoder.py:200-206); swift-ibkr yields a tick with a nil price"
+ },
+ {
+  "scope": "in 1",
+  "field": "price",
+  "frames": "gen/1/unset-max-price",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:200-206)"
+ },
+ {
+  "scope": "in 1",
+  "field": "price",
+  "frames": "gen/1/unset-long-max-price",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:200-206)"
+ },
+ {
+  "scope": "in 1",
+  "field": "price",
+  "frames": "gen/1/unset-long-min-price",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:200-206)"
+ },
+ {
+  "scope": "in 1",
+  "field": "size",
+  "frames": "gen/1/unset-empty-size",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) / int(x or 0) makes it 0 (decoder.py:200-206)"
+ },
+ {
+  "scope": "in 1",
+  "field": "size",
+  "frames": "gen/1/unset-max-size",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:200-206)"
+ },
+ {
+  "scope": "in 1",
+  "field": "size",
+  "frames": "gen/1/unset-long-max-size",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:200-206)"
+ },
+ {
+  "scope": "in 1",
+  "field": "size",
+  "frames": "gen/1/unset-long-min-size",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:200-206)"
+ },
+ {
+  "scope": "in 2",
+  "field": "reqId",
+  "frames": "gen/2/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 2",
+  "field": "reqId",
+  "frames": "gen/2/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 2",
+  "field": "reqId",
+  "frames": "gen/2/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 2",
+  "field": "tickType",
+  "frames": "gen/2/unset-max-tickType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 2",
+  "field": "tickType",
+  "frames": "gen/2/unset-long-max-tickType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 2",
+  "field": "tickType",
+  "frames": "gen/2/unset-long-min-tickType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 2",
+  "field": "size",
+  "frames": "gen/2/unset-empty-size",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) / int(x or 0) makes it 0 (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 2",
+  "field": "size",
+  "frames": "gen/2/unset-max-size",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 2",
+  "field": "size",
+  "frames": "gen/2/unset-long-max-size",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 2",
+  "field": "size",
+  "frames": "gen/2/unset-long-min-size",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 12",
+  "field": "reqId",
+  "frames": "gen/12/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 12",
+  "field": "reqId",
+  "frames": "gen/12/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 12",
+  "field": "reqId",
+  "frames": "gen/12/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 12",
+  "field": "position",
+  "frames": "gen/12/unset-max-position",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 12",
+  "field": "position",
+  "frames": "gen/12/unset-long-max-position",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 12",
+  "field": "position",
+  "frames": "gen/12/unset-long-min-position",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 12",
+  "field": "operation",
+  "frames": "gen/12/unset-max-operation",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 12",
+  "field": "operation",
+  "frames": "gen/12/unset-long-max-operation",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 12",
+  "field": "operation",
+  "frames": "gen/12/unset-long-min-operation",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 12",
+  "field": "side",
+  "frames": "gen/12/unset-max-side",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 12",
+  "field": "side",
+  "frames": "gen/12/unset-long-max-side",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 12",
+  "field": "side",
+  "frames": "gen/12/unset-long-min-side",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 12",
+  "field": "price",
+  "frames": "gen/12/unset-max-price",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 12",
+  "field": "price",
+  "frames": "gen/12/unset-max-double-price",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 12",
+  "field": "price",
+  "frames": "gen/12/unset-long-max-price",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 12",
+  "field": "price",
+  "frames": "gen/12/unset-long-min-price",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 12",
+  "field": "size",
+  "frames": "gen/12/unset-max-size",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 12",
+  "field": "size",
+  "frames": "gen/12/unset-max-double-size",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 12",
+  "field": "size",
+  "frames": "gen/12/unset-long-max-size",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 12",
+  "field": "size",
+  "frames": "gen/12/unset-long-min-size",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/base",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/op-0-side-0-smart-0",
+  "pair": ["<absent>", "false"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/op-0-side-0-smart-1",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/op-0-side-1-smart-0",
+  "pair": ["<absent>", "false"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/op-0-side-1-smart-1",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/op-1-side-0-smart-0",
+  "pair": ["<absent>", "false"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/op-1-side-0-smart-1",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/op-1-side-1-smart-0",
+  "pair": ["<absent>", "false"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/op-1-side-1-smart-1",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/op-2-side-0-smart-0",
+  "pair": ["<absent>", "false"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/op-2-side-0-smart-1",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/op-2-side-1-smart-0",
+  "pair": ["<absent>", "false"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/op-2-side-1-smart-1",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/empty-market-maker",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/position-zero",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/fractional-size",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-empty-reqId",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-max-reqId",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "reqId",
+  "frames": "gen/13/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-long-max-reqId",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "reqId",
+  "frames": "gen/13/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-long-min-reqId",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "reqId",
+  "frames": "gen/13/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-empty-position",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-max-position",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "position",
+  "frames": "gen/13/unset-max-position",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-long-max-position",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "position",
+  "frames": "gen/13/unset-long-max-position",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-long-min-position",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "position",
+  "frames": "gen/13/unset-long-min-position",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-empty-operation",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-max-operation",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "operation",
+  "frames": "gen/13/unset-max-operation",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-long-max-operation",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "operation",
+  "frames": "gen/13/unset-long-max-operation",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-long-min-operation",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "operation",
+  "frames": "gen/13/unset-long-min-operation",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-empty-side",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-max-side",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "side",
+  "frames": "gen/13/unset-max-side",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-long-max-side",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "side",
+  "frames": "gen/13/unset-long-max-side",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-long-min-side",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "side",
+  "frames": "gen/13/unset-long-min-side",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-empty-price",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-max-price",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "price",
+  "frames": "gen/13/unset-max-price",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-max-double-price",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "price",
+  "frames": "gen/13/unset-max-double-price",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-long-max-price",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "price",
+  "frames": "gen/13/unset-long-max-price",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-long-min-price",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "price",
+  "frames": "gen/13/unset-long-min-price",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-empty-size",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-max-size",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "size",
+  "frames": "gen/13/unset-max-size",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-max-double-size",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "size",
+  "frames": "gen/13/unset-max-double-size",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-long-max-size",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "size",
+  "frames": "gen/13/unset-long-max-size",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-long-min-size",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "size",
+  "frames": "gen/13/unset-long-min-size",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-empty-isSmartDepth",
+  "pair": ["<absent>", "false"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-max-isSmartDepth",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-long-max-isSmartDepth",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "isSmartDepth",
+  "frames": "gen/13/unset-long-min-isSmartDepth",
+  "pair": ["<absent>", "true"],
+  "cite": "DECISIONS: `marketDepth` yields the whole `DepthBook` after every update",
+  "note": "ib_async passes isSmartDepth to updateMktDepthL2 (decoder.py:63-65, wrapper.py:1309-1318); swift-ibkr reads and drops it"
+ },
+ {
+  "scope": "in 13",
+  "field": "#error",
+  "frames": "gen/13/without-is-smart-depth",
+  "pair": ["malformed: missingField(index: 9)", "decoded"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "ib_async's wrap leaves isSmartDepth at its wrapper default False (decoder.py:143-174; wrapper.py:1309-1318)"
+ },
+ {
+  "scope": "in 21",
+  "field": "impliedVol",
+  "frames": "gen/21/greeks-10-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "optPrice",
+  "frames": "gen/21/greeks-10-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "pvDividend",
+  "frames": "gen/21/greeks-10-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "undPrice",
+  "frames": "gen/21/greeks-10-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "impliedVol",
+  "frames": "gen/21/greeks-11-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "optPrice",
+  "frames": "gen/21/greeks-11-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "pvDividend",
+  "frames": "gen/21/greeks-11-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "undPrice",
+  "frames": "gen/21/greeks-11-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "impliedVol",
+  "frames": "gen/21/greeks-12-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "optPrice",
+  "frames": "gen/21/greeks-12-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "pvDividend",
+  "frames": "gen/21/greeks-12-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "undPrice",
+  "frames": "gen/21/greeks-12-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "impliedVol",
+  "frames": "gen/21/greeks-13-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "optPrice",
+  "frames": "gen/21/greeks-13-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "pvDividend",
+  "frames": "gen/21/greeks-13-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "undPrice",
+  "frames": "gen/21/greeks-13-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "impliedVol",
+  "frames": "gen/21/greeks-53-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "optPrice",
+  "frames": "gen/21/greeks-53-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "pvDividend",
+  "frames": "gen/21/greeks-53-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "undPrice",
+  "frames": "gen/21/greeks-53-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "impliedVol",
+  "frames": "gen/21/greeks-80-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "optPrice",
+  "frames": "gen/21/greeks-80-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "pvDividend",
+  "frames": "gen/21/greeks-80-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "undPrice",
+  "frames": "gen/21/greeks-80-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "impliedVol",
+  "frames": "gen/21/greeks-81-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "optPrice",
+  "frames": "gen/21/greeks-81-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "pvDividend",
+  "frames": "gen/21/greeks-81-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "undPrice",
+  "frames": "gen/21/greeks-81-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "impliedVol",
+  "frames": "gen/21/greeks-82-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "optPrice",
+  "frames": "gen/21/greeks-82-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "pvDividend",
+  "frames": "gen/21/greeks-82-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "undPrice",
+  "frames": "gen/21/greeks-82-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "impliedVol",
+  "frames": "gen/21/greeks-83-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "optPrice",
+  "frames": "gen/21/greeks-83-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "pvDividend",
+  "frames": "gen/21/greeks-83-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "undPrice",
+  "frames": "gen/21/greeks-83-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "delta",
+  "frames": "gen/21/greeks-10-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "gamma",
+  "frames": "gen/21/greeks-10-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "theta",
+  "frames": "gen/21/greeks-10-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+ },
+ {
+  "scope": "in 21",
+  "field": "vega",
+  "frames": "gen/21/greeks-10-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+ },
+ {
+  "scope": "in 21",
+  "field": "delta",
+  "frames": "gen/21/greeks-11-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "gamma",
+  "frames": "gen/21/greeks-11-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "theta",
+  "frames": "gen/21/greeks-11-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+ },
+ {
+  "scope": "in 21",
+  "field": "vega",
+  "frames": "gen/21/greeks-11-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+ },
+ {
+  "scope": "in 21",
+  "field": "delta",
+  "frames": "gen/21/greeks-12-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "gamma",
+  "frames": "gen/21/greeks-12-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "theta",
+  "frames": "gen/21/greeks-12-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+ },
+ {
+  "scope": "in 21",
+  "field": "vega",
+  "frames": "gen/21/greeks-12-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+ },
+ {
+  "scope": "in 21",
+  "field": "delta",
+  "frames": "gen/21/greeks-13-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "gamma",
+  "frames": "gen/21/greeks-13-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "theta",
+  "frames": "gen/21/greeks-13-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+ },
+ {
+  "scope": "in 21",
+  "field": "vega",
+  "frames": "gen/21/greeks-13-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+ },
+ {
+  "scope": "in 21",
+  "field": "delta",
+  "frames": "gen/21/greeks-53-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "gamma",
+  "frames": "gen/21/greeks-53-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "theta",
+  "frames": "gen/21/greeks-53-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+ },
+ {
+  "scope": "in 21",
+  "field": "vega",
+  "frames": "gen/21/greeks-53-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+ },
+ {
+  "scope": "in 21",
+  "field": "delta",
+  "frames": "gen/21/greeks-80-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "gamma",
+  "frames": "gen/21/greeks-80-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "theta",
+  "frames": "gen/21/greeks-80-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+ },
+ {
+  "scope": "in 21",
+  "field": "vega",
+  "frames": "gen/21/greeks-80-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+ },
+ {
+  "scope": "in 21",
+  "field": "delta",
+  "frames": "gen/21/greeks-81-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "gamma",
+  "frames": "gen/21/greeks-81-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "theta",
+  "frames": "gen/21/greeks-81-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+ },
+ {
+  "scope": "in 21",
+  "field": "vega",
+  "frames": "gen/21/greeks-81-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+ },
+ {
+  "scope": "in 21",
+  "field": "delta",
+  "frames": "gen/21/greeks-82-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "gamma",
+  "frames": "gen/21/greeks-82-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "theta",
+  "frames": "gen/21/greeks-82-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+ },
+ {
+  "scope": "in 21",
+  "field": "vega",
+  "frames": "gen/21/greeks-82-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+ },
+ {
+  "scope": "in 21",
+  "field": "delta",
+  "frames": "gen/21/greeks-83-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "gamma",
+  "frames": "gen/21/greeks-83-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "theta",
+  "frames": "gen/21/greeks-83-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+ },
+ {
+  "scope": "in 21",
+  "field": "vega",
+  "frames": "gen/21/greeks-83-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+ },
+ {
+  "scope": "in 21",
+  "field": "impliedVol",
+  "frames": "gen/21/impliedVol-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "optPrice",
+  "frames": "gen/21/optPrice-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "pvDividend",
+  "frames": "gen/21/pvDividend-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "undPrice",
+  "frames": "gen/21/undPrice-minus-one",
+  "pair": ["", "-1"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "delta",
+  "frames": "gen/21/delta-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "gamma",
+  "frames": "gen/21/gamma-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "vega",
+  "frames": "gen/21/vega-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+ },
+ {
+  "scope": "in 21",
+  "field": "theta",
+  "frames": "gen/21/theta-minus-two",
+  "pair": ["", "-2"],
+  "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
+  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+ },
+ {
+  "scope": "in 21",
+  "field": "#error",
+  "frames": "gen/21/unset-empty-reqId",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads empty as 0 here; ib_async's int() / float() rejects the frame (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "reqId",
+  "frames": "gen/21/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "reqId",
+  "frames": "gen/21/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "reqId",
+  "frames": "gen/21/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "#error",
+  "frames": "gen/21/unset-empty-tickType",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads empty as 0 here; ib_async's int() / float() rejects the frame (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "tickType",
+  "frames": "gen/21/unset-max-tickType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "tickType",
+  "frames": "gen/21/unset-long-max-tickType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "tickType",
+  "frames": "gen/21/unset-long-min-tickType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "#error",
+  "frames": "gen/21/unset-empty-tickAttrib",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads empty as 0 here; ib_async's int() / float() rejects the frame (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "tickAttrib",
+  "frames": "gen/21/unset-max-tickAttrib",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "tickAttrib",
+  "frames": "gen/21/unset-long-max-tickAttrib",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "tickAttrib",
+  "frames": "gen/21/unset-long-min-tickAttrib",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "#error",
+  "frames": "gen/21/unset-empty-impliedVol",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty greek is unset (nil) here; ib_async's float('') rejects the frame (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "impliedVol",
+  "frames": "gen/21/unset-max-impliedVol",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "impliedVol",
+  "frames": "gen/21/unset-long-max-impliedVol",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "impliedVol",
+  "frames": "gen/21/unset-long-min-impliedVol",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "#error",
+  "frames": "gen/21/unset-empty-delta",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty greek is unset (nil) here; ib_async's float('') rejects the frame (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "delta",
+  "frames": "gen/21/unset-max-delta",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "delta",
+  "frames": "gen/21/unset-long-max-delta",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "delta",
+  "frames": "gen/21/unset-long-min-delta",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "#error",
+  "frames": "gen/21/unset-empty-optPrice",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty greek is unset (nil) here; ib_async's float('') rejects the frame (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "optPrice",
+  "frames": "gen/21/unset-max-optPrice",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "optPrice",
+  "frames": "gen/21/unset-long-max-optPrice",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "optPrice",
+  "frames": "gen/21/unset-long-min-optPrice",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "#error",
+  "frames": "gen/21/unset-empty-pvDividend",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty greek is unset (nil) here; ib_async's float('') rejects the frame (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "pvDividend",
+  "frames": "gen/21/unset-max-pvDividend",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "pvDividend",
+  "frames": "gen/21/unset-long-max-pvDividend",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "pvDividend",
+  "frames": "gen/21/unset-long-min-pvDividend",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "#error",
+  "frames": "gen/21/unset-empty-gamma",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty greek is unset (nil) here; ib_async's float('') rejects the frame (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "gamma",
+  "frames": "gen/21/unset-max-gamma",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "gamma",
+  "frames": "gen/21/unset-long-max-gamma",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "gamma",
+  "frames": "gen/21/unset-long-min-gamma",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "#error",
+  "frames": "gen/21/unset-empty-vega",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty greek is unset (nil) here; ib_async's float('') rejects the frame (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "vega",
+  "frames": "gen/21/unset-max-vega",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "vega",
+  "frames": "gen/21/unset-long-max-vega",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "vega",
+  "frames": "gen/21/unset-long-min-vega",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "#error",
+  "frames": "gen/21/unset-empty-theta",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty greek is unset (nil) here; ib_async's float('') rejects the frame (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "theta",
+  "frames": "gen/21/unset-max-theta",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "theta",
+  "frames": "gen/21/unset-long-max-theta",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "theta",
+  "frames": "gen/21/unset-long-min-theta",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "#error",
+  "frames": "gen/21/unset-empty-undPrice",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty greek is unset (nil) here; ib_async's float('') rejects the frame (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "undPrice",
+  "frames": "gen/21/unset-max-undPrice",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "undPrice",
+  "frames": "gen/21/unset-long-max-undPrice",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 21",
+  "field": "undPrice",
+  "frames": "gen/21/unset-long-min-undPrice",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:547-563)"
+ },
+ {
+  "scope": "in 45",
+  "field": "reqId",
+  "frames": "gen/45/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 45",
+  "field": "reqId",
+  "frames": "gen/45/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 45",
+  "field": "reqId",
+  "frames": "gen/45/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 45",
+  "field": "tickType",
+  "frames": "gen/45/unset-max-tickType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 45",
+  "field": "tickType",
+  "frames": "gen/45/unset-long-max-tickType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 45",
+  "field": "tickType",
+  "frames": "gen/45/unset-long-min-tickType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 45",
+  "field": "value",
+  "frames": "gen/45/unset-max-value",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 45",
+  "field": "value",
+  "frames": "gen/45/unset-max-double-value",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 45",
+  "field": "value",
+  "frames": "gen/45/unset-long-max-value",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 45",
+  "field": "value",
+  "frames": "gen/45/unset-long-min-value",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 46",
+  "field": "reqId",
+  "frames": "gen/46/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 46",
+  "field": "reqId",
+  "frames": "gen/46/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 46",
+  "field": "reqId",
+  "frames": "gen/46/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 46",
+  "field": "tickType",
+  "frames": "gen/46/unset-max-tickType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 46",
+  "field": "tickType",
+  "frames": "gen/46/unset-long-max-tickType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 46",
+  "field": "tickType",
+  "frames": "gen/46/unset-long-min-tickType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "reqId",
+  "frames": "gen/47/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "reqId",
+  "frames": "gen/47/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "reqId",
+  "frames": "gen/47/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "tickType",
+  "frames": "gen/47/unset-max-tickType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "tickType",
+  "frames": "gen/47/unset-long-max-tickType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "tickType",
+  "frames": "gen/47/unset-long-min-tickType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "basisPoints",
+  "frames": "gen/47/unset-empty-basisPoints",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) / int(x or 0) makes it 0 (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "basisPoints",
+  "frames": "gen/47/unset-max-basisPoints",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "basisPoints",
+  "frames": "gen/47/unset-long-max-basisPoints",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "basisPoints",
+  "frames": "gen/47/unset-long-min-basisPoints",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "totalDividends",
+  "frames": "gen/47/unset-empty-totalDividends",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) / int(x or 0) makes it 0 (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "totalDividends",
+  "frames": "gen/47/unset-max-totalDividends",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "totalDividends",
+  "frames": "gen/47/unset-long-max-totalDividends",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "totalDividends",
+  "frames": "gen/47/unset-long-min-totalDividends",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "holdDays",
+  "frames": "gen/47/unset-empty-holdDays",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) / int(x or 0) makes it 0 (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "dividendImpact",
+  "frames": "gen/47/unset-empty-dividendImpact",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) / int(x or 0) makes it 0 (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "dividendImpact",
+  "frames": "gen/47/unset-max-dividendImpact",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "dividendImpact",
+  "frames": "gen/47/unset-long-max-dividendImpact",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "dividendImpact",
+  "frames": "gen/47/unset-long-min-dividendImpact",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "dividendsToLastTradeDate",
+  "frames": "gen/47/unset-empty-dividendsToLastTradeDate",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) / int(x or 0) makes it 0 (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "dividendsToLastTradeDate",
+  "frames": "gen/47/unset-max-dividendsToLastTradeDate",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "dividendsToLastTradeDate",
+  "frames": "gen/47/unset-long-max-dividendsToLastTradeDate",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 47",
+  "field": "dividendsToLastTradeDate",
+  "frames": "gen/47/unset-long-min-dividendsToLastTradeDate",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "reqId",
+  "frames": "gen/50/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "reqId",
+  "frames": "gen/50/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "reqId",
+  "frames": "gen/50/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "time",
+  "frames": "gen/50/unset-max-time",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "time",
+  "frames": "gen/50/unset-long-max-time",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "time",
+  "frames": "gen/50/unset-long-min-time",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "open_",
+  "frames": "gen/50/unset-max-open",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "open_",
+  "frames": "gen/50/unset-max-double-open",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "open_",
+  "frames": "gen/50/unset-long-max-open",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "open_",
+  "frames": "gen/50/unset-long-min-open",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "high",
+  "frames": "gen/50/unset-max-high",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "high",
+  "frames": "gen/50/unset-max-double-high",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "high",
+  "frames": "gen/50/unset-long-max-high",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "high",
+  "frames": "gen/50/unset-long-min-high",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "low",
+  "frames": "gen/50/unset-max-low",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "low",
+  "frames": "gen/50/unset-max-double-low",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "low",
+  "frames": "gen/50/unset-long-max-low",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "low",
+  "frames": "gen/50/unset-long-min-low",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "close",
+  "frames": "gen/50/unset-max-close",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "close",
+  "frames": "gen/50/unset-max-double-close",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "close",
+  "frames": "gen/50/unset-long-max-close",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "close",
+  "frames": "gen/50/unset-long-min-close",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "volume",
+  "frames": "gen/50/unset-max-volume",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "volume",
+  "frames": "gen/50/unset-max-double-volume",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "volume",
+  "frames": "gen/50/unset-long-max-volume",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "volume",
+  "frames": "gen/50/unset-long-min-volume",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "wap",
+  "frames": "gen/50/unset-empty-wap",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) / int(x or 0) makes it 0 (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "wap",
+  "frames": "gen/50/unset-max-wap",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "wap",
+  "frames": "gen/50/unset-long-max-wap",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "wap",
+  "frames": "gen/50/unset-long-min-wap",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "count",
+  "frames": "gen/50/unset-max-count",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "count",
+  "frames": "gen/50/unset-long-max-count",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 50",
+  "field": "count",
+  "frames": "gen/50/unset-long-min-count",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 56",
+  "field": "#error",
+  "frames": "gen/56/unset-empty-reqId",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads empty as 0 here; ib_async's int() / float() rejects the frame (decoder.py:565-571)"
+ },
+ {
+  "scope": "in 56",
+  "field": "reqId",
+  "frames": "gen/56/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:565-571)"
+ },
+ {
+  "scope": "in 56",
+  "field": "reqId",
+  "frames": "gen/56/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:565-571)"
+ },
+ {
+  "scope": "in 56",
+  "field": "reqId",
+  "frames": "gen/56/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:565-571)"
+ },
+ {
+  "scope": "in 56",
+  "field": "#error",
+  "frames": "gen/56/unset-empty-conId",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads empty as 0 here; ib_async's int() / float() rejects the frame (decoder.py:565-571)"
+ },
+ {
+  "scope": "in 56",
+  "field": "dnc.conId",
+  "frames": "gen/56/unset-max-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:565-571)"
+ },
+ {
+  "scope": "in 56",
+  "field": "dnc.conId",
+  "frames": "gen/56/unset-long-max-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:565-571)"
+ },
+ {
+  "scope": "in 56",
+  "field": "dnc.conId",
+  "frames": "gen/56/unset-long-min-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:565-571)"
+ },
+ {
+  "scope": "in 56",
+  "field": "dnc.delta",
+  "frames": "gen/56/unset-max-delta",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:565-571)"
+ },
+ {
+  "scope": "in 56",
+  "field": "dnc.delta",
+  "frames": "gen/56/unset-max-double-delta",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:565-571)"
+ },
+ {
+  "scope": "in 56",
+  "field": "dnc.delta",
+  "frames": "gen/56/unset-long-max-delta",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:565-571)"
+ },
+ {
+  "scope": "in 56",
+  "field": "dnc.delta",
+  "frames": "gen/56/unset-long-min-delta",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:565-571)"
+ },
+ {
+  "scope": "in 56",
+  "field": "dnc.price",
+  "frames": "gen/56/unset-max-price",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:565-571)"
+ },
+ {
+  "scope": "in 56",
+  "field": "dnc.price",
+  "frames": "gen/56/unset-max-double-price",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:565-571)"
+ },
+ {
+  "scope": "in 56",
+  "field": "dnc.price",
+  "frames": "gen/56/unset-long-max-price",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:565-571)"
+ },
+ {
+  "scope": "in 56",
+  "field": "dnc.price",
+  "frames": "gen/56/unset-long-min-price",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:565-571)"
+ },
+ {
+  "scope": "in 57",
+  "field": "reqId",
+  "frames": "gen/57/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 57",
+  "field": "reqId",
+  "frames": "gen/57/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 57",
+  "field": "reqId",
+  "frames": "gen/57/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 58",
+  "field": "reqId",
+  "frames": "gen/58/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 58",
+  "field": "reqId",
+  "frames": "gen/58/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 58",
+  "field": "reqId",
+  "frames": "gen/58/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 81",
+  "field": "reqId",
+  "frames": "gen/81/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 81",
+  "field": "reqId",
+  "frames": "gen/81/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 81",
+  "field": "reqId",
+  "frames": "gen/81/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 81",
+  "field": "minTick",
+  "frames": "gen/81/unset-empty-minTick",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) / int(x or 0) makes it 0 (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 81",
+  "field": "minTick",
+  "frames": "gen/81/unset-max-minTick",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 81",
+  "field": "minTick",
+  "frames": "gen/81/unset-long-max-minTick",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 81",
+  "field": "minTick",
+  "frames": "gen/81/unset-long-min-minTick",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 81",
+  "field": "snapshotPermissions",
+  "frames": "gen/81/unset-max-snapshotPermissions",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 81",
+  "field": "snapshotPermissions",
+  "frames": "gen/81/unset-long-max-snapshotPermissions",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 81",
+  "field": "snapshotPermissions",
+  "frames": "gen/81/unset-long-min-snapshotPermissions",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 84",
+  "field": "_reqId",
+  "frames": "gen/84/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 84",
+  "field": "_reqId",
+  "frames": "gen/84/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 84",
+  "field": "_reqId",
+  "frames": "gen/84/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 84",
+  "field": "timeStamp",
+  "frames": "gen/84/unset-max-timeStamp",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 84",
+  "field": "timeStamp",
+  "frames": "gen/84/unset-long-max-timeStamp",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 84",
+  "field": "timeStamp",
+  "frames": "gen/84/unset-long-min-timeStamp",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 91",
+  "field": "_1",
+  "frames": "gen/91/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 91",
+  "field": "_1",
+  "frames": "gen/91/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 91",
+  "field": "_1",
+  "frames": "gen/91/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 91",
+  "field": "_2",
+  "frames": "gen/91/unset-max-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 91",
+  "field": "_2",
+  "frames": "gen/91/unset-long-max-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 91",
+  "field": "_2",
+  "frames": "gen/91/unset-long-min-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 91",
+  "field": "#error",
+  "frames": "gen/91/short-after-con-id",
+  "pair": ["malformed: missingField(index: 3)", "decoded"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "Wrapper has no rerouteMktDataReq, so ib_async's recorder-less wrap passes the shorter call on (decoder.py:143-174)"
+ },
+ {
+  "scope": "in 92",
+  "field": "_1",
+  "frames": "gen/92/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 92",
+  "field": "_1",
+  "frames": "gen/92/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 92",
+  "field": "_1",
+  "frames": "gen/92/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 92",
+  "field": "_2",
+  "frames": "gen/92/unset-max-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 92",
+  "field": "_2",
+  "frames": "gen/92/unset-long-max-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 92",
+  "field": "_2",
+  "frames": "gen/92/unset-long-min-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 92",
+  "field": "#error",
+  "frames": "gen/92/short-after-con-id",
+  "pair": ["malformed: missingField(index: 3)", "decoded"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "Wrapper has no rerouteMktDepthReq, so ib_async's recorder-less wrap passes the shorter call on (decoder.py:143-174)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-2",
+  "pair": ["<absent>", "2"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1-mask-1",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1-mask-2",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1-mask-3",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1-mask-4",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-2-mask-1",
+  "pair": ["<absent>", "2"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-2-mask-2",
+  "pair": ["<absent>", "2"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-2-mask-3",
+  "pair": ["<absent>", "2"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-2-mask-4",
+  "pair": ["<absent>", "2"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1-empty-strings",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-2-fractional-size",
+  "pair": ["<absent>", "2"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "#error",
+  "frames": "gen/99/type-1-unset-empty-reqId",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads empty as 0 here; ib_async's int() / float() rejects the frame (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "reqId",
+  "frames": "gen/99/type-1-unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1-unset-max-reqId",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "reqId",
+  "frames": "gen/99/type-1-unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1-unset-long-max-reqId",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "reqId",
+  "frames": "gen/99/type-1-unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1-unset-long-min-reqId",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "#error",
+  "frames": "gen/99/type-1-unset-empty-time",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads empty as 0 here; ib_async's int() / float() rejects the frame (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1-unset-max-time",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "time",
+  "frames": "gen/99/type-1-unset-max-time",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1-unset-long-max-time",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "time",
+  "frames": "gen/99/type-1-unset-long-max-time",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1-unset-long-min-time",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "time",
+  "frames": "gen/99/type-1-unset-long-min-time",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "#error",
+  "frames": "gen/99/type-1-unset-empty-price",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads empty as 0 here; ib_async's int() / float() rejects the frame (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "price",
+  "frames": "gen/99/type-1-unset-max-price",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1-unset-max-price",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "price",
+  "frames": "gen/99/type-1-unset-max-double-price",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1-unset-max-double-price",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "price",
+  "frames": "gen/99/type-1-unset-long-max-price",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1-unset-long-max-price",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "price",
+  "frames": "gen/99/type-1-unset-long-min-price",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1-unset-long-min-price",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "#error",
+  "frames": "gen/99/type-1-unset-empty-size",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads empty as 0 here; ib_async's int() / float() rejects the frame (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "size",
+  "frames": "gen/99/type-1-unset-max-size",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1-unset-max-size",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "size",
+  "frames": "gen/99/type-1-unset-max-double-size",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1-unset-max-double-size",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "size",
+  "frames": "gen/99/type-1-unset-long-max-size",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1-unset-long-max-size",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "size",
+  "frames": "gen/99/type-1-unset-long-min-size",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1-unset-long-min-size",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "#error",
+  "frames": "gen/99/type-1-unset-empty-mask",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads empty as 0 here; ib_async's int() / float() rejects the frame (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickAttribLast.pastLimit",
+  "frames": "gen/99/type-1-unset-max-mask",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset mask reads as 0 here; ib_async's bool(mask & n) reads MAX as set bits (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickAttribLast.unreported",
+  "frames": "gen/99/type-1-unset-max-mask",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset mask reads as 0 here; ib_async's bool(mask & n) reads MAX as set bits (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1-unset-max-mask",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickAttribLast.pastLimit",
+  "frames": "gen/99/type-1-unset-long-max-mask",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset mask reads as 0 here; ib_async's bool(mask & n) reads MAX as set bits (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickAttribLast.unreported",
+  "frames": "gen/99/type-1-unset-long-max-mask",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset mask reads as 0 here; ib_async's bool(mask & n) reads MAX as set bits (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1-unset-long-max-mask",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickType",
+  "frames": "gen/99/type-1-unset-long-min-mask",
+  "pair": ["<absent>", "1"],
+  "cite": "DECISIONS: `TickAttrib` (tickPrice's mask) reads bit 0 canAutoExecute",
+  "note": "ib_async passes tickType (1 Last, 2 AllLast) to tickByTickAllLast (decoder.py:848-860); .trade does not keep it"
+ },
+ {
+  "scope": "in 99",
+  "field": "#error",
+  "frames": "gen/99/type-3-unset-empty-bidPrice",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads empty as 0 here; ib_async's int() / float() rejects the frame (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "bidPrice",
+  "frames": "gen/99/type-3-unset-max-bidPrice",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "bidPrice",
+  "frames": "gen/99/type-3-unset-max-double-bidPrice",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "bidPrice",
+  "frames": "gen/99/type-3-unset-long-max-bidPrice",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "bidPrice",
+  "frames": "gen/99/type-3-unset-long-min-bidPrice",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "#error",
+  "frames": "gen/99/type-3-unset-empty-askPrice",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads empty as 0 here; ib_async's int() / float() rejects the frame (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "askPrice",
+  "frames": "gen/99/type-3-unset-max-askPrice",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "askPrice",
+  "frames": "gen/99/type-3-unset-max-double-askPrice",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "askPrice",
+  "frames": "gen/99/type-3-unset-long-max-askPrice",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "askPrice",
+  "frames": "gen/99/type-3-unset-long-min-askPrice",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "#error",
+  "frames": "gen/99/type-3-unset-empty-bidSize",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads empty as 0 here; ib_async's int() / float() rejects the frame (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "bidSize",
+  "frames": "gen/99/type-3-unset-max-bidSize",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "bidSize",
+  "frames": "gen/99/type-3-unset-max-double-bidSize",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "bidSize",
+  "frames": "gen/99/type-3-unset-long-max-bidSize",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "bidSize",
+  "frames": "gen/99/type-3-unset-long-min-bidSize",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "#error",
+  "frames": "gen/99/type-3-unset-empty-askSize",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads empty as 0 here; ib_async's int() / float() rejects the frame (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "askSize",
+  "frames": "gen/99/type-3-unset-max-askSize",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "askSize",
+  "frames": "gen/99/type-3-unset-max-double-askSize",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "askSize",
+  "frames": "gen/99/type-3-unset-long-max-askSize",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "askSize",
+  "frames": "gen/99/type-3-unset-long-min-askSize",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "#error",
+  "frames": "gen/99/type-3-unset-empty-mask",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads empty as 0 here; ib_async's int() / float() rejects the frame (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickAttribBidAsk.askPastHigh",
+  "frames": "gen/99/type-3-unset-max-mask",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset mask reads as 0 here; ib_async's bool(mask & n) reads MAX as set bits (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickAttribBidAsk.bidPastLow",
+  "frames": "gen/99/type-3-unset-max-mask",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset mask reads as 0 here; ib_async's bool(mask & n) reads MAX as set bits (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickAttribBidAsk.askPastHigh",
+  "frames": "gen/99/type-3-unset-long-max-mask",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset mask reads as 0 here; ib_async's bool(mask & n) reads MAX as set bits (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "tickAttribBidAsk.bidPastLow",
+  "frames": "gen/99/type-3-unset-long-max-mask",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset mask reads as 0 here; ib_async's bool(mask & n) reads MAX as set bits (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "#error",
+  "frames": "gen/99/type-4-unset-empty-midPoint",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads empty as 0 here; ib_async's int() / float() rejects the frame (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "midPoint",
+  "frames": "gen/99/type-4-unset-max-midPoint",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "midPoint",
+  "frames": "gen/99/type-4-unset-max-double-midPoint",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "midPoint",
+  "frames": "gen/99/type-4-unset-long-max-midPoint",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "midPoint",
+  "frames": "gen/99/type-4-unset-long-min-midPoint",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
  }
 ]

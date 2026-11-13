@@ -386,5 +386,231 @@ def _order_variants(msg: int) -> list[tuple[str, list[str]]]:
 VARIANTS[5] = _order_variants(5)
 VARIANTS[101] = _order_variants(101)
 
+# Market data (wrap table decoder.py:60-141; priceSizeTick 200-206; tickOptionComputation 547-563; deltaNeutralValidation
+# 565-571; tickByTick 838-880). Every tick type ib_async's wrapper maps gets a frame of its own (the decoder reads the
+# type as a plain int, so they differ only in the number); neighbouring fields of one kind carry distinct values.
+from ib_async.wrapper import (  # noqa: E402  (variants.py is imported after ib_async, so the pinned maps are the truth)
+    EFP_TICK_MAP, GENERIC_TICK_MAP, GREEKS_TICK_MAP, PRICE_TICK_MAP, RT_VOLUME_TICK_MAP, SIZE_TICK_MAP,
+    STRING_TICK_MAP, TIMESTAMP_TICK_MAP)
+
+_INT_FIELDS = {"reqId", "tickType", "tickAttrib", "position", "operation", "side", "isSmartDepth", "time", "count",
+               "conId", "snapshotPermissions", "timeStamp", "holdDays", "mask"}
+_SENTINELS = (("empty", ""), ("max", MAX_INT), ("max-double", MAX_DOUBLE), ("long-max", LONG_MAX),
+              ("long-min", LONG_MIN))
+
+
+def _unset_all(base: list[str], indices: dict[str, int], prefix: str = "") -> list[tuple[str, list[str]]]:
+    """`unset-<sentinel>-<name>` for every sentinel of every named numeric field (empty, MAX, double MAX, long limits)."""
+    out = []
+    for name, i in indices.items():
+        for tag, value in _SENTINELS:
+            if tag == "max-double" and name in _INT_FIELDS:  # IB never sends a double's MAX in an int slot
+                continue
+            f = list(base)
+            f[i] = value
+            out.append((f"{prefix}unset-{tag}-{name}", f))
+    return out
+
+
+def _at(base: list[str], **at: str) -> list[str]:
+    """`base` with the fields at the given indices replaced (`_at(b, i3="x")` sets index 3)."""
+    f = list(base)
+    for k, v in at.items():
+        f[int(k[1:])] = v
+    return f
+
+
+# tickPrice (1): `_, _, reqId, tickType, price, size, _ = fields`, so exactly 7 fields; an empty price makes no call.
+_TICK_PRICE = ["1", "6", "7", "1", "351.5", "200", "5"]
+_PRICE_TYPES = sorted(set(PRICE_TICK_MAP) | {1, 2, 4, 66, 67, 68})
+VARIANTS[1] = [
+    ("base", _TICK_PRICE),
+    *[(f"price-{k}", _at(_TICK_PRICE, i3=str(k), i4="187.25", i5="100", i6="0")) for k in _PRICE_TYPES],
+    *[(f"price-{k}-no-size", _at(_TICK_PRICE, i3=str(k), i4="187.25", i5="0", i6="0")) for k in _PRICE_TYPES],
+    *[(f"mask-{m}", _at(_TICK_PRICE, i6=str(m))) for m in (0, 1, 2, 3, 4, 6, 7)],
+    ("price-minus-one", _at(_TICK_PRICE, i4="-1", i5="0")),
+    ("price-zero", _at(_TICK_PRICE, i4="0", i5="0")),
+    ("fractional-size", _at(_TICK_PRICE, i4="351.123456789", i5="0.5")),
+    # IB's «no value» price: ib_async makes no call (`if price:`), swift-ibkr yields a tick with a nil price
+    *[(f"empty-price-{k}", _at(_TICK_PRICE, i3=str(k), i4="", i5="0")) for k in (1, 2, 4, 6, 66)],
+    ("empty-price-with-size", _at(_TICK_PRICE, i4="", i5="100")),
+    *_unset_all(_TICK_PRICE, {"reqId": 2, "tickType": 3, "price": 4, "size": 5, "mask": 6}),
+    ("short-after-size", _TICK_PRICE[:6]),
+    ("short-after-type", _TICK_PRICE[:4]),
+]
+
+# tickSize (2), tickGeneric (45), tickString (46): wrap with skip 2, so fields past the last type are ignored.
+_SIZE_TYPES = sorted(set(SIZE_TICK_MAP) | {0, 3, 5, 69, 70, 71})
+_TICK_SIZE = ["2", "6", "7", "8", "1234567"]
+VARIANTS[2] = [
+    ("base", _TICK_SIZE),
+    *[(f"size-{k}", _at(_TICK_SIZE, i3=str(k))) for k in _SIZE_TYPES],
+    ("size-zero", _at(_TICK_SIZE, i4="0")),
+    ("fractional-size", _at(_TICK_SIZE, i4="0.5")),
+    *_unset_all(_TICK_SIZE, {"reqId": 2, "tickType": 3, "size": 4}),
+    ("short-after-type", _TICK_SIZE[:4]),
+]
+_TICK_GENERIC = ["45", "6", "7", "49", "35.25"]
+VARIANTS[45] = [
+    ("base", _TICK_GENERIC),
+    *[(f"generic-{k}", _at(_TICK_GENERIC, i3=str(k))) for k in sorted(GENERIC_TICK_MAP)],
+    ("generic-zero", _at(_TICK_GENERIC, i4="0")),
+    *_unset_all(_TICK_GENERIC, {"reqId": 2, "tickType": 3, "value": 4}),
+    ("short-after-type", _TICK_GENERIC[:4]),
+]
+_TICK_STRING = ["46", "6", "7", "32", "ISLAND"]
+_RT_VOLUME = "351.5;100;1794321000000;12345;351.2;true"
+VARIANTS[46] = [
+    ("base", _TICK_STRING),
+    *[(f"string-{k}", _at(_TICK_STRING, i3=str(k))) for k in sorted(STRING_TICK_MAP)],
+    *[(f"timestamp-{k}", _at(_TICK_STRING, i3=str(k), i4="1794321000")) for k in sorted(TIMESTAMP_TICK_MAP)],
+    *[(f"rt-volume-{k}", _at(_TICK_STRING, i3=str(k), i4=_RT_VOLUME)) for k in sorted(RT_VOLUME_TICK_MAP)],
+    ("empty-value", _at(_TICK_STRING, i4="")),
+    ("empty-rt-volume", _at(_TICK_STRING, i3="48", i4="")),
+    ("empty-rt-volume-fields", _at(_TICK_STRING, i3="48", i4=";0;1794321000000;0;;false")),
+    *_unset_all(_TICK_STRING, {"reqId": 2, "tickType": 3}),
+    ("short-after-type", _TICK_STRING[:4]),
+]
+
+# tickOptionComputation (21): no version; `_, reqId, tickType, tickAttrib, *fields = fields` then exactly 8 values, all
+# `float(x)` (an empty one raises). The wrapper, not the decoder, turns -1 and -2 into None (wrapper.py:1383-1392).
+_GREEKS_TYPES = sorted(GREEKS_TICK_MAP)
+_OPTION = ["21", "7", "13", "1", "0.25", "0.55", "6.1", "0.42", "0.03", "0.12", "-0.05", "187.2"]
+_OPTION_NAMES = ("impliedVol", "delta", "optPrice", "pvDividend", "gamma", "vega", "theta", "undPrice")
+
+
+def _option_all(value: str, **at: str) -> dict[str, str]:
+    return {f"i{4 + j}": value for j in range(8)} | at
+
+
+VARIANTS[21] = [
+    ("base", _OPTION),
+    *[(f"greeks-{k}-attrib-{a}", _at(_OPTION, i2=str(k), i3=str(a))) for k in _GREEKS_TYPES for a in (0, 1)],
+    *[(f"greeks-{k}-minus-one", _at(_OPTION, i2=str(k), **_option_all("-1"))) for k in _GREEKS_TYPES],
+    *[(f"greeks-{k}-minus-two", _at(_OPTION, i2=str(k), **_option_all("-2"))) for k in _GREEKS_TYPES],
+    # one field uncomputed at a time, so a swapped read of two fields fails
+    *[(f"{n}-minus-one", _at(_OPTION, **{f"i{4 + j}": "-1"})) for j, n in enumerate(_OPTION_NAMES)],
+    *[(f"{n}-minus-two", _at(_OPTION, **{f"i{4 + j}": "-2"})) for j, n in enumerate(_OPTION_NAMES)],
+    ("negative-delta", _at(_OPTION, i5="-0.55", i8="-0.03")),
+    *_unset_all(_OPTION, {"reqId": 1, "tickType": 2, "tickAttrib": 3, **{n: 4 + j for j, n in enumerate(_OPTION_NAMES)}}),
+    ("short-after-und-price", _OPTION[:11]),
+    ("short-after-attrib", _OPTION[:4]),
+]
+
+# tickEFP (47): the wrapper names the fifth value totalDividends; wrap reads empty numbers as 0.
+_EFP = ["47", "1", "7", "38", "1.5", "1.50%", "187.3", "30", "20261218", "0.2", "0.25"]
+VARIANTS[47] = [
+    ("base", _EFP),
+    *[(f"efp-{k}", _at(_EFP, i3=str(k))) for k in sorted(EFP_TICK_MAP)],
+    ("empty-strings", _at(_EFP, i5="", i8="")),
+    *_unset_all(_EFP, {"reqId": 2, "tickType": 3, "basisPoints": 4, "totalDividends": 6, "holdDays": 7,
+                       "dividendImpact": 9, "dividendsToLastTradeDate": 10}),
+    ("short-after-impact", _EFP[:10]),
+]
+
+# updateMktDepth (12) and updateMktDepthL2 (13): wrap with exact types; isSmartDepth is a bool and has a default.
+_DEPTH = ["12", "1", "4", "3", "0", "1", "351.5", "100"]
+_DEPTH_L2 = ["13", "1", "4", "3", "NSDQ", "0", "1", "351.6", "50", "1"]
+VARIANTS[12] = [
+    ("base", _DEPTH),
+    *[(f"op-{op}-side-{side}", _at(_DEPTH, i4=str(op), i5=str(side))) for op in (0, 1, 2) for side in (0, 1)],
+    ("position-zero", _at(_DEPTH, i3="0")),
+    ("fractional-size", _at(_DEPTH, i7="0.5")),
+    *_unset_all(_DEPTH, {"reqId": 2, "position": 3, "operation": 4, "side": 5, "price": 6, "size": 7}),
+    ("short-after-price", _DEPTH[:7]),
+]
+VARIANTS[13] = [
+    ("base", _DEPTH_L2),
+    *[(f"op-{op}-side-{side}-smart-{s}", _at(_DEPTH_L2, i5=str(op), i6=str(side), i9=str(s)))
+      for op in (0, 1, 2) for side in (0, 1) for s in (0, 1)],
+    ("empty-market-maker", _at(_DEPTH_L2, i4="")),
+    ("position-zero", _at(_DEPTH_L2, i3="0")),
+    ("fractional-size", _at(_DEPTH_L2, i8="0.5")),
+    *_unset_all(_DEPTH_L2, {"reqId": 2, "position": 3, "operation": 5, "side": 6, "price": 7, "size": 8,
+                            "isSmartDepth": 9}),
+    ("without-is-smart-depth", _DEPTH_L2[:9]),
+    ("short-after-price", _DEPTH_L2[:8]),
+]
+
+# realtimeBar (50): wrap with skip 2, nine values.
+_RT_BAR = ["50", "3", "7", "1794321000", "351.0", "352.0", "350.5", "351.5", "1000", "351.2", "42"]
+VARIANTS[50] = [
+    ("base", _RT_BAR),
+    ("minus-one-midpoint", ["50", "3", "7", "1794321005", "351.0", "352.0", "350.5", "351.5", "-1", "-1", "-1"]),
+    ("fractional-volume", _at(_RT_BAR, i8="0.5")),
+    *_unset_all(_RT_BAR, {"reqId": 2, "time": 3, "open": 4, "high": 5, "low": 6, "close": 7, "volume": 8, "wap": 9,
+                          "count": 10}),
+    ("short-after-wap", _RT_BAR[:10]),
+]
+
+# deltaNeutralValidation (56): `_, _, reqId, conId, delta, price = fields`, exactly 6; empty delta and price read as 0.
+_DNC = ["56", "1", "7", "265598", "0.5", "187.25"]
+VARIANTS[56] = [
+    ("base", _DNC),
+    ("negative-delta", _at(_DNC, i4="-0.5")),
+    *_unset_all(_DNC, {"reqId": 2, "conId": 3, "delta": 4, "price": 5}),
+    ("short-after-delta", _DNC[:5]),
+]
+VARIANTS[57] = [("base", ["57", "1", "7"]), *_unset_all(["57", "1", "7"], {"reqId": 2}), ("short", ["57", "1"])]
+VARIANTS[58] = [
+    *[(f"type-{t}", ["58", "1", "7", str(t)]) for t in (1, 2, 3, 4)],
+    *_unset_all(["58", "1", "7", "2"], {"reqId": 2}),
+    ("short", ["58", "1", "7"]),
+]
+
+# tickReqParams (81) and tickNews (84): wrap with skip 1, no version.
+_REQ_PARAMS = ["81", "7", "0.01", "9c0001", "3"]
+VARIANTS[81] = [
+    ("base", _REQ_PARAMS),
+    ("empty-bbo-exchange", _at(_REQ_PARAMS, i3="")),
+    *_unset_all(_REQ_PARAMS, {"reqId": 1, "minTick": 2, "snapshotPermissions": 4}),
+    ("short-after-bbo", _REQ_PARAMS[:4]),
+]
+_NEWS = ["84", "7", "1794321000000", "BRFG", "BRFG$12345", "Apple headline", "extra"]
+VARIANTS[84] = [
+    ("base", _NEWS),
+    ("empty-extra-data", _at(_NEWS, i6="")),
+    ("empty-strings", _at(_NEWS, i3="", i4="", i5="")),
+    *_unset_all(_NEWS, {"reqId": 1, "timeStamp": 2}),
+    ("short-after-headline", _NEWS[:6]),
+]
+_REROUTE = ["91", "7", "12087792", "IDEALPRO"]
+VARIANTS[91] = [
+    ("base", _REROUTE),
+    ("empty-exchange", _at(_REROUTE, i3="")),
+    *_unset_all(_REROUTE, {"reqId": 1, "conId": 2}),
+    ("short-after-con-id", _REROUTE[:3]),
+]
+_REROUTE_DEPTH = ["92", "7", "12087792", "IDEALPRO"]
+VARIANTS[92] = [
+    ("base", _REROUTE_DEPTH),
+    ("empty-exchange", _at(_REROUTE_DEPTH, i3="")),
+    *_unset_all(_REROUTE_DEPTH, {"reqId": 1, "conId": 2}),
+    ("short-after-con-id", _REROUTE_DEPTH[:3]),
+]
+
+# tickByTick (99): `_, reqId, tickType, time, *fields`, then exactly 5 (types 1, 2), 5 (type 3) or 1 (type 4) values;
+# the masks are read as bool(mask & 1) and bool(mask & 2) for both attribute classes.
+_TBT = {
+    1: ["99", "7", "1", "1794321000", "351.5", "100", "0", "NASDAQ", "@ I"],
+    2: ["99", "7", "2", "1794321001", "351.4", "120", "0", "ARCA", "@ F T"],
+    3: ["99", "7", "3", "1794321002", "351.4", "351.6", "300", "200", "0"],
+    4: ["99", "7", "4", "1794321003", "351.5"],
+}
+VARIANTS[99] = [
+    *[(f"type-{t}", f) for t, f in _TBT.items()],
+    *[(f"type-{t}-mask-{m}", _at(_TBT[t], i6=str(m))) for t in (1, 2) for m in (1, 2, 3, 4)],
+    *[(f"type-3-mask-{m}", _at(_TBT[3], i8=str(m))) for m in (1, 2, 3, 4)],
+    ("type-1-empty-strings", _at(_TBT[1], i7="", i8="")),
+    ("type-2-fractional-size", _at(_TBT[2], i5="0.5")),
+    ("type-1-short-after-mask", _TBT[1][:7]),
+    ("type-1-short-after-size", _TBT[1][:6]),
+    ("type-3-short-after-ask-size", _TBT[3][:8]),
+    ("type-4-short", _TBT[4][:3]),
+    *_unset_all(_TBT[1], {"reqId": 1, "time": 3, "price": 4, "size": 5, "mask": 6}, "type-1-"),
+    *_unset_all(_TBT[3], {"bidPrice": 4, "askPrice": 5, "bidSize": 6, "askSize": 7, "mask": 8}, "type-3-"),
+    *_unset_all(_TBT[4], {"midPoint": 4}, "type-4-"),
+]
+
 # A frame ib_async rejects (openOrder cut after its id): the oracle must record the exception, not «no calls».
 CANARY: tuple[str, list[str]] = ("gen/canary/short-openOrder", ["5", "1"])

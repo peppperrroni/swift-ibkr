@@ -1915,7 +1915,13 @@ agrees type by type. The differences are in default values and value formatting 
    condition's `isMore` reads empty as false where `ib_async`'s `parse` keeps the dataclass default true. (The optional
    `eTradeOnly` / `firmQuoteOnly` are not this row: DECISIONS, the flat `Order` row.) An unset group count reads as 0 and an unset
    delta-neutral-contract flag as false, where `ib_async`'s `int()` rejects the frame or reads a `MAX` flag as set
-   (decoder.py:984-1103, 1236-1325).
+   (decoder.py:984-1103, 1236-1325). The market-data messages (1, 2, 12, 13, 21, 45, 47, 50, 56-58, 81, 84, 91, 92, 99)
+   do the same for what IB always fills: the request id, the tick type, `tickAttrib`, a depth row's position, operation,
+   side, price and size, tickGeneric's value, a real-time bar's time, prices, volume and count, tick-by-tick's time,
+   prices, sizes and mask, the delta-neutral contract's numbers, the snapshot permissions and a news time stamp are
+   non-optional, so an empty or unset value (the long limits included, which `ib_async` reads as a float) decodes to 0
+   where `ib_async` keeps the sentinel or, for a plain `int()` / `float()` read, rejects the frame; an unset
+   tick-by-tick mask reads as 0, so both its flags are false where `ib_async` reads `MAX` as set bits (decoder.py:838-880).
 14. **A frame shorter than the 178 layout is malformed.** swift-ibkr reports `.malformed(missingField …)` where
    `ib_async`'s `wrap` zips the fields with its types and lets the wrapper's defaults fill the missing trailing
    arguments (orderStatus without mktCapPrice, message 3). Deliberate strictness at the pinned version, where IB always sends
@@ -1925,6 +1931,10 @@ agrees type by type. The differences are in default values and value formatting 
    completedOrder field 43 in `Recorded/liveAccountSummary.json`); swift-ibkr's `Order.displaySize` is a non-optional `Int`, so it
    decodes to 0 (any other unset value too), where `ib_async` keeps the sentinel (`""` in the oracle). A `modifyOrder`
    with a decoded order therefore re-sends `0` where `ib_async` sends `""` (KNOWN-GAPS, the modify line).
+16. **An empty tickPrice price makes no tick in `ib_async`.** Its decoder calls the wrapper only `if price:`
+   (decoder.py:200-206), so a frame whose price field is empty gives no call at all; swift-ibkr decodes the frame to
+   `.tick(.price(…, price: nil, …))` (unset is `nil`). No recorded live frame has an empty price. On such a frame a `Ticker` field can be cleared where `ib_async`
+   keeps the old value.
 
 No row in this document is unverified: every table was checked line by line against the
 verbatim source of both clients.
