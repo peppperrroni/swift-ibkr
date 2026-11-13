@@ -626,5 +626,151 @@ VARIANTS[58] += [
 VARIANTS[12] += [("operation-3", _at(_DEPTH, i4="3")), ("side-2", _at(_DEPTH, i5="2"))]
 VARIANTS[13] += [("operation-3", _at(_DEPTH_L2, i5="3")), ("side-2", _at(_DEPTH_L2, i6="2"))]
 
+# History family (decoder.py:477-511, 757-829, 1361-1370): bars, bar updates, histogram, head timestamp, ticks, schedule.
+_INT_FIELDS |= {"barCount", "numBars", "done", "n"}
+_BAR = [
+    ["1794321000", "351.0", "352.0", "350.5", "351.5", "1000", "351.2", "42"],
+    ["1794321060", "351.5", "353.0", "351.0", "352.5", "1200", "352.2", "57"],
+    ["1794321120", "352.5", "354.0", "352.0", "353.5", "900", "353.2", "31"],
+]
+_DAY_BAR = [["20260102", *_BAR[0][1:]], ["20260105", *_BAR[1][1:]], ["20260106", *_BAR[2][1:]]]
+_START, _END = "20260101-09:30:00", "20260101-16:00:00"
+
+
+def _bars(bars: list[list[str]], start: str = _START, end: str = _END) -> list[str]:
+    return ["17", "7", start, end, str(len(bars)), *[x for b in bars for x in b]]
+
+
+_ONE_BAR = _bars(_BAR[:1])
+VARIANTS[17] = [
+    ("zero-bars", _bars([])),
+    ("one-bar", _ONE_BAR),
+    ("three-bars", _bars(_BAR)),
+    ("one-day-bar", _bars(_DAY_BAR[:1])),
+    ("three-day-bars", _bars(_DAY_BAR)),
+    ("mixed-bars", _bars([_BAR[0], _DAY_BAR[1], _BAR[2]])),
+    ("empty-start-end", _bars(_BAR[:1], start="", end="")),
+    ("volume-minus-one", _at(_ONE_BAR, i10="-1")),
+    ("average-minus-one", _at(_ONE_BAR, i11="-1")),
+    *_unset_all(_ONE_BAR, {"reqId": 1, "numBars": 4, "open": 6, "high": 7, "low": 8, "close": 9, "volume": 10,
+                           "average": 11, "barCount": 12}),
+    ("bar2-empty-average", _at(_bars(_BAR), i19="")),
+    ("bar3-empty-volume", _at(_bars(_BAR), i26="")),
+    ("short-after-count", _bars([])[:4]),
+    ("short-after-start", _ONE_BAR[:3]),
+    ("short-mid-bar", _ONE_BAR[:9]),
+    ("short-after-average", _ONE_BAR[:12]),
+    ("short-second-bar", _bars(_BAR[:2])[:18]),
+]
+
+# historicalDataUpdate (90): barCount first, then date, open, close, high, low, average, volume (`x or 0` reads).
+_UPDATE = ["90", "7", "42", "1794321000", "351.0", "351.5", "352.0", "350.5", "351.2", "1000"]
+VARIANTS[90] = [
+    ("epoch", _UPDATE),
+    ("day", _at(_UPDATE, i3="20260102")),
+    ("volume-minus-one", _at(_UPDATE, i9="-1")),
+    ("average-minus-one", _at(_UPDATE, i8="-1")),
+    *_unset_all(_UPDATE, {"reqId": 1, "barCount": 2, "open": 4, "close": 5, "high": 6, "low": 7, "average": 8,
+                          "volume": 9}),
+    ("short-after-average", _UPDATE[:9]),
+    ("short-after-low", _UPDATE[:8]),
+    ("short-after-date", _UPDATE[:4]),
+]
+
+_HISTOGRAM = ["89", "7", "3", "351.0", "10", "351.5", "25", "352.0", "7"]
+VARIANTS[89] = [
+    ("zero-items", ["89", "7", "0"]),
+    ("one-item", ["89", "7", "1", "351.0", "10"]),
+    ("three-items", _HISTOGRAM),
+    *_unset_all(["89", "7", "1", "351.0", "10"], {"reqId": 1, "n": 2, "price": 3, "count": 4}),
+    ("item2-empty-count", _at(_HISTOGRAM, i6="")),
+    ("item3-empty-price", _at(_HISTOGRAM, i7="")),
+    ("short-after-count", ["89", "7", "1"]),
+    ("short-after-price", _HISTOGRAM[:4]),
+    ("short-second-item", _HISTOGRAM[:6]),
+]
+
+_HEAD = ["88", "7", "1794321000"]
+VARIANTS[88] = [
+    ("epoch", _HEAD),
+    ("day", _at(_HEAD, i2="20260102")),
+    *_unset_all(_HEAD, {"reqId": 1}),
+    ("short", _HEAD[:2]),
+]
+
+# historicalTicks 96 (time, unused, price, size), 97 (time, mask, bidPrice, askPrice, bidSize, askSize) and 98 (time,
+# mask, price, size, exchange, specialConditions), each n times, then done.
+_T96 = [["1794321000", "0", "351.5", "100"], ["1794321001", "3", "351.6", "120"], ["1794321002", "0", "351.7", "140"]]
+_T97 = [["1794321000", "0", "351.4", "351.6", "300", "200"], ["1794321001", "1", "351.5", "351.7", "310", "210"],
+        ["1794321002", "2", "351.6", "351.8", "320", "220"]]
+_T98 = [["1794321000", "0", "351.5", "100", "NASDAQ", "@ I"], ["1794321001", "1", "351.6", "120", "ARCA", "@ F T"],
+        ["1794321002", "2", "351.7", "140", "ISLAND", "I"]]
+
+
+def _ticks(msg: str, ticks: list[list[str]], done: str = "1") -> list[str]:
+    return [msg, "7", str(len(ticks)), *[x for t in ticks for x in t], done]
+
+
+def _tick_variants(msg: str, rows: list[list[str]], numeric: dict[str, int]) -> list[tuple[str, list[str]]]:
+    width = len(rows[0])
+    one, three = _ticks(msg, rows[:1]), _ticks(msg, rows)
+    last_number = 3 + 2 * width + max(numeric.values())  # the last number of the third tick
+    return [
+        ("zero-ticks-done", _ticks(msg, [], "1")),
+        ("zero-ticks-not-done", _ticks(msg, [], "0")),
+        ("one-tick-done", one),
+        ("one-tick-not-done", _ticks(msg, rows[:1], "0")),
+        ("three-ticks-done", three),
+        ("three-ticks-not-done", _ticks(msg, rows, "0")),
+        *[v for v in _unset_all(one, {"reqId": 1, "n": 2, **{k: 3 + v for k, v in numeric.items()}, "done": 3 + width})
+          if v[0] != "unset-long-min-n"],  # held: the flag after it reads a time, not 0/1
+        ("tick3-empty-last-number", _at(three, **{f"i{last_number}": ""})),
+        ("short-after-count", one[:3]),
+        ("short-mid-tick", one[:5]),
+        ("short-before-done", one[:-1]),
+        ("short-second-tick", _ticks(msg, rows[:2])[:3 + width + 2]),
+    ]
+
+
+VARIANTS[96] = _tick_variants("96", _T96, {"time": 0, "price": 2, "size": 3})
+VARIANTS[97] = _tick_variants("97", _T97, {"time": 0, "mask": 1, "bidPrice": 2, "askPrice": 3, "bidSize": 4,
+                                           "askSize": 5})
+VARIANTS[98] = _tick_variants("98", _T98, {"time": 0, "mask": 1, "price": 2, "size": 3})
+VARIANTS[96] += [("unused-field-set", _ticks("96", [["1794321000", "7", "351.5", "100"]]))]
+VARIANTS[97] += [(f"mask-{m}", _ticks("97", [_at(_T97[0], i1=str(m))])) for m in (1, 2, 3, 4, 7)]
+VARIANTS[98] += [
+    *[(f"mask-{m}", _ticks("98", [_at(_T98[0], i1=str(m))])) for m in (1, 2, 3, 4, 7)],
+    ("empty-special-conditions", _ticks("98", [_at(_T98[0], i5="")])),
+    ("empty-exchange", _ticks("98", [_at(_T98[0], i4="")])),
+    ("empty-exchange-and-conditions", _ticks("98", [_at(_T98[0], i4="", i5="")])),
+    ("tick2-empty-special-conditions", _ticks("98", [_T98[0], _at(_T98[1], i5=""), _T98[2]])),
+]
+
+_SESSIONS = [["20260102-14:30:00", "20260102-21:00:00", "20260102"],
+             ["20260105-14:30:00", "20260105-21:00:00", "20260105"]]
+
+
+def _schedule(sessions: list[list[str]], zone: str = "US/Eastern") -> list[str]:
+    return ["106", "7", "20260102-14:30:00", "20260106-21:00:00", zone, str(len(sessions)),
+            *[x for s in sessions for x in s]]
+
+
+_SCHEDULE = _schedule(_SESSIONS)
+VARIANTS[106] = [
+    ("zero-sessions", _schedule([])),
+    ("one-session", _schedule(_SESSIONS[:1])),
+    ("two-sessions", _SCHEDULE),
+    ("empty-time-zone", _schedule(_SESSIONS, "")),
+    ("empty-start-end", _at(_SCHEDULE, i2="", i3="")),
+    ("empty-session-start", _at(_SCHEDULE, i6="")),
+    ("empty-session-end", _at(_SCHEDULE, i7="")),
+    ("empty-session-ref-date", _at(_SCHEDULE, i8="")),
+    ("session2-empty-end", _at(_SCHEDULE, i10="")),
+    *_unset_all(_SCHEDULE, {"reqId": 1, "n": 5}),
+    ("short-after-count", _SCHEDULE[:6]),
+    ("short-mid-session", _SCHEDULE[:8]),
+    ("short-second-session", _SCHEDULE[:11]),
+]
+
 # A frame ib_async rejects (openOrder cut after its id): the oracle must record the exception, not «no calls».
 CANARY: tuple[str, list[str]] = ("gen/canary/short-openOrder", ["5", "1"])

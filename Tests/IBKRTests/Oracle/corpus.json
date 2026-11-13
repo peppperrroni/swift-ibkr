@@ -7487,34 +7487,6 @@
   ]
  },
  {
-  "name": "sweep/outgoing/HistoricalTests.swift:123",
-  "source": "sweep",
-  "fields": [
-   "96",
-   "7",
-   "0",
-   "AAPL",
-   "STK",
-   "",
-   "0.0",
-   "",
-   "",
-   "SMART",
-   "",
-   "USD",
-   "",
-   "",
-   "0",
-   "20261110-14:30:00",
-   "",
-   "100",
-   "TRADES",
-   "1",
-   "0",
-   ""
-  ]
- },
- {
   "name": "sweep/HistoricalTests.swift:131",
   "source": "sweep",
   "fields": [
@@ -13832,29 +13804,6 @@
   ]
  },
  {
-  "name": "sweep/outgoing/TickByTickTests.swift:33",
-  "source": "sweep",
-  "fields": [
-   "97",
-   "7",
-   "0",
-   "AAPL",
-   "STK",
-   "",
-   "0.0",
-   "",
-   "",
-   "SMART",
-   "",
-   "USD",
-   "",
-   "",
-   "Last",
-   "10",
-   "1"
-  ]
- },
- {
   "name": "sweep/TickByTickTests.swift:39",
   "source": "sweep",
   "fields": [
@@ -13863,29 +13812,6 @@
    "4",
    "1794321000",
    "351.5"
-  ]
- },
- {
-  "name": "sweep/outgoing/TickByTickTests.swift:53",
-  "source": "sweep",
-  "fields": [
-   "97",
-   "4",
-   "0",
-   "AAPL",
-   "STK",
-   "",
-   "0.0",
-   "",
-   "",
-   "SMART",
-   "",
-   "USD",
-   "",
-   "",
-   "AllLast",
-   "0",
-   "0"
   ]
  },
  {

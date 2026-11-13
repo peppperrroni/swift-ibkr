@@ -17099,34 +17099,6 @@
    "name": "sweep/HistoricalTests.swift:102"
   },
   {
-   "error": "ValueError: invalid literal for int() with base 10: 'AAPL'",
-   "fields": [
-    "96",
-    "7",
-    "0",
-    "AAPL",
-    "STK",
-    "",
-    "0.0",
-    "",
-    "",
-    "SMART",
-    "",
-    "USD",
-    "",
-    "",
-    "0",
-    "20261110-14:30:00",
-    "",
-    "100",
-    "TRADES",
-    "1",
-    "0",
-    ""
-   ],
-   "name": "sweep/outgoing/HistoricalTests.swift:123"
-  },
-  {
    "calls": [
     {
      "args": {
@@ -31364,29 +31336,6 @@
    "name": "sweep/TickByTickTests.swift:26#2"
   },
   {
-   "error": "ValueError: invalid literal for int() with base 10: 'AAPL'",
-   "fields": [
-    "97",
-    "7",
-    "0",
-    "AAPL",
-    "STK",
-    "",
-    "0.0",
-    "",
-    "",
-    "SMART",
-    "",
-    "USD",
-    "",
-    "",
-    "Last",
-    "10",
-    "1"
-   ],
-   "name": "sweep/outgoing/TickByTickTests.swift:33"
-  },
-  {
    "calls": [
     {
      "args": {
@@ -31405,29 +31354,6 @@
     "351.5"
    ],
    "name": "sweep/TickByTickTests.swift:39"
-  },
-  {
-   "error": "ValueError: invalid literal for int() with base 10: 'AAPL'",
-   "fields": [
-    "97",
-    "4",
-    "0",
-    "AAPL",
-    "STK",
-    "",
-    "0.0",
-    "",
-    "",
-    "SMART",
-    "",
-    "USD",
-    "",
-    "",
-    "AllLast",
-    "0",
-    "0"
-   ],
-   "name": "sweep/outgoing/TickByTickTests.swift:53"
   },
   {
    "calls": [
@@ -59998,6 +59924,2137 @@
    "calls": [
     {
      "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "0"
+   ],
+   "name": "gen/17/zero-bars"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/one-bar"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "bar.average": "352.2",
+      "bar.barCount": "57",
+      "bar.close": "352.5",
+      "bar.date": "1794321060",
+      "bar.high": "353",
+      "bar.low": "351",
+      "bar.open": "351.5",
+      "bar.volume": "1200",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "bar.average": "353.2",
+      "bar.barCount": "31",
+      "bar.close": "353.5",
+      "bar.date": "1794321120",
+      "bar.high": "354",
+      "bar.low": "352",
+      "bar.open": "352.5",
+      "bar.volume": "900",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "3",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42",
+    "1794321060",
+    "351.5",
+    "353.0",
+    "351.0",
+    "352.5",
+    "1200",
+    "352.2",
+    "57",
+    "1794321120",
+    "352.5",
+    "354.0",
+    "352.0",
+    "353.5",
+    "900",
+    "353.2",
+    "31"
+   ],
+   "name": "gen/17/three-bars"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "20260102",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "20260102",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/one-day-bar"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "20260102",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "bar.average": "352.2",
+      "bar.barCount": "57",
+      "bar.close": "352.5",
+      "bar.date": "20260105",
+      "bar.high": "353",
+      "bar.low": "351",
+      "bar.open": "351.5",
+      "bar.volume": "1200",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "bar.average": "353.2",
+      "bar.barCount": "31",
+      "bar.close": "353.5",
+      "bar.date": "20260106",
+      "bar.high": "354",
+      "bar.low": "352",
+      "bar.open": "352.5",
+      "bar.volume": "900",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "3",
+    "20260102",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42",
+    "20260105",
+    "351.5",
+    "353.0",
+    "351.0",
+    "352.5",
+    "1200",
+    "352.2",
+    "57",
+    "20260106",
+    "352.5",
+    "354.0",
+    "352.0",
+    "353.5",
+    "900",
+    "353.2",
+    "31"
+   ],
+   "name": "gen/17/three-day-bars"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "bar.average": "352.2",
+      "bar.barCount": "57",
+      "bar.close": "352.5",
+      "bar.date": "20260105",
+      "bar.high": "353",
+      "bar.low": "351",
+      "bar.open": "351.5",
+      "bar.volume": "1200",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "bar.average": "353.2",
+      "bar.barCount": "31",
+      "bar.close": "353.5",
+      "bar.date": "1794321120",
+      "bar.high": "354",
+      "bar.low": "352",
+      "bar.open": "352.5",
+      "bar.volume": "900",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "3",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42",
+    "20260105",
+    "351.5",
+    "353.0",
+    "351.0",
+    "352.5",
+    "1200",
+    "352.2",
+    "57",
+    "1794321120",
+    "352.5",
+    "354.0",
+    "352.0",
+    "353.5",
+    "900",
+    "353.2",
+    "31"
+   ],
+   "name": "gen/17/mixed-bars"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "",
+      "_start": "",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "",
+    "",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/empty-start-end"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "-1",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "-1",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/volume-minus-one"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "-1",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "-1",
+    "42"
+   ],
+   "name": "gen/17/average-minus-one"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "17",
+    "",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-empty-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": ""
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": ""
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "2147483647",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-max-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": ""
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": ""
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "9223372036854775807",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-long-max-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": ""
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": ""
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "-9223372036854775808",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-long-min-reqId"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-empty-numBars"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "2147483647",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-max-numBars"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "9223372036854775807",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-long-max-numBars"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "-9223372036854775808",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-long-min-numBars"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-empty-open"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "2147483647",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "2147483647",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-max-open"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "1.7976931348623157E308",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-max-double-open"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "9223372036854776000",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "9223372036854775807",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-long-max-open"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "-9223372036854776000",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "-9223372036854775808",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-long-min-open"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-empty-high"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "2147483647",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "2147483647",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-max-high"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "1.7976931348623157E308",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-max-double-high"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "9223372036854776000",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "9223372036854775807",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-long-max-high"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "-9223372036854776000",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "-9223372036854775808",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-long-min-high"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-empty-low"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "2147483647",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "2147483647",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-max-low"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "1.7976931348623157E308",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-max-double-low"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "9223372036854776000",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "9223372036854775807",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-long-max-low"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "-9223372036854776000",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "-9223372036854775808",
+    "351.5",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-long-min-low"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-empty-close"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "2147483647",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "2147483647",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-max-close"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "1.7976931348623157E308",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-max-double-close"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "9223372036854776000",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "9223372036854775807",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-long-max-close"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "-9223372036854776000",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "-9223372036854775808",
+    "1000",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-long-min-close"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-empty-volume"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "2147483647",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "2147483647",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-max-volume"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1.7976931348623157E308",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-max-double-volume"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "9223372036854776000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "9223372036854775807",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-long-max-volume"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "-9223372036854776000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "-9223372036854775808",
+    "351.2",
+    "42"
+   ],
+   "name": "gen/17/unset-long-min-volume"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "",
+    "42"
+   ],
+   "name": "gen/17/unset-empty-average"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "2147483647",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "2147483647",
+    "42"
+   ],
+   "name": "gen/17/unset-max-average"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "1.7976931348623157E308",
+    "42"
+   ],
+   "name": "gen/17/unset-max-double-average"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "9223372036854776000",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "9223372036854775807",
+    "42"
+   ],
+   "name": "gen/17/unset-long-max-average"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "-9223372036854776000",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "-9223372036854775808",
+    "42"
+   ],
+   "name": "gen/17/unset-long-min-average"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    ""
+   ],
+   "name": "gen/17/unset-empty-barCount"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "2147483647"
+   ],
+   "name": "gen/17/unset-max-barCount"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "9223372036854775807"
+   ],
+   "name": "gen/17/unset-long-max-barCount"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalData"
+    },
+    {
+     "args": {
+      "_end": "20260101-16:00:00",
+      "_start": "20260101-09:30:00",
+      "reqId": "7"
+     },
+     "method": "historicalDataEnd"
+    }
+   ],
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "-9223372036854775808"
+   ],
+   "name": "gen/17/unset-long-min-barCount"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "3",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42",
+    "1794321060",
+    "351.5",
+    "353.0",
+    "351.0",
+    "352.5",
+    "1200",
+    "",
+    "57",
+    "1794321120",
+    "352.5",
+    "354.0",
+    "352.0",
+    "353.5",
+    "900",
+    "353.2",
+    "31"
+   ],
+   "name": "gen/17/bar2-empty-average"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "3",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42",
+    "1794321060",
+    "351.5",
+    "353.0",
+    "351.0",
+    "352.5",
+    "1200",
+    "352.2",
+    "57",
+    "1794321120",
+    "352.5",
+    "354.0",
+    "352.0",
+    "353.5",
+    "",
+    "353.2",
+    "31"
+   ],
+   "name": "gen/17/bar3-empty-volume"
+  },
+  {
+   "error": "ValueError: not enough values to unpack (expected at least 5, got 4)",
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00"
+   ],
+   "name": "gen/17/short-after-count"
+  },
+  {
+   "error": "ValueError: not enough values to unpack (expected at least 5, got 3)",
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00"
+   ],
+   "name": "gen/17/short-after-start"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5"
+   ],
+   "name": "gen/17/short-mid-bar"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "1",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2"
+   ],
+   "name": "gen/17/short-after-average"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "17",
+    "7",
+    "20260101-09:30:00",
+    "20260101-16:00:00",
+    "2",
+    "1794321000",
+    "351.0",
+    "352.0",
+    "350.5",
+    "351.5",
+    "1000",
+    "351.2",
+    "42",
+    "1794321060",
+    "351.5",
+    "353.0",
+    "351.0",
+    "352.5"
+   ],
+   "name": "gen/17/short-second-bar"
+  },
+  {
+   "calls": [
+    {
+     "args": {
       "delta": "0.55",
       "gamma": "0.03",
       "impliedVol": "0.25",
@@ -70466,6 +72523,1865 @@
    "calls": [
     {
      "args": {
+      "headTimestamp": "1794321000",
+      "reqId": "7"
+     },
+     "method": "headTimestamp"
+    }
+   ],
+   "fields": [
+    "88",
+    "7",
+    "1794321000"
+   ],
+   "name": "gen/88/epoch"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "headTimestamp": "20260102",
+      "reqId": "7"
+     },
+     "method": "headTimestamp"
+    }
+   ],
+   "fields": [
+    "88",
+    "7",
+    "20260102"
+   ],
+   "name": "gen/88/day"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "headTimestamp": "1794321000",
+      "reqId": "0"
+     },
+     "method": "headTimestamp"
+    }
+   ],
+   "fields": [
+    "88",
+    "",
+    "1794321000"
+   ],
+   "name": "gen/88/unset-empty-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "headTimestamp": "1794321000",
+      "reqId": ""
+     },
+     "method": "headTimestamp"
+    }
+   ],
+   "fields": [
+    "88",
+    "2147483647",
+    "1794321000"
+   ],
+   "name": "gen/88/unset-max-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "headTimestamp": "1794321000",
+      "reqId": ""
+     },
+     "method": "headTimestamp"
+    }
+   ],
+   "fields": [
+    "88",
+    "9223372036854775807",
+    "1794321000"
+   ],
+   "name": "gen/88/unset-long-max-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "headTimestamp": "1794321000",
+      "reqId": ""
+     },
+     "method": "headTimestamp"
+    }
+   ],
+   "fields": [
+    "88",
+    "-9223372036854775808",
+    "1794321000"
+   ],
+   "name": "gen/88/unset-long-min-reqId"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "88",
+    "7"
+   ],
+   "name": "gen/88/short"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "items.#": "0",
+      "reqId": "7"
+     },
+     "method": "histogramData"
+    }
+   ],
+   "fields": [
+    "89",
+    "7",
+    "0"
+   ],
+   "name": "gen/89/zero-items"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "items.#": "1",
+      "items[0].count": "10",
+      "items[0].price": "351",
+      "reqId": "7"
+     },
+     "method": "histogramData"
+    }
+   ],
+   "fields": [
+    "89",
+    "7",
+    "1",
+    "351.0",
+    "10"
+   ],
+   "name": "gen/89/one-item"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "items.#": "3",
+      "items[0].count": "10",
+      "items[0].price": "351",
+      "items[1].count": "25",
+      "items[1].price": "351.5",
+      "items[2].count": "7",
+      "items[2].price": "352",
+      "reqId": "7"
+     },
+     "method": "histogramData"
+    }
+   ],
+   "fields": [
+    "89",
+    "7",
+    "3",
+    "351.0",
+    "10",
+    "351.5",
+    "25",
+    "352.0",
+    "7"
+   ],
+   "name": "gen/89/three-items"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "89",
+    "",
+    "1",
+    "351.0",
+    "10"
+   ],
+   "name": "gen/89/unset-empty-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "items.#": "1",
+      "items[0].count": "10",
+      "items[0].price": "351",
+      "reqId": ""
+     },
+     "method": "histogramData"
+    }
+   ],
+   "fields": [
+    "89",
+    "2147483647",
+    "1",
+    "351.0",
+    "10"
+   ],
+   "name": "gen/89/unset-max-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "items.#": "1",
+      "items[0].count": "10",
+      "items[0].price": "351",
+      "reqId": ""
+     },
+     "method": "histogramData"
+    }
+   ],
+   "fields": [
+    "89",
+    "9223372036854775807",
+    "1",
+    "351.0",
+    "10"
+   ],
+   "name": "gen/89/unset-long-max-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "items.#": "1",
+      "items[0].count": "10",
+      "items[0].price": "351",
+      "reqId": ""
+     },
+     "method": "histogramData"
+    }
+   ],
+   "fields": [
+    "89",
+    "-9223372036854775808",
+    "1",
+    "351.0",
+    "10"
+   ],
+   "name": "gen/89/unset-long-min-reqId"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "89",
+    "7",
+    "",
+    "351.0",
+    "10"
+   ],
+   "name": "gen/89/unset-empty-n"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "89",
+    "7",
+    "2147483647",
+    "351.0",
+    "10"
+   ],
+   "name": "gen/89/unset-max-n"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "89",
+    "7",
+    "9223372036854775807",
+    "351.0",
+    "10"
+   ],
+   "name": "gen/89/unset-long-max-n"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "items.#": "0",
+      "reqId": "7"
+     },
+     "method": "histogramData"
+    }
+   ],
+   "fields": [
+    "89",
+    "7",
+    "-9223372036854775808",
+    "351.0",
+    "10"
+   ],
+   "name": "gen/89/unset-long-min-n"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "89",
+    "7",
+    "1",
+    "",
+    "10"
+   ],
+   "name": "gen/89/unset-empty-price"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "items.#": "1",
+      "items[0].count": "10",
+      "items[0].price": "2147483647",
+      "reqId": "7"
+     },
+     "method": "histogramData"
+    }
+   ],
+   "fields": [
+    "89",
+    "7",
+    "1",
+    "2147483647",
+    "10"
+   ],
+   "name": "gen/89/unset-max-price"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "items.#": "1",
+      "items[0].count": "10",
+      "items[0].price": "",
+      "reqId": "7"
+     },
+     "method": "histogramData"
+    }
+   ],
+   "fields": [
+    "89",
+    "7",
+    "1",
+    "1.7976931348623157E308",
+    "10"
+   ],
+   "name": "gen/89/unset-max-double-price"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "items.#": "1",
+      "items[0].count": "10",
+      "items[0].price": "9223372036854776000",
+      "reqId": "7"
+     },
+     "method": "histogramData"
+    }
+   ],
+   "fields": [
+    "89",
+    "7",
+    "1",
+    "9223372036854775807",
+    "10"
+   ],
+   "name": "gen/89/unset-long-max-price"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "items.#": "1",
+      "items[0].count": "10",
+      "items[0].price": "-9223372036854776000",
+      "reqId": "7"
+     },
+     "method": "histogramData"
+    }
+   ],
+   "fields": [
+    "89",
+    "7",
+    "1",
+    "-9223372036854775808",
+    "10"
+   ],
+   "name": "gen/89/unset-long-min-price"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "89",
+    "7",
+    "1",
+    "351.0",
+    ""
+   ],
+   "name": "gen/89/unset-empty-count"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "items.#": "1",
+      "items[0].count": "",
+      "items[0].price": "351",
+      "reqId": "7"
+     },
+     "method": "histogramData"
+    }
+   ],
+   "fields": [
+    "89",
+    "7",
+    "1",
+    "351.0",
+    "2147483647"
+   ],
+   "name": "gen/89/unset-max-count"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "items.#": "1",
+      "items[0].count": "",
+      "items[0].price": "351",
+      "reqId": "7"
+     },
+     "method": "histogramData"
+    }
+   ],
+   "fields": [
+    "89",
+    "7",
+    "1",
+    "351.0",
+    "9223372036854775807"
+   ],
+   "name": "gen/89/unset-long-max-count"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "items.#": "1",
+      "items[0].count": "",
+      "items[0].price": "351",
+      "reqId": "7"
+     },
+     "method": "histogramData"
+    }
+   ],
+   "fields": [
+    "89",
+    "7",
+    "1",
+    "351.0",
+    "-9223372036854775808"
+   ],
+   "name": "gen/89/unset-long-min-count"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "89",
+    "7",
+    "3",
+    "351.0",
+    "10",
+    "351.5",
+    "",
+    "352.0",
+    "7"
+   ],
+   "name": "gen/89/item2-empty-count"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "89",
+    "7",
+    "3",
+    "351.0",
+    "10",
+    "351.5",
+    "25",
+    "",
+    "7"
+   ],
+   "name": "gen/89/item3-empty-price"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "89",
+    "7",
+    "1"
+   ],
+   "name": "gen/89/short-after-count"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "89",
+    "7",
+    "3",
+    "351.0"
+   ],
+   "name": "gen/89/short-after-price"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "89",
+    "7",
+    "3",
+    "351.0",
+    "10",
+    "351.5"
+   ],
+   "name": "gen/89/short-second-item"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/epoch"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "20260102",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "20260102",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/day"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "-1",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    "-1"
+   ],
+   "name": "gen/90/volume-minus-one"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "-1",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "-1",
+    "1000"
+   ],
+   "name": "gen/90/average-minus-one"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "90",
+    "",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-empty-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": ""
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "2147483647",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-max-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": ""
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "9223372036854775807",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-long-max-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": ""
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "-9223372036854775808",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-long-min-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "0",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-empty-barCount"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "2147483647",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-max-barCount"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "9223372036854775807",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-long-max-barCount"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "-9223372036854775808",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-long-min-barCount"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "0",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-empty-open"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "2147483647",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "2147483647",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-max-open"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "1.7976931348623157E308",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-max-double-open"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "9223372036854776000",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "9223372036854775807",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-long-max-open"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "-9223372036854776000",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "-9223372036854775808",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-long-min-open"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "0",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-empty-close"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "2147483647",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "2147483647",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-max-close"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "1.7976931348623157E308",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-max-double-close"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "9223372036854776000",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "9223372036854775807",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-long-max-close"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "-9223372036854776000",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "-9223372036854775808",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-long-min-close"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "0",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-empty-high"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "2147483647",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "2147483647",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-max-high"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "1.7976931348623157E308",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-max-double-high"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "9223372036854776000",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "9223372036854775807",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-long-max-high"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "-9223372036854776000",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "-9223372036854775808",
+    "350.5",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-long-min-high"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "0",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-empty-low"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "2147483647",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "2147483647",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-max-low"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "1.7976931348623157E308",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-max-double-low"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "9223372036854776000",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "9223372036854775807",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-long-max-low"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "-9223372036854776000",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "-9223372036854775808",
+    "351.2",
+    "1000"
+   ],
+   "name": "gen/90/unset-long-min-low"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "0",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "",
+    "1000"
+   ],
+   "name": "gen/90/unset-empty-average"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "2147483647",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "2147483647",
+    "1000"
+   ],
+   "name": "gen/90/unset-max-average"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "1.7976931348623157E308",
+    "1000"
+   ],
+   "name": "gen/90/unset-max-double-average"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "9223372036854776000",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "9223372036854775807",
+    "1000"
+   ],
+   "name": "gen/90/unset-long-max-average"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "-9223372036854776000",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "1000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "-9223372036854775808",
+    "1000"
+   ],
+   "name": "gen/90/unset-long-min-average"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "0",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    ""
+   ],
+   "name": "gen/90/unset-empty-volume"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "2147483647",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    "2147483647"
+   ],
+   "name": "gen/90/unset-max-volume"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    "1.7976931348623157E308"
+   ],
+   "name": "gen/90/unset-max-double-volume"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "9223372036854776000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    "9223372036854775807"
+   ],
+   "name": "gen/90/unset-long-max-volume"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "bar.average": "351.2",
+      "bar.barCount": "42",
+      "bar.close": "351.5",
+      "bar.date": "1794321000",
+      "bar.high": "352",
+      "bar.low": "350.5",
+      "bar.open": "351",
+      "bar.volume": "-9223372036854776000",
+      "reqId": "7"
+     },
+     "method": "historicalDataUpdate"
+    }
+   ],
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2",
+    "-9223372036854775808"
+   ],
+   "name": "gen/90/unset-long-min-volume"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5",
+    "351.2"
+   ],
+   "name": "gen/90/short-after-average"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000",
+    "351.0",
+    "351.5",
+    "352.0",
+    "350.5"
+   ],
+   "name": "gen/90/short-after-low"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "90",
+    "7",
+    "42",
+    "1794321000"
+   ],
+   "name": "gen/90/short-after-date"
+  },
+  {
+   "calls": [
+    {
+     "args": {
       "_1": "7",
       "_2": "12087792",
       "_3": "IDEALPRO"
@@ -71506,6 +75422,3764 @@
     "1.7976931348623157E308"
    ],
    "name": "gen/95/unset-max-value"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "0"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "7",
+    "0",
+    "1"
+   ],
+   "name": "gen/96/zero-ticks-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "false",
+      "reqId": "7",
+      "ticks.#": "0"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "7",
+    "0",
+    "0"
+   ],
+   "name": "gen/96/zero-ticks-not-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "3",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1]": "351.5",
+      "ticks[0][2]": "100"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "1"
+   ],
+   "name": "gen/96/one-tick-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "false",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "3",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1]": "351.5",
+      "ticks[0][2]": "100"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "0"
+   ],
+   "name": "gen/96/one-tick-not-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "3",
+      "ticks[0].#": "3",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1]": "351.5",
+      "ticks[0][2]": "100",
+      "ticks[1].#": "3",
+      "ticks[1][0]": "1794321001",
+      "ticks[1][1]": "351.6",
+      "ticks[1][2]": "120",
+      "ticks[2].#": "3",
+      "ticks[2][0]": "1794321002",
+      "ticks[2][1]": "351.7",
+      "ticks[2][2]": "140"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "7",
+    "3",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "1794321001",
+    "3",
+    "351.6",
+    "120",
+    "1794321002",
+    "0",
+    "351.7",
+    "140",
+    "1"
+   ],
+   "name": "gen/96/three-ticks-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "false",
+      "reqId": "7",
+      "ticks.#": "3",
+      "ticks[0].#": "3",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1]": "351.5",
+      "ticks[0][2]": "100",
+      "ticks[1].#": "3",
+      "ticks[1][0]": "1794321001",
+      "ticks[1][1]": "351.6",
+      "ticks[1][2]": "120",
+      "ticks[2].#": "3",
+      "ticks[2][0]": "1794321002",
+      "ticks[2][1]": "351.7",
+      "ticks[2][2]": "140"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "7",
+    "3",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "1794321001",
+    "3",
+    "351.6",
+    "120",
+    "1794321002",
+    "0",
+    "351.7",
+    "140",
+    "0"
+   ],
+   "name": "gen/96/three-ticks-not-done"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "96",
+    "",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "1"
+   ],
+   "name": "gen/96/unset-empty-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "",
+      "ticks.#": "1",
+      "ticks[0].#": "3",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1]": "351.5",
+      "ticks[0][2]": "100"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "2147483647",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "1"
+   ],
+   "name": "gen/96/unset-max-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "",
+      "ticks.#": "1",
+      "ticks[0].#": "3",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1]": "351.5",
+      "ticks[0][2]": "100"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "9223372036854775807",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "1"
+   ],
+   "name": "gen/96/unset-long-max-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "",
+      "ticks.#": "1",
+      "ticks[0].#": "3",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1]": "351.5",
+      "ticks[0][2]": "100"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "-9223372036854775808",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "1"
+   ],
+   "name": "gen/96/unset-long-min-reqId"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "96",
+    "7",
+    "",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "1"
+   ],
+   "name": "gen/96/unset-empty-n"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "96",
+    "7",
+    "2147483647",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "1"
+   ],
+   "name": "gen/96/unset-max-n"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "96",
+    "7",
+    "9223372036854775807",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "1"
+   ],
+   "name": "gen/96/unset-long-max-n"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "",
+    "0",
+    "351.5",
+    "100",
+    "1"
+   ],
+   "name": "gen/96/unset-empty-time"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "3",
+      "ticks[0][0]": "2147483647",
+      "ticks[0][1]": "351.5",
+      "ticks[0][2]": "100"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "2147483647",
+    "0",
+    "351.5",
+    "100",
+    "1"
+   ],
+   "name": "gen/96/unset-max-time"
+  },
+  {
+   "error": "OSError: [Errno 22] Invalid argument",
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "9223372036854775807",
+    "0",
+    "351.5",
+    "100",
+    "1"
+   ],
+   "name": "gen/96/unset-long-max-time"
+  },
+  {
+   "error": "OSError: [Errno 22] Invalid argument",
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "-9223372036854775808",
+    "0",
+    "351.5",
+    "100",
+    "1"
+   ],
+   "name": "gen/96/unset-long-min-time"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "",
+    "100",
+    "1"
+   ],
+   "name": "gen/96/unset-empty-price"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "3",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1]": "2147483647",
+      "ticks[0][2]": "100"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "2147483647",
+    "100",
+    "1"
+   ],
+   "name": "gen/96/unset-max-price"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "3",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1]": "",
+      "ticks[0][2]": "100"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "1.7976931348623157E308",
+    "100",
+    "1"
+   ],
+   "name": "gen/96/unset-max-double-price"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "3",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1]": "9223372036854776000",
+      "ticks[0][2]": "100"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "9223372036854775807",
+    "100",
+    "1"
+   ],
+   "name": "gen/96/unset-long-max-price"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "3",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1]": "-9223372036854776000",
+      "ticks[0][2]": "100"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "-9223372036854775808",
+    "100",
+    "1"
+   ],
+   "name": "gen/96/unset-long-min-price"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "",
+    "1"
+   ],
+   "name": "gen/96/unset-empty-size"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "3",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1]": "351.5",
+      "ticks[0][2]": "2147483647"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "2147483647",
+    "1"
+   ],
+   "name": "gen/96/unset-max-size"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "3",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1]": "351.5",
+      "ticks[0][2]": ""
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "1.7976931348623157E308",
+    "1"
+   ],
+   "name": "gen/96/unset-max-double-size"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "3",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1]": "351.5",
+      "ticks[0][2]": "9223372036854776000"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "9223372036854775807",
+    "1"
+   ],
+   "name": "gen/96/unset-long-max-size"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "3",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1]": "351.5",
+      "ticks[0][2]": "-9223372036854776000"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "-9223372036854775808",
+    "1"
+   ],
+   "name": "gen/96/unset-long-min-size"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    ""
+   ],
+   "name": "gen/96/unset-empty-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "3",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1]": "351.5",
+      "ticks[0][2]": "100"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "2147483647"
+   ],
+   "name": "gen/96/unset-max-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "3",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1]": "351.5",
+      "ticks[0][2]": "100"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "9223372036854775807"
+   ],
+   "name": "gen/96/unset-long-max-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "3",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1]": "351.5",
+      "ticks[0][2]": "100"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "-9223372036854775808"
+   ],
+   "name": "gen/96/unset-long-min-done"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "96",
+    "7",
+    "3",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "1794321001",
+    "3",
+    "351.6",
+    "120",
+    "1794321002",
+    "0",
+    "351.7",
+    "",
+    "1"
+   ],
+   "name": "gen/96/tick3-empty-last-number"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "96",
+    "7",
+    "1"
+   ],
+   "name": "gen/96/short-after-count"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "1794321000",
+    "0"
+   ],
+   "name": "gen/96/short-mid-tick"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100"
+   ],
+   "name": "gen/96/short-before-done"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "96",
+    "7",
+    "2",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "1794321001",
+    "3"
+   ],
+   "name": "gen/96/short-second-tick"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "3",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1]": "351.5",
+      "ticks[0][2]": "100"
+     },
+     "method": "historicalTicks"
+    }
+   ],
+   "fields": [
+    "96",
+    "7",
+    "1",
+    "1794321000",
+    "7",
+    "351.5",
+    "100",
+    "1"
+   ],
+   "name": "gen/96/unused-field-set"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "0"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "0",
+    "1"
+   ],
+   "name": "gen/97/zero-ticks-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "false",
+      "reqId": "7",
+      "ticks.#": "0"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "0",
+    "0"
+   ],
+   "name": "gen/97/zero-ticks-not-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/one-tick-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "false",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "0"
+   ],
+   "name": "gen/97/one-tick-not-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "3",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200",
+      "ticks[1].#": "6",
+      "ticks[1][0]": "1794321001",
+      "ticks[1][1].askPastHigh": "true",
+      "ticks[1][1].bidPastLow": "false",
+      "ticks[1][2]": "351.5",
+      "ticks[1][3]": "351.7",
+      "ticks[1][4]": "310",
+      "ticks[1][5]": "210",
+      "ticks[2].#": "6",
+      "ticks[2][0]": "1794321002",
+      "ticks[2][1].askPastHigh": "false",
+      "ticks[2][1].bidPastLow": "true",
+      "ticks[2][2]": "351.6",
+      "ticks[2][3]": "351.8",
+      "ticks[2][4]": "320",
+      "ticks[2][5]": "220"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "3",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1794321001",
+    "1",
+    "351.5",
+    "351.7",
+    "310",
+    "210",
+    "1794321002",
+    "2",
+    "351.6",
+    "351.8",
+    "320",
+    "220",
+    "1"
+   ],
+   "name": "gen/97/three-ticks-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "false",
+      "reqId": "7",
+      "ticks.#": "3",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200",
+      "ticks[1].#": "6",
+      "ticks[1][0]": "1794321001",
+      "ticks[1][1].askPastHigh": "true",
+      "ticks[1][1].bidPastLow": "false",
+      "ticks[1][2]": "351.5",
+      "ticks[1][3]": "351.7",
+      "ticks[1][4]": "310",
+      "ticks[1][5]": "210",
+      "ticks[2].#": "6",
+      "ticks[2][0]": "1794321002",
+      "ticks[2][1].askPastHigh": "false",
+      "ticks[2][1].bidPastLow": "true",
+      "ticks[2][2]": "351.6",
+      "ticks[2][3]": "351.8",
+      "ticks[2][4]": "320",
+      "ticks[2][5]": "220"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "3",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1794321001",
+    "1",
+    "351.5",
+    "351.7",
+    "310",
+    "210",
+    "1794321002",
+    "2",
+    "351.6",
+    "351.8",
+    "320",
+    "220",
+    "0"
+   ],
+   "name": "gen/97/three-ticks-not-done"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "97",
+    "",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-empty-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "2147483647",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-max-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "9223372036854775807",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-long-max-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "-9223372036854775808",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-long-min-reqId"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "97",
+    "7",
+    "",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-empty-n"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "97",
+    "7",
+    "2147483647",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-max-n"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "97",
+    "7",
+    "9223372036854775807",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-long-max-n"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-empty-time"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "2147483647",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "2147483647",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-max-time"
+  },
+  {
+   "error": "OSError: [Errno 22] Invalid argument",
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "9223372036854775807",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-long-max-time"
+  },
+  {
+   "error": "OSError: [Errno 22] Invalid argument",
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "-9223372036854775808",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-long-min-time"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-empty-mask"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "true",
+      "ticks[0][1].bidPastLow": "true",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "2147483647",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-max-mask"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "true",
+      "ticks[0][1].bidPastLow": "true",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "9223372036854775807",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-long-max-mask"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "-9223372036854775808",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-long-min-mask"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-empty-bidPrice"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "2147483647",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "2147483647",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-max-bidPrice"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "1.7976931348623157E308",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-max-double-bidPrice"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "9223372036854776000",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "9223372036854775807",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-long-max-bidPrice"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "-9223372036854776000",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "-9223372036854775808",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-long-min-bidPrice"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-empty-askPrice"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "2147483647",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "2147483647",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-max-askPrice"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "1.7976931348623157E308",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-max-double-askPrice"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "9223372036854776000",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "9223372036854775807",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-long-max-askPrice"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "-9223372036854776000",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "-9223372036854775808",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-long-min-askPrice"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-empty-bidSize"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "2147483647",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "2147483647",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-max-bidSize"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "1.7976931348623157E308",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-max-double-bidSize"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "9223372036854776000",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "9223372036854775807",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-long-max-bidSize"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "-9223372036854776000",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "-9223372036854775808",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/unset-long-min-bidSize"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "",
+    "1"
+   ],
+   "name": "gen/97/unset-empty-askSize"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "2147483647"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "2147483647",
+    "1"
+   ],
+   "name": "gen/97/unset-max-askSize"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": ""
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "1.7976931348623157E308",
+    "1"
+   ],
+   "name": "gen/97/unset-max-double-askSize"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "9223372036854776000"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "9223372036854775807",
+    "1"
+   ],
+   "name": "gen/97/unset-long-max-askSize"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "-9223372036854776000"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "-9223372036854775808",
+    "1"
+   ],
+   "name": "gen/97/unset-long-min-askSize"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    ""
+   ],
+   "name": "gen/97/unset-empty-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "2147483647"
+   ],
+   "name": "gen/97/unset-max-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "9223372036854775807"
+   ],
+   "name": "gen/97/unset-long-max-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "-9223372036854775808"
+   ],
+   "name": "gen/97/unset-long-min-done"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "97",
+    "7",
+    "3",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1794321001",
+    "1",
+    "351.5",
+    "351.7",
+    "310",
+    "210",
+    "1794321002",
+    "2",
+    "351.6",
+    "351.8",
+    "320",
+    "",
+    "1"
+   ],
+   "name": "gen/97/tick3-empty-last-number"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "97",
+    "7",
+    "1"
+   ],
+   "name": "gen/97/short-after-count"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0"
+   ],
+   "name": "gen/97/short-mid-tick"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200"
+   ],
+   "name": "gen/97/short-before-done"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "97",
+    "7",
+    "2",
+    "1794321000",
+    "0",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1794321001",
+    "1"
+   ],
+   "name": "gen/97/short-second-tick"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "true",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "1",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/mask-1"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "true",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "2",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/mask-2"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "true",
+      "ticks[0][1].bidPastLow": "true",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "3",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/mask-3"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "false",
+      "ticks[0][1].bidPastLow": "false",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "4",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/mask-4"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].askPastHigh": "true",
+      "ticks[0][1].bidPastLow": "true",
+      "ticks[0][2]": "351.4",
+      "ticks[0][3]": "351.6",
+      "ticks[0][4]": "300",
+      "ticks[0][5]": "200"
+     },
+     "method": "historicalTicksBidAsk"
+    }
+   ],
+   "fields": [
+    "97",
+    "7",
+    "1",
+    "1794321000",
+    "7",
+    "351.4",
+    "351.6",
+    "300",
+    "200",
+    "1"
+   ],
+   "name": "gen/97/mask-7"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "0"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "0",
+    "1"
+   ],
+   "name": "gen/98/zero-ticks-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "false",
+      "reqId": "7",
+      "ticks.#": "0"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "0",
+    "0"
+   ],
+   "name": "gen/98/zero-ticks-not-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/one-tick-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "false",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "0"
+   ],
+   "name": "gen/98/one-tick-not-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "3",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I",
+      "ticks[1].#": "6",
+      "ticks[1][0]": "1794321001",
+      "ticks[1][1].pastLimit": "true",
+      "ticks[1][1].unreported": "false",
+      "ticks[1][2]": "351.6",
+      "ticks[1][3]": "120",
+      "ticks[1][4]": "ARCA",
+      "ticks[1][5]": "@ F T",
+      "ticks[2].#": "6",
+      "ticks[2][0]": "1794321002",
+      "ticks[2][1].pastLimit": "false",
+      "ticks[2][1].unreported": "true",
+      "ticks[2][2]": "351.7",
+      "ticks[2][3]": "140",
+      "ticks[2][4]": "ISLAND",
+      "ticks[2][5]": "I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "3",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1794321001",
+    "1",
+    "351.6",
+    "120",
+    "ARCA",
+    "@ F T",
+    "1794321002",
+    "2",
+    "351.7",
+    "140",
+    "ISLAND",
+    "I",
+    "1"
+   ],
+   "name": "gen/98/three-ticks-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "false",
+      "reqId": "7",
+      "ticks.#": "3",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I",
+      "ticks[1].#": "6",
+      "ticks[1][0]": "1794321001",
+      "ticks[1][1].pastLimit": "true",
+      "ticks[1][1].unreported": "false",
+      "ticks[1][2]": "351.6",
+      "ticks[1][3]": "120",
+      "ticks[1][4]": "ARCA",
+      "ticks[1][5]": "@ F T",
+      "ticks[2].#": "6",
+      "ticks[2][0]": "1794321002",
+      "ticks[2][1].pastLimit": "false",
+      "ticks[2][1].unreported": "true",
+      "ticks[2][2]": "351.7",
+      "ticks[2][3]": "140",
+      "ticks[2][4]": "ISLAND",
+      "ticks[2][5]": "I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "3",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1794321001",
+    "1",
+    "351.6",
+    "120",
+    "ARCA",
+    "@ F T",
+    "1794321002",
+    "2",
+    "351.7",
+    "140",
+    "ISLAND",
+    "I",
+    "0"
+   ],
+   "name": "gen/98/three-ticks-not-done"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "98",
+    "",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-empty-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "2147483647",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-max-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "9223372036854775807",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-long-max-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "-9223372036854775808",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-long-min-reqId"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "98",
+    "7",
+    "",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-empty-n"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "98",
+    "7",
+    "2147483647",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-max-n"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "98",
+    "7",
+    "9223372036854775807",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-long-max-n"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-empty-time"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "2147483647",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "2147483647",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-max-time"
+  },
+  {
+   "error": "OSError: [Errno 22] Invalid argument",
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "9223372036854775807",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-long-max-time"
+  },
+  {
+   "error": "OSError: [Errno 22] Invalid argument",
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "-9223372036854775808",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-long-min-time"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-empty-mask"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "true",
+      "ticks[0][1].unreported": "true",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "2147483647",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-max-mask"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "true",
+      "ticks[0][1].unreported": "true",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "9223372036854775807",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-long-max-mask"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "-9223372036854775808",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-long-min-mask"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-empty-price"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "2147483647",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "2147483647",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-max-price"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "1.7976931348623157E308",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-max-double-price"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "9223372036854776000",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "9223372036854775807",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-long-max-price"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "-9223372036854776000",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "-9223372036854775808",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-long-min-price"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-empty-size"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "2147483647",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "2147483647",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-max-size"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "1.7976931348623157E308",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-max-double-size"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "9223372036854776000",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "9223372036854775807",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-long-max-size"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "-9223372036854776000",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "-9223372036854775808",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/unset-long-min-size"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    ""
+   ],
+   "name": "gen/98/unset-empty-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "2147483647"
+   ],
+   "name": "gen/98/unset-max-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "9223372036854775807"
+   ],
+   "name": "gen/98/unset-long-max-done"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "-9223372036854775808"
+   ],
+   "name": "gen/98/unset-long-min-done"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "98",
+    "7",
+    "3",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1794321001",
+    "1",
+    "351.6",
+    "120",
+    "ARCA",
+    "@ F T",
+    "1794321002",
+    "2",
+    "351.7",
+    "",
+    "ISLAND",
+    "I",
+    "1"
+   ],
+   "name": "gen/98/tick3-empty-last-number"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "98",
+    "7",
+    "1"
+   ],
+   "name": "gen/98/short-after-count"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "0"
+   ],
+   "name": "gen/98/short-mid-tick"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I"
+   ],
+   "name": "gen/98/short-before-done"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "98",
+    "7",
+    "2",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1794321001",
+    "1"
+   ],
+   "name": "gen/98/short-second-tick"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "true",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "1",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/mask-1"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "true",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "2",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/mask-2"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "true",
+      "ticks[0][1].unreported": "true",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "3",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/mask-3"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "4",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/mask-4"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "true",
+      "ticks[0][1].unreported": "true",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "7",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/mask-7"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": ""
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "",
+    "1"
+   ],
+   "name": "gen/98/empty-special-conditions"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "",
+      "ticks[0][5]": "@ I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "",
+    "@ I",
+    "1"
+   ],
+   "name": "gen/98/empty-exchange"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "1",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "",
+      "ticks[0][5]": ""
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "1",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "",
+    "",
+    "1"
+   ],
+   "name": "gen/98/empty-exchange-and-conditions"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "done": "true",
+      "reqId": "7",
+      "ticks.#": "3",
+      "ticks[0].#": "6",
+      "ticks[0][0]": "1794321000",
+      "ticks[0][1].pastLimit": "false",
+      "ticks[0][1].unreported": "false",
+      "ticks[0][2]": "351.5",
+      "ticks[0][3]": "100",
+      "ticks[0][4]": "NASDAQ",
+      "ticks[0][5]": "@ I",
+      "ticks[1].#": "6",
+      "ticks[1][0]": "1794321001",
+      "ticks[1][1].pastLimit": "true",
+      "ticks[1][1].unreported": "false",
+      "ticks[1][2]": "351.6",
+      "ticks[1][3]": "120",
+      "ticks[1][4]": "ARCA",
+      "ticks[1][5]": "",
+      "ticks[2].#": "6",
+      "ticks[2][0]": "1794321002",
+      "ticks[2][1].pastLimit": "false",
+      "ticks[2][1].unreported": "true",
+      "ticks[2][2]": "351.7",
+      "ticks[2][3]": "140",
+      "ticks[2][4]": "ISLAND",
+      "ticks[2][5]": "I"
+     },
+     "method": "historicalTicksLast"
+    }
+   ],
+   "fields": [
+    "98",
+    "7",
+    "3",
+    "1794321000",
+    "0",
+    "351.5",
+    "100",
+    "NASDAQ",
+    "@ I",
+    "1794321001",
+    "1",
+    "351.6",
+    "120",
+    "ARCA",
+    "",
+    "1794321002",
+    "2",
+    "351.7",
+    "140",
+    "ISLAND",
+    "I",
+    "1"
+   ],
+   "name": "gen/98/tick2-empty-special-conditions"
   },
   {
    "calls": [
@@ -88044,6 +95718,552 @@
     "1"
    ],
    "name": "gen/102/base"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "endDateTime": "20260106-21:00:00",
+      "reqId": "7",
+      "sessions.#": "0",
+      "startDateTime": "20260102-14:30:00",
+      "timeZone": "US/Eastern"
+     },
+     "method": "historicalSchedule"
+    }
+   ],
+   "fields": [
+    "106",
+    "7",
+    "20260102-14:30:00",
+    "20260106-21:00:00",
+    "US/Eastern",
+    "0"
+   ],
+   "name": "gen/106/zero-sessions"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "endDateTime": "20260106-21:00:00",
+      "reqId": "7",
+      "sessions.#": "1",
+      "sessions[0].endDateTime": "20260102-21:00:00",
+      "sessions[0].refDate": "20260102",
+      "sessions[0].startDateTime": "20260102-14:30:00",
+      "startDateTime": "20260102-14:30:00",
+      "timeZone": "US/Eastern"
+     },
+     "method": "historicalSchedule"
+    }
+   ],
+   "fields": [
+    "106",
+    "7",
+    "20260102-14:30:00",
+    "20260106-21:00:00",
+    "US/Eastern",
+    "1",
+    "20260102-14:30:00",
+    "20260102-21:00:00",
+    "20260102"
+   ],
+   "name": "gen/106/one-session"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "endDateTime": "20260106-21:00:00",
+      "reqId": "7",
+      "sessions.#": "2",
+      "sessions[0].endDateTime": "20260102-21:00:00",
+      "sessions[0].refDate": "20260102",
+      "sessions[0].startDateTime": "20260102-14:30:00",
+      "sessions[1].endDateTime": "20260105-21:00:00",
+      "sessions[1].refDate": "20260105",
+      "sessions[1].startDateTime": "20260105-14:30:00",
+      "startDateTime": "20260102-14:30:00",
+      "timeZone": "US/Eastern"
+     },
+     "method": "historicalSchedule"
+    }
+   ],
+   "fields": [
+    "106",
+    "7",
+    "20260102-14:30:00",
+    "20260106-21:00:00",
+    "US/Eastern",
+    "2",
+    "20260102-14:30:00",
+    "20260102-21:00:00",
+    "20260102",
+    "20260105-14:30:00",
+    "20260105-21:00:00",
+    "20260105"
+   ],
+   "name": "gen/106/two-sessions"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "endDateTime": "20260106-21:00:00",
+      "reqId": "7",
+      "sessions.#": "2",
+      "sessions[0].endDateTime": "20260102-21:00:00",
+      "sessions[0].refDate": "20260102",
+      "sessions[0].startDateTime": "20260102-14:30:00",
+      "sessions[1].endDateTime": "20260105-21:00:00",
+      "sessions[1].refDate": "20260105",
+      "sessions[1].startDateTime": "20260105-14:30:00",
+      "startDateTime": "20260102-14:30:00",
+      "timeZone": ""
+     },
+     "method": "historicalSchedule"
+    }
+   ],
+   "fields": [
+    "106",
+    "7",
+    "20260102-14:30:00",
+    "20260106-21:00:00",
+    "",
+    "2",
+    "20260102-14:30:00",
+    "20260102-21:00:00",
+    "20260102",
+    "20260105-14:30:00",
+    "20260105-21:00:00",
+    "20260105"
+   ],
+   "name": "gen/106/empty-time-zone"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "endDateTime": "",
+      "reqId": "7",
+      "sessions.#": "2",
+      "sessions[0].endDateTime": "20260102-21:00:00",
+      "sessions[0].refDate": "20260102",
+      "sessions[0].startDateTime": "20260102-14:30:00",
+      "sessions[1].endDateTime": "20260105-21:00:00",
+      "sessions[1].refDate": "20260105",
+      "sessions[1].startDateTime": "20260105-14:30:00",
+      "startDateTime": "",
+      "timeZone": "US/Eastern"
+     },
+     "method": "historicalSchedule"
+    }
+   ],
+   "fields": [
+    "106",
+    "7",
+    "",
+    "",
+    "US/Eastern",
+    "2",
+    "20260102-14:30:00",
+    "20260102-21:00:00",
+    "20260102",
+    "20260105-14:30:00",
+    "20260105-21:00:00",
+    "20260105"
+   ],
+   "name": "gen/106/empty-start-end"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "endDateTime": "20260106-21:00:00",
+      "reqId": "7",
+      "sessions.#": "2",
+      "sessions[0].endDateTime": "20260102-21:00:00",
+      "sessions[0].refDate": "20260102",
+      "sessions[0].startDateTime": "",
+      "sessions[1].endDateTime": "20260105-21:00:00",
+      "sessions[1].refDate": "20260105",
+      "sessions[1].startDateTime": "20260105-14:30:00",
+      "startDateTime": "20260102-14:30:00",
+      "timeZone": "US/Eastern"
+     },
+     "method": "historicalSchedule"
+    }
+   ],
+   "fields": [
+    "106",
+    "7",
+    "20260102-14:30:00",
+    "20260106-21:00:00",
+    "US/Eastern",
+    "2",
+    "",
+    "20260102-21:00:00",
+    "20260102",
+    "20260105-14:30:00",
+    "20260105-21:00:00",
+    "20260105"
+   ],
+   "name": "gen/106/empty-session-start"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "endDateTime": "20260106-21:00:00",
+      "reqId": "7",
+      "sessions.#": "2",
+      "sessions[0].endDateTime": "",
+      "sessions[0].refDate": "20260102",
+      "sessions[0].startDateTime": "20260102-14:30:00",
+      "sessions[1].endDateTime": "20260105-21:00:00",
+      "sessions[1].refDate": "20260105",
+      "sessions[1].startDateTime": "20260105-14:30:00",
+      "startDateTime": "20260102-14:30:00",
+      "timeZone": "US/Eastern"
+     },
+     "method": "historicalSchedule"
+    }
+   ],
+   "fields": [
+    "106",
+    "7",
+    "20260102-14:30:00",
+    "20260106-21:00:00",
+    "US/Eastern",
+    "2",
+    "20260102-14:30:00",
+    "",
+    "20260102",
+    "20260105-14:30:00",
+    "20260105-21:00:00",
+    "20260105"
+   ],
+   "name": "gen/106/empty-session-end"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "endDateTime": "20260106-21:00:00",
+      "reqId": "7",
+      "sessions.#": "2",
+      "sessions[0].endDateTime": "20260102-21:00:00",
+      "sessions[0].refDate": "",
+      "sessions[0].startDateTime": "20260102-14:30:00",
+      "sessions[1].endDateTime": "20260105-21:00:00",
+      "sessions[1].refDate": "20260105",
+      "sessions[1].startDateTime": "20260105-14:30:00",
+      "startDateTime": "20260102-14:30:00",
+      "timeZone": "US/Eastern"
+     },
+     "method": "historicalSchedule"
+    }
+   ],
+   "fields": [
+    "106",
+    "7",
+    "20260102-14:30:00",
+    "20260106-21:00:00",
+    "US/Eastern",
+    "2",
+    "20260102-14:30:00",
+    "20260102-21:00:00",
+    "",
+    "20260105-14:30:00",
+    "20260105-21:00:00",
+    "20260105"
+   ],
+   "name": "gen/106/empty-session-ref-date"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "endDateTime": "20260106-21:00:00",
+      "reqId": "7",
+      "sessions.#": "2",
+      "sessions[0].endDateTime": "20260102-21:00:00",
+      "sessions[0].refDate": "20260102",
+      "sessions[0].startDateTime": "20260102-14:30:00",
+      "sessions[1].endDateTime": "",
+      "sessions[1].refDate": "20260105",
+      "sessions[1].startDateTime": "20260105-14:30:00",
+      "startDateTime": "20260102-14:30:00",
+      "timeZone": "US/Eastern"
+     },
+     "method": "historicalSchedule"
+    }
+   ],
+   "fields": [
+    "106",
+    "7",
+    "20260102-14:30:00",
+    "20260106-21:00:00",
+    "US/Eastern",
+    "2",
+    "20260102-14:30:00",
+    "20260102-21:00:00",
+    "20260102",
+    "20260105-14:30:00",
+    "",
+    "20260105"
+   ],
+   "name": "gen/106/session2-empty-end"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "106",
+    "",
+    "20260102-14:30:00",
+    "20260106-21:00:00",
+    "US/Eastern",
+    "2",
+    "20260102-14:30:00",
+    "20260102-21:00:00",
+    "20260102",
+    "20260105-14:30:00",
+    "20260105-21:00:00",
+    "20260105"
+   ],
+   "name": "gen/106/unset-empty-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "endDateTime": "20260106-21:00:00",
+      "reqId": "",
+      "sessions.#": "2",
+      "sessions[0].endDateTime": "20260102-21:00:00",
+      "sessions[0].refDate": "20260102",
+      "sessions[0].startDateTime": "20260102-14:30:00",
+      "sessions[1].endDateTime": "20260105-21:00:00",
+      "sessions[1].refDate": "20260105",
+      "sessions[1].startDateTime": "20260105-14:30:00",
+      "startDateTime": "20260102-14:30:00",
+      "timeZone": "US/Eastern"
+     },
+     "method": "historicalSchedule"
+    }
+   ],
+   "fields": [
+    "106",
+    "2147483647",
+    "20260102-14:30:00",
+    "20260106-21:00:00",
+    "US/Eastern",
+    "2",
+    "20260102-14:30:00",
+    "20260102-21:00:00",
+    "20260102",
+    "20260105-14:30:00",
+    "20260105-21:00:00",
+    "20260105"
+   ],
+   "name": "gen/106/unset-max-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "endDateTime": "20260106-21:00:00",
+      "reqId": "",
+      "sessions.#": "2",
+      "sessions[0].endDateTime": "20260102-21:00:00",
+      "sessions[0].refDate": "20260102",
+      "sessions[0].startDateTime": "20260102-14:30:00",
+      "sessions[1].endDateTime": "20260105-21:00:00",
+      "sessions[1].refDate": "20260105",
+      "sessions[1].startDateTime": "20260105-14:30:00",
+      "startDateTime": "20260102-14:30:00",
+      "timeZone": "US/Eastern"
+     },
+     "method": "historicalSchedule"
+    }
+   ],
+   "fields": [
+    "106",
+    "9223372036854775807",
+    "20260102-14:30:00",
+    "20260106-21:00:00",
+    "US/Eastern",
+    "2",
+    "20260102-14:30:00",
+    "20260102-21:00:00",
+    "20260102",
+    "20260105-14:30:00",
+    "20260105-21:00:00",
+    "20260105"
+   ],
+   "name": "gen/106/unset-long-max-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "endDateTime": "20260106-21:00:00",
+      "reqId": "",
+      "sessions.#": "2",
+      "sessions[0].endDateTime": "20260102-21:00:00",
+      "sessions[0].refDate": "20260102",
+      "sessions[0].startDateTime": "20260102-14:30:00",
+      "sessions[1].endDateTime": "20260105-21:00:00",
+      "sessions[1].refDate": "20260105",
+      "sessions[1].startDateTime": "20260105-14:30:00",
+      "startDateTime": "20260102-14:30:00",
+      "timeZone": "US/Eastern"
+     },
+     "method": "historicalSchedule"
+    }
+   ],
+   "fields": [
+    "106",
+    "-9223372036854775808",
+    "20260102-14:30:00",
+    "20260106-21:00:00",
+    "US/Eastern",
+    "2",
+    "20260102-14:30:00",
+    "20260102-21:00:00",
+    "20260102",
+    "20260105-14:30:00",
+    "20260105-21:00:00",
+    "20260105"
+   ],
+   "name": "gen/106/unset-long-min-reqId"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "106",
+    "7",
+    "20260102-14:30:00",
+    "20260106-21:00:00",
+    "US/Eastern",
+    "",
+    "20260102-14:30:00",
+    "20260102-21:00:00",
+    "20260102",
+    "20260105-14:30:00",
+    "20260105-21:00:00",
+    "20260105"
+   ],
+   "name": "gen/106/unset-empty-n"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "106",
+    "7",
+    "20260102-14:30:00",
+    "20260106-21:00:00",
+    "US/Eastern",
+    "2147483647",
+    "20260102-14:30:00",
+    "20260102-21:00:00",
+    "20260102",
+    "20260105-14:30:00",
+    "20260105-21:00:00",
+    "20260105"
+   ],
+   "name": "gen/106/unset-max-n"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "106",
+    "7",
+    "20260102-14:30:00",
+    "20260106-21:00:00",
+    "US/Eastern",
+    "9223372036854775807",
+    "20260102-14:30:00",
+    "20260102-21:00:00",
+    "20260102",
+    "20260105-14:30:00",
+    "20260105-21:00:00",
+    "20260105"
+   ],
+   "name": "gen/106/unset-long-max-n"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "endDateTime": "20260106-21:00:00",
+      "reqId": "7",
+      "sessions.#": "0",
+      "startDateTime": "20260102-14:30:00",
+      "timeZone": "US/Eastern"
+     },
+     "method": "historicalSchedule"
+    }
+   ],
+   "fields": [
+    "106",
+    "7",
+    "20260102-14:30:00",
+    "20260106-21:00:00",
+    "US/Eastern",
+    "-9223372036854775808",
+    "20260102-14:30:00",
+    "20260102-21:00:00",
+    "20260102",
+    "20260105-14:30:00",
+    "20260105-21:00:00",
+    "20260105"
+   ],
+   "name": "gen/106/unset-long-min-n"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "106",
+    "7",
+    "20260102-14:30:00",
+    "20260106-21:00:00",
+    "US/Eastern",
+    "2"
+   ],
+   "name": "gen/106/short-after-count"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "106",
+    "7",
+    "20260102-14:30:00",
+    "20260106-21:00:00",
+    "US/Eastern",
+    "2",
+    "20260102-14:30:00",
+    "20260102-21:00:00"
+   ],
+   "name": "gen/106/short-mid-session"
+  },
+  {
+   "error": "StopIteration: ",
+   "fields": [
+    "106",
+    "7",
+    "20260102-14:30:00",
+    "20260106-21:00:00",
+    "US/Eastern",
+    "2",
+    "20260102-14:30:00",
+    "20260102-21:00:00",
+    "20260102",
+    "20260105-14:30:00",
+    "20260105-21:00:00"
+   ],
+   "name": "gen/106/short-second-session"
   },
   {
    "calls": [

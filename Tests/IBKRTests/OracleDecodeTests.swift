@@ -7,16 +7,17 @@ import Testing
 
 /// Incoming ids no family maps yet; the comparison and the coverage test skip them. Each decode task removes its own.
 let pendingDecodeIDs: Set<Int> = [
-    10, 14, 16, 17, 18, 19, 20,
+    10, 14, 16, 18, 19, 20,
     51, 52,
     65, 66, 67, 68, 69, 70, 75, 76, 77, 78, 79, 80,
-    82, 83, 85, 86, 87, 88, 89, 90, 93, 96, 97, 98,
-    103, 104, 105, 106,
+    82, 83, 85, 86, 87, 93,
+    103, 104, 105,
 ]
 
 /// The wrapper calls ib_async would make for what IBDecoder produced; `nil` when no family maps this message.
 func ibAsyncCalls(id: Int, _ m: IBMessage) -> [OracleCall]? {
     sessionCalls(id: id, m) ?? accountCalls(id: id, m) ?? orderCalls(id: id, m) ?? marketDataCalls(id: id, m)
+        ?? historyCalls(id: id, m)
 }
 
 /// Review Focus 1: a frame ib_async rejects carries `error`, and swift-ibkr rejects it too.

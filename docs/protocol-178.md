@@ -1922,6 +1922,12 @@ agrees type by type. The differences are in default values and value formatting 
    non-optional, so an empty or unset value (the long limits included, which `ib_async` reads as a float) decodes to 0
    where `ib_async` keeps the sentinel or, for a plain `int()` / `float()` read, rejects the frame; an unset
    tick-by-tick mask reads as 0, so both its flags are false where `ib_async` reads `MAX` as set bits (decoder.py:838-880).
+   The history messages (17, 88, 89, 90, 96, 97, 98, 106) do the same: the request id, a bar's prices, volume and count,
+   a histogram bucket's price and count, a historical tick's time, prices, sizes and mask, and a group count (bars,
+   buckets, ticks, sessions) are non-optional, so an empty or unset value decodes to 0 where `ib_async` keeps the sentinel
+   or, for a plain `int()` / `float()` read, rejects the frame (an unset count leaves it with too few fields); an unset
+   `done` flag or tick mask reads false and its bits clear, where `ib_async` reads `MAX` as set (decoder.py:477-511,
+   757-829, 1361-1370).
 14. **A frame shorter than the 178 layout is malformed.** swift-ibkr reports `.malformed(missingField …)` where
    `ib_async`'s `wrap` zips the fields with its types and lets the wrapper's defaults fill the missing trailing
    arguments (orderStatus without mktCapPrice, message 3). Deliberate strictness at the pinned version, where IB always sends
@@ -1939,6 +1945,10 @@ agrees type by type. The differences are in default values and value formatting 
    tickByTick type (99), marketDataType id (58, an empty one included) and depth operation or side (12, 13), where
    `ib_async` passes the value through (58, 12, 13) or makes no call and logs nothing (99). Same pattern as the
    unknown condition type and `ComboLeg.action` rows of DECISIONS.
+18. **historicalData's start and end texts are dropped.** `ib_async`'s decoder passes the two header strings of 17
+   (startDate, endDate) to `historicalDataEnd(reqId, _start, _end)` (decoder.py:477-494); swift-ibkr reads and drops
+   them, and the answer is the whole batch. `ib_async`'s own wrapper ignores them too (`historicalDataEnd` ends the
+   request, wrapper.py:920-921), so no user-visible value is lost; only the decoder-level call differs.
 
 No row in this document is unverified: every table was checked line by line against the
 verbatim source of both clients.
