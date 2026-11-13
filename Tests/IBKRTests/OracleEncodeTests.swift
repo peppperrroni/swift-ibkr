@@ -172,25 +172,27 @@ func request(for c: EncodeCase) throws -> IBRequest {
 }
 
 /// P7: an encode entry names one case and a field by index, `#count` (with its `pair`, R23) or `#error`; placeOrder
-/// alone names a field by protocol-178 name or globs its cases.
+/// alone names a field by protocol-178 name. No entry globs its case.
 @Test func encodeAllowlistEntriesAreNarrow() throws {
     let docs = try oracleDocs()
     let cite = "protocol-178 Disagreements 8"
     let good = [
-        AllowEntry(scope: "out 4", field: "3", frames: "cancelOrder/set", cite: cite),
+        AllowEntry(scope: "out 4", field: "3", frames: "cancelOrder/set", pair: ["1", "1.0"], cite: cite),
         AllowEntry(scope: "out 4", field: "#count", frames: "cancelOrder/set", pair: ["3: []", "4: []"], cite: cite),
-        AllowEntry(scope: "out 3", field: "displaySize", frames: "placeOrder/modify/*", pair: ["0", ""], cite: cite),
-        AllowEntry(scope: "out 3", field: "31", frames: "placeOrder/limit", cite: cite),
+        AllowEntry(scope: "out 3", field: "displaySize", frames: "placeOrder/modify", pair: ["0", ""], cite: cite),
+        AllowEntry(scope: "out 3", field: "31", frames: "placeOrder/limit", equalAsNumbers: true, cite: cite),
     ]
     for e in good { #expect(allowlistProblems([e], decisions: docs.decisions, protocol178: docs.protocol178).isEmpty, "\(e)") }
     let bad = [
-        AllowEntry(scope: "out 4", field: "orderId", frames: "cancelOrder/set", cite: cite),
-        AllowEntry(scope: "out 4", field: "3", cite: cite),
-        AllowEntry(scope: "out 4", field: "3", frames: "cancelOrder/*", cite: cite),
-        AllowEntry(scope: "out 4", field: "#calls", frames: "cancelOrder/set", cite: cite),
-        AllowEntry(scope: "out 4", field: "#count", frames: "cancelOrder/set", cite: cite),
-        AllowEntry(scope: "out 3", field: "#count", frames: "placeOrder/limit", cite: cite),
-        AllowEntry(scope: "out 3", field: "31", cite: cite),
+        AllowEntry(scope: "out 4", field: "orderId", frames: "cancelOrder/set", pair: ["1", "2"], cite: cite),
+        AllowEntry(scope: "out 4", field: "3", pair: ["1", "2"], cite: cite),
+        AllowEntry(scope: "out 4", field: "3", frames: "cancelOrder/*", pair: ["1", "2"], cite: cite),
+        AllowEntry(scope: "out 4", field: "#calls", frames: "cancelOrder/set", pair: ["1", "2"], cite: cite),
+        AllowEntry(scope: "out 4", field: "#count", frames: "cancelOrder/set", equalAsNumbers: true, cite: cite),
+        AllowEntry(scope: "out 3", field: "#count", frames: "placeOrder/limit", equalAsNumbers: true, cite: cite),
+        AllowEntry(scope: "out 3", field: "31", pair: ["1", "2"], cite: cite),
+        AllowEntry(scope: "out 3", field: "displaySize", frames: "placeOrder/modify/*", pair: ["0", ""], cite: cite),
+        AllowEntry(scope: "out 3", field: "31", frames: "placeOrder/limit", cite: cite),
     ]
     for e in bad { #expect(allowlistProblems([e], decisions: docs.decisions, protocol178: docs.protocol178).count == 1, "\(e)") }
 }

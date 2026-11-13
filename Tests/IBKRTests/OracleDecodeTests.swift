@@ -41,22 +41,30 @@ func ibAsyncCalls(id: Int, _ m: IBMessage) -> [OracleCall]? {
     let docs = try oracleDocs()
     for p in allowlistProblems(allow, decisions: docs.decisions, protocol178: docs.protocol178) { Issue.record("\(p)") }
 
-    let good = AllowEntry(scope: "in 4", field: "errorString", cite: "protocol-178 Disagreements 8")
+    func entry(_ scope: String = "in 4", _ field: String = "errorString", frames: String? = "f",
+               pair: [String]? = ["a", "b"], numbers: Bool? = nil, cite: String = "protocol-178 Disagreements 8")
+        -> AllowEntry {
+        AllowEntry(scope: scope, field: field, frames: frames, pair: pair, equalAsNumbers: numbers, cite: cite)
+    }
+    let good = entry()
     #expect(allowlistProblems([good], decisions: docs.decisions, protocol178: docs.protocol178).isEmpty)
     let bad = [
-        AllowEntry(scope: "in 4", field: "*", cite: "protocol-178 Disagreements 8"),
-        AllowEntry(scope: "in 4", field: "errorString", cite: "protocol-178 Disagreements 99"),
-        AllowEntry(scope: "in 4", field: "errorString", cite: "DECISIONS: no row says this"),
-        AllowEntry(scope: "in 4", field: "errorString", cite: "DECISIONS: | "),
-        AllowEntry(scope: "in 4", field: "errorString", cite: "see the docs"),
-        AllowEntry(scope: "in 4", field: "#whatever", cite: "protocol-178 Disagreements 8"),
-        AllowEntry(scope: "out 3", field: "12", cite: "protocol-178 Disagreements 8"),
+        entry("in 4", "*"),
+        entry(cite: "protocol-178 Disagreements 99"),
+        entry(cite: "DECISIONS: no row says this"),
+        entry(cite: "DECISIONS: | "),
+        entry(cite: "see the docs"),
+        entry("in 4", "#whatever"),
+        entry("out 3", "12", frames: nil),
+        entry("in 5", "x", frames: "gen/5/*"),
+        entry("in 5", "x", frames: "gen/5/x", pair: nil),
+        entry("in 5", "x", frames: "gen/5/x", numbers: true),
     ]
     for e in bad {
         #expect(allowlistProblems([e], decisions: docs.decisions, protocol178: docs.protocol178).count == 1, "\(e)")
     }
     // equalAsNumbers folds IB's unset markers on ib_async's side only: a Swift value that kept one is a mismatch.
-    let numbers = AllowEntry(scope: "in 5", field: "x", equalAsNumbers: true, cite: "protocol-178 Disagreements 8")
+    let numbers = entry("in 5", "x", frames: "x", pair: nil, numbers: true)
     func accepts(_ ours: String, _ theirs: String) -> Bool {
         numbers.accepts(Mismatch(name: "x", scope: "in 5", field: "x", ours: ours, theirs: theirs))
     }
@@ -66,7 +74,7 @@ func ibAsyncCalls(id: Int, _ m: IBMessage) -> [OracleCall]? {
     #expect(!accepts("1.7976931348623157E308", ""))
     var used: Set<Int> = []
     let same = [OracleCall(method: "nextValidId", args: ["reqId": "1"])]
-    let unused = AllowEntry(scope: "in 9", field: "reqId", cite: "protocol-178 Disagreements 8")
+    let unused = entry("in 9", "reqId", frames: "x")
     #expect(compare(same, same, name: "x", scope: "in 9", allow: [unused], used: &used).isEmpty)
     #expect(unusedDecodeEntries([unused], used: used).count == 1)
 }

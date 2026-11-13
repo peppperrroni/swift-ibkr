@@ -200,9 +200,9 @@ struct AllowEntry: Decodable {
     /// A dotted path, `[]` for any index (`bar.date`, `order.conditions[].price`), or `#calls`, `#error`,
     /// `#uncovered`, `#count`.
     var field: String
-    /// A glob over frame or case names; `*` when absent.
+    /// The one frame or case the entry is for, by its exact name (absent only on `#uncovered`).
     var frames: String?
-    /// `[ours, theirs]`: only this exact pair is accepted. Without it (and `equalAsNumbers`) the field is not compared.
+    /// `[ours, theirs]`: only this exact pair is accepted. Every entry but `#uncovered` has it or `equalAsNumbers`.
     var pair: [String]?
     /// The two texts are accepted when they are the same number (IB's unset markers equal `""`).
     var equalAsNumbers: Bool?
@@ -261,10 +261,9 @@ func unallowed(_ mismatches: [Mismatch], allow: [AllowEntry], used: inout Set<In
 
 extension AllowEntry {
     func accepts(_ m: Mismatch) -> Bool {
-        guard scope == m.scope, field == anyIndex(m.field), globMatches(frames ?? "*", m.name) else { return false }
+        guard scope == m.scope, field == anyIndex(m.field), frames == m.name else { return false }
         if let pair { return pair == [m.ours, m.theirs] }
-        if equalAsNumbers == true { return sameNumber(m.ours, m.theirs) }
-        return true
+        return equalAsNumbers == true && sameNumber(m.ours, m.theirs)
     }
 }
 
@@ -279,17 +278,6 @@ private func anyIndex(_ path: String) -> String {
     return out
 }
 
-/// `*` matches any run of characters, `?` one character.
-func globMatches(_ pattern: String, _ s: String) -> Bool {
-    let p = Array(pattern), t = Array(s)
-    func match(_ i: Int, _ j: Int) -> Bool {
-        if i == p.count { return j == t.count }
-        if p[i] == "*" { return (j...t.count).contains { match(i + 1, $0) } }
-        return j < t.count && (p[i] == "?" || p[i] == t[j]) && match(i + 1, j + 1)
-    }
-    return match(0, 0)
-}
-
 private let unsetTexts: Set<String> = ["", "2147483647", "9223372036854775807", "-9223372036854775808",
                                        "1.7976931348623157E308", "1.7976931348623157e+308"]
 
@@ -299,10 +287,11 @@ private func sameNumber(_ ours: String, _ theirs: String) -> Bool {
     return n(ours) == (unsetTexts.contains(theirs) ? "" : n(theirs))
 }
 
-/// What is wrong with `entries`: an unknown scope or field word, a bare `*`, a bare placeOrder index across every
-/// case, an encode `#count` without its `pair`, an encode entry (not placeOrder) whose field is not an index, `#count`
-/// or `#error` or that globs its case, or a citation that does not name exactly one DECISIONS row or Disagreements
-/// item.
+/// What is wrong with `entries`: an unknown scope or field word, a bare `*`, an entry (`#uncovered` aside) without one
+/// exact frame or case name or without exactly one of `pair` / `equalAsNumbers`, an encode `#count` without its
+/// `pair`, an encode entry (not placeOrder) whose field is not an index, `#count` or `#error`, or a citation that does
+/// not name exactly one DECISIONS row or Disagreements item. A name that exists nowhere accepts no mismatch, and the
+/// oracle tests fail an unused entry.
 func allowlistProblems(_ entries: [AllowEntry], decisions: String, protocol178: String) -> [String] {
     let rows = decisions.split(whereSeparator: \.isNewline).filter { $0.hasPrefix("|") }
     let disagreements = protocol178.components(separatedBy: "## Disagreements").dropFirst().joined()
@@ -314,14 +303,17 @@ func allowlistProblems(_ entries: [AllowEntry], decisions: String, protocol178: 
         if scope.count != 2 || !["in", "out"].contains(scope[0]) || Int(scope[1]) == nil { problem("scope is not `in <id>` or `out <id>`") }
         if e.field.isEmpty || e.field.contains("*") { problem("field is empty or a glob") }
         if e.field.hasPrefix("#"), !["#calls", "#error", "#uncovered", "#count"].contains(e.field) { problem("unknown field word") }
-        if e.scope == "out 3", Int(e.field) != nil, (e.frames ?? "*") == "*" { problem("a bare placeOrder index needs a case glob") }
+        if e.field != "#uncovered" {
+            let exact = e.frames.map { !$0.isEmpty && !$0.contains("*") && !$0.contains("?") } ?? false
+            if !exact { problem("an entry names one exact frame or case") }
+            if (e.pair != nil) == (e.equalAsNumbers == true) { problem("an entry has exactly one of pair and equalAsNumbers") }
+        }
         if e.scope.hasPrefix("out "), e.field == "#count", e.pair == nil { problem("an encode #count entry needs its pair (R23)") }
-        if e.scope.hasPrefix("out "), e.scope != "out 3" {  // P7: placeOrder alone may name a field or glob its cases
-            if Int(e.field) == nil, !["#count", "#error"].contains(e.field) { problem("an encode field is an index, #count or #error") }
-            if (e.frames ?? "*").contains(where: { $0 == "*" || $0 == "?" }) { problem("an encode entry names one exact case") }
+        // P7: placeOrder alone names a field by its protocol-178 name
+        if e.scope.hasPrefix("out "), e.scope != "out 3", Int(e.field) == nil, !["#count", "#error"].contains(e.field) {
+            problem("an encode field is an index, #count or #error")
         }
         if let pair = e.pair, pair.count != 2 { problem("pair is not [ours, theirs]") }
-        if e.pair != nil, e.equalAsNumbers == true { problem("pair and equalAsNumbers together") }
         let decision = "DECISIONS: ", disagreement = "protocol-178 Disagreements "
         var hits = -1
         if e.cite.hasPrefix(decision) {

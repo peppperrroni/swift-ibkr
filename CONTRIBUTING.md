@@ -111,11 +111,11 @@ python3.12 -m venv .venv            # Windows: py -3.12 -m venv .venv
 - **A difference.** Our bug: a failing codec test first, then the fix. A recorded deliberate difference: one entry in
   `allowlist.json` with `scope` (`in 4`, `out 4`), `field` (the argument path, `[]` for any index, never `*`; for a
   request the field's index, `#count` or `#error`; for placeOrder the protocol-178 field name the test reports, such
-  as `conditions[].price`), `frames` (a glob over frame names; one exact case name for a request, except placeOrder's
-  case globs), `pair` (`[ours, theirs]`, the exact pair; required on a request's `#count`)
-  or `equalAsNumbers`, and `cite`: `protocol-178 Disagreements <n>` or `DECISIONS: <verbatim text of exactly one
-  row>`, plus an optional `note`. An entry that cites nothing, or that no mismatch uses, fails the tests. A
-  difference with no row is not allowlisted until one is written.
+  as `conditions[].price`), `frames` (the exact name of one frame or case, never a glob), exactly one of `pair`
+  (`[ours, theirs]`, the exact pair; required on a request's `#count`) and `equalAsNumbers`, and `cite`:
+  `protocol-178 Disagreements <n>` or `DECISIONS: <verbatim text of exactly one row>`, plus an optional `note`. An
+  entry that cites nothing, leaves its field uncompared, or that no mismatch uses, fails the tests. A difference with
+  no row is not allowlisted until one is written.
 - **A new scenario.** A scenario drives the real `IBClient` against `SimulatedBroker` and ends with
   `expectInCorpus(broker.emitted, source: "sim/<scenario>")`. Run it: each frame the broker sent that is not yet in
   `corpus.json` fails with the entry to paste; add them as `sim/<scenario>/<n>`, regenerate, and run the oracle tests.
