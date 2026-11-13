@@ -9942,5 +9942,109 @@
   "pair": ["0", "-9223372036854776000"],
   "cite": "protocol-178 Disagreements 13",
   "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 12",
+  "field": "#error",
+  "frames": "gen/12/operation-3",
+  "pair": ["malformed: badNumber(\"3\", index: 5)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an unknown enum value is .malformed here; ib_async passes it on or makes no call (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 12",
+  "field": "#error",
+  "frames": "gen/12/side-2",
+  "pair": ["malformed: badNumber(\"2\", index: 5)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an unknown enum value is .malformed here; ib_async passes it on or makes no call (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "#error",
+  "frames": "gen/13/operation-3",
+  "pair": ["malformed: badNumber(\"3\", index: 6)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an unknown enum value is .malformed here; ib_async passes it on or makes no call (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 13",
+  "field": "#error",
+  "frames": "gen/13/side-2",
+  "pair": ["malformed: badNumber(\"2\", index: 6)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an unknown enum value is .malformed here; ib_async passes it on or makes no call (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 58",
+  "field": "#error",
+  "frames": "gen/58/type-0-unknown",
+  "pair": ["malformed: badNumber(\"0\", index: 3)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an unknown enum value is .malformed here; ib_async passes it on or makes no call (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 58",
+  "field": "#error",
+  "frames": "gen/58/type-5-unknown",
+  "pair": ["malformed: badNumber(\"5\", index: 3)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an unknown enum value is .malformed here; ib_async passes it on or makes no call (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 58",
+  "field": "#error",
+  "frames": "gen/58/unset-empty-type",
+  "pair": ["malformed: badNumber(\"0\", index: 3)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an unknown enum value is .malformed here; ib_async passes it on or makes no call (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 58",
+  "field": "#error",
+  "frames": "gen/58/unset-max-type",
+  "pair": ["malformed: badNumber(\"0\", index: 3)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an unknown enum value is .malformed here; ib_async passes it on or makes no call (decoder.py:143-174, table 60-141)"
+ },
+ {
+  "scope": "in 99",
+  "field": "#error",
+  "frames": "gen/99/type-0-unknown",
+  "pair": ["malformed: badNumber(\"0\", index: 3)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an unknown enum value is .malformed here; ib_async passes it on or makes no call (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "#error",
+  "frames": "gen/99/type-5-unknown",
+  "pair": ["malformed: badNumber(\"5\", index: 3)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an unknown enum value is .malformed here; ib_async passes it on or makes no call (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "#error",
+  "frames": "gen/99/type-9-unknown",
+  "pair": ["malformed: badNumber(\"9\", index: 3)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an unknown enum value is .malformed here; ib_async passes it on or makes no call (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "#error",
+  "frames": "gen/99/unset-max-tickType",
+  "pair": ["malformed: badNumber(\"0\", index: 3)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an unknown enum value is .malformed here; ib_async passes it on or makes no call (decoder.py:838-880)"
+ },
+ {
+  "scope": "in 99",
+  "field": "#error",
+  "frames": "gen/99/unset-long-max-tickType",
+  "pair": ["malformed: badNumber(\"0\", index: 3)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an unknown enum value is .malformed here; ib_async passes it on or makes no call (decoder.py:838-880)"
  }
 ]

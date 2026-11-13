@@ -58415,6 +58415,58 @@
    "calls": [
     {
      "args": {
+      "operation": "3",
+      "position": "3",
+      "price": "351.5",
+      "reqId": "4",
+      "side": "1",
+      "size": "100"
+     },
+     "method": "updateMktDepth"
+    }
+   ],
+   "fields": [
+    "12",
+    "1",
+    "4",
+    "3",
+    "3",
+    "1",
+    "351.5",
+    "100"
+   ],
+   "name": "gen/12/operation-3"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "operation": "0",
+      "position": "3",
+      "price": "351.5",
+      "reqId": "4",
+      "side": "2",
+      "size": "100"
+     },
+     "method": "updateMktDepth"
+    }
+   ],
+   "fields": [
+    "12",
+    "1",
+    "4",
+    "3",
+    "0",
+    "2",
+    "351.5",
+    "100"
+   ],
+   "name": "gen/12/side-2"
+  },
+  {
+   "calls": [
+    {
+     "args": {
       "isSmartDepth": "true",
       "marketMaker": "NSDQ",
       "operation": "0",
@@ -59833,6 +59885,66 @@
     "351.6"
    ],
    "name": "gen/13/short-after-price"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "isSmartDepth": "true",
+      "marketMaker": "NSDQ",
+      "operation": "3",
+      "position": "3",
+      "price": "351.6",
+      "reqId": "4",
+      "side": "1",
+      "size": "50"
+     },
+     "method": "updateMktDepthL2"
+    }
+   ],
+   "fields": [
+    "13",
+    "1",
+    "4",
+    "3",
+    "NSDQ",
+    "3",
+    "1",
+    "351.6",
+    "50",
+    "1"
+   ],
+   "name": "gen/13/operation-3"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "isSmartDepth": "true",
+      "marketMaker": "NSDQ",
+      "operation": "0",
+      "position": "3",
+      "price": "351.6",
+      "reqId": "4",
+      "side": "2",
+      "size": "50"
+     },
+     "method": "updateMktDepthL2"
+    }
+   ],
+   "fields": [
+    "13",
+    "1",
+    "4",
+    "3",
+    "NSDQ",
+    "0",
+    "2",
+    "351.6",
+    "50",
+    "1"
+   ],
+   "name": "gen/13/side-2"
   },
   {
    "calls": [
@@ -67973,6 +68085,78 @@
    "calls": [
     {
      "args": {
+      "marketDataId": "0",
+      "reqId": "7"
+     },
+     "method": "marketDataType"
+    }
+   ],
+   "fields": [
+    "58",
+    "1",
+    "7",
+    "0"
+   ],
+   "name": "gen/58/type-0-unknown"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "marketDataId": "5",
+      "reqId": "7"
+     },
+     "method": "marketDataType"
+    }
+   ],
+   "fields": [
+    "58",
+    "1",
+    "7",
+    "5"
+   ],
+   "name": "gen/58/type-5-unknown"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "marketDataId": "0",
+      "reqId": "7"
+     },
+     "method": "marketDataType"
+    }
+   ],
+   "fields": [
+    "58",
+    "1",
+    "7",
+    ""
+   ],
+   "name": "gen/58/unset-empty-type"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "marketDataId": "",
+      "reqId": "7"
+     },
+     "method": "marketDataType"
+    }
+   ],
+   "fields": [
+    "58",
+    "1",
+    "7",
+    "2147483647"
+   ],
+   "name": "gen/58/unset-max-type"
+  },
+  {
+   "calls": [
+    {
+     "args": {
       "commissionReport.commission": "1",
       "commissionReport.currency": "USD",
       "commissionReport.execId": "0000e0d5.6564a7b1.01.01",
@@ -73197,6 +73381,61 @@
     "-9223372036854775808"
    ],
    "name": "gen/99/type-4-unset-long-min-midPoint"
+  },
+  {
+   "calls": [],
+   "fields": [
+    "99",
+    "7",
+    "0",
+    "1794321000",
+    "351.5"
+   ],
+   "name": "gen/99/type-0-unknown"
+  },
+  {
+   "calls": [],
+   "fields": [
+    "99",
+    "7",
+    "5",
+    "1794321000",
+    "351.5"
+   ],
+   "name": "gen/99/type-5-unknown"
+  },
+  {
+   "calls": [],
+   "fields": [
+    "99",
+    "7",
+    "9",
+    "1794321000",
+    "351.5"
+   ],
+   "name": "gen/99/type-9-unknown"
+  },
+  {
+   "calls": [],
+   "fields": [
+    "99",
+    "7",
+    "2147483647",
+    "1794321000",
+    "351.5"
+   ],
+   "name": "gen/99/unset-max-tickType"
+  },
+  {
+   "calls": [],
+   "fields": [
+    "99",
+    "7",
+    "9223372036854775807",
+    "1794321000",
+    "351.5"
+   ],
+   "name": "gen/99/unset-long-max-tickType"
   },
   {
    "calls": [

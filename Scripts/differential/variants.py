@@ -612,5 +612,19 @@ VARIANTS[99] = [
     *_unset_all(_TBT[4], {"midPoint": 4}, "type-4-"),
 ]
 
+# A value outside IB's documented enum: swift-ibkr is .malformed, ib_async passes it on (or makes no call for 99).
+VARIANTS[99] += [
+    *[(f"type-{t}-unknown", ["99", "7", str(t), "1794321000", "351.5"]) for t in (0, 5, 9)],
+    ("unset-max-tickType", ["99", "7", MAX_INT, "1794321000", "351.5"]),
+    ("unset-long-max-tickType", ["99", "7", LONG_MAX, "1794321000", "351.5"]),
+]
+VARIANTS[58] += [
+    *[(f"type-{t}-unknown", ["58", "1", "7", str(t)]) for t in (0, 5)],
+    ("unset-empty-type", ["58", "1", "7", ""]),
+    ("unset-max-type", ["58", "1", "7", MAX_INT]),
+]
+VARIANTS[12] += [("operation-3", _at(_DEPTH, i4="3")), ("side-2", _at(_DEPTH, i5="2"))]
+VARIANTS[13] += [("operation-3", _at(_DEPTH_L2, i5="3")), ("side-2", _at(_DEPTH_L2, i6="2"))]
+
 # A frame ib_async rejects (openOrder cut after its id): the oracle must record the exception, not «no calls».
 CANARY: tuple[str, list[str]] = ("gen/canary/short-openOrder", ["5", "1"])

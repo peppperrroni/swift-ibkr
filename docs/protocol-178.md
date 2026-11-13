@@ -1935,6 +1935,10 @@ agrees type by type. The differences are in default values and value formatting 
    (decoder.py:200-206), so a frame whose price field is empty gives no call at all; swift-ibkr decodes the frame to
    `.tick(.price(…, price: nil, …))` (unset is `nil`). No recorded live frame has an empty price. On such a frame a `Ticker` field can be cleared where `ib_async`
    keeps the old value.
+17. **A value outside IB's documented enum is malformed.** swift-ibkr reports `.malformed` for an unknown
+   tickByTick type (99), marketDataType id (58, an empty one included) and depth operation or side (12, 13), where
+   `ib_async` passes the value through (58, 12, 13) or makes no call and logs nothing (99). Same pattern as the
+   unknown condition type and `ComboLeg.action` rows of DECISIONS.
 
 No row in this document is unverified: every table was checked line by line against the
 verbatim source of both clients.
