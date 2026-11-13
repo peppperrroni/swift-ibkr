@@ -65,6 +65,10 @@ final class SimulatedBroker: @unchecked Sendable {
     private var permIDs = 0, execIDs = 0, conIDs = 0
     private var _answers: [(request: [String], replies: [[String]])] = []
     private var pendingReject: (code: Int, text: String)?
+    private var failures: [String: (code: Int, text: String)] = [:]   // by request message id
+    private var replyDelay: Duration?
+    private var down = false
+    private var marketData: [(session: Int, requestID: String, conID: Int)] = []
     /// The what-if answers' account: flat, this equity with loan.
     private static let equity: Decimal = 1_000_000
 
@@ -77,6 +81,7 @@ final class SimulatedBroker: @unchecked Sendable {
     var connector: Connector {
         { [weak self] _, _, _ in
             guard let self else { throw IBClientError.transport("no broker") }
+            guard !self.lock.withLock({ self.down }) else { throw IBClientError.transport("broker down") }
             return self.newGateway()
         }
     }
@@ -109,6 +114,44 @@ final class SimulatedBroker: @unchecked Sendable {
     /// (105, 321, …) on a modification leaves the order working with its old terms.
     // assumption: unrecorded live — the error alone, no openOrder or orderStatus
     func reject(nextOrderWith code: Int, text: String) { lock.withLock { pendingReject = (code, text) } }
+
+    /// A mid-stream disconnect: closes every live gateway, then runs `outage` while connects are refused, so what it
+    /// books (a fill) happens while every client is down, whatever a reconnect policy's delay.
+    func drop(during outage: () -> Void = {}) {
+        lock.withLock {
+            down = true
+            _gateways.forEach { $0.close() }
+        }
+        outage()
+        lock.withLock { down = false }
+    }
+
+    /// Answers the next request with message id `messageID` with IB's error `code` and `text` on its reqId (-1 for
+    /// a request without one) instead of its replies.
+    // assumption: unrecorded live — the error alone and nothing booked, where IB keeps a market-data line it refused
+    // for want of permission open (DECISIONS' accountSummary/pnlSingle row); the client's cancel then finds nothing
+    func failNext(_ messageID: String, code: Int, text: String) {
+        lock.withLock { failures[messageID] = (code, text) }
+    }
+
+    /// Feeds the replies to every later request `d` after it arrives. The sync's requests that `FakeGateway` ends
+    /// itself (16, 99, 7, 61, 6) are never delayed, since their end markers would overtake them.
+    func delayReplies(_ d: Duration) { lock.withLock { replyDelay = d } }
+
+    /// A tickPrice (1, version 6) of `field` at `price` to every open market-data request for the contract.
+    // assumption: unrecorded live — size 0, no attributes; liveMarketData.json records only refusals
+    func tick(conID: Int, field: Int, price: Decimal) {
+        lock.withLock {
+            for m in marketData where m.conID == conID && !_gateways[m.session].isClosed {
+                _gateways[m.session].feed(["1", "6", m.requestID, "\(field)", "\(price)", "0", "0"])
+            }
+        }
+    }
+
+    /// The reqIds of the market-data requests open on a live gateway (a dropped connection ends its lines).
+    var openMarketData: [Int] {
+        lock.withLock { marketData.filter { !_gateways[$0.session].isClosed }.compactMap { Int($0.requestID) } }
+    }
 
     func order(clientID: Int, orderID: Int) -> SimOrder? {
         lock.withLock { orders.first { $0.clientID == clientID && $0.orderID == orderID } }
@@ -239,13 +282,25 @@ final class SimulatedBroker: @unchecked Sendable {
     /// client's write path: it never blocks and never calls back into the client.
     private func answer(_ f: [String], session i: Int) {
         lock.withLock {
-            let out = replies(f, session: i)
+            let out = replies(f, session: i), gateway = _gateways[i]
             _answers.append((f, out))
-            out.forEach(_gateways[i].feed)
+            guard let d = replyDelay, !["16", "99", "7", "61", "6"].contains(f[0]) else {
+                return out.forEach(gateway.feed)
+            }
+            Task {
+                try? await Task.sleep(for: d)
+                lock.withLock { if !gateway.isClosed { out.forEach(gateway.feed) } }
+            }
         }
     }
 
+    /// Where the reqId sits in the requests `failNext` can refuse; the others carry none.
+    private static let requestIDIndex = ["1": 2, "92": 1, "94": 1]
+
     private func replies(_ f: [String], session i: Int) -> [[String]] {
+        if let e = failures.removeValue(forKey: f[0]) {
+            return [["4", "2", Self.requestIDIndex[f[0]].map { f[$0] } ?? "-1", "\(e.code)", e.text, ""]]
+        }
         switch f.first {
         case "71": sessions[i].clientID = Int(f[2])
         case "3": return place(f, session: i)
@@ -255,7 +310,16 @@ final class SimulatedBroker: @unchecked Sendable {
         case "99":   // assumption: unrecorded live — completedOrder per final order
             return orders.indices.filter { orders[$0].status.isFinal }.map(completedFrame)
         case "7":   // as recorded: every execDetails under the request's id and in the login zone, then the reports
-            return fills.map { replacing($0.execution, [1: f[2], 15: Self.eastern($0.time)]) } + fills.map(\.report)
+            // the filter's clientId 0 lists every client's fills (DECISIONS' ExecutionFilter row, live), another only
+            // that client's (assumption: unrecorded live); the filter's other fields are ignored
+            let listed = fills.filter { f[3] == "0" || "\(orders[$0.order].clientID)" == f[3] }
+            return listed.map { replacing($0.execution, [1: f[2], 15: Self.eastern($0.time)]) } + listed.map(\.report)
+        case "1":   // assumption: unrecorded live — no tick until `tick`
+            marketData.append((i, f[2], Int(f[3]) ?? 0))
+        case "2": marketData.removeAll { $0.session == i && $0.requestID == f[2] }
+        case "49": return [["49", "1", "\(clock)"]]   // assumption: unrecorded live — the broker's clock
+        case "92": return [pnlFrame(f[1], account: f[2])]
+        case "94": return [pnlSingleFrame(f[1], HoldingKey(account: f[2], conID: Int(f[4]) ?? 0))]
         case "61":
             sessions[i].positions = true
             return holdings.keys.sorted().map(positionFrame)
@@ -266,6 +330,8 @@ final class SimulatedBroker: @unchecked Sendable {
                 + holdings.keys.filter { $0.account == f[3] }.sorted().map(portfolioFrame)
                 + [["8", "1", Self.format(clock, "HH:mm", "UTC")]]
         case "6": sessions[i].account = nil
+        // assumption: unrecorded live — client 0's reqAutoOpenOrders (15) binds TWS's manual orders, which the broker
+        // has none of: every client's order events still go to their owner only
         default: break
         }
         return []
@@ -432,12 +498,38 @@ final class SimulatedBroker: @unchecked Sendable {
     /// portfolioValue (7, version 8), valued at the market price, else the contract's last fill price.
     // assumption: unrecorded live — no recording subscribes to account updates
     private func portfolioFrame(_ key: HoldingKey) -> [String] {
-        let h = holdings[key] ?? Holding(), c = contracts[key.conID]!
-        let price = marketPrices[key.conID] ?? fills.last { orders[$0.order].contract.conID == key.conID }?.price ?? 0
+        let h = holdings[key] ?? Holding(), c = contracts[key.conID]!, price = marketPrice(key.conID)
         return ["7", "8", "\(c.conID)", c.symbol, c.secType, c.lastTrade, c.strike, c.right, c.multiplier, c.primary,
                 c.currency, c.localSymbol, c.tradingClass, "\(h.quantity)", "\(price)",
-                "\(Self.round(price * h.quantity))", "\(h.averageCost)",
-                "\(Self.round((price - h.averageCost) * h.quantity))", "\(h.realized)", key.account]
+                "\(Self.round(price * h.quantity))", "\(h.averageCost)", "\(unrealized(key))", "\(h.realized)",
+                key.account]
+    }
+
+    /// The account's P&L (94), valued as the portfolio is: daily = unrealized + realized, as the recorded pnlSingle
+    /// (liveOrderFillsWithCommission.json#38) adds up.
+    // assumption: unrecorded live — one answer at the request (no prior day, no update after a fill or a price)
+    private func pnlFrame(_ id: String, account: String) -> [String] {
+        let keys = holdings.keys.filter { $0.account == account }
+        let unrealized = keys.map(unrealized).reduce(0, +), realized = keys.map { holdings[$0]!.realized }.reduce(0, +)
+        return ["94", id, "\(unrealized + realized)", "\(unrealized)", "\(realized)"]
+    }
+
+    /// One position's P&L (95) as the recorded one: position, daily, unrealized, realized, value.
+    // assumption: unrecorded live — one answer at the request, as `pnlFrame`
+    private func pnlSingleFrame(_ id: String, _ key: HoldingKey) -> [String] {
+        let h = holdings[key] ?? Holding(), unrealized = unrealized(key)
+        return ["95", id, "\(h.quantity)", "\(unrealized + h.realized)", "\(unrealized)", "\(h.realized)",
+                "\(Self.round(marketPrice(key.conID) * h.quantity))"]
+    }
+
+    /// The market price, else the contract's last fill price.
+    private func marketPrice(_ conID: Int) -> Decimal {
+        marketPrices[conID] ?? fills.last { orders[$0.order].contract.conID == conID }?.price ?? 0
+    }
+
+    private func unrealized(_ key: HoldingKey) -> Decimal {
+        let h = holdings[key] ?? Holding()
+        return Self.round((marketPrice(key.conID) - h.averageCost) * h.quantity)
     }
 
     /// openOrder / completedOrder price text: live sends `0.0` for placeOrder's unset `""`.

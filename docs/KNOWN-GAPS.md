@@ -91,7 +91,16 @@ realized P&L. The stage-4 run of 2026-11-11 (paper account, no market-data subsc
   Submitted); OCA (a fill cancels the rest of the group, ocaType 1 only, and a bracket child's fill its sibling, each
   with a bare orderStatus Cancelled; an OCA order's openOrder echoes its ocaType); what-if (one PreSubmitted openOrder
   with whatIf set, margins of 50 % / 25 % of the notional on a flat account with equity 1,000,000, commission 1, no
-  orderStatus, nothing booked).
+  orderStatus, nothing booked); P&L (one 94 or 95 at the request, valued like the portfolio, daily = unrealized +
+  realized as the recorded 95 adds up, no update after a fill or a price); market data (no reply to reqMktData until
+  `tick`, a tickPrice with size 0; `failNext` answers with IB's error alone, where live keeps a line refused for
+  permission open); reqCurrentTime (the broker's clock); `delayReplies` (every non-sync reply late by the same delay).
+- **Live gateway, several clients and reconnects.** Unrecorded, and the simulated broker's assumptions: with several
+  client ids on one login, an order's events go to its own client only, positions and the portfolio to every client
+  that asked, reqAllOpenOrders lists every client's working orders, and reqExecutions with a filter clientId other
+  than 0 lists only that client's fills (0 lists all, as recorded); client 0's reqAutoOpenOrders binds only TWS's
+  manual orders, which the broker has none of. A drop closes every connection at once and ends every market-data
+  line; nothing comes back until the client's sync, which the broker answers from its book like a first connect.
 - **Live gateway.** The local `.validationError` is checked on hand-built frames and on the simulated broker's 105 on a
   modify (the error alone, an assumption): no live order has drawn a warning (105, 321, 329, 434, 492), so IB's
   status messages after one are unrecorded.

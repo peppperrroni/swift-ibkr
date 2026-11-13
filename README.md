@@ -696,7 +696,11 @@ Order scenarios run the real `IBClient` against a simulated broker (`Tests/IBKRT
 book of orders, fills and positions behind fake gateways, so several clients and reconnects see the same state. Every
 frame it sends is in the oracle's corpus, so `ib_async` has decoded each one. Its place, fill, commission and
 cancel sequences copy the live recordings; what no recording shows is an assumption, marked in the code and listed in
-[KNOWN-GAPS](docs/KNOWN-GAPS.md). One scenario runs over a real loopback TCP socket.
+[KNOWN-GAPS](docs/KNOWN-GAPS.md). One scenario runs over a real loopback TCP socket. The scenarios: the place,
+partial-fill and fill lifecycle; the connect sync replaying the book; modify, cancel, a rejected order, a warned
+modify, a bracket, OCA and what-if; positions, the portfolio, P&L and the fills agreeing after fills; a drop
+mid-stream and the reconnect recovering the book; several clients on one book; a stopped stream sending its cancel;
+injected IB errors and delayed replies.
 
 The live tests run against a **paper** IB Gateway on 127.0.0.1:4002 and are skipped unless you ask for them.
 They refuse to place anything unless every managed account starts with `DU`, which marks a paper account. They
