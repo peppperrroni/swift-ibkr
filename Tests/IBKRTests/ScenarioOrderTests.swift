@@ -100,10 +100,11 @@ private func placePartialFill(_ client: IBClient, _ broker: SimulatedBroker, cli
     let broker = SimulatedBroker()
     let listener = Listener()
     let pump = Task {
-        guard let peer = await listener.acceptOffPool() else { return }
+        let peer = await listener.acceptOffPool()
+        listener.close()   // here, not in a defer: a throw must not free the fd while the accept thread still polls it
+        guard let peer else { return }
         await bridge(peer, broker.newGateway()).value
     }
-    defer { listener.close() }   // after the pump: the accept is over by then, or timed out
     let client = IBClient()
     try await within2s { try await client.connect(host: "127.0.0.1", port: listener.port, clientID: 7) }
     try await placePartialFill(client, broker, clientID: 7)
