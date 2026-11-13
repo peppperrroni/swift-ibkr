@@ -99,15 +99,18 @@ private func utcDate(_ h: Int, _ m: Int = 0, _ s: Int = 0) -> Date {
 }
 
 @Test func timeRangeSkipsPastPointsAndYieldsEach() async throws {
-    let start = Date().addingTimeInterval(-1), end = Date().addingTimeInterval(0.3)
+    // a 2 s window: the first point is picked when timeRange's Task starts, which a loaded runner can delay
+    let now = Date()
+    let start = now.addingTimeInterval(-1), end = now.addingTimeInterval(2)
     var points: [Date] = []
-    for await t in IBClient.timeRange(from: start, to: end, every: .milliseconds(50)) {
+    for await t in IBClient.timeRange(from: start, to: end, every: .milliseconds(100)) {
         #expect(Date() >= t)
         points.append(t)
     }
-    #expect(!points.isEmpty && points.count <= 8 && points == points.sorted())
-    #expect(points.allSatisfy { $0 >= start.addingTimeInterval(1 - 0.001) && $0 <= end })   // none of the past
-    for (a, b) in zip(points, points.dropFirst()) { #expect(abs(b.timeIntervalSince(a) - 0.05) < 0.001) }
+    #expect(!points.isEmpty && points.count <= 21 && points == points.sorted())
+    #expect(points.allSatisfy { $0 >= now.addingTimeInterval(-0.001) && $0 <= end })   // none of the past
+    for (a, b) in zip(points, points.dropFirst()) { #expect(abs(b.timeIntervalSince(a) - 0.1) < 0.001) }
+    #expect(points.last.map { end.timeIntervalSince($0) < 0.1 + 0.001 } == true)
 }
 
 @Test func aStoppedConsumerEndsTimeRange() async {
