@@ -136,7 +136,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `cancelTickByTickData` | stop `tickByTick` | present | |
 | `reqSmartComponents` / `reqSmartComponentsAsync` | `smartComponents(_:)` | present | |
 | `reqMktDepthExchanges` / `reqMktDepthExchangesAsync` | `depthExchanges()` | present | |
-| `reqMktDepth` | `marketDepth(_:rows:smart:options:)`; `tickers(_:depthRows:smartDepth:)` | present | Swift's `smart` defaults to true, ib_async's `isSmartDepth` to False |
+| `reqMktDepth` | `marketDepth(_:rows:smart:options:)`; `tickers(_:genericTicks:depthRows:smartDepth:options:)` with `depthRows` | present | Swift's `smart` defaults to true, ib_async's `isSmartDepth` to False |
 | `cancelMktDepth` | stop the stream | present | |
 | `mktDataOptions`, `chartOptions`, `realTimeBarsOptions`, `mktDepthOptions`, `miscOptions` | `options:` on `marketData`, `tickers`, `historicalBars`, `realTimeBars`, `marketDepth`, `historicalTicks` | added | `[TagValue] = []`, sent as `tag=value;` per pair (IB: internal use); `tickers` sends its options with the market-data request only |
 | `reqHistogramData` / `reqHistogramDataAsync` | `histogramData(_:period:rth:)` | present | |

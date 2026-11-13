@@ -193,7 +193,9 @@ public struct TickField: RawRepresentable, Hashable, Sendable, Encodable {
 
 /// Lets `[TickField: V]` encode as a JSON object keyed by the tick number.
 extension TickField: CodingKeyRepresentable {
+    /// The tick number as a dictionary key (`"1"` for `.bid`).
     public var codingKey: any CodingKey { Key(stringValue: String(rawValue)) }
+    /// Reads a tick number back from a dictionary key; `nil` when the key is not a number.
     public init?<T: CodingKey>(codingKey: T) {
         guard let n = Int(codingKey.stringValue) else { return nil }
         self.init(rawValue: n)

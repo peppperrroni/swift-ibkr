@@ -14,8 +14,8 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 - Notice 165 («no items retrieved») on a scanner yields an empty scan `[]`: `scannerSubscription` stays open, `scannerData` returns `[]`.
 
 ### Changed
-- **Breaking:** `Tick.price` gains a fourth associated value, `attributes: TickAttrib = TickAttrib()`. Constructing it compiles as before; a pattern such as `case .price(let f, let p, let s)` needs a fourth binding (`case .price(let f, let p, let s, _)`).
-- **Breaking:** `TickByTick.bidAsk` gains `bidPastLow: Bool = false, askPastHigh: Bool = false`. Construction compiles as before; a pattern with five bindings needs seven.
+- **Breaking:** `Tick.price` gains a fourth associated value, `attributes: TickAttrib = TickAttrib()`. Constructing it compiles as before; a pattern such as `case .price(let f, let p, let s)` needs a fourth binding (`case .price(let f, let p, let s, _)`). `==` on a decoded `Tick.price` now also compares its attributes, so a non-zero mask no longer equals a value built without them.
+- **Breaking:** `TickByTick.bidAsk` gains `bidPastLow: Bool = false, askPastHigh: Bool = false`. Construction compiles as before; a pattern with five bindings needs seven. `==` on a decoded `bidAsk` now also compares the two flags, so a non-zero mask no longer equals a value built without them.
 - **Breaking:** the `IBRequest` cases `marketData`, `historicalData`, `realTimeBars`, `marketDepth` and `historicalTicks` gain `options: [TagValue] = []`, and `tickByTick` gains `count: Int = 0, ignoreSize: Bool = false`. Construction compiles as before; a pattern with the old number of bindings does not.
 - **Breaking:** `marketData`, `tickers(_:…)`, `historicalBars`, `realTimeBars`, `marketDepth`, `historicalTicks` and `tickByTick` gain defaulted parameters, last. Calls compile as before; a reference by full name (`IBClient.tickByTick(_:_:)`, a DocC link) needs the new labels (`tickByTick(_:_:count:ignoreSize:)`).
 - `Execution`'s memberwise init gains `evRule`, `evMultiplier` and `modelCode`, defaulted and last, so existing calls compile.
