@@ -925,6 +925,7 @@ public actor IBClient {
     /// Sends `request` and waits for the first message `pick` takes. Without `id` the waiter is an id-less one-shot
     /// keyed by a local negative id: `routeToStream` offers it the id-less messages, oldest waiter first. `cancel` is
     /// sent for a cancelled caller; with `thenCancel` it is also sent after the answer (the termination hop sends it).
+    /// An id-less one-shot that ends early (timeout, cancel) leaves IB's late answer to the next waiter of its kind.
     func answer<T: Sendable>(_ request: IBRequest, id: Int? = nil, cancel: IBRequest? = nil, thenCancel: Bool = false,
                              pick: @escaping @Sendable (IBMessage) -> T?) async throws(IBClientError) -> T {
         let key = id ?? nextLocalID()

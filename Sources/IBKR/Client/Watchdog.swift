@@ -44,7 +44,9 @@ public actor Watchdog {
     /// The pause after the app is terminated before it is started again.
     public nonisolated let retryDelay: Duration
     /// `nil` probes with `currentTime()`; a contract probes with `ib_async`'s history request instead (30 S of
-    /// 5-second MIDPOINT bars outside regular hours), whose first batch must hold a bar.
+    /// 5-second MIDPOINT bars outside regular hours), whose first batch must hold a bar. `currentTime()` has no
+    /// reqId, so any IB fatal or warning error with reqId -1 during the probe fails it and restarts the app; the
+    /// history probe answers only to its own reqId.
     public nonisolated let probeContract: Contract?
     /// How long the probe may take.
     public nonisolated let probeTimeout: Duration

@@ -152,37 +152,39 @@ extension Ticker {
 
     // MARK: Generic ticks (0 or less reads as nil, as ib_async; so halted 0, "not halted", is nil)
 
-    /// The index future premium (tick 31); `nil` until a tick sets it.
+    /// The index future premium (tick 31); `nil` until a tick sets it, and 0 or less is `nil` as in `ib_async`.
     public var indexFuturePremium: Decimal? { generics[TickField(rawValue: 31)].flatMap { $0 > 0 ? $0 : nil } }
 
-    /// The historical volatility (tick 23); `nil` until a tick sets it.
+    /// The historical volatility (tick 23); `nil` until a tick sets it, and 0 or less is `nil` as in `ib_async`.
     public var histVolatility: Decimal? { generics[TickField(rawValue: 23)].flatMap { $0 > 0 ? $0 : nil } }
 
-    /// The option implied volatility (tick 24); `nil` until a tick sets it.
+    /// The option implied volatility (tick 24); `nil` until a tick sets it, and 0 or less is `nil` as in `ib_async`.
     public var impliedVolatility: Decimal? { generics[TickField(rawValue: 24)].flatMap { $0 > 0 ? $0 : nil } }
 
-    /// The shortable level (tick 46); `nil` until a tick sets it.
+    /// The shortable level (tick 46); `nil` until a tick sets it, and 0 or less is `nil` as in `ib_async`.
     public var shortable: Decimal? { generics[TickField(rawValue: 46)].flatMap { $0 > 0 ? $0 : nil } }
 
-    /// The halted flag (tick 49); `nil` until a tick sets it.
+    /// The halted flag (tick 49); `nil` until a tick sets it, and 0 or less is `nil` as in `ib_async` (so 0,
+    /// "not halted", reads `nil`).
     public var halted: Decimal? { generics[TickField(rawValue: 49)].flatMap { $0 > 0 ? $0 : nil } }
 
-    /// The trade count (tick 54); `nil` until a tick sets it.
+    /// The trade count (tick 54); `nil` until a tick sets it, and 0 or less is `nil` as in `ib_async`.
     public var tradeCount: Decimal? { generics[TickField(rawValue: 54)].flatMap { $0 > 0 ? $0 : nil } }
 
-    /// The trade rate (tick 55); `nil` until a tick sets it.
+    /// The trade rate (tick 55); `nil` until a tick sets it, and 0 or less is `nil` as in `ib_async`.
     public var tradeRate: Decimal? { generics[TickField(rawValue: 55)].flatMap { $0 > 0 ? $0 : nil } }
 
-    /// The volume rate (tick 56); `nil` until a tick sets it.
+    /// The volume rate (tick 56); `nil` until a tick sets it, and 0 or less is `nil` as in `ib_async`.
     public var volumeRate: Decimal? { generics[TickField(rawValue: 56)].flatMap { $0 > 0 ? $0 : nil } }
 
-    /// The real-time historical volatility (tick 58); `nil` until a tick sets it.
+    /// The real-time historical volatility (tick 58); `nil` until a tick sets it, and 0 or less is `nil` as in
+    /// `ib_async`.
     public var rtHistVolatility: Decimal? { generics[TickField(rawValue: 58)].flatMap { $0 > 0 ? $0 : nil } }
 
-    /// The bond factor multiplier (tick 60); `nil` until a tick sets it.
+    /// The bond factor multiplier (tick 60); `nil` until a tick sets it, and 0 or less is `nil` as in `ib_async`.
     public var bondFactorMultiplier: Decimal? { generics[TickField(rawValue: 60)].flatMap { $0 > 0 ? $0 : nil } }
 
-    /// The delayed halted flag (tick 90); `nil` until a tick sets it.
+    /// The delayed halted flag (tick 90); `nil` until a tick sets it, and 0 or less is `nil` as in `ib_async`.
     public var delayedHalted: Decimal? { generics[TickField(rawValue: 90)].flatMap { $0 > 0 ? $0 : nil } }
 
     // MARK: EFP quotes

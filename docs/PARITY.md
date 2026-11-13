@@ -80,20 +80,20 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `accountSummary` with no tags (cached, re-requested on 1102) | `accountSummary(tags:group:)`, `IBClient.defaultAccountSummaryTags` | added | request stream: `tags` default to ib_async's set (33 tags + `$LEDGER:ALL`, ib.py:2247-2258), `group` to All; on notice 1102 each open stream sends its cancel and its request again under its reqId (ib_async re-requests under a new reqId, ib.py:414); not cached: each call is its own subscription |
 | `portfolio` | `portfolio()` | present | the account reqAccountUpdates follows: `ConnectOptions.account`, by default the only managed account, as ib_async |
 | `positions` | `positions()` | present | |
-| `pnl(account, modelCode)` | `pnlValues(account:modelCode:)` → `[AccountPnL]` | added | the latest value of each open `pnl(account:modelCode:)` stream, oldest first; an empty argument matches all (ib.py:554-570); a stream is listed once its first value arrives, where ib_async lists an all-NaN `PnL` from the request; an entry leaves when its stream ends (consumer stop, IB error, connection end) |
-| `pnlSingle(account, modelCode, conId)` | `pnlSingleValues(account:modelCode:conID:)` → `[PnL]` | added | the same for `pnlSingle(account:conID:modelCode:)`; `conID` `nil` matches all, where ib_async's `0` does |
+| `pnl(account, modelCode)` | `pnlValues(account:modelCode:)` → `[AccountPnL]` | added | the latest value of each open `pnl(account:modelCode:)` stream, oldest first; an empty argument matches all (ib.py:554-570); a stream is listed once its first value arrives, where ib_async lists an all-NaN `PnL` from the request; an entry leaves when its stream ends (consumer stop, IB error, connection end); two open streams for one account and model code are two entries, where ib_async asserts one subscription per key (ib.py:998) |
+| `pnlSingle(account, modelCode, conId)` | `pnlSingleValues(account:modelCode:conID:)` → `[PnL]` | added | the same for `pnlSingle(account:conID:modelCode:)`; `conID` `nil` matches all, where ib_async's `0` does; duplicates are listed, where ib_async asserts one subscription per key (ib.py:1042) |
 | `trades` | `orders().snapshot` | present | `OrderSnapshot` is `Trade` |
 | `openTrades` | `orders().snapshot.filter { !$0.status.isFinal }` | present | |
 | `orders` | `orders().snapshot.map(\.order)` | present | |
 | `openOrders` | `orders().snapshot.filter { !$0.status.isFinal }.map(\.order)` | present | |
 | `fills` | `executions().snapshot` | present | |
 | `executions` | `executions().snapshot.map(\.execution)` | present | |
-| `ticker(contract)` | `ticker(for:)` → `Ticker?` | added | the latest `Ticker` of an open `tickers(_:genericTicks:depthRows:smartDepth:tickByTick:options:)` stream, matched as ib_async's `__eq__` (contract.py:154-159): by the same non-zero `conID`, else field-wise `==`; two open streams for one contract are two tickers (ib_async shares one), and the older one's is returned |
+| `ticker(contract)` | `ticker(for:)` → `Ticker?` | added | the latest `Ticker` of an open `tickers(_:genericTicks:depthRows:smartDepth:tickByTick:options:)` stream, matched as ib_async's `__eq__` (contract.py:154-159): by the same non-zero `conID`, else field-wise `==`; two open streams for one contract are two tickers (ib_async shares one), and the older one's is returned; a `CONTFUT` matches its front future's `conID` here, where ib_async hashes it to `-conId` (contract.py:178-180) and keeps it apart |
 | `tickers` | `activeTickers()` → `[Ticker]` | added | the latest `Ticker` of every open `tickers(_:genericTicks:depthRows:smartDepth:tickByTick:options:)` stream, oldest first, listed from the call (empty, as ib_async's `reqMktData` creates it) until the stream ends, however it ends; `tickers(for:regulatorySnapshot:)` snapshots are not listed |
 | `pendingTickers` | `pendingTickers()` | added | a stream rather than ib_async's set of the last packet (see `pendingTickersEvent`) |
-| `realtimeBars` | `liveBarSubscriptions()` → `[LiveBars]` | added | the open `realTimeBars` and `liveHistoricalBars` subscriptions by request id, with their bars so far; an entry leaves when its stream ends (consumer stop, IB error, connection end); `historicalBars(keepUpToDate: true)`, the raw stream, is not listed |
-| `newsTicks` | `newsTicks()` → `(snapshot: [NewsTick], updates: AsyncStream<NewsTick>)` | added | every `Tick.news` on any reqId since the last manual `connect` (a reconnect keeps them; wrapper.py:1487), and a fresh stream of new ones; grows for the whole session, as in ib_async |
-| `newsBulletins` | `receivedBulletins()` → `[NewsBulletin]` | added | every bulletin since the last manual `connect`, one per `msgID` (the last received wins) in first-seen order, as ib_async's `msgId2NewsBulletin` (wrapper.py:1509) |
+| `realtimeBars` | `liveBarSubscriptions()` → `[LiveBars]` | added | the open `realTimeBars` and `liveHistoricalBars` subscriptions by request id, with their bars so far; an entry leaves when its stream ends (consumer stop, IB error, connection end); `historicalBars(keepUpToDate: true)`, the raw stream, is not listed; ib_async's list also holds the scanner subscriptions, which `reqScannerSubscription` registers the same way (ib.py:1670), where here it holds bars only |
+| `newsTicks` | `newsTicks()` → `(snapshot: [NewsTick], updates: AsyncStream<NewsTick>)` | added | every `Tick.news` on any reqId since the last manual `connect` (wrapper.py:1487), and a fresh stream of new ones; a policy reconnect keeps them (R27), where ib_async clears them at every close (wrapper.py:321, from 368); grows for the whole session, as in ib_async |
+| `newsBulletins` | `receivedBulletins()` → `[NewsBulletin]` | added | every bulletin since the last manual `connect`, one per `msgID` (the last received wins) in first-seen order, as ib_async's `msgId2NewsBulletin` (wrapper.py:1509); a policy reconnect keeps them (R27), where ib_async clears them at every close (wrapper.py:322) |
 | `reqTickers` / `reqTickersAsync` | `tickers(for:regulatorySnapshot:)` | present | Swift throws the first error where ib_async returns partial tickers (DECISIONS) |
 | `qualifyContracts` / `qualifyContractsAsync(returnAll:)` | `qualifyContracts(_:)` | present | `.ambiguous` carries what `returnAll` returns |
 | `bracketOrder` | `Order.bracket(_:quantity:limitPrice:takeProfitPrice:stopLossPrice:)` + `placeBracket(_:_:)` | present | ids are assigned at `placeBracket` |
@@ -178,7 +178,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `prevBid`, `prevBidSize`, `prevAsk`, `prevAskSize`, `prevLast`, `prevLastSize` | `Ticker.prevBid`, `Ticker.prevBidSize`, `Ticker.prevAsk`, `Ticker.prevAskSize`, `Ticker.prevLast`, `Ticker.prevLastSize` | added | set by `apply(_:at:)` (ticks and tick-by-tick events) before each bid/ask/last change, as wrapper.py:1000-1178 |
 | `volume`, `open`, `high`, `low`, `close` | `Ticker.volume` … `Ticker.close` | present | |
 | `vwap` | `Ticker.vwap` | added | parsed from RT volume (48/77, wrapper.py:482); the raw string stays in `strings` |
-| `low13week`, `high13week`, `low26week`, `high26week`, `low52week`, `high52week` | `Ticker.low13Week` … `high52Week` | added | model helper: named properties |
+| `low13week`, `high13week`, `low26week`, `high26week`, `low52week`, `high52week` | `Ticker.low13Week`, `.high13Week`, `.low26Week`, `.high26Week`, `.low52Week`, `.high52Week` | added | model helper: named properties |
 | `bidYield`, `askYield`, `lastYield` | `Ticker.bidYield`, `askYield`, `lastYield` | added | model helper: named properties |
 | `markPrice` | `Ticker.markPrice` | added | model helper |
 | `halted` | `Ticker.halted` | added | model helper `Ticker.halted` |
@@ -203,7 +203,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `delayedLastTimestamp` | `Ticker.delayedLastTimestamp` | added | tick 88, kept apart from `lastTimestamp` as ib_async; 1.0.0 folded it into `lastTimestamp` (CHANGELOG, Changed) |
 | `delayedHalted` | `Ticker.delayedHalted` | added | model helper |
 | `reutersMutualFunds` | `Ticker.reutersMutualFunds` | added | model helper |
-| `etfNavClose`, `etfNavPriorClose`, `etfNavBid`, `etfNavAsk`, `etfNavLast`, `etfFrozenNavLast`, `etfNavHigh`, `etfNavLow` | `Ticker.etfNavClose` … `etfNavLow` | added | model helper |
+| `etfNavClose`, `etfNavPriorClose`, `etfNavBid`, `etfNavAsk`, `etfNavLast`, `etfFrozenNavLast`, `etfNavHigh`, `etfNavLow` | `Ticker.etfNavClose`, `.etfNavPriorClose`, `.etfNavBid`, `.etfNavAsk`, `.etfNavLast`, `.etfFrozenNavLast`, `.etfNavHigh`, `.etfNavLow` | added | model helper |
 | `socialMarketAnalytics` | `Ticker.socialMarketAnalytics` | added | model helper |
 | `estimatedIpoMidpoint`, `finalIpoLast` | `Ticker.estimatedIPOMidpoint`, `finalIPOLast` | added | model helper |
 | `dividends` | `Ticker.dividends` | added | parsed as wrapper.py:1233; the raw string stays in `strings` |
@@ -214,7 +214,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `domBidsDict`, `domAsksDict` | `DepthBook.bidsByPosition`, `DepthBook.asksByPosition` | added | on `Ticker.depth` |
 | `domTicks` | `Ticker.domTicks` | added | the depth updates of the latest update with their time (`[DepthTick]`); a delete carries the removed row's price, and the reset (317) one delete per row, as wrapper.py:1338/1681 |
 | `bidGreeks`, `askGreeks`, `lastGreeks`, `modelGreeks`, `custGreeks` | `Ticker.bidGreeks` … `Ticker.custGreeks` | present | |
-| `bidEfp`, `askEfp`, `lastEfp`, `openEfp`, `highEfp`, `lowEfp`, `closeEfp` | `Ticker.bidEFP` … `closeEFP` | added | model helper: named properties |
+| `bidEfp`, `askEfp`, `lastEfp`, `openEfp`, `highEfp`, `lowEfp`, `closeEfp` | `Ticker.bidEFP`, `.askEFP`, `.lastEFP`, `.openEFP`, `.highEFP`, `.lowEFP`, `.closeEFP` | added | model helper: named properties |
 | `auctionVolume`, `auctionPrice`, `auctionImbalance`, `regulatoryImbalance` | `Ticker.auctionVolume`, `auctionPrice`, `auctionImbalance`, `regulatoryImbalance` | added | model helper |
 | `bboExchange`, `snapshotPermissions` | `Ticker.bboExchange`, `Ticker.snapshotPermissions` | present | |
 | `isUnset` | — | n/a | compares with the NaN placeholder; Swift's unset is `nil` |
@@ -416,7 +416,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `Watchdog.appStartupTime` | `Watchdog.appStartupTime` | added | 30 s: pause after starting the app before connecting |
 | `Watchdog.appTimeout` | `Watchdog.appTimeout` | added | 20 s: silence before the probe, on `idleTimeouts(after:)` |
 | `Watchdog.retryDelay` | `Watchdog.retryDelay` | added | 2 s: pause after the app is terminated before it is started again; `ReconnectPolicy.delays` only spaces socket reconnects |
-| `Watchdog.probeContract` | `Watchdog.probeContract` | added | `nil` (default) probes with `currentTime()`; a contract with ib_async's 30 S / 5 secs / MIDPOINT history request outside RTH, whose first batch must hold a bar (R8; ib_async defaults to EURUSD) |
+| `Watchdog.probeContract` | `Watchdog.probeContract` | added | `nil` (default) probes with `currentTime()`; a contract with ib_async's 30 S / 5 secs / MIDPOINT history request outside RTH, whose first batch must hold a bar (R8; ib_async defaults to EURUSD). `currentTime()` has no reqId, so any −1 fatal or warning arriving during it fails the probe and restarts the app, where ib_async's reqId-bound history probe would not |
 | `Watchdog.probeTimeout` | `Watchdog.probeTimeout` | added | 4 s: how long either probe may take |
 | `Watchdog.startingEvent` | `WatchdogEvent.starting` | added | on `Watchdog.events()`, from `start()` only |
 | `Watchdog.startedEvent` | `WatchdogEvent.started` | added | a `Watchdog`-driven connect succeeded |

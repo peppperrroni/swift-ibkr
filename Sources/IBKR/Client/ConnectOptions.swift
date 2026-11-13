@@ -25,7 +25,9 @@ public struct ConnectOptions: Sendable, Equatable, Encodable {
     /// startApi's optional capabilities field.
     public var optionalCapabilities: String
     /// How long an id-less one-shot (`currentTime()`, `faData(_:)`, `fetchOpenOrders()`, ...) waits for its answer
-    /// before it throws `.timeout`; `nil` waits without bound. IB cannot address an error to these requests.
+    /// before it throws `.timeout`; `nil` waits without bound. IB cannot address an error to these requests, so any
+    /// fatal or warning error with reqId -1 also ends every one waiting, and an answer that comes after its waiter
+    /// gave up goes to the next call of the same kind.
     public var idlessRequestTimeout: Duration?
     /// The zone of an `Execution.time` that names none (IB's live format); `nil` reads it as UTC (`ib_async`'s
     /// `TimezoneTWS`, whose default is the local zone).
