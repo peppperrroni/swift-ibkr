@@ -134,9 +134,10 @@ func globMatches(_ pattern: String, _ s: String) -> Bool {
 private let unsetTexts: Set<String> = ["", "2147483647", "9223372036854775807", "-9223372036854775808",
                                        "1.7976931348623157E308", "1.7976931348623157e+308"]
 
-private func sameNumber(_ a: String, _ b: String) -> Bool {
-    func n(_ s: String) -> String { unsetTexts.contains(s) ? "" : FieldReader.plainDecimal(s).map { "\($0)" } ?? s }
-    return n(a) == n(b)
+/// Sentinels fold on ib_async's side only, so a Swift value that kept one still mismatches (Review Focus 2).
+private func sameNumber(_ ours: String, _ theirs: String) -> Bool {
+    func n(_ s: String) -> String { FieldReader.plainDecimal(s).map { "\($0)" } ?? s }
+    return n(ours) == (unsetTexts.contains(theirs) ? "" : n(theirs))
 }
 
 /// What is wrong with `entries`: an unknown scope or field word, a bare `*`, a bare placeOrder index across every

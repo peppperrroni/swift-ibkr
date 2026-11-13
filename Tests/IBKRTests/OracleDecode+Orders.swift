@@ -167,15 +167,18 @@ func orderCalls(id: Int, _ m: IBMessage) -> [OracleCall]? {
     case .orderBound(let permID, let clientID, let orderID):
         return call("orderBound", ["reqId": canon(permID), "apiClientId": canon(clientID), "apiOrderId": canon(orderID)])
     case .openOrder(let m):
-        // completedTime and completedStatus are completedOrder's; filledQuantity is not on openOrder's wire.
+        // filledQuantity, refFuturesConId, parentPermId, completedTime and completedStatus are not read by openOrder's
+        // decoder at 178 (decoder.py:882-1147), so they are ib_async's dataclass defaults (order.py:147, 148, 153,
+        // 324-325); these constants replace orderArgs' values for them.
         return call("openOrder", contractArgs(m.contract, prefix: "contract.")
             .merging(orderArgs(m.order, prefix: "order.")) { a, _ in a }
             .merging(orderStateArgs(m.state, prefix: "orderState.")) { a, _ in a }
             .merging([
                 "orderId": canon(m.orderID), "order.orderId": canon(m.orderID), "order.clientId": canon(m.clientID),
-                "order.permId": canon(m.permID), "order.filledQuantity": "", "orderState.status": m.status.rawValue,
+                "order.permId": canon(m.permID), "order.filledQuantity": "", "order.refFuturesConId": "0",
+                "order.parentPermId": "0", "orderState.status": m.status.rawValue,
                 "orderState.completedTime": "", "orderState.completedStatus": "",
-            ]) { a, _ in a })
+            ]) { _, constant in constant })
     case .completedOrder(let m):
         // orderId and clientId are not on completedOrder's wire at 178 (ib_async's default 0); nor are the
         // margins and commissions (an empty OrderState).

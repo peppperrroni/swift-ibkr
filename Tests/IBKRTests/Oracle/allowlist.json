@@ -1097,22 +1097,6 @@
  },
  {
   "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "recorded/liveLimitOrderPlacesAndCancels.json#8",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "recorded/liveLimitOrderPlacesAndCancels.json#8",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
   "field": "orderState.equityWithLoanAfter",
   "frames": "recorded/liveLimitOrderPlacesAndCancels.json#8",
   "equalAsNumbers": true,
@@ -1190,22 +1174,6 @@
   "pair": ["0", ""],
   "cite": "protocol-178 Disagreements 15",
   "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "recorded/liveLimitOrderPlacesAndCancels.json#13",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "recorded/liveLimitOrderPlacesAndCancels.json#13",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
  },
  {
   "scope": "in 5",
@@ -1321,22 +1289,6 @@
  },
  {
   "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "recorded/liveOrderFillsWithCommission.json#25",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "recorded/liveOrderFillsWithCommission.json#25",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
   "field": "orderState.equityWithLoanAfter",
   "frames": "recorded/liveOrderFillsWithCommission.json#25",
   "equalAsNumbers": true,
@@ -1414,22 +1366,6 @@
   "pair": ["0", ""],
   "cite": "protocol-178 Disagreements 15",
   "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "recorded/liveOrderFillsWithCommission.json#27",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "recorded/liveOrderFillsWithCommission.json#27",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
  },
  {
   "scope": "in 5",
@@ -1513,22 +1449,6 @@
  },
  {
   "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "recorded/liveOrderFillsWithCommission.json#31",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "recorded/liveOrderFillsWithCommission.json#31",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
   "field": "orderState.equityWithLoanAfter",
   "frames": "recorded/liveOrderFillsWithCommission.json#31",
   "equalAsNumbers": true,
@@ -1606,22 +1526,6 @@
   "pair": ["0", ""],
   "cite": "protocol-178 Disagreements 15",
   "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "recorded/liveOrderFillsWithCommission.json#33",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "recorded/liveOrderFillsWithCommission.json#33",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
  },
  {
   "scope": "in 5",
@@ -1705,22 +1609,6 @@
  },
  {
   "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "recorded/liveOrderFillsWithCommission.json#39",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "recorded/liveOrderFillsWithCommission.json#39",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
   "field": "orderState.equityWithLoanAfter",
   "frames": "recorded/liveOrderFillsWithCommission.json#39",
   "equalAsNumbers": true,
@@ -1798,22 +1686,6 @@
   "pair": ["0", ""],
   "cite": "protocol-178 Disagreements 15",
   "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "recorded/liveOrderFillsWithCommission.json#45",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "recorded/liveOrderFillsWithCommission.json#45",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
  },
  {
   "scope": "in 5",
@@ -1897,22 +1769,6 @@
  },
  {
   "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "recorded/liveOrderFillsWithCommission.json#47",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "recorded/liveOrderFillsWithCommission.json#47",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
   "field": "orderState.equityWithLoanAfter",
   "frames": "recorded/liveOrderFillsWithCommission.json#47",
   "equalAsNumbers": true,
@@ -1990,22 +1846,6 @@
   "pair": ["0", ""],
   "cite": "protocol-178 Disagreements 15",
   "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "recorded/liveOrderRefusedByPriceCap.json#17",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "recorded/liveOrderRefusedByPriceCap.json#17",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
  },
  {
   "scope": "in 5",
@@ -2089,22 +1929,6 @@
  },
  {
   "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "recorded/liveOrderRefusedByPriceCap.json#19",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "recorded/liveOrderRefusedByPriceCap.json#19",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
   "field": "orderState.equityWithLoanAfter",
   "frames": "recorded/liveOrderRefusedByPriceCap.json#19",
   "equalAsNumbers": true,
@@ -2174,22 +1998,6 @@
   "equalAsNumbers": true,
   "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
   "note": "ib_async keeps the margin text as sent (order.py:310-318)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "fixtures/openOrder-OpenOrderTests",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "fixtures/openOrder-OpenOrderTests",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
  },
  {
   "scope": "in 101",
@@ -2206,22 +2014,6 @@
   "pair": ["", "0"],
   "cite": "DECISIONS: One shared unset set",
   "note": "empty on the wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "fixtures/openOrder-OrderTrackerTests",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "fixtures/openOrder-OrderTrackerTests",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
  },
  {
   "scope": "in 101",
@@ -2254,198 +2046,6 @@
   "pair": ["", "0"],
   "cite": "DECISIONS: One shared unset set",
   "note": "empty on the wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/FakeGateway.swift:87#60",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/FakeGateway.swift:87#60",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/FakeGateway.swift:87#61",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/FakeGateway.swift:87#61",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/FakeGateway.swift:87#62",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/FakeGateway.swift:87#62",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/FakeGateway.swift:87#63",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/FakeGateway.swift:87#63",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/FakeGateway.swift:87#64",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/FakeGateway.swift:87#64",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/FakeGateway.swift:87#65",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/FakeGateway.swift:87#65",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/IBClientOrderTests.swift:86",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/IBClientOrderTests.swift:86",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/IBClientOrderTests.swift:268",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/IBClientOrderTests.swift:268",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/IBClientOrderTests.swift:346",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/IBClientOrderTests.swift:346",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/OpenOrderTests.swift:22#1",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/OpenOrderTests.swift:22#1",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/OpenOrderTests.swift:22#2",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/OpenOrderTests.swift:22#2",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/OpenOrderTests.swift:22#3",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/OpenOrderTests.swift:22#3",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
  },
  {
   "scope": "in 5",
@@ -2457,54 +2057,6 @@
  },
  {
   "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/OpenOrderTests.swift:22#4",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/OpenOrderTests.swift:22#4",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/OpenOrderTests.swift:22#5",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/OpenOrderTests.swift:22#5",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/OpenOrderTests.swift:22#6",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/OpenOrderTests.swift:22#6",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
   "field": "#error",
   "frames": "sweep/OpenOrderTests.swift:22#7",
   "pair": ["decoded", "ValueError: could not convert string to float: 'Infinite'"],
@@ -2512,54 +2064,6 @@
   "note": "ib_async's parse calls float('Infinite'), which raises (decoder.py:185-198)"
  },
  {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/OpenOrderTests.swift:22#8",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/OpenOrderTests.swift:22#8",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/OpenOrderTests.swift:44",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/OpenOrderTests.swift:44",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/OpenOrderTests.swift:143",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/OpenOrderTests.swift:143",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
   "scope": "in 101",
   "field": "order.parentPermId",
   "frames": "sweep/OpenOrderTests.swift:182",
@@ -2606,102 +2110,6 @@
   "pair": ["", "0"],
   "cite": "DECISIONS: One shared unset set",
   "note": "empty on the wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/OrderTrackerTests.swift:9#1",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/OrderTrackerTests.swift:9#1",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/OrderTrackerTests.swift:9#2",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/OrderTrackerTests.swift:9#2",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/OrderTrackerTests.swift:9#3",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/OrderTrackerTests.swift:9#3",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/OrderTrackerTests.swift:9#4",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/OrderTrackerTests.swift:9#4",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/OrderTrackerTests.swift:9#5",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/OrderTrackerTests.swift:9#5",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/OrderTrackerTests.swift:9#6",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/OrderTrackerTests.swift:9#6",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
  },
  {
   "scope": "in 101",
@@ -2777,475 +2185,11 @@
  },
  {
   "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "sweep/OrderTrackerTests.swift:235",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "sweep/OrderTrackerTests.swift:235",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/base",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/base",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/full",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/full",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/delta-neutral",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/delta-neutral",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/combo-legs-1",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/combo-legs-1",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/combo-legs-2",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/combo-legs-2",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/combo-legs-2-without-order-legs",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/combo-legs-2-without-order-legs",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/order-combo-legs-1",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/order-combo-legs-1",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/order-combo-leg-prices-unset",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/order-combo-leg-prices-unset",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/smart-combo-1",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/smart-combo-1",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/smart-combo-2",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/smart-combo-2",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/scale",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/scale",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/scale-increment-zero",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/scale-increment-zero",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
   "field": "order.scalePriceIncrement",
   "frames": "gen/5/scale-increment-zero",
   "pair": ["0", ""],
   "cite": "DECISIONS: openOrder's values are kept as IB sends them",
   "note": "ib_async reads 0 as float 0.0, which its parse then resets to UNSET_DOUBLE (decoder.py:1019, 196)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/scale-increment-negative",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/scale-increment-negative",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/hedge",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/hedge",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/delta-neutral-contract",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/delta-neutral-contract",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/algo-0",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/algo-0",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/algo-1",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/algo-1",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/algo-2",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/algo-2",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/peg-bench",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/peg-bench",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/pegbench",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/pegbench",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/condition-price",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/condition-price",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/condition-time",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/condition-time",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/condition-margin",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/condition-margin",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/condition-execution",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/condition-execution",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/condition-volume",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/condition-volume",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/condition-percent-change",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/condition-percent-change",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/conditions-and-or",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/conditions-and-or",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/conditions-or-and",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/conditions-or-and",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
  },
  {
   "scope": "in 5",
@@ -3265,22 +2209,6 @@
  },
  {
   "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/unset-empty",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/unset-empty",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
   "field": "contract.comboLegs[].conId",
   "frames": "gen/5/unset-max",
   "pair": ["0", ""],
@@ -3540,8 +2468,8 @@
   "field": "order.eTradeOnly",
   "frames": "gen/5/unset-max",
   "pair": ["false", "true"],
-  "cite": "protocol-178 Disagreements 13",
-  "note": "a non-optional value reads unset as its default here (decoder.py:882-1147, parse 185-198)"
+  "cite": "DECISIONS: `eTradeOnly`, `firmQuoteOnly` and `nbboPriceCap` are optional",
+  "note": "any text but 1 decodes to nil (false in the mapping) here; ib_async reads bool(int(x)) (decoder.py:948-949, parse 185-198)"
  },
  {
   "scope": "in 5",
@@ -3556,8 +2484,8 @@
   "field": "order.firmQuoteOnly",
   "frames": "gen/5/unset-max",
   "pair": ["false", "true"],
-  "cite": "protocol-178 Disagreements 13",
-  "note": "a non-optional value reads unset as its default here (decoder.py:882-1147, parse 185-198)"
+  "cite": "DECISIONS: `eTradeOnly`, `firmQuoteOnly` and `nbboPriceCap` are optional",
+  "note": "any text but 1 decodes to nil (false in the mapping) here; ib_async reads bool(int(x)) (decoder.py:948-949, parse 185-198)"
  },
  {
   "scope": "in 5",
@@ -3641,14 +2569,6 @@
  },
  {
   "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/unset-max",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
   "field": "order.peggedChangeAmount",
   "frames": "gen/5/unset-max",
   "pair": ["0", ""],
@@ -3678,14 +2598,6 @@
   "pair": ["false", "true"],
   "cite": "protocol-178 Disagreements 13",
   "note": "a non-optional value reads unset as its default here (decoder.py:882-1147, parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/unset-max",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
  },
  {
   "scope": "in 5",
@@ -4124,8 +3036,8 @@
   "field": "order.eTradeOnly",
   "frames": "gen/5/unset-long-max",
   "pair": ["false", "true"],
-  "cite": "protocol-178 Disagreements 13",
-  "note": "a non-optional value reads unset as its default here (decoder.py:882-1147, parse 185-198)"
+  "cite": "DECISIONS: `eTradeOnly`, `firmQuoteOnly` and `nbboPriceCap` are optional",
+  "note": "any text but 1 decodes to nil (false in the mapping) here; ib_async reads bool(int(x)) (decoder.py:948-949, parse 185-198)"
  },
  {
   "scope": "in 5",
@@ -4140,8 +3052,8 @@
   "field": "order.firmQuoteOnly",
   "frames": "gen/5/unset-long-max",
   "pair": ["false", "true"],
-  "cite": "protocol-178 Disagreements 13",
-  "note": "a non-optional value reads unset as its default here (decoder.py:882-1147, parse 185-198)"
+  "cite": "DECISIONS: `eTradeOnly`, `firmQuoteOnly` and `nbboPriceCap` are optional",
+  "note": "any text but 1 decodes to nil (false in the mapping) here; ib_async reads bool(int(x)) (decoder.py:948-949, parse 185-198)"
  },
  {
   "scope": "in 5",
@@ -4273,14 +3185,6 @@
  },
  {
   "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/unset-long-max",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
   "field": "order.peggedChangeAmount",
   "frames": "gen/5/unset-long-max",
   "pair": ["0", "9223372036854776000"],
@@ -4318,14 +3222,6 @@
   "pair": ["false", "true"],
   "cite": "protocol-178 Disagreements 13",
   "note": "a non-optional value reads unset as its default here (decoder.py:882-1147, parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/unset-long-max",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
  },
  {
   "scope": "in 5",
@@ -4868,8 +3764,8 @@
   "field": "order.eTradeOnly",
   "frames": "gen/5/unset-long-min",
   "pair": ["false", "true"],
-  "cite": "protocol-178 Disagreements 13",
-  "note": "a non-optional value reads unset as its default here (decoder.py:882-1147, parse 185-198)"
+  "cite": "DECISIONS: `eTradeOnly`, `firmQuoteOnly` and `nbboPriceCap` are optional",
+  "note": "any text but 1 decodes to nil (false in the mapping) here; ib_async reads bool(int(x)) (decoder.py:948-949, parse 185-198)"
  },
  {
   "scope": "in 5",
@@ -4884,8 +3780,8 @@
   "field": "order.firmQuoteOnly",
   "frames": "gen/5/unset-long-min",
   "pair": ["false", "true"],
-  "cite": "protocol-178 Disagreements 13",
-  "note": "a non-optional value reads unset as its default here (decoder.py:882-1147, parse 185-198)"
+  "cite": "DECISIONS: `eTradeOnly`, `firmQuoteOnly` and `nbboPriceCap` are optional",
+  "note": "any text but 1 decodes to nil (false in the mapping) here; ib_async reads bool(int(x)) (decoder.py:948-949, parse 185-198)"
  },
  {
   "scope": "in 5",
@@ -5017,14 +3913,6 @@
  },
  {
   "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/unset-long-min",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
   "field": "order.peggedChangeAmount",
   "frames": "gen/5/unset-long-min",
   "pair": ["0", "-9223372036854776000"],
@@ -5062,14 +3950,6 @@
   "pair": ["false", "true"],
   "cite": "protocol-178 Disagreements 13",
   "note": "a non-optional value reads unset as its default here (decoder.py:882-1147, parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/unset-long-min",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
  },
  {
   "scope": "in 5",
@@ -5270,22 +4150,6 @@
   "pair": ["", "-9223372036854776000"],
   "cite": "DECISIONS: One shared unset set",
   "note": "the long sentinels are unset (nil) here; ib_async reads them as a float (decoder.py:185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/empty-strings",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/empty-strings",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
  },
  {
   "scope": "in 5",
@@ -5369,38 +4233,6 @@
  },
  {
   "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/unset-empty-scalePriceIncrement",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/unset-empty-scalePriceIncrement",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/unset-max-scalePriceIncrement",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/unset-max-scalePriceIncrement",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
   "field": "#error",
   "frames": "gen/5/unset-empty-algoParams.#",
   "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
@@ -5426,6 +4258,22 @@
  {
   "scope": "in 5",
   "field": "#error",
+  "frames": "gen/5/unset-long-max-scalePriceIncrement",
+  "pair": ["malformed: badNumber(\"clracct\", index: 85)", "decoded"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "the long sentinel is unset (nil) here, so no scale group is read; ib_async reads it as a float in range and reads the 7-field group (decoder.py:1019-1030)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.scalePriceIncrement",
+  "frames": "gen/5/unset-long-min-scalePriceIncrement",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "the long sentinels are unset (nil) here; ib_async reads them as a float (decoder.py:185-198)"
+ },
+ {
+  "scope": "in 5",
+  "field": "#error",
   "frames": "gen/5/empty-action",
   "pair": ["malformed: unexpectedValue(\"\", index: 13)", "decoded"],
   "cite": "DECISIONS: `ComboLeg.action` is an `OrderAction`",
@@ -5446,22 +4294,6 @@
   "pair": ["malformed: unexpectedValue(\"\", index: 104)", "decoded"],
   "cite": "DECISIONS: an unknown condition type or conjunction makes openOrder / completedOrder `.malformed`",
   "note": "ib_async keeps the conjunction text (decoder.py:882-1147)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/what-if",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/what-if",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
  },
  {
   "scope": "in 5",
@@ -5494,22 +4326,6 @@
   "equalAsNumbers": true,
   "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
   "note": "ib_async keeps the margin text as sent (order.py:310-318)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/what-if-unset-max",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/what-if-unset-max",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
  },
  {
   "scope": "in 5",
@@ -5582,22 +4398,6 @@
   "equalAsNumbers": true,
   "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
   "note": "ib_async keeps the margin text as sent (order.py:310-318)"
- },
- {
-  "scope": "in 5",
-  "field": "order.parentPermId",
-  "frames": "gen/5/what-if-unset-long",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 5",
-  "field": "order.refFuturesConId",
-  "frames": "gen/5/what-if-unset-long",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "not on openOrder's wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
  },
  {
   "scope": "in 5",
@@ -7406,6 +6206,22 @@
   "pair": ["malformed: badNumber(\"0.55\", index: 71)", "decoded"],
   "cite": "protocol-178 Disagreements 13",
   "note": "an unset count or delta-neutral-contract flag reads as 0 / false here; ib_async's int() rejects it or reads MAX as set (decoder.py:1149-1359)"
+ },
+ {
+  "scope": "in 101",
+  "field": "#error",
+  "frames": "gen/101/unset-long-max-scalePriceIncrement",
+  "pair": ["malformed: badNumber(\"Cancelled\", index: 79)", "decoded"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "the long sentinel is unset (nil) here, so no scale group is read; ib_async reads it as a float in range and reads the 7-field group (decoder.py:1019-1030)"
+ },
+ {
+  "scope": "in 101",
+  "field": "order.scalePriceIncrement",
+  "frames": "gen/101/unset-long-min-scalePriceIncrement",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "the long sentinels are unset (nil) here; ib_async reads them as a float (decoder.py:185-198)"
  },
  {
   "scope": "in 101",

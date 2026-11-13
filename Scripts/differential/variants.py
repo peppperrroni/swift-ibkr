@@ -187,7 +187,7 @@ _ORDER_HEAD = [("action", G, "BUY"), ("totalQuantity", D, "40"), ("orderType", G
                ("auxPrice", D, "0"), ("tif", S, "DAY"), ("ocaGroup", S, "oca-1"), ("account", S, "DU0000001"),
                ("openClose", S, "O"), ("origin", I, "0"), ("orderRef", S, "ref-1")]
 _LEG = [("conId", I, "{n}0001"), ("ratio", I, "1"), ("action", G, "SELL"), ("exchange", S, "SMART"),
-        ("openClose", I, "1"), ("shortSaleSlot", I, "1"), ("designatedLocation", S, "loc"), ("exemptCode", I, "2")]
+        ("openClose", I, "1"), ("shortSaleSlot", I, "2"), ("designatedLocation", S, "loc"), ("exemptCode", I, "4")]
 _CONDITIONS = {  # dataclass order after condType (order.py:503-556)
     "price": ("1", [("isMore", F, "1"), ("price", D, "350.25"), ("conId", I, "265598"), ("exch", S, "SMART"),
                     ("triggerMethod", I, "2")]),
@@ -220,9 +220,9 @@ def _order_spec(msg: int, dn=False, legs=0, order_legs=0, smart=0, scale=False, 
     s += [("startingPrice", D, "350.5"), ("stockRefPrice", D, "349.5"), ("delta", D, "0.45"),
           ("stockRangeLower", D, "340"), ("stockRangeUpper", D, "360"), ("displaySize", I, "10")]
     s += [("blockOrder", F, "1")] if o else []
-    s += [("sweepToFill", F, "1"), ("allOrNone", F, "1"), ("minQty", I, "5"), ("ocaType", I, "2")]
+    s += [("sweepToFill", F, "0"), ("allOrNone", F, "1"), ("minQty", I, "5"), ("ocaType", I, "2")]
     if o:
-        s += [("eTradeOnly", F, "1"), ("firmQuoteOnly", F, "1"), ("nbboPriceCap", D, "352"), ("parentId", I, "6")]
+        s += [("eTradeOnly", F, "1"), ("firmQuoteOnly", F, "0"), ("nbboPriceCap", D, "352"), ("parentId", I, "6")]
     s += [("triggerMethod", I, "7"), ("volatility", D, "0.3"), ("volatilityType", I, "2"),
           ("deltaNeutralOrderType", G, "LMT" if dn else ""), ("deltaNeutralAuxPrice", D, "1.5")]
     if dn:
@@ -266,7 +266,7 @@ def _order_spec(msg: int, dn=False, legs=0, order_legs=0, smart=0, scale=False, 
         s += [(m, S, "") for m in _MARGINS]  # text in ib_async (order.py:310-318), so not swept as numbers
         s += [("commission", D, ""), ("minCommission", D, ""), ("maxCommission", D, ""), ("commissionCurrency", S, ""),
               ("warningText", S, "")]
-    s += [("randomizeSize", F, "1"), ("randomizePrice", F, "1")]
+    s += [("randomizeSize", F, "1"), ("randomizePrice", F, "0")]
     if peg:
         s += [("referenceContractId", I, "13824"), ("isPeggedChangeAmountDecrease", F, "1"),
               ("peggedChangeAmount", D, "0.5"), ("referenceChangeAmount", D, "0.25"), ("referenceExchangeId", S, "NYSE")]
@@ -276,24 +276,24 @@ def _order_spec(msg: int, dn=False, legs=0, order_legs=0, smart=0, scale=False, 
         s += [(f"cond{n}.condType", G, t), (f"cond{n}.conjunction", G, conjunctions[n] if conjunctions else "a")]
         s += [(f"cond{n}.{k}", fk, v) for k, fk, v in fields]
     if conds:
-        s += [("conditionsIgnoreRth", F, "1"), ("conditionsCancelOrder", F, "1")]
+        s += [("conditionsIgnoreRth", F, "1"), ("conditionsCancelOrder", F, "0")]
     if o:
         s += [("adjustedOrderType", S, "STP"), ("triggerPrice", D, "349"), ("trailStopPrice2", D, "346"),
               ("lmtPriceOffset", D, "0.1"), ("adjustedStopPrice", D, "348"), ("adjustedStopLimitPrice", D, "347.5"),
               ("adjustedTrailingAmount", D, "0.75"), ("adjustableTrailingUnit", I, "1"),
               ("softDollarTier.name", S, "tier"), ("softDollarTier.val", S, "t1"),
               ("softDollarTier.displayName", S, "Tier 1"), ("cashQty", D, "1000"),
-              ("dontUseAutoPriceForHedge", F, "1"), ("isOmsContainer", F, "1"),
-              ("discretionaryUpToLimitPrice", F, "1"), ("usePriceMgmtAlgo", F, "1"), ("duration", I, "60"),
-              ("postToAts", I, "1"), ("autoCancelParent", F, "1")]
+              ("dontUseAutoPriceForHedge", F, "1"), ("isOmsContainer", F, "0"),
+              ("discretionaryUpToLimitPrice", F, "1"), ("usePriceMgmtAlgo", F, "0"), ("duration", I, "60"),
+              ("postToAts", I, "1"), ("autoCancelParent", F, "0")]
     else:
         s += [("trailStopPrice2", D, "346"), ("lmtPriceOffset", D, "0.1"), ("cashQty", D, "1000"),
-              ("dontUseAutoPriceForHedge", F, "1"), ("isOmsContainer", F, "1"),
+              ("dontUseAutoPriceForHedge", F, "1"), ("isOmsContainer", F, "0"),
               ("autoCancelDate", S, "20261231"), ("filledQuantity", D, "15"), ("refFuturesConId", I, "4977"),
-              ("autoCancelParent", F, "1"), ("shareholder", S, "holder"), ("imbalanceOnly", F, "1"),
-              ("routeMarketableToBbo", F, "1"), ("parentPermId", I, "610467320"),
+              ("autoCancelParent", F, "0"), ("shareholder", S, "holder"), ("imbalanceOnly", F, "1"),
+              ("routeMarketableToBbo", F, "0"), ("parentPermId", I, "610467320"),
               ("completedTime", S, "20261110 12:46:35 US/Eastern"), ("completedStatus", S, "Cancelled by Trader")]
-    s += [("minTradeQty", I, "100"), ("minCompeteSize", I, "100"), ("competeAgainstBestOffset", D, "0.02"),
+    s += [("minTradeQty", I, "100"), ("minCompeteSize", I, "200"), ("competeAgainstBestOffset", D, "0.02"),
           ("midOffsetAtWhole", D, "0.01"), ("midOffsetAtHalf", D, "0.005")]
     return s
 
@@ -356,6 +356,9 @@ def _order_variants(msg: int) -> list[tuple[str, list[str]]]:
         ("unset-empty-algoParams.#", _fields(spec(algo=0), **{"algoParams.#": ""})),
         ("unset-max-algoParams.#", _fields(spec(algo=0), **{"algoParams.#": MAX_INT})),
         ("unset-max-dncPresent-with-contract", _fields(spec(dnc=True), dncPresent=MAX_INT)),
+        # ib_async reads a long sentinel as a float in range (decoder.py:1019-1020), so its scale group follows
+        ("unset-long-max-scalePriceIncrement", _fields(spec(scale=True), scalePriceIncrement=LONG_MAX)),
+        ("unset-long-min-scalePriceIncrement", _fields(base, scalePriceIncrement=LONG_MIN)),
         ("unset-empty-condType", _fields(spec(conds=("margin",)), **{"cond0.condType": ""})),
         ("empty-action", _fields(base, action="")),
         ("empty-leg-action", _fields(spec(legs=1), **{"leg0.action": ""})),

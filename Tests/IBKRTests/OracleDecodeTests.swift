@@ -60,6 +60,15 @@ func ibAsyncCalls(id: Int, _ m: IBMessage) -> [OracleCall]? {
     for e in bad {
         #expect(allowlistProblems([e], decisions: docs.decisions, protocol178: docs.protocol178).count == 1, "\(e)")
     }
+    // equalAsNumbers folds IB's unset markers on ib_async's side only: a Swift value that kept one is a mismatch.
+    let numbers = AllowEntry(scope: "in 5", field: "x", equalAsNumbers: true, cite: "protocol-178 Disagreements 8")
+    func accepts(_ ours: String, _ theirs: String) -> Bool {
+        numbers.accepts(Mismatch(name: "x", scope: "in 5", field: "x", ours: ours, theirs: theirs))
+    }
+    #expect(accepts("", "1.7976931348623157E308"))
+    #expect(accepts("12345.6", "12345.60"))
+    #expect(!accepts("2147483647", ""))
+    #expect(!accepts("1.7976931348623157E308", ""))
     var used: Set<Int> = []
     let same = [OracleCall(method: "nextValidId", args: ["reqId": "1"])]
     let unused = AllowEntry(scope: "in 9", field: "reqId", cite: "protocol-178 Disagreements 8")
