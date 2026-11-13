@@ -24,6 +24,8 @@ import Testing
     #expect(PortfolioItem(account: "A", contract: contract, quantity: 1, marketPrice: 2, marketValue: 2, averageCost: 1,
                           unrealizedPNL: 1).realizedPNL == nil)
     #expect(AccountPnL(daily: 1).unrealized == nil)
+    #expect(AccountPnL(daily: 1, account: "A", modelCode: "M").modelCode == "M")
+    #expect(PnL(position: 1, account: "A", modelCode: "M", conID: 7).conID == 7)
     #expect(execution.execID == "e1")
     #expect(commission.realizedPNL == nil)
     #expect(ContractDetails(

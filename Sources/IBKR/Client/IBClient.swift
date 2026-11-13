@@ -39,6 +39,18 @@ public actor IBClient {
     /// The open `realTimeBars` and `liveHistoricalBars` subscriptions, by reqId; an entry goes with its stream.
     var liveBars: [Int: LiveBars] = [:]
     var barUpdateSubscribers = Subscribers<LiveBars>()
+    /// The open `tickers` streams' latest `Ticker`, by a key of their own (`tickerKey`); an entry goes when its fold
+    /// ends or the connection does.
+    var tickerRegistry: [Int: Ticker] = [:]
+    var tickerKey = 0
+    var pendingTickerSubscribers = Subscribers<[Ticker]>()
+    /// The latest value of each open `pnl` and `pnlSingle` stream, by reqId; an entry goes with its stream.
+    var accountPnLs: [Int: AccountPnL] = [:]
+    var positionPnLs: [Int: PnL] = [:]
+    /// Every news tick and bulletin since the last manual `connect` (a reconnect keeps them).
+    var newsTickLog: [NewsTick] = []
+    var newsTickSubscribers = Subscribers<NewsTick>()
+    var bulletins: [NewsBulletin] = []
     private var localID = -1
     /// The open `newsBulletins` stream's key; IB holds one bulletin subscription per connection.
     var newsBulletinKey: Int?
@@ -95,6 +107,7 @@ public actor IBClient {
                         timeout: Duration = .seconds(10), reconnect policy: ReconnectPolicy? = nil)
         async throws(IBClientError) {
         guard case .disconnected = state else { throw .alreadyConnected }
+        (newsTickLog, bulletins) = ([], [])   // ib_async's wrapper.reset at connect
         reconnect = policy.map { ($0, host, port, clientID, timeout) }   // acts only once this connect succeeds
         try await open(host: host, port: port, clientID: clientID, timeout: timeout).get()
     }
@@ -391,14 +404,19 @@ public actor IBClient {
         }
     }
 
-    /// Every account-level P&L update IB sends, as it comes. Ends like `accountSummary`.
+    /// Every account-level P&L update IB sends, as it comes, with `account` and `modelCode` set from the request.
+    /// Ends like `accountSummary`. While open, its latest value is listed by `pnlValues(account:modelCode:)`.
     public func pnl(account: String, modelCode: String = "") throws(IBClientError)
         -> AsyncThrowingStream<AccountPnL, any Error> {
         try requireConnected()
         let id = nextRequestID()
         return try openStream(.pnl(requestID: id, account: account, modelCode: modelCode), id: id,
                               cancel: .cancelPnL(requestID: id)) { message, out in
-            if case .pnl(_, let pnl) = message { out.yield(pnl) }
+            if case .pnl(_, var pnl) = message {
+                (pnl.account, pnl.modelCode) = (account, modelCode)
+                self.accountPnLs[id] = pnl
+                out.yield(pnl)
+            }
             return false
         }
     }
@@ -410,14 +428,19 @@ public actor IBClient {
         if ended, set != last { last = set; out.yield(set) }
     }
 
-    /// Every P&L update IB sends for one position, as it comes. Ends like `accountSummary`.
+    /// Every P&L update IB sends for one position, as it comes, with `account`, `modelCode` and `conID` set from the
+    /// request. Ends like `accountSummary`. While open, its latest value is listed by `pnlSingleValues(…)`.
     public func pnlSingle(account: String, conID: Int, modelCode: String = "") throws(IBClientError)
         -> AsyncThrowingStream<PnL, any Error> {
         try requireConnected()
         let id = nextRequestID()
         return try openStream(.pnlSingle(requestID: id, account: account, modelCode: modelCode, conID: conID), id: id,
                               cancel: .cancelPnLSingle(requestID: id)) { message, out in
-            if case .pnlSingle(_, let pnl) = message { out.yield(pnl) }
+            if case .pnlSingle(_, var pnl) = message {
+                (pnl.account, pnl.modelCode, pnl.conID) = (account, modelCode, conID)
+                self.positionPnLs[id] = pnl
+                out.yield(pnl)
+            }
             return false
         }
     }
@@ -650,7 +673,8 @@ public actor IBClient {
     /// so no tick is lost or seen twice. `depthRows` adds the depth book, opened first, since it refuses everything
     /// `marketData` refuses and BAG too; `tickByTick` adds IB's tick-by-tick events of that type, opened last. An
     /// open error stops what was already opened. The first inner error ends the stream with that error, and however
-    /// it ends, every request still open is cancelled. `options` go with the market data request only.
+    /// it ends, every request still open is cancelled. `options` go with the market data request only. While open,
+    /// its latest ticker is listed by `ticker(for:)` and `activeTickers()`, and each update goes to `pendingTickers()`.
     public func tickers(_ contract: Contract, genericTicks: [GenericTick] = [], depthRows: Int? = nil,
                         smartDepth: Bool = true, tickByTick: TickByTickType? = nil, options: [TagValue] = [])
         throws(IBClientError) -> AsyncThrowingStream<Ticker, any Error> {
@@ -675,7 +699,10 @@ public actor IBClient {
             Self.stop(quotes)
             throw error
         }
-        return Self.fold(contract, quotes, depth, events)
+        tickerKey += 1
+        let key = tickerKey
+        tickerRegistry[key] = Ticker(contract: contract)   // listed from the request on, as ib_async's reqMktData
+        return Self.fold(contract, quotes, depth, events) { [weak self] in await self?.recordTicker(key, $0) }
     }
 
     /// One snapshot `Ticker` per contract, in the order of `contracts`, each read to IB's snapshot end. Every request
@@ -723,9 +750,12 @@ public actor IBClient {
     /// applies each part with one `now`, clears and refills the per-update lists, and puts the whole ticker in a
     /// `TickerMailbox`. The first inner end or error ends the fold; the mailbox's end, or the consumer leaving,
     /// cancels the readers, which stops each inner stream and so sends its cancel.
+    /// Each step is `record`ed (awaited, so one ticker's updates keep their order) before the consumer gets it; the
+    /// fold's end records `nil`.
     private nonisolated static func fold(_ contract: Contract, _ quotes: AsyncThrowingStream<Tick, any Error>,
                                          _ depth: AsyncThrowingStream<TickerPart, any Error>?,
-                                         _ events: AsyncThrowingStream<TickByTick, any Error>?)
+                                         _ events: AsyncThrowingStream<TickByTick, any Error>?,
+                                         record: @escaping @Sendable (Ticker?) async -> Void)
         -> AsyncThrowingStream<Ticker, any Error> {
         let (parts, feed) = AsyncThrowingStream.makeStream(of: TickerPart.self, throwing: (any Error).self)
         func forward<E: Sendable>(_ s: AsyncThrowingStream<E, any Error>, _ wrap: @escaping @Sendable (E) -> TickerPart)
@@ -752,10 +782,12 @@ public actor IBClient {
                     case .tickByTick(let t): ticker.apply(t, at: now)
                     }
                     ticker.time = now
+                    await record(ticker)
                     box.put(ticker)
                 }
                 box.finish(throwing: nil)
             } catch { box.finish(throwing: error) }
+            await record(nil)
         }
         return box.stream()
     }
@@ -927,7 +959,7 @@ public actor IBClient {
     /// `gen` keeps a late stop from touching a stream that reuses the reqId on a later connection.
     private func stopped(_ id: Int, _ gen: Int) {
         guard gen == generation, let s = requestStreams.removeValue(forKey: id) else { return }
-        liveBars[id] = nil
+        dropSubscription(id)
         if let cancel = s.cancel { try? send(cancel) }   // the cancel encodes: it is all integers
     }
 
@@ -965,7 +997,7 @@ public actor IBClient {
             if requestStreams[e.requestID]?.route(message) == true { requestStreams[e.requestID] = nil }
         case .error(let e) where ErrorCode.kind(e.code).failsRequest:
             guard let s = requestStreams.removeValue(forKey: e.requestID) else { break }
-            liveBars[e.requestID] = nil
+            dropSubscription(e.requestID)
             if ErrorCode.isNoMarketDataPermission(code: e.code, text: e.text) {
                 if let cancel = s.cancel { try? send(cancel) }   // IB keeps a refused subscription open
                 s.finish(.noMarketDataPermission(code: e.code, text: e.text))
@@ -1059,6 +1091,7 @@ public actor IBClient {
         case nil: break
         }
         routeToStream(message)
+        recordNews(message)
         switch message {
         case .nextValidID(let n): nextID = max(nextID ?? n, n)
         case .managedAccounts(let a): accounts = a
@@ -1146,7 +1179,7 @@ public actor IBClient {
         (transport, outbox, connectTimer, syncEnds) = (nil, nil, nil, nil)
         let streams = requestStreams.values
         requestStreams = [:]   // emptied first: their termination then sends no cancel
-        liveBars = [:]
+        (liveBars, accountPnLs, positionPnLs, tickerRegistry) = ([:], [:], [:], [:])
         wshMetaRequestID = nil   // a reqId belongs to one connection
         for s in streams { s.finish(error ?? .connectionClosed) }
         if reconnectTask == nil { setState(.disconnected(error)) }

@@ -52,13 +52,13 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | Executions | fills joined with commissions, corrections applied | ✅ live-checked |
 | Positions | synced at connect, whole sets on every change | ✅ live-checked |
 | Session | current time, accounts, next id, user info, log level, auto-bind, global cancel, opt-in reconnect | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
-| Account | account summary, per-position P&L, portfolio, account values, Multi, account P&L | ✅ summary and per-position P&L live-checked; the rest on the fake gateway, not yet run live (see KNOWN-GAPS) |
+| Account | account summary, per-position P&L, portfolio, account values, Multi, account P&L, the latest P&L of each open subscription | ✅ summary and per-position P&L live-checked; the rest on the fake gateway, not yet run live (see KNOWN-GAPS) |
 | Contract lookup | contract details with bonds, matching symbols, factories, qualifyContracts | ✅ details (not bonds) and symbols live-checked; the rest on the fake gateway, not yet run live (see KNOWN-GAPS) |
 | Options and reference | option chains, option calculations, market rules, family codes, soft-dollar tiers | ✅ on hand-built frames and the fake gateway; not yet run live (see KNOWN-GAPS) |
-| Market data | quotes with generic ticks and snapshots, `Ticker` streams and batch snapshots, greeks, EFP, news ticks, real-time bars, depth book, depth exchanges, SMART components, tick-by-tick (alone or folded into a `Ticker`), BAG, typed «no permission» refusal | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
+| Market data | quotes with generic ticks and snapshots, `Ticker` streams and batch snapshots, the open-ticker registry, greeks, EFP, news ticks, real-time bars, depth book, depth exchanges, SMART components, tick-by-tick (alone or folded into a `Ticker`), BAG, typed «no permission» refusal | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
 | History | bars with keepUpToDate (raw, or folded into whole bar lists), the live-bar registry, the 10225 resend, historical ticks, head timestamp, histogram, trading schedule, BAG | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
 | Scanner | scan stream, one-shot scan, scanner parameters | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
-| News | providers, article text, historical headlines, bulletins, news ticks through `marketData` | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
+| News | providers, article text, historical headlines, bulletins, news ticks through `marketData`, every news tick and bulletin received | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
 | Fundamentals and Wall Street Horizon | fundamentals report XML, WSH metadata and event JSON, all as IB's text | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
 | FA, display groups and verify | FA XML read and replace, TWS display groups (list, follow, update), the vendor verify handshake | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
 | Flex reports | download by token and query id, topics, records as IB's strings with a strict Decimal accessor (the separate product IBKRFlex, SwiftPM only) | ✅ on hand-written XML and a fake HTTP layer; never run against IB's service |
@@ -259,7 +259,10 @@ Task {
 
 `accountUpdatesMulti(account:modelCode:ledgerAndNLV:)` and `positionsMulti(account:modelCode:)` stream the whole set at
 IB's end marker and again on every change; `pnl(account:modelCode:)` streams each account P&L update. They use their
-own request ids, so they do not feed `accountValues()` or `portfolio()`.
+own request ids, so they do not feed `accountValues()` or `portfolio()`. Each `pnl` and `pnlSingle` value carries its
+subscription's `account` and `modelCode` (and `conID` for `pnlSingle`); `pnlValues(account:modelCode:)` and
+`pnlSingleValues(account:modelCode:conID:)` read the latest value of every open one, filtered as `ib_async`'s `pnl()`
+and `pnlSingle()` filter (an empty argument matches all).
 
 ### Session
 
@@ -338,6 +341,10 @@ Task { for try await p in try await client.tickers(aapl).trades() { print(p.time
 Task { for try await list in try await client.tickers(aapl).trades().tickBars(count: 100) { print(list.bars.last!) } }
 // Snapshots of many contracts at once, in input order; the first error is thrown and the rest cancelled.
 let snaps = try await client.tickers(for: [aapl, msft])
+// ib_async's accessors over the open tickers streams: the latest Ticker by contract (by conID when set), all of them,
+// and a stream of [ticker] for each update of any of them. An entry leaves when its stream ends, however it ends.
+let latest = await client.ticker(for: aapl), open = await client.activeTickers()
+Task { for await changed in await client.pendingTickers() { print(changed[0].contract.symbol, changed[0].last as Any) } }
 
 // Real-time bars (5 seconds, the only size IB allows), as `Bar`.
 Task { for try await bar in try await client.realTimeBars(aapl) { print(bar.close) } }
@@ -406,6 +413,9 @@ let feed = try await client.marketData(Contract(symbol: "BRFG:BRFG_ALL", secType
                                        genericTicks: ["mdoff", "292"])
 // IB's bulletins (exchange halts and notices); allMessages: true also sends the day's earlier ones.
 Task { for try await b in try await client.newsBulletins() { print(b.msgType, b.message) } }
+// Every news tick (any request) and bulletin (one per id, the last wins) since the last manual connect.
+let (headlines, more) = await client.newsTicks()
+let bulletins = await client.receivedBulletins()
 ```
 
 `historicalNews` reads every headline up to IB's end marker and sends no cancel (IB has none). `start` and `end` are
@@ -526,8 +536,10 @@ library leaves out.
 | `accountSummary` / `reqAccountSummary` | `accountSummary(tags:group:)` (a stream) |
 | `reqAccountUpdatesMulti` | `accountUpdatesMulti(account:modelCode:ledgerAndNLV:)` (a stream) |
 | `reqPositionsMulti` | `positionsMulti(account:modelCode:)` (a stream) |
-| `pnl` / `reqPnL` | `pnl(account:modelCode:)` (a stream) |
-| `pnlSingle` / `reqPnLSingle` | `pnlSingle(account:conID:modelCode:)` (a stream) |
+| `reqPnL` | `pnl(account:modelCode:)` (a stream) |
+| `pnl` | `pnlValues(account:modelCode:)` (the latest value of each open `pnl` stream) |
+| `reqPnLSingle` | `pnlSingle(account:conID:modelCode:)` (a stream) |
+| `pnlSingle` | `pnlSingleValues(account:modelCode:conID:)` (the latest value of each open `pnlSingle` stream) |
 | `reqContractDetails` | `contractDetails(_:)` |
 | `reqMatchingSymbols` | `matchingSymbols(_:)` |
 | `qualifyContracts` | `qualifyContracts(_:)` |
@@ -538,16 +550,17 @@ library leaves out.
 | `reqMarketRule` | `marketRule(_:)` |
 | `reqFamilyCodes` | `familyCodes()` |
 | `reqSoftDollarTiers` | `softDollarTiers()` |
-| `reqMktData`, `ticker` | `marketData(_:genericTicks:snapshot:regulatorySnapshot:options:)` (raw ticks) or `tickers(_:genericTicks:depthRows:smartDepth:tickByTick:options:)` (whole `Ticker`s), both streams |
+| `reqMktData` | `marketData(_:genericTicks:snapshot:regulatorySnapshot:options:)` (raw ticks) or `tickers(_:genericTicks:depthRows:smartDepth:tickByTick:options:)` (whole `Ticker`s), both streams |
+| `ticker`, `tickers` | `ticker(for:)`, `activeTickers()` (the latest `Ticker` of each open `tickers` stream) |
 | `reqTickers` | `tickers(for:regulatorySnapshot:)` |
-| `pendingTickers` | none: each `tickers` stream yields its own `Ticker` |
+| `pendingTickers`, `pendingTickersEvent` | `pendingTickers()` (a stream of `[Ticker]`: the ticker each `tickers` update changed) |
 | `Ticker` | `Ticker` |
 | `Ticker.marketPrice`, `Ticker.midpoint`, `Ticker.hasBidAsk` | `Ticker.marketPrice`, `Ticker.midpoint`, `Ticker.hasBidAsk` |
 | `Ticker.ticks`, `Ticker.tickByTicks`, `Ticker.domTicks`, `Ticker.time` | the same names: what each `tickers` update brought, and when |
 | `ticker.updateEvent.trades()`, `.bids()`, `.asks()`, `.bidasks()`, `.midpoints()` | `trades()`, `bids()`, `asks()`, `bidAsks()`, `midpoints()` on any `Ticker` sequence (`tickers(…)`), yielding `TickPoint` |
 | `Tickfilter.timebars`, `.tickbars`, `.volumebars`, `BarList` | `timeBars(timer:)`, `tickBars(count:)`, `volumeBars(volume:)` on a `TickPoint` stream, yielding `BarList` (`bars`, `hasNewBar`) |
 | `TickData`, `MktDepthData` (in `domTicks`), `Dividends`, `FundamentalRatios` | `TickData`, `DepthTick`, `Dividends`, `FundamentalRatios` |
-| `newsTicks` | `Tick.news` from `marketData` with the news generic ticks |
+| `newsTicks` | `newsTicks()` (every `Tick.news` since the last manual `connect`, and a stream of new ones) |
 | `reqMktDepth` | `marketDepth(_:rows:smart:options:)` (whole `DepthBook`s), or `tickers` with `depthRows` |
 | `Ticker.domBidsDict`, `Ticker.domAsksDict` | `Ticker.depth.bidsByPosition`, `Ticker.depth.asksByPosition` |
 | `reqMktDepthExchanges` | `depthExchanges()` |
@@ -568,6 +581,7 @@ library leaves out.
 | `reqNewsArticle` | `newsArticle(providerCode:articleID:options:)` |
 | `reqHistoricalNews` | `historicalNews(conID:providerCodes:start:end:totalResults:options:)` |
 | `reqNewsBulletins` | `newsBulletins(allMessages:)` (a stream) |
+| `newsBulletins` | `receivedBulletins()` (every bulletin since the last manual `connect`, one per id) |
 | `reqFundamentalData` | `fundamentalData(_:reportType:options:)` |
 | `reqWshMetaData` / `getWshMetaData` | `wshMetaData()` |
 | `reqWshEventData` / `getWshEventData` | `wshEventData(_:)` |

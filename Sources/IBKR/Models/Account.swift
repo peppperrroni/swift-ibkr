@@ -59,7 +59,8 @@ public struct PortfolioItem: Sendable, Equatable, Encodable {
     }
 }
 
-/// Account-level P&L (in 94); each part is nil while IB has not set it.
+/// Account-level P&L (in 94); each part is nil while IB has not set it. `account` and `modelCode` are the
+/// subscription's, set by the `pnl` stream (`ib_async`'s `PnL`); a decoded message leaves them empty.
 public struct AccountPnL: Sendable, Equatable, Encodable {
     /// The day's P&L (pnl's `dailyPnL`); `nil` while IB has not set it.
     public var daily: Decimal?
@@ -67,12 +68,19 @@ public struct AccountPnL: Sendable, Equatable, Encodable {
     public var unrealized: Decimal?
     /// Realized P&L (pnl's `realizedPnL`); `nil` while IB has not set it.
     public var realized: Decimal?
+    /// The account the `pnl` subscription asked for; empty in a decoded message.
+    public var account: String
+    /// The model code the `pnl` subscription asked for; empty when none.
+    public var modelCode: String
 
     /// Creates a P&L with every field given.
-    public init(daily: Decimal? = nil, unrealized: Decimal? = nil, realized: Decimal? = nil) {
+    public init(daily: Decimal? = nil, unrealized: Decimal? = nil, realized: Decimal? = nil, account: String = "",
+                modelCode: String = "") {
         self.daily = daily
         self.unrealized = unrealized
         self.realized = realized
+        self.account = account
+        self.modelCode = modelCode
     }
 }
 
@@ -99,7 +107,8 @@ public struct AccountValue: Sendable, Equatable, Encodable {
     }
 }
 
-/// One position's P&L (pnlSingle, in 95).
+/// One position's P&L (pnlSingle, in 95). `account`, `modelCode` and `conID` are the subscription's, set by the
+/// `pnlSingle` stream (`ib_async`'s `PnLSingle`); a decoded message leaves them empty and 0.
 public struct PnL: Sendable, Equatable, Encodable {
     /// pnlSingle's `pos`: shares or contracts held; negative for a short position.
     public var position: Decimal
@@ -111,6 +120,12 @@ public struct PnL: Sendable, Equatable, Encodable {
     public var realized: Decimal?
     /// pnlSingle's `value`; `nil` when IB sent its unset value.
     public var value: Decimal?
+    /// The account the `pnlSingle` subscription asked for; empty in a decoded message.
+    public var account: String
+    /// The model code the `pnlSingle` subscription asked for; empty when none.
+    public var modelCode: String
+    /// The position's contract id the `pnlSingle` subscription asked for; 0 in a decoded message.
+    public var conID: Int
 
     /// Creates a P&L with every field given.
     public init(
@@ -118,12 +133,18 @@ public struct PnL: Sendable, Equatable, Encodable {
         daily: Decimal? = nil,
         unrealized: Decimal? = nil,
         realized: Decimal? = nil,
-        value: Decimal? = nil
+        value: Decimal? = nil,
+        account: String = "",
+        modelCode: String = "",
+        conID: Int = 0
     ) {
         self.position = position
         self.daily = daily
         self.unrealized = unrealized
         self.realized = realized
         self.value = value
+        self.account = account
+        self.modelCode = modelCode
+        self.conID = conID
     }
 }

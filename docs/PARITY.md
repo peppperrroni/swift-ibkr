@@ -23,7 +23,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `connectedEvent` | `states()` → `.connected(serverVersion:accounts:)` | present | |
 | `disconnectedEvent` | `states()` → `.disconnected(_:)` | present | |
 | `updateEvent` | `messages()` | present | one element per decoded message, where ib_async fires once per network packet |
-| `pendingTickersEvent` | — | MISSING | snapshot+stream across every open ticker subscription: `pendingTickers() -> AsyncStream<[Ticker]>`; each `tickers(_:…)` stream only yields its own |
+| `pendingTickersEvent` | `pendingTickers()` → `AsyncStream<[Ticker]>` | added | a fresh stream per call; each fold step of any open `tickers(_:genericTicks:depthRows:smartDepth:tickByTick:options:)` stream yields `[ticker]`, the one it changed (per update, where ib_async fires the set of tickers changed by one packet) |
 | `barUpdateEvent` | `barUpdates()` → `LiveBars` | added | a fresh stream per call of every change of any `realTimeBars` or `liveHistoricalBars` subscription: the whole `LiveBars` (request id, contract, bar size, whatToShow, `bars`, `hasNewBar`); not the first keepUpToDate batch, as in ib_async |
 | `newOrderEvent` | `orders()` updates | present | the first `orders()` update of an id this client placed: the local `.pendingSubmit` snapshot `placeOrder` publishes at once (ib.py:812); `orders()` also fires on every later change, from any client |
 | `orderModifyEvent` | `orderEvents()` → `OrderEvent.modified` | added | at `modifyOrder` of a known order that is not final; the snapshot's log ends `Modify` |
@@ -80,20 +80,20 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `accountSummary` with no tags (cached, re-requested on 1102) | — | MISSING | ib_async's tag set (34 tags + `$LEDGER:ALL`, group All, ib.py:2247) as the default argument of `accountSummary(tags:group:)`, re-requested on notice 1102 (ib.py:414) |
 | `portfolio` | `portfolio()` | present | one managed account only, as ib_async without `account` |
 | `positions` | `positions()` | present | |
-| `pnl(account, modelCode)` | — | MISSING | snapshot of the open `pnl` subscriptions' latest values: `pnlValues(account:modelCode:) -> [AccountPnL]`; needs a subscription registry |
-| `pnlSingle(account, modelCode, conId)` | — | MISSING | the same for `pnlSingle`: `pnlSingleValues(account:modelCode:conID:) -> [PnL]` |
+| `pnl(account, modelCode)` | `pnlValues(account:modelCode:)` → `[AccountPnL]` | added | the latest value of each open `pnl(account:modelCode:)` stream, oldest first; an empty argument matches all (ib.py:554-570); a stream is listed once its first value arrives, where ib_async lists an all-NaN `PnL` from the request; an entry leaves when its stream ends (consumer stop, IB error, connection end) |
+| `pnlSingle(account, modelCode, conId)` | `pnlSingleValues(account:modelCode:conID:)` → `[PnL]` | added | the same for `pnlSingle(account:conID:modelCode:)`; `conID` `nil` matches all, where ib_async's `0` does |
 | `trades` | `orders().snapshot` | present | `OrderSnapshot` is `Trade` |
 | `openTrades` | `orders().snapshot.filter { !$0.status.isFinal }` | present | |
 | `orders` | `orders().snapshot.map(\.order)` | present | |
 | `openOrders` | `orders().snapshot.filter { !$0.status.isFinal }.map(\.order)` | present | |
 | `fills` | `executions().snapshot` | present | |
 | `executions` | `executions().snapshot.map(\.execution)` | present | |
-| `ticker(contract)` | — | MISSING | snapshot of an open ticker subscription by contract: `ticker(for:) -> Ticker?`; needs a subscription registry, matched by `conID` as ib_async's `__eq__`/`__hash__` do (contract.py:145-161), not by Swift's field-wise `==` |
-| `tickers` | — | MISSING | `activeTickers() -> [Ticker]`; registry |
-| `pendingTickers` | — | MISSING | `pendingTickers()` (see `pendingTickersEvent`); registry |
+| `ticker(contract)` | `ticker(for:)` → `Ticker?` | added | the latest `Ticker` of an open `tickers(_:genericTicks:depthRows:smartDepth:tickByTick:options:)` stream, matched as ib_async's `__eq__` (contract.py:154-159): by the same non-zero `conID`, else field-wise `==`; two open streams for one contract are two tickers (ib_async shares one), and the older one's is returned |
+| `tickers` | `activeTickers()` → `[Ticker]` | added | the latest `Ticker` of every open `tickers(_:genericTicks:depthRows:smartDepth:tickByTick:options:)` stream, oldest first, listed from the call (empty, as ib_async's `reqMktData` creates it) until the stream ends, however it ends; `tickers(for:regulatorySnapshot:)` snapshots are not listed |
+| `pendingTickers` | `pendingTickers()` | added | a stream rather than ib_async's set of the last packet (see `pendingTickersEvent`) |
 | `realtimeBars` | `liveBarSubscriptions()` → `[LiveBars]` | added | the open `realTimeBars` and `liveHistoricalBars` subscriptions by request id, with their bars so far; an entry leaves when its stream ends (consumer stop, IB error, connection end); `historicalBars(keepUpToDate: true)`, the raw stream, is not listed |
-| `newsTicks` | — | MISSING | snapshot+stream of every news tick received on any subscription: `newsTicks()` |
-| `newsBulletins` | — | MISSING | snapshot of the bulletins received, by msgId: `receivedBulletins() -> [NewsBulletin]` |
+| `newsTicks` | `newsTicks()` → `(snapshot: [NewsTick], updates: AsyncStream<NewsTick>)` | added | every `Tick.news` on any reqId since the last manual `connect` (a reconnect keeps them; wrapper.py:1487), and a fresh stream of new ones; grows for the whole session, as in ib_async |
+| `newsBulletins` | `receivedBulletins()` → `[NewsBulletin]` | added | every bulletin since the last manual `connect`, one per `msgID` (the last received wins) in first-seen order, as ib_async's `msgId2NewsBulletin` (wrapper.py:1509) |
 | `reqTickers` / `reqTickersAsync` | `tickers(for:regulatorySnapshot:)` | present | Swift throws the first error where ib_async returns partial tickers (DECISIONS) |
 | `qualifyContracts` / `qualifyContractsAsync(returnAll:)` | `qualifyContracts(_:)` | present | `.ambiguous` carries what `returnAll` returns |
 | `bracketOrder` | `Order.bracket(_:quantity:limitPrice:takeProfitPrice:stopLossPrice:)` + `placeBracket(_:_:)` | present | ids are assigned at `placeBracket` |
@@ -278,8 +278,8 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `OptionChain` | `OptionChain` | present | |
 | `OptionComputation` | `OptionComputation` | present | |
 | `OptionComputation.__add__`, `__sub__`, `__mul__` | — | MISSING | model helper: `+`, `-` and `* Decimal` on `OptionComputation` (greeks of a position, objects.py:370) |
-| `PnL` | `AccountPnL` | present | account and model are the subscription's |
-| `PnLSingle` | `PnL` | present | account, model and conID are the subscription's |
+| `PnL` | `AccountPnL` | present | `account` and `modelCode` (stage 14) are the subscription's, set by the `pnl` stream; empty in a decoded message |
+| `PnLSingle` | `PnL` | present | `account`, `modelCode` and `conID` (stage 14) are the subscription's, set by the `pnlSingle` stream; empty and 0 in a decoded message |
 | `PortfolioItem` | `PortfolioItem` | present | |
 | `Position` | `Position` | present | |
 | `PriceIncrement` | `PriceIncrement` | present | |
@@ -494,4 +494,4 @@ connect), **model helper** (a computed property or method on a model), **factory
 
 ## Totals
 
-Rows, where one row may carry several names: `present` 218 · `added` 93 · `MISSING` 72 · `n/a` 33.
+Rows, where one row may carry several names: `present` 218 · `added` 101 · `MISSING` 64 · `n/a` 33.

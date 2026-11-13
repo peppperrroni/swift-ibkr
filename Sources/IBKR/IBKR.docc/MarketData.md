@@ -28,6 +28,11 @@ book and `tickByTick` IB's tick-by-tick events. Each element carries the arrival
 so no tick is lost or seen twice. ``IBClient/tickers(for:regulatorySnapshot:)`` takes snapshots of many contracts at
 once, in input order; the first error is thrown and the rest cancelled.
 
+As `ib_async`'s accessors, ``IBClient/ticker(for:)`` and ``IBClient/activeTickers()`` read the latest ``Ticker`` of
+every open `tickers` stream, ``IBClient/pendingTickers()`` streams each one it changes, and
+``IBClient/newsTicks()`` and ``IBClient/receivedBulletins()`` keep every news tick and bulletin since the last
+manual connect.
+
 ```swift
 // Quotes. Without a subscription ask for delayed data; it is not kept across reconnects, so set it after connect.
 try await client.setMarketDataType(.delayed)
@@ -37,6 +42,8 @@ Task { for try await tick in try await client.marketData(aapl) { print(tick) } }
 Task { for try await t in try await client.tickers(aapl, depthRows: 5) { print(t.bid as Any, t.depth.bids.first as Any) } }
 // Snapshots of many contracts at once, in input order; the first error is thrown and the rest cancelled.
 let snaps = try await client.tickers(for: [aapl, msft])
+// The latest ticker of an open tickers stream, matched by conID as ib_async does.
+let latest = await client.ticker(for: aapl)
 ```
 
 Delayed ticks carry their own field numbers; `TickField.live` maps each one to its real-time counterpart.
