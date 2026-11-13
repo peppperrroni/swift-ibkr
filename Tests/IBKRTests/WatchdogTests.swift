@@ -138,22 +138,23 @@ private func watchdog(_ launcher: FakeLauncher, _ client: IBClient, appTimeout: 
     await controller.terminate()   // nothing launched: nothing to do
 }
 
-/// The real launcher on a stand-in script: its stdout comes line by line, and terminate ends it (taskkill on Windows).
+/// The real launcher on a stand-in script: its stdout comes line by line, and terminate ends it (taskkill on Windows;
+/// elsewhere the script ignores SIGTERM, so only the SIGKILL after the grace period ends it), and with it the stdout.
 @Test func launchedProcessReadsLinesAndTerminates() async throws {
     #if os(Windows)
     let script = FileManager.default.temporaryDirectory.appendingPathComponent("ibkr-\(UUID().uuidString).bat")
     try "@echo off\r\necho hello\r\nping -n 30 127.0.0.1 >nul\r\n".write(to: script, atomically: true, encoding: .utf8)
     defer { try? FileManager.default.removeItem(at: script) }
-    let app = try LaunchedProcess([script.path], windows: true)
+    let app = try LaunchedProcess([script.path], windows: true, grace: .milliseconds(200))
     #else
-    let app = try LaunchedProcess(["/bin/sh", "-c", "echo hello; exec sleep 30"], windows: false)
+    let app = try LaunchedProcess(["/bin/sh", "-c", "trap '' TERM; echo hello; exec sleep 30"], windows: false,
+                                  grace: .milliseconds(200))
     #endif
-    let first = try await within2s { () async -> String? in
-        for await line in app.lines { return line.trimmingCharacters(in: .whitespacesAndNewlines) }
-        return nil
-    }
-    #expect(first == "hello")
+    let seen = FakeLog()
+    let reader = Task { for await line in app.lines { seen.append(.debug, line.trimmingCharacters(in: .whitespacesAndNewlines)) } }
+    #expect(try await seen.first(1) == [FakeLog.Line(.debug, "hello")])   // the script is past its trap
     try await within2s { await app.terminate() }
+    try await within2s { await reader.value }   // the stdout ended with the process
 }
 
 @Test func watchdogStartsConnectsAndStops() async throws {
@@ -221,7 +222,12 @@ private func watchdog(_ launcher: FakeLauncher, _ client: IBClient, appTimeout: 
     #expect(!log.events.dropFirst(6).contains(.hardTimeout))
 }
 
-@Test func error1100Restarts() async throws {
+@Test func error1100Restarts() async throws { try await restarts(on: "1100") }
+
+@Test func error100Restarts() async throws { try await restarts(on: "100") }
+
+/// IB's error `code` with reqId -1 restarts the app.
+private func restarts(on code: String) async throws {
     let launcher = FakeLauncher()
     let first = FakeGateway()
     let client = IBClient(connector: Gateways([first, FakeGateway()]).connector)
@@ -229,7 +235,7 @@ private func watchdog(_ launcher: FakeLauncher, _ client: IBClient, appTimeout: 
     let log = await EventLog(dog)
     try await dog.start()
     #expect(try await log.first(2) == [.starting, .started])
-    first.feed(ibError("-1", "1100", "Connectivity between IB and Trader Workstation has been lost."))
+    first.feed(ibError("-1", code, "lost"))
     #expect(try await log.first(4) == [.starting, .started, .stopped, .started])
     #expect(launcher.launches.count == 2)
     await dog.stop()

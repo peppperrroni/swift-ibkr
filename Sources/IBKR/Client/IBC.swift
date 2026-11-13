@@ -1,5 +1,12 @@
 #if os(macOS) || os(Linux) || os(Windows)
 import Foundation
+#if canImport(Darwin)
+import Darwin
+#elseif canImport(Glibc)
+import Glibc
+#elseif canImport(Musl)
+import Musl
+#endif
 
 #if os(Windows)
 private let onWindows = true
@@ -107,7 +114,8 @@ public actor IBC {
     }
 
     /// Stops what `start(logTo:)` started and waits for it to exit: `taskkill /F /T /PID` on Windows (the whole
-    /// process tree), SIGTERM elsewhere. Does nothing when it is not running.
+    /// process tree), SIGTERM to the script elsewhere; still running 5 s later, it is killed outright. Does nothing
+    /// when it is not running.
     public func terminate() async {
         guard let app else { return }
         self.app = nil   // before the wait, so a second call does nothing
@@ -125,11 +133,12 @@ private struct Handoff<T>: @unchecked Sendable { let value: T }
 final class LaunchedProcess: LaunchedApp, @unchecked Sendable {
     let lines: AsyncStream<String>
     private let process = Process()
-    private let exited: AsyncStream<Void>
     private let windows: Bool
+    private let grace: Duration
 
-    init(_ arguments: [String], windows: Bool) throws {
-        self.windows = windows
+    /// `grace`: how long `terminate()` waits for a graceful exit before it kills the process outright.
+    init(_ arguments: [String], windows: Bool, grace: Duration = .seconds(5)) throws {
+        (self.windows, self.grace) = (windows, grace)
         if windows {   // a .bat runs through the command interpreter
             let comSpec = ProcessInfo.processInfo.environment["ComSpec"] ?? "C:\\Windows\\System32\\cmd.exe"
             process.executableURL = URL(fileURLWithPath: comSpec)
@@ -140,9 +149,6 @@ final class LaunchedProcess: LaunchedApp, @unchecked Sendable {
         }
         let pipe = Pipe()
         process.standardOutput = pipe
-        let (exited, done) = AsyncStream.makeStream(of: Void.self)
-        self.exited = exited
-        process.terminationHandler = { _ in done.finish() }
         let (lines, out) = AsyncStream.makeStream(of: String.self)
         self.lines = lines
         try process.run()
@@ -162,20 +168,53 @@ final class LaunchedProcess: LaunchedApp, @unchecked Sendable {
         }
     }
 
+    /// `taskkill /F /T` on Windows (falling back to `TerminateProcess` when taskkill cannot run), SIGTERM elsewhere;
+    /// after `grace` without an exit, SIGKILL (Linux children of a concurrency thread may inherit a blocked SIGTERM),
+    /// then up to `grace` again. Only the launched child is signalled, and only while it runs: once it has exited
+    /// its pid may belong to another process. Runs to the end even when the caller is cancelled (`Watchdog.stop`).
     func terminate() async {
-        if windows {   // ib_async's `taskkill /F /T`: the .bat's Java child goes too
-            let kill = Process()
-            let root = ProcessInfo.processInfo.environment["SystemRoot"] ?? "C:\\Windows"
-            kill.executableURL = URL(fileURLWithPath: root + "\\System32\\taskkill.exe")
-            kill.arguments = ["/F", "/T", "/PID", String(process.processIdentifier)]
-            await withCheckedContinuation { (done: CheckedContinuation<Void, Never>) in
-                kill.terminationHandler = { _ in done.resume() }
-                do { try kill.run() } catch { kill.terminationHandler = nil; done.resume() }
-            }
-        } else if process.isRunning {
+        await Task { await self.stop() }.value
+    }
+
+    private func stop() async {
+        guard process.isRunning else { return }
+        if !windows {
+            process.terminate()
+        } else if await !taskkill() {
+            guard process.isRunning else { return }
             process.terminate()
         }
-        for await _ in exited {}
+        if await exits(within: grace) { return }
+        guard process.isRunning else { return }
+        #if os(Windows)
+        process.terminate()
+        #else
+        kill(process.processIdentifier, SIGKILL)
+        #endif
+        _ = await exits(within: grace)
+    }
+
+    /// ib_async's `taskkill /F /T /PID`: the .bat's Java child goes too. Whether taskkill ran and succeeded.
+    private func taskkill() async -> Bool {
+        let kill = Process()
+        let root = ProcessInfo.processInfo.environment["SystemRoot"] ?? "C:\\Windows"
+        kill.executableURL = URL(fileURLWithPath: root + "\\System32\\taskkill.exe")
+        kill.arguments = ["/F", "/T", "/PID", String(process.processIdentifier)]
+        let ran = await withCheckedContinuation { (done: CheckedContinuation<Bool, Never>) in
+            kill.terminationHandler = { _ in done.resume(returning: true) }
+            do { try kill.run() } catch { kill.terminationHandler = nil; done.resume(returning: false) }
+        }
+        return ran && kill.terminationStatus == 0
+    }
+
+    /// Whether the process exits within `limit`.
+    private func exits(within limit: Duration) async -> Bool {
+        let deadline = ContinuousClock.now + limit
+        while process.isRunning {
+            guard ContinuousClock.now < deadline else { return false }
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+        return true
     }
 }
 #endif

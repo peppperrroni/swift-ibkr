@@ -70,8 +70,8 @@ public actor Watchdog {
 
     private func unsubscribe(_ id: Int) { subscribers.remove(id) }
 
-    /// Emits `.starting` and starts the loop. Throws `.alreadyConnected` while it runs or unless the client is
-    /// disconnected.
+    /// Emits `.starting` and starts the loop. Throws `.alreadyConnected` while it runs (or `stop()` is under way) or
+    /// unless the client is disconnected.
     public func start() async throws(IBClientError) {
         guard case .disconnected = await client.state, runner == nil else { throw .alreadyConnected }
         subscribers.yield(.starting)
@@ -82,11 +82,10 @@ public actor Watchdog {
     /// returns once it has.
     public func stop() async {
         subscribers.yield(.stopping)
-        let runner = self.runner
-        self.runner = nil
         runner?.cancel()   // first: the disconnect must not look like a drop to restart from
         await client.disconnect()
         await runner?.value
+        runner = nil   // only now: a start() meanwhile throws instead of launching an app this round would terminate
     }
 
     /// The rounds, until cancelled. Each round ends the same way, once: disconnect, terminate, `.stopped`.

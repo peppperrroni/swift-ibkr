@@ -72,7 +72,9 @@ Still open:
   gateway, and run the real launcher only on a stand-in script (`/bin/sh` or a `.bat`). IBC's real stdout, a
   Gateway's startup time against `appStartupTime`, the history probe's answer from a real app and `taskkill /T` on
   IBC's Java child are unconfirmed. A password with `cmd.exe` metacharacters (`&`, `^`, `%`) may not survive
-  `StartIBC.bat`'s command line; IBC's `config.ini` avoids it.
+  `StartIBC.bat`'s command line; IBC's `config.ini` avoids it. On macOS and Linux `terminate()` signals only the
+  launched script, as `ib_async` does: if `ibcstart.sh` dies without taking its Java child along, the Gateway can
+  outlive it, keep the API port, and keep the stdout reader thread waiting (unchecked without a live IBC).
 
 ## Not covered by CI
 

@@ -405,7 +405,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `IBC.IbcLogLevel` | `IBC.logLevel` | added | the `IBLogLevel` (`.debug` by default) at which IBC's stdout lines go to the client's log handler |
 | `IBC.twsVersion`, `gateway`, `tradingMode`, `twsPath`, `twsSettingsPath`, `ibcPath`, `ibcIni`, `javaPath`, `userid`, `password`, `fixuserid`, `fixpassword`, `on2fatimeout` | `IBC.twsVersion`, `.gateway`, `.tradingMode`, `.twsPath`, `.twsSettingsPath`, `.ibcPath`, `.ibcIni`, `.javaPath`, `.userID`, `.password`, `.fixUserID`, `.fixPassword`, `.on2FATimeout` | added | each non-empty one a command-line argument of `ibcstart.sh` / `StartIBC.bat` in ib_async's order (ibcontroller.py:129); `twsSettingsPath` bare on Windows, as ib_async; an empty `ibcPath` is `/opt/ibc` or `C:\IBC` |
 | `IBC.start`, `startAsync` | `IBC.start(logTo:)` | added | a no-op while running; throws when the script cannot start |
-| `IBC.terminate`, `terminateAsync` | `IBC.terminate()` | added | `taskkill /F /T /PID` of the launched child on Windows, SIGTERM and wait elsewhere; a no-op when not running |
+| `IBC.terminate`, `terminateAsync` | `IBC.terminate()` | added | `taskkill /F /T /PID` of the launched child on Windows, SIGTERM to the script elsewhere, killed outright after 5 s; only while it runs; a no-op when not running |
 | `IBC.monitorAsync` | `IBC.start(logTo:)` | added | an internal task reads the child's stdout line by line into the client's log handler |
 | `IBC.__enter__`, `__exit__` | — | n/a | Python dunders |
 | `Watchdog` | `Watchdog` | added | actor `Watchdog(controller:client:host:port:clientID:connectTimeout:options:appStartupTime:appTimeout:retryDelay:probeContract:probeTimeout:)`, on macOS, Linux and Windows only |
