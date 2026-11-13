@@ -130,9 +130,10 @@ private func until(_ condition: @escaping @Sendable () -> Bool) async throws {
     let tws = try await connected(broker, clientID: 0)
     let (_, ordersOne) = await one.orders(), (_, ordersTwo) = await two.orders()
     let (_, positionsOne) = await one.positions(), (_, positionsTwo) = await two.positions()
+    // one at a time: the broker numbers permIDs by arrival, and the corpus holds one numbering
     #expect(try await one.placeOrder(aapl, limit(.buy, 100, "187.25")) == 1)
-    #expect(try await two.placeOrder(aapl, limit(.buy, 50, "187.3")) == 1)
     _ = try await next(ordersOne) { $0.orderID == 1 && $0.status == .submitted }
+    #expect(try await two.placeOrder(aapl, limit(.buy, 50, "187.3")) == 1)
     _ = try await next(ordersTwo) { $0.orderID == 1 && $0.status == .submitted }
     #expect(await one.orders().snapshot.map(\.clientID) == [1])
     #expect(await two.orders().snapshot.map(\.clientID) == [2])
