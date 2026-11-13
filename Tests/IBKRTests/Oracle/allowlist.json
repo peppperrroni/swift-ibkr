@@ -30,5 +30,277 @@
   "pair": ["DU0000001,DU0000002", "DU0000001,DU0000002,"],
   "cite": "protocol-178 Disagreements 12",
   "note": "ib_async's wrapper drops the empty items (wrapper.py:521-522)"
+ },
+ {
+  "scope": "in 7",
+  "field": "contract.strike",
+  "frames": "gen/7/unset-empty-strike",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (decoder.py:196, wrap 143-174)"
+ },
+ {
+  "scope": "in 61",
+  "field": "contract.strike",
+  "frames": "gen/61/unset-empty-strike",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (decoder.py:196, wrap 143-174)"
+ },
+ {
+  "scope": "in 71",
+  "field": "contract.strike",
+  "frames": "gen/71/unset-empty-strike",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (decoder.py:196, wrap 143-174)"
+ },
+ {
+  "scope": "in 94",
+  "field": "dailyPnL",
+  "frames": "gen/94/unset-empty-dailyPnL",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (decoder.py:196, wrap 143-174)"
+ },
+ {
+  "scope": "in 94",
+  "field": "unrealizedPnL",
+  "frames": "gen/94/unset-empty-unrealizedPnL",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (decoder.py:196, wrap 143-174)"
+ },
+ {
+  "scope": "in 94",
+  "field": "realizedPnL",
+  "frames": "gen/94/unset-empty-realizedPnL",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (decoder.py:196, wrap 143-174)"
+ },
+ {
+  "scope": "in 95",
+  "field": "dailyPnL",
+  "frames": "gen/95/unset-empty-dailyPnL",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (decoder.py:196, wrap 143-174)"
+ },
+ {
+  "scope": "in 95",
+  "field": "unrealizedPnL",
+  "frames": "gen/95/unset-empty-unrealizedPnL",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (decoder.py:196, wrap 143-174)"
+ },
+ {
+  "scope": "in 95",
+  "field": "realizedPnL",
+  "frames": "gen/95/unset-empty-realizedPnL",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (decoder.py:196, wrap 143-174)"
+ },
+ {
+  "scope": "in 95",
+  "field": "value",
+  "frames": "gen/95/unset-empty-value",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (decoder.py:196, wrap 143-174)"
+ },
+ {
+  "scope": "in 7",
+  "field": "#error",
+  "frames": "gen/7/unset-empty-unrealizedPNL",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "updatePortfolio calls float(x) with no `or 0` (decoder.py:243-247) and rejects an empty value; the optional reader here yields nil"
+ },
+ {
+  "scope": "in 7",
+  "field": "#error",
+  "frames": "gen/7/unset-empty-realizedPNL",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "updatePortfolio calls float(x) with no `or 0` (decoder.py:243-247) and rejects an empty value; the optional reader here yields nil"
+ },
+ {
+  "scope": "in 7",
+  "field": "contract.conId",
+  "frames": "gen/7/unset-max-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
+ },
+ {
+  "scope": "in 7",
+  "field": "posSize",
+  "frames": "gen/7/unset-max-position",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
+ },
+ {
+  "scope": "in 7",
+  "field": "marketPrice",
+  "frames": "gen/7/unset-max-marketPrice",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
+ },
+ {
+  "scope": "in 7",
+  "field": "marketValue",
+  "frames": "gen/7/unset-max-marketValue",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
+ },
+ {
+  "scope": "in 7",
+  "field": "averageCost",
+  "frames": "gen/7/unset-max-averageCost",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
+ },
+ {
+  "scope": "in 61",
+  "field": "contract.conId",
+  "frames": "gen/61/unset-max-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
+ },
+ {
+  "scope": "in 61",
+  "field": "posSize",
+  "frames": "gen/61/unset-max-position",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
+ },
+ {
+  "scope": "in 61",
+  "field": "avgCost",
+  "frames": "gen/61/unset-max-averageCost",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
+ },
+ {
+  "scope": "in 71",
+  "field": "reqId",
+  "frames": "gen/71/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
+ },
+ {
+  "scope": "in 71",
+  "field": "contract.conId",
+  "frames": "gen/71/unset-max-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
+ },
+ {
+  "scope": "in 71",
+  "field": "pos",
+  "frames": "gen/71/unset-max-position",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
+ },
+ {
+  "scope": "in 71",
+  "field": "avgCost",
+  "frames": "gen/71/unset-max-averageCost",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
+ },
+ {
+  "scope": "in 63",
+  "field": "_reqId",
+  "frames": "gen/63/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
+ },
+ {
+  "scope": "in 73",
+  "field": "reqId",
+  "frames": "gen/73/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
+ },
+ {
+  "scope": "in 94",
+  "field": "reqId",
+  "frames": "gen/94/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
+ },
+ {
+  "scope": "in 95",
+  "field": "reqId",
+  "frames": "gen/95/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
+ },
+ {
+  "scope": "in 95",
+  "field": "pos",
+  "frames": "gen/95/unset-max-pos",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
+ },
+ {
+  "scope": "in 7",
+  "field": "#error",
+  "frames": "gen/7/unset-empty-position",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
+ },
+ {
+  "scope": "in 7",
+  "field": "#error",
+  "frames": "gen/7/unset-empty-marketPrice",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
+ },
+ {
+  "scope": "in 7",
+  "field": "#error",
+  "frames": "gen/7/unset-empty-marketValue",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
+ },
+ {
+  "scope": "in 7",
+  "field": "#error",
+  "frames": "gen/7/unset-empty-averageCost",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
+ },
+ {
+  "scope": "in 71",
+  "field": "#error",
+  "frames": "gen/71/unset-empty-reqId",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
  }
 ]

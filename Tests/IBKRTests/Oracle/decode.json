@@ -32038,6 +32038,989 @@
    "calls": [
     {
      "args": {
+      "account": "DU0000001",
+      "currency": "USD",
+      "tag": "NetLiquidation",
+      "val": "1000000.00"
+     },
+     "method": "updateAccountValue"
+    }
+   ],
+   "fields": [
+    "6",
+    "2",
+    "NetLiquidation",
+    "1000000.00",
+    "USD",
+    "DU0000001"
+   ],
+   "name": "gen/6/base"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "currency": "",
+      "tag": "NetLiquidation",
+      "val": "1000000.00"
+     },
+     "method": "updateAccountValue"
+    }
+   ],
+   "fields": [
+    "6",
+    "2",
+    "NetLiquidation",
+    "1000000.00",
+    "",
+    "DU0000001"
+   ],
+   "name": "gen/6/empty-currency"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "averageCost": "180.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "NASDAQ",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "marketPrice": "187.25",
+      "marketValue": "936.25",
+      "posSize": "5",
+      "realizedPNL": "12.5",
+      "unrealizedPNL": "33.75"
+     },
+     "method": "updatePortfolio"
+    }
+   ],
+   "fields": [
+    "7",
+    "8",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "5",
+    "187.25",
+    "936.25",
+    "180.5",
+    "33.75",
+    "12.5",
+    "DU0000001"
+   ],
+   "name": "gen/7/base"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "averageCost": "180.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "marketPrice": "187.25",
+      "marketValue": "936.25",
+      "posSize": "5",
+      "realizedPNL": "12.5",
+      "unrealizedPNL": "33.75"
+     },
+     "method": "updatePortfolio"
+    }
+   ],
+   "fields": [
+    "7",
+    "8",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "",
+    "USD",
+    "AAPL",
+    "NMS",
+    "5",
+    "187.25",
+    "936.25",
+    "180.5",
+    "33.75",
+    "12.5",
+    "DU0000001"
+   ],
+   "name": "gen/7/empty-primary-exchange"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "averageCost": "180.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "ISLAND",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "marketPrice": "187.25",
+      "marketValue": "936.25",
+      "posSize": "5",
+      "realizedPNL": "12.5",
+      "unrealizedPNL": "33.75"
+     },
+     "method": "updatePortfolio"
+    }
+   ],
+   "fields": [
+    "7",
+    "8",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "ISLAND",
+    "USD",
+    "AAPL",
+    "NMS",
+    "5",
+    "187.25",
+    "936.25",
+    "180.5",
+    "33.75",
+    "12.5",
+    "DU0000001"
+   ],
+   "name": "gen/7/primary-exchange-isld"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "averageCost": "180.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "0",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "NASDAQ",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "marketPrice": "187.25",
+      "marketValue": "936.25",
+      "posSize": "5",
+      "realizedPNL": "12.5",
+      "unrealizedPNL": "33.75"
+     },
+     "method": "updatePortfolio"
+    }
+   ],
+   "fields": [
+    "7",
+    "8",
+    "",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "5",
+    "187.25",
+    "936.25",
+    "180.5",
+    "33.75",
+    "12.5",
+    "DU0000001"
+   ],
+   "name": "gen/7/unset-empty-conId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "averageCost": "180.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "NASDAQ",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "marketPrice": "187.25",
+      "marketValue": "936.25",
+      "posSize": "5",
+      "realizedPNL": "12.5",
+      "unrealizedPNL": "33.75"
+     },
+     "method": "updatePortfolio"
+    }
+   ],
+   "fields": [
+    "7",
+    "8",
+    "2147483647",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "5",
+    "187.25",
+    "936.25",
+    "180.5",
+    "33.75",
+    "12.5",
+    "DU0000001"
+   ],
+   "name": "gen/7/unset-max-conId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "averageCost": "180.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "NASDAQ",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "marketPrice": "187.25",
+      "marketValue": "936.25",
+      "posSize": "5",
+      "realizedPNL": "12.5",
+      "unrealizedPNL": "33.75"
+     },
+     "method": "updatePortfolio"
+    }
+   ],
+   "fields": [
+    "7",
+    "8",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "5",
+    "187.25",
+    "936.25",
+    "180.5",
+    "33.75",
+    "12.5",
+    "DU0000001"
+   ],
+   "name": "gen/7/unset-empty-strike"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "averageCost": "180.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "NASDAQ",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "marketPrice": "187.25",
+      "marketValue": "936.25",
+      "posSize": "5",
+      "realizedPNL": "12.5",
+      "unrealizedPNL": "33.75"
+     },
+     "method": "updatePortfolio"
+    }
+   ],
+   "fields": [
+    "7",
+    "8",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "1.7976931348623157E308",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "5",
+    "187.25",
+    "936.25",
+    "180.5",
+    "33.75",
+    "12.5",
+    "DU0000001"
+   ],
+   "name": "gen/7/unset-max-strike"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "7",
+    "8",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "",
+    "187.25",
+    "936.25",
+    "180.5",
+    "33.75",
+    "12.5",
+    "DU0000001"
+   ],
+   "name": "gen/7/unset-empty-position"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "averageCost": "180.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "NASDAQ",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "marketPrice": "187.25",
+      "marketValue": "936.25",
+      "posSize": "",
+      "realizedPNL": "12.5",
+      "unrealizedPNL": "33.75"
+     },
+     "method": "updatePortfolio"
+    }
+   ],
+   "fields": [
+    "7",
+    "8",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "1.7976931348623157E308",
+    "187.25",
+    "936.25",
+    "180.5",
+    "33.75",
+    "12.5",
+    "DU0000001"
+   ],
+   "name": "gen/7/unset-max-position"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "7",
+    "8",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "5",
+    "",
+    "936.25",
+    "180.5",
+    "33.75",
+    "12.5",
+    "DU0000001"
+   ],
+   "name": "gen/7/unset-empty-marketPrice"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "averageCost": "180.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "NASDAQ",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "marketPrice": "",
+      "marketValue": "936.25",
+      "posSize": "5",
+      "realizedPNL": "12.5",
+      "unrealizedPNL": "33.75"
+     },
+     "method": "updatePortfolio"
+    }
+   ],
+   "fields": [
+    "7",
+    "8",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "5",
+    "1.7976931348623157E308",
+    "936.25",
+    "180.5",
+    "33.75",
+    "12.5",
+    "DU0000001"
+   ],
+   "name": "gen/7/unset-max-marketPrice"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "7",
+    "8",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "5",
+    "187.25",
+    "",
+    "180.5",
+    "33.75",
+    "12.5",
+    "DU0000001"
+   ],
+   "name": "gen/7/unset-empty-marketValue"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "averageCost": "180.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "NASDAQ",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "marketPrice": "187.25",
+      "marketValue": "",
+      "posSize": "5",
+      "realizedPNL": "12.5",
+      "unrealizedPNL": "33.75"
+     },
+     "method": "updatePortfolio"
+    }
+   ],
+   "fields": [
+    "7",
+    "8",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "5",
+    "187.25",
+    "1.7976931348623157E308",
+    "180.5",
+    "33.75",
+    "12.5",
+    "DU0000001"
+   ],
+   "name": "gen/7/unset-max-marketValue"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "7",
+    "8",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "5",
+    "187.25",
+    "936.25",
+    "",
+    "33.75",
+    "12.5",
+    "DU0000001"
+   ],
+   "name": "gen/7/unset-empty-averageCost"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "averageCost": "",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "NASDAQ",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "marketPrice": "187.25",
+      "marketValue": "936.25",
+      "posSize": "5",
+      "realizedPNL": "12.5",
+      "unrealizedPNL": "33.75"
+     },
+     "method": "updatePortfolio"
+    }
+   ],
+   "fields": [
+    "7",
+    "8",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "5",
+    "187.25",
+    "936.25",
+    "1.7976931348623157E308",
+    "33.75",
+    "12.5",
+    "DU0000001"
+   ],
+   "name": "gen/7/unset-max-averageCost"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "7",
+    "8",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "5",
+    "187.25",
+    "936.25",
+    "180.5",
+    "",
+    "12.5",
+    "DU0000001"
+   ],
+   "name": "gen/7/unset-empty-unrealizedPNL"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "averageCost": "180.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "NASDAQ",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "marketPrice": "187.25",
+      "marketValue": "936.25",
+      "posSize": "5",
+      "realizedPNL": "12.5",
+      "unrealizedPNL": ""
+     },
+     "method": "updatePortfolio"
+    }
+   ],
+   "fields": [
+    "7",
+    "8",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "5",
+    "187.25",
+    "936.25",
+    "180.5",
+    "1.7976931348623157E308",
+    "12.5",
+    "DU0000001"
+   ],
+   "name": "gen/7/unset-max-unrealizedPNL"
+  },
+  {
+   "error": "ValueError: could not convert string to float: ''",
+   "fields": [
+    "7",
+    "8",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "5",
+    "187.25",
+    "936.25",
+    "180.5",
+    "33.75",
+    "",
+    "DU0000001"
+   ],
+   "name": "gen/7/unset-empty-realizedPNL"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "averageCost": "180.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "NASDAQ",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "marketPrice": "187.25",
+      "marketValue": "936.25",
+      "posSize": "5",
+      "realizedPNL": "",
+      "unrealizedPNL": "33.75"
+     },
+     "method": "updatePortfolio"
+    }
+   ],
+   "fields": [
+    "7",
+    "8",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "5",
+    "187.25",
+    "936.25",
+    "180.5",
+    "33.75",
+    "1.7976931348623157E308",
+    "DU0000001"
+   ],
+   "name": "gen/7/unset-max-realizedPNL"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "timestamp": "09:30"
+     },
+     "method": "updateAccountTime"
+    }
+   ],
+   "fields": [
+    "8",
+    "1",
+    "09:30"
+   ],
+   "name": "gen/8/base"
+  },
+  {
+   "calls": [
+    {
+     "args": {
       "reqId": "42"
      },
      "method": "nextValidId"
@@ -32113,6 +33096,2079 @@
     "1794321000"
    ],
    "name": "gen/49/time"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "_account": "DU0000001"
+     },
+     "method": "accountDownloadEnd"
+    }
+   ],
+   "fields": [
+    "54",
+    "1",
+    "DU0000001"
+   ],
+   "name": "gen/54/base"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "avgCost": "351.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "NASDAQ",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "posSize": "40"
+     },
+     "method": "position"
+    }
+   ],
+   "fields": [
+    "61",
+    "3",
+    "DU0000001",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "40",
+    "351.5"
+   ],
+   "name": "gen/61/base"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "avgCost": "351.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "NASDAQ",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "posSize": "-40"
+     },
+     "method": "position"
+    }
+   ],
+   "fields": [
+    "61",
+    "3",
+    "DU0000001",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "-40",
+    "351.5"
+   ],
+   "name": "gen/61/short"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "avgCost": "351.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "0",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "NASDAQ",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "posSize": "40"
+     },
+     "method": "position"
+    }
+   ],
+   "fields": [
+    "61",
+    "3",
+    "DU0000001",
+    "",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "40",
+    "351.5"
+   ],
+   "name": "gen/61/unset-empty-conId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "avgCost": "351.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "NASDAQ",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "posSize": "40"
+     },
+     "method": "position"
+    }
+   ],
+   "fields": [
+    "61",
+    "3",
+    "DU0000001",
+    "2147483647",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "40",
+    "351.5"
+   ],
+   "name": "gen/61/unset-max-conId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "avgCost": "351.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "NASDAQ",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "posSize": "40"
+     },
+     "method": "position"
+    }
+   ],
+   "fields": [
+    "61",
+    "3",
+    "DU0000001",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "40",
+    "351.5"
+   ],
+   "name": "gen/61/unset-empty-strike"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "avgCost": "351.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "NASDAQ",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "posSize": "40"
+     },
+     "method": "position"
+    }
+   ],
+   "fields": [
+    "61",
+    "3",
+    "DU0000001",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "1.7976931348623157E308",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "40",
+    "351.5"
+   ],
+   "name": "gen/61/unset-max-strike"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "avgCost": "351.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "NASDAQ",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "posSize": "0"
+     },
+     "method": "position"
+    }
+   ],
+   "fields": [
+    "61",
+    "3",
+    "DU0000001",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "",
+    "351.5"
+   ],
+   "name": "gen/61/unset-empty-position"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "avgCost": "351.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "NASDAQ",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "posSize": ""
+     },
+     "method": "position"
+    }
+   ],
+   "fields": [
+    "61",
+    "3",
+    "DU0000001",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "1.7976931348623157E308",
+    "351.5"
+   ],
+   "name": "gen/61/unset-max-position"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "avgCost": "0",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "NASDAQ",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "posSize": "40"
+     },
+     "method": "position"
+    }
+   ],
+   "fields": [
+    "61",
+    "3",
+    "DU0000001",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "40",
+    ""
+   ],
+   "name": "gen/61/unset-empty-averageCost"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "avgCost": "",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "NASDAQ",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "posSize": "40"
+     },
+     "method": "position"
+    }
+   ],
+   "fields": [
+    "61",
+    "3",
+    "DU0000001",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "40",
+    "1.7976931348623157E308"
+   ],
+   "name": "gen/61/unset-max-averageCost"
+  },
+  {
+   "calls": [
+    {
+     "args": {},
+     "method": "positionEnd"
+    }
+   ],
+   "fields": [
+    "62",
+    "1"
+   ],
+   "name": "gen/62/base"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "_reqId": "9",
+      "account": "DU0000001",
+      "currency": "USD",
+      "tag": "NetLiquidation",
+      "value": "1000000.00"
+     },
+     "method": "accountSummary"
+    }
+   ],
+   "fields": [
+    "63",
+    "1",
+    "9",
+    "DU0000001",
+    "NetLiquidation",
+    "1000000.00",
+    "USD"
+   ],
+   "name": "gen/63/base"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "_reqId": "9",
+      "account": "DU0000001",
+      "currency": "",
+      "tag": "NetLiquidation",
+      "value": "1000000.00"
+     },
+     "method": "accountSummary"
+    }
+   ],
+   "fields": [
+    "63",
+    "1",
+    "9",
+    "DU0000001",
+    "NetLiquidation",
+    "1000000.00",
+    ""
+   ],
+   "name": "gen/63/empty-currency"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "_reqId": "0",
+      "account": "DU0000001",
+      "currency": "USD",
+      "tag": "NetLiquidation",
+      "value": "1000000.00"
+     },
+     "method": "accountSummary"
+    }
+   ],
+   "fields": [
+    "63",
+    "1",
+    "",
+    "DU0000001",
+    "NetLiquidation",
+    "1000000.00",
+    "USD"
+   ],
+   "name": "gen/63/unset-empty-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "_reqId": "",
+      "account": "DU0000001",
+      "currency": "USD",
+      "tag": "NetLiquidation",
+      "value": "1000000.00"
+     },
+     "method": "accountSummary"
+    }
+   ],
+   "fields": [
+    "63",
+    "1",
+    "2147483647",
+    "DU0000001",
+    "NetLiquidation",
+    "1000000.00",
+    "USD"
+   ],
+   "name": "gen/63/unset-max-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "reqId": "9"
+     },
+     "method": "accountSummaryEnd"
+    }
+   ],
+   "fields": [
+    "64",
+    "1",
+    "9"
+   ],
+   "name": "gen/64/base"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "avgCost": "351.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "NASDAQ",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "modelCode": "TQQQ",
+      "pos": "40",
+      "reqId": "9"
+     },
+     "method": "positionMulti"
+    }
+   ],
+   "fields": [
+    "71",
+    "3",
+    "9",
+    "DU0000001",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "40",
+    "351.5",
+    "TQQQ"
+   ],
+   "name": "gen/71/base"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "avgCost": "351.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "NASDAQ",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "modelCode": "",
+      "pos": "40",
+      "reqId": "9"
+     },
+     "method": "positionMulti"
+    }
+   ],
+   "fields": [
+    "71",
+    "3",
+    "9",
+    "DU0000001",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "40",
+    "351.5",
+    ""
+   ],
+   "name": "gen/71/empty-model"
+  },
+  {
+   "error": "ValueError: invalid literal for int() with base 10: ''",
+   "fields": [
+    "71",
+    "3",
+    "",
+    "DU0000001",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "40",
+    "351.5",
+    "TQQQ"
+   ],
+   "name": "gen/71/unset-empty-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "avgCost": "351.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "NASDAQ",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "modelCode": "TQQQ",
+      "pos": "40",
+      "reqId": ""
+     },
+     "method": "positionMulti"
+    }
+   ],
+   "fields": [
+    "71",
+    "3",
+    "2147483647",
+    "DU0000001",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "40",
+    "351.5",
+    "TQQQ"
+   ],
+   "name": "gen/71/unset-max-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "avgCost": "351.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "0",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "NASDAQ",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "modelCode": "TQQQ",
+      "pos": "40",
+      "reqId": "9"
+     },
+     "method": "positionMulti"
+    }
+   ],
+   "fields": [
+    "71",
+    "3",
+    "9",
+    "DU0000001",
+    "",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "40",
+    "351.5",
+    "TQQQ"
+   ],
+   "name": "gen/71/unset-empty-conId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "avgCost": "351.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "NASDAQ",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "modelCode": "TQQQ",
+      "pos": "40",
+      "reqId": "9"
+     },
+     "method": "positionMulti"
+    }
+   ],
+   "fields": [
+    "71",
+    "3",
+    "9",
+    "DU0000001",
+    "2147483647",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "40",
+    "351.5",
+    "TQQQ"
+   ],
+   "name": "gen/71/unset-max-conId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "avgCost": "351.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "NASDAQ",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "modelCode": "TQQQ",
+      "pos": "40",
+      "reqId": "9"
+     },
+     "method": "positionMulti"
+    }
+   ],
+   "fields": [
+    "71",
+    "3",
+    "9",
+    "DU0000001",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "40",
+    "351.5",
+    "TQQQ"
+   ],
+   "name": "gen/71/unset-empty-strike"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "avgCost": "351.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "NASDAQ",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "modelCode": "TQQQ",
+      "pos": "40",
+      "reqId": "9"
+     },
+     "method": "positionMulti"
+    }
+   ],
+   "fields": [
+    "71",
+    "3",
+    "9",
+    "DU0000001",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "1.7976931348623157E308",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "40",
+    "351.5",
+    "TQQQ"
+   ],
+   "name": "gen/71/unset-max-strike"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "avgCost": "351.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "NASDAQ",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "modelCode": "TQQQ",
+      "pos": "0",
+      "reqId": "9"
+     },
+     "method": "positionMulti"
+    }
+   ],
+   "fields": [
+    "71",
+    "3",
+    "9",
+    "DU0000001",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "",
+    "351.5",
+    "TQQQ"
+   ],
+   "name": "gen/71/unset-empty-position"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "avgCost": "351.5",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "NASDAQ",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "modelCode": "TQQQ",
+      "pos": "",
+      "reqId": "9"
+     },
+     "method": "positionMulti"
+    }
+   ],
+   "fields": [
+    "71",
+    "3",
+    "9",
+    "DU0000001",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "1.7976931348623157E308",
+    "351.5",
+    "TQQQ"
+   ],
+   "name": "gen/71/unset-max-position"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "avgCost": "0",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "NASDAQ",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "modelCode": "TQQQ",
+      "pos": "40",
+      "reqId": "9"
+     },
+     "method": "positionMulti"
+    }
+   ],
+   "fields": [
+    "71",
+    "3",
+    "9",
+    "DU0000001",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "40",
+    "",
+    "TQQQ"
+   ],
+   "name": "gen/71/unset-empty-averageCost"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "avgCost": "",
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "NASDAQ",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "modelCode": "TQQQ",
+      "pos": "40",
+      "reqId": "9"
+     },
+     "method": "positionMulti"
+    }
+   ],
+   "fields": [
+    "71",
+    "3",
+    "9",
+    "DU0000001",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "40",
+    "1.7976931348623157E308",
+    "TQQQ"
+   ],
+   "name": "gen/71/unset-max-averageCost"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "reqId": "9"
+     },
+     "method": "positionMultiEnd"
+    }
+   ],
+   "fields": [
+    "72",
+    "1",
+    "9"
+   ],
+   "name": "gen/72/base"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "currency": "USD",
+      "modelCode": "TQQQ",
+      "reqId": "9",
+      "tag": "NetLiquidation",
+      "val": "1000000.00"
+     },
+     "method": "accountUpdateMulti"
+    }
+   ],
+   "fields": [
+    "73",
+    "1",
+    "9",
+    "DU0000001",
+    "TQQQ",
+    "NetLiquidation",
+    "1000000.00",
+    "USD"
+   ],
+   "name": "gen/73/base"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "currency": "",
+      "modelCode": "TQQQ",
+      "reqId": "9",
+      "tag": "NetLiquidation",
+      "val": "1000000.00"
+     },
+     "method": "accountUpdateMulti"
+    }
+   ],
+   "fields": [
+    "73",
+    "1",
+    "9",
+    "DU0000001",
+    "TQQQ",
+    "NetLiquidation",
+    "1000000.00",
+    ""
+   ],
+   "name": "gen/73/empty-currency"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "currency": "USD",
+      "modelCode": "",
+      "reqId": "9",
+      "tag": "NetLiquidation",
+      "val": "1000000.00"
+     },
+     "method": "accountUpdateMulti"
+    }
+   ],
+   "fields": [
+    "73",
+    "1",
+    "9",
+    "DU0000001",
+    "",
+    "NetLiquidation",
+    "1000000.00",
+    "USD"
+   ],
+   "name": "gen/73/empty-model"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "currency": "USD",
+      "modelCode": "TQQQ",
+      "reqId": "0",
+      "tag": "NetLiquidation",
+      "val": "1000000.00"
+     },
+     "method": "accountUpdateMulti"
+    }
+   ],
+   "fields": [
+    "73",
+    "1",
+    "",
+    "DU0000001",
+    "TQQQ",
+    "NetLiquidation",
+    "1000000.00",
+    "USD"
+   ],
+   "name": "gen/73/unset-empty-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "account": "DU0000001",
+      "currency": "USD",
+      "modelCode": "TQQQ",
+      "reqId": "",
+      "tag": "NetLiquidation",
+      "val": "1000000.00"
+     },
+     "method": "accountUpdateMulti"
+    }
+   ],
+   "fields": [
+    "73",
+    "1",
+    "2147483647",
+    "DU0000001",
+    "TQQQ",
+    "NetLiquidation",
+    "1000000.00",
+    "USD"
+   ],
+   "name": "gen/73/unset-max-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "reqId": "9"
+     },
+     "method": "accountUpdateMultiEnd"
+    }
+   ],
+   "fields": [
+    "74",
+    "1",
+    "9"
+   ],
+   "name": "gen/74/base"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "-4.97",
+      "realizedPnL": "-4.04",
+      "reqId": "9",
+      "unrealizedPnL": "-0.93"
+     },
+     "method": "pnl"
+    }
+   ],
+   "fields": [
+    "94",
+    "9",
+    "-4.97",
+    "-0.93",
+    "-4.04"
+   ],
+   "name": "gen/94/base"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "",
+      "realizedPnL": "",
+      "reqId": "9",
+      "unrealizedPnL": ""
+     },
+     "method": "pnl"
+    }
+   ],
+   "fields": [
+    "94",
+    "9",
+    "1.7976931348623157E308",
+    "1.7976931348623157E308",
+    "1.7976931348623157E308"
+   ],
+   "name": "gen/94/all-unset-max"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "0",
+      "realizedPnL": "0",
+      "reqId": "9",
+      "unrealizedPnL": "0"
+     },
+     "method": "pnl"
+    }
+   ],
+   "fields": [
+    "94",
+    "9",
+    "0",
+    "0",
+    "0"
+   ],
+   "name": "gen/94/all-zero"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "-4.97",
+      "realizedPnL": "-4.04",
+      "reqId": "0",
+      "unrealizedPnL": "-0.93"
+     },
+     "method": "pnl"
+    }
+   ],
+   "fields": [
+    "94",
+    "",
+    "-4.97",
+    "-0.93",
+    "-4.04"
+   ],
+   "name": "gen/94/unset-empty-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "-4.97",
+      "realizedPnL": "-4.04",
+      "reqId": "",
+      "unrealizedPnL": "-0.93"
+     },
+     "method": "pnl"
+    }
+   ],
+   "fields": [
+    "94",
+    "2147483647",
+    "-4.97",
+    "-0.93",
+    "-4.04"
+   ],
+   "name": "gen/94/unset-max-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "0",
+      "realizedPnL": "-4.04",
+      "reqId": "9",
+      "unrealizedPnL": "-0.93"
+     },
+     "method": "pnl"
+    }
+   ],
+   "fields": [
+    "94",
+    "9",
+    "",
+    "-0.93",
+    "-4.04"
+   ],
+   "name": "gen/94/unset-empty-dailyPnL"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "",
+      "realizedPnL": "-4.04",
+      "reqId": "9",
+      "unrealizedPnL": "-0.93"
+     },
+     "method": "pnl"
+    }
+   ],
+   "fields": [
+    "94",
+    "9",
+    "1.7976931348623157E308",
+    "-0.93",
+    "-4.04"
+   ],
+   "name": "gen/94/unset-max-dailyPnL"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "-4.97",
+      "realizedPnL": "-4.04",
+      "reqId": "9",
+      "unrealizedPnL": "0"
+     },
+     "method": "pnl"
+    }
+   ],
+   "fields": [
+    "94",
+    "9",
+    "-4.97",
+    "",
+    "-4.04"
+   ],
+   "name": "gen/94/unset-empty-unrealizedPnL"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "-4.97",
+      "realizedPnL": "-4.04",
+      "reqId": "9",
+      "unrealizedPnL": ""
+     },
+     "method": "pnl"
+    }
+   ],
+   "fields": [
+    "94",
+    "9",
+    "-4.97",
+    "1.7976931348623157E308",
+    "-4.04"
+   ],
+   "name": "gen/94/unset-max-unrealizedPnL"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "-4.97",
+      "realizedPnL": "0",
+      "reqId": "9",
+      "unrealizedPnL": "-0.93"
+     },
+     "method": "pnl"
+    }
+   ],
+   "fields": [
+    "94",
+    "9",
+    "-4.97",
+    "-0.93",
+    ""
+   ],
+   "name": "gen/94/unset-empty-realizedPnL"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "-4.97",
+      "realizedPnL": "",
+      "reqId": "9",
+      "unrealizedPnL": "-0.93"
+     },
+     "method": "pnl"
+    }
+   ],
+   "fields": [
+    "94",
+    "9",
+    "-4.97",
+    "-0.93",
+    "1.7976931348623157E308"
+   ],
+   "name": "gen/94/unset-max-realizedPnL"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "-4.97",
+      "pos": "1",
+      "realizedPnL": "-4.04",
+      "reqId": "9",
+      "unrealizedPnL": "-0.93",
+      "value": "347.61"
+     },
+     "method": "pnlSingle"
+    }
+   ],
+   "fields": [
+    "95",
+    "9",
+    "1",
+    "-4.97",
+    "-0.93",
+    "-4.04",
+    "347.61"
+   ],
+   "name": "gen/95/base"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "",
+      "pos": "1",
+      "realizedPnL": "",
+      "reqId": "9",
+      "unrealizedPnL": "",
+      "value": ""
+     },
+     "method": "pnlSingle"
+    }
+   ],
+   "fields": [
+    "95",
+    "9",
+    "1",
+    "1.7976931348623157E308",
+    "1.7976931348623157E308",
+    "1.7976931348623157E308",
+    "1.7976931348623157E308"
+   ],
+   "name": "gen/95/all-unset-max"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "-4.97",
+      "pos": "1",
+      "realizedPnL": "-4.04",
+      "reqId": "9",
+      "unrealizedPnL": "-0.93",
+      "value": "0"
+     },
+     "method": "pnlSingle"
+    }
+   ],
+   "fields": [
+    "95",
+    "9",
+    "1",
+    "-4.97",
+    "-0.93",
+    "-4.04",
+    "0"
+   ],
+   "name": "gen/95/value-zero"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "0",
+      "pos": "0",
+      "realizedPnL": "0",
+      "reqId": "9",
+      "unrealizedPnL": "0",
+      "value": "0"
+     },
+     "method": "pnlSingle"
+    }
+   ],
+   "fields": [
+    "95",
+    "9",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0"
+   ],
+   "name": "gen/95/all-zero"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "-4.97",
+      "pos": "1",
+      "realizedPnL": "-4.04",
+      "reqId": "0",
+      "unrealizedPnL": "-0.93",
+      "value": "347.61"
+     },
+     "method": "pnlSingle"
+    }
+   ],
+   "fields": [
+    "95",
+    "",
+    "1",
+    "-4.97",
+    "-0.93",
+    "-4.04",
+    "347.61"
+   ],
+   "name": "gen/95/unset-empty-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "-4.97",
+      "pos": "1",
+      "realizedPnL": "-4.04",
+      "reqId": "",
+      "unrealizedPnL": "-0.93",
+      "value": "347.61"
+     },
+     "method": "pnlSingle"
+    }
+   ],
+   "fields": [
+    "95",
+    "2147483647",
+    "1",
+    "-4.97",
+    "-0.93",
+    "-4.04",
+    "347.61"
+   ],
+   "name": "gen/95/unset-max-reqId"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "-4.97",
+      "pos": "0",
+      "realizedPnL": "-4.04",
+      "reqId": "9",
+      "unrealizedPnL": "-0.93",
+      "value": "347.61"
+     },
+     "method": "pnlSingle"
+    }
+   ],
+   "fields": [
+    "95",
+    "9",
+    "",
+    "-4.97",
+    "-0.93",
+    "-4.04",
+    "347.61"
+   ],
+   "name": "gen/95/unset-empty-pos"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "-4.97",
+      "pos": "",
+      "realizedPnL": "-4.04",
+      "reqId": "9",
+      "unrealizedPnL": "-0.93",
+      "value": "347.61"
+     },
+     "method": "pnlSingle"
+    }
+   ],
+   "fields": [
+    "95",
+    "9",
+    "1.7976931348623157E308",
+    "-4.97",
+    "-0.93",
+    "-4.04",
+    "347.61"
+   ],
+   "name": "gen/95/unset-max-pos"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "0",
+      "pos": "1",
+      "realizedPnL": "-4.04",
+      "reqId": "9",
+      "unrealizedPnL": "-0.93",
+      "value": "347.61"
+     },
+     "method": "pnlSingle"
+    }
+   ],
+   "fields": [
+    "95",
+    "9",
+    "1",
+    "",
+    "-0.93",
+    "-4.04",
+    "347.61"
+   ],
+   "name": "gen/95/unset-empty-dailyPnL"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "",
+      "pos": "1",
+      "realizedPnL": "-4.04",
+      "reqId": "9",
+      "unrealizedPnL": "-0.93",
+      "value": "347.61"
+     },
+     "method": "pnlSingle"
+    }
+   ],
+   "fields": [
+    "95",
+    "9",
+    "1",
+    "1.7976931348623157E308",
+    "-0.93",
+    "-4.04",
+    "347.61"
+   ],
+   "name": "gen/95/unset-max-dailyPnL"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "-4.97",
+      "pos": "1",
+      "realizedPnL": "-4.04",
+      "reqId": "9",
+      "unrealizedPnL": "0",
+      "value": "347.61"
+     },
+     "method": "pnlSingle"
+    }
+   ],
+   "fields": [
+    "95",
+    "9",
+    "1",
+    "-4.97",
+    "",
+    "-4.04",
+    "347.61"
+   ],
+   "name": "gen/95/unset-empty-unrealizedPnL"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "-4.97",
+      "pos": "1",
+      "realizedPnL": "-4.04",
+      "reqId": "9",
+      "unrealizedPnL": "",
+      "value": "347.61"
+     },
+     "method": "pnlSingle"
+    }
+   ],
+   "fields": [
+    "95",
+    "9",
+    "1",
+    "-4.97",
+    "1.7976931348623157E308",
+    "-4.04",
+    "347.61"
+   ],
+   "name": "gen/95/unset-max-unrealizedPnL"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "-4.97",
+      "pos": "1",
+      "realizedPnL": "0",
+      "reqId": "9",
+      "unrealizedPnL": "-0.93",
+      "value": "347.61"
+     },
+     "method": "pnlSingle"
+    }
+   ],
+   "fields": [
+    "95",
+    "9",
+    "1",
+    "-4.97",
+    "-0.93",
+    "",
+    "347.61"
+   ],
+   "name": "gen/95/unset-empty-realizedPnL"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "-4.97",
+      "pos": "1",
+      "realizedPnL": "",
+      "reqId": "9",
+      "unrealizedPnL": "-0.93",
+      "value": "347.61"
+     },
+     "method": "pnlSingle"
+    }
+   ],
+   "fields": [
+    "95",
+    "9",
+    "1",
+    "-4.97",
+    "-0.93",
+    "1.7976931348623157E308",
+    "347.61"
+   ],
+   "name": "gen/95/unset-max-realizedPnL"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "-4.97",
+      "pos": "1",
+      "realizedPnL": "-4.04",
+      "reqId": "9",
+      "unrealizedPnL": "-0.93",
+      "value": "0"
+     },
+     "method": "pnlSingle"
+    }
+   ],
+   "fields": [
+    "95",
+    "9",
+    "1",
+    "-4.97",
+    "-0.93",
+    "-4.04",
+    ""
+   ],
+   "name": "gen/95/unset-empty-value"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "dailyPnL": "-4.97",
+      "pos": "1",
+      "realizedPnL": "-4.04",
+      "reqId": "9",
+      "unrealizedPnL": "-0.93",
+      "value": ""
+     },
+     "method": "pnlSingle"
+    }
+   ],
+   "fields": [
+    "95",
+    "9",
+    "1",
+    "-4.97",
+    "-0.93",
+    "-4.04",
+    "1.7976931348623157E308"
+   ],
+   "name": "gen/95/unset-max-value"
   },
   {
    "calls": [

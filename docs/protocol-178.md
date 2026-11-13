@@ -1900,5 +1900,11 @@ agrees type by type. The differences are in default values and value formatting 
    comma adds none). `ib_async`'s decoder passes the raw text, and its wrapper splits it (wrapper.py:521-522 for 15),
    so the list a user sees is the same; only the decoder-level text differs, e.g. `DU1,` against `DU1`.
 
+13. **A field IB always fills is non-optional and reads an unset value as 0.** `reqId`, `conId`, position (`pos`),
+   `averageCost`, `marketPrice` and `marketValue` are non-optional in swift-ibkr's models, so an empty or
+   `MAX` (2147483647, 1.7976931348623157E308) value decodes to 0 where `ib_async` keeps the sentinel (`""` in the oracle)
+   or, for a plain `float()` / `int()` read (updatePortfolio, positionMulti's reqId), rejects the frame. IB never leaves
+   them unset, and making them optional would be Breaking for no observed frame. Messages 7, 61, 63, 71, 73, 94, 95.
+
 No row in this document is unverified: every table was checked line by line against the
 verbatim source of both clients.
