@@ -45,16 +45,6 @@ private func utcDate(_ h: Int, _ m: Int = 0, _ s: Int = 0) -> Date {
     #expect(try date("20261110 06:56:31 US/Eastern", eastern) == reply)   // a named zone beats the gateway's
 }
 
-@Test func timeRangeSkipsPastPointsAndYieldsEach() async throws {
-    let start = Date().addingTimeInterval(-1), end = Date().addingTimeInterval(0.07)
-    var points: [Date] = []
-    for await t in IBClient.timeRange(from: start, to: end, every: .milliseconds(20)) {
-        #expect(Date() >= t)
-        points.append(t)
-    }
-    #expect((2...4).contains(points.count) && points == points.sorted())
-    #expect(points.allSatisfy { $0 >= start.addingTimeInterval(1) })
-}
 
 @Test func waitUntilReturnsAtTheDate() async throws {
     let target = Date().addingTimeInterval(0.1)
@@ -106,4 +96,36 @@ private func utcDate(_ h: Int, _ m: Int = 0, _ s: Int = 0) -> Date {
     var replay = ExecutionTracker()
     _ = replay.apply(.execDetails(requestID: 7, contract: Contract(symbol: "AAPL"), execution: e))
     #expect(replay.apply(.commissionReport(report)).first?.time == utcDate(6, 56, 31))
+}
+
+@Test func timeRangeSkipsPastPointsAndYieldsEach() async throws {
+    let start = Date().addingTimeInterval(-1), end = Date().addingTimeInterval(0.3)
+    var points: [Date] = []
+    for await t in IBClient.timeRange(from: start, to: end, every: .milliseconds(50)) {
+        #expect(Date() >= t)
+        points.append(t)
+    }
+    #expect(!points.isEmpty && points.count <= 8 && points == points.sorted())
+    #expect(points.allSatisfy { $0 >= start.addingTimeInterval(1 - 0.001) && $0 <= end })   // none of the past
+    for (a, b) in zip(points, points.dropFirst()) { #expect(abs(b.timeIntervalSince(a) - 0.05) < 0.001) }
+}
+
+@Test func aStoppedConsumerEndsTimeRange() async {
+    var n = 0
+    for await _ in IBClient.timeRange(from: Date(), to: Date().addingTimeInterval(60), every: .milliseconds(20)) {
+        n += 1
+        break
+    }
+    #expect(n == 1)   // the loop returned at once instead of waiting a minute
+}
+
+@Test func cancellingWaitThrows() async {
+    let task = Task { try await IBClient.wait(until: Date().addingTimeInterval(10)) }
+    task.cancel()
+    await #expect(throws: CancellationError.self) { try await task.value }
+}
+
+@Test func zoneFormNeedsAFullTime() {
+    #expect(IBDate.parse("20261110 16 US/Eastern") == nil)
+    #expect(IBDate.parse("1234 5678 UTC") == nil)
 }

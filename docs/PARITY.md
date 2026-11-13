@@ -320,7 +320,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `DeltaNeutralContract` | `DeltaNeutralContract` | present | |
 | `TradingSession` | `TradingSession` | added | `TradingSession(start: Date, end: Date)` |
 | `ContractDetails` | `ContractDetails` | present | `mdSizeMultiplier` is obsolete and skipped by both |
-| `ContractDetails.tradingSessions` | `ContractDetails.tradingSessions` | added | read from `tradingHours` in `timeZoneID`; `CLOSED` days skipped, an unknown zone gives `[]` (contract.py:599) |
+| `ContractDetails.tradingSessions` | `ContractDetails.tradingSessions` | added | read from `tradingHours` in `timeZoneID`; `CLOSED` days skipped, an unknown zone gives `[]`, and a malformed part or an hour `24` (`2400`) is skipped where ib_async raises (contract.py:599) |
 | `ContractDetails.liquidSessions` | `ContractDetails.liquidSessions` | added | the same from `liquidHours` |
 | `ContractDescription` | `ContractDescription` | present | |
 | `ScanData` | `ScanData` | present | carries `contract` and `marketName`, all the frame has |

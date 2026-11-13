@@ -15,11 +15,16 @@ public enum IBDate {
         if s.filter({ $0 == 32 }).count >= 2 && !text.contains("  ") {   // 20221125 10:00:00 Europe/Amsterdam
             let parts = text.split(separator: " ", maxSplits: 2).map(String.init)
             guard parts.count == 3, let zone = TimeZone(identifier: parts[2]) else { return nil }
-            return parse(parts[0] + parts[1], timeZone: zone)
+            return dateTime(parts[0] + parts[1], zone)
         }
-        let compact = Array(String(text.filter { $0 != " " && $0 != "-" }.prefix(16)).utf8)
+        return dateTime(text.filter { $0 != " " && $0 != "-" }, timeZone)
+    }
+
+    /// The first 16 characters read as `yyyyMMddHH:mm:ss` in `zone`.
+    private static func dateTime(_ text: String, _ zone: TimeZone) -> Date? {
+        let compact = Array(String(text.prefix(16)).utf8)
         return compact.count == 16 && compact[10] == 58 && compact[13] == 58
-            ? instant(compact, [0, 4, 6, 8, 11, 14], [4, 2, 2, 2, 2, 2], in: timeZone) : nil
+            ? instant(compact, [0, 4, 6, 8, 11, 14], [4, 2, 2, 2, 2, 2], in: zone) : nil
     }
 
     /// The instant of the digit runs of `s` (at `starts`, `lengths` long) as year, month, day, then hour, minute and

@@ -235,3 +235,23 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
     #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["11", "1", id, "1"])
     try await within2s { while await client.requestStreamCount != 0 { try await Task.sleep(for: .milliseconds(5)) } }
 }
+
+/// Both live execDetails time formats are in the recordings, and every one reads as an instant.
+@Test(arguments: recordings)
+func recordedExecutionsDecodeWithADate(_ name: String) throws {
+    for f in try recording(name) where f.first == "11" {
+        guard case .execDetails(_, _, let e) = IBDecoder.decode(body(f)) else { continue }
+        #expect(e.date != nil, "\(name): \(e.time)")
+    }
+}
+
+@Test func recordedExecutionTimesCoverBothFormats() throws {
+    var times: [String] = []
+    for name in recordings {
+        for f in try recording(name) where f.first == "11" {
+            if case .execDetails(_, _, let e) = IBDecoder.decode(body(f)) { times.append(e.time) }
+        }
+    }
+    #expect(times.contains { $0.contains("-") && !$0.contains(" ") }, "the live format: \(times)")
+    #expect(times.contains { $0.contains(" ") }, "the reply format: \(times)")
+}
