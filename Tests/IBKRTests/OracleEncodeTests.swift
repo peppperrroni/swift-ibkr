@@ -5,13 +5,9 @@ import Testing
 // Encode cross-check (C4): each encode.json case built as an IBRequest by the per-family OracleEncode+<Family>.swift
 // files, and its body compared field by field, as exact strings, with what ib_async 2.1.0's Client sent.
 
-/// The ib_async `Client` methods whose cases are not mapped yet (Tasks 10-12); Task 12 deletes the constant.
+/// The ib_async `Client` methods whose cases are not mapped yet (Task 12); Task 12 deletes the constant.
 let pendingRequestMethods: Set<String> = [
-    "reqContractDetails", "reqMatchingSymbols", "reqMktData", "cancelMktData", "reqHistoricalData",
-    "cancelHistoricalData", "reqRealTimeBars", "cancelRealTimeBars", "reqMktDepth", "cancelMktDepth",
-    "reqTickByTickData", "cancelTickByTickData", "reqHistoricalTicks", "reqHeadTimeStamp", "cancelHeadTimeStamp",
-    "reqHistogramData", "cancelHistogramData",
-    "reqMktDepthExchanges", "reqSmartComponents", "reqSecDefOptParams", "calculateImpliedVolatility",
+    "reqContractDetails", "reqMatchingSymbols", "reqSecDefOptParams", "calculateImpliedVolatility",
     "calculateOptionPrice", "cancelCalculateImpliedVolatility", "cancelCalculateOptionPrice", "reqMarketRule",
     "reqFamilyCodes", "reqSoftDollarTiers", "reqScannerSubscription", "cancelScannerSubscription",
     "reqScannerParameters", "reqNewsProviders", "reqNewsBulletins", "cancelNewsBulletins", "reqNewsArticle",
@@ -134,7 +130,7 @@ func ibAsyncMethod(_ r: IBRequest) -> String {
 
 /// The `IBRequest` for a case, from the first family that maps its method (each returns `nil` for another family's).
 func request(for c: EncodeCase) throws -> IBRequest {
-    let families: [(EncodeCase) throws -> IBRequest?] = [sessionRequest, placeOrderRequest]
+    let families: [(EncodeCase) throws -> IBRequest?] = [sessionRequest, placeOrderRequest, marketDataRequest]
     for family in families { if let r = try family(c) { return r } }
     throw CaseError("no family maps \(c.method)")
 }

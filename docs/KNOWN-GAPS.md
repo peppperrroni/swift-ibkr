@@ -30,8 +30,8 @@ realized P&L. The stage-4 run of 2026-11-11 (paper account, no market-data subsc
   «... No market data permissions for ISLAND STK». All three end the stream with `.noMarketDataPermission`, though no
   other session was open: IB's texts for 10197 and 162 name a cause that was not there. The tick, bar, depth and
   tick-by-tick decoders, and every stage 8–9 call (`tickers`, `realTimeBars`, `depthExchanges`, `smartComponents`,
-  `historicalTicks`, `headTimeStamp`, `histogramData`, `historicalSchedule`), are checked only against hand-built
-  frames. Rerun `liveMarketData` once there is a subscription. Error 420 («Invalid Real-time Query:No market data
+  `historicalTicks`, `headTimeStamp`, `histogramData`, `historicalSchedule`), are cross-checked against ib_async 2.1.0
+  (decode and encode), unseen live. Rerun `liveMarketData` once there is a subscription. Error 420 («Invalid Real-time Query:No market data
   permissions ...») for `realTimeBars` is typed from ib_async's text and unseen live.
 - **Market-data subscription.** The `TickAttrib` bits of tickPrice (canAutoExecute, pastLimit, preOpen as bits 0, 1,
   2, from IB's API documentation: `ib_async` drops the mask, so the oracle cannot check it) and the two

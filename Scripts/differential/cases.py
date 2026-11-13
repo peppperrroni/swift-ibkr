@@ -270,6 +270,162 @@ PLACE_ORDER_CASES: list[tuple[str, str, dict]] = [
      _recorded_open_order("liveLimitOrderPlacesAndCancels.json")),
 ]
 
+# Market data and history. Dates are what ib.py prepares with util.formatIBDatetime (ib.py:2353, 2385, 2414-2415).
+_T0 = datetime.datetime(2026, 11, 13, 15, 30, 0, tzinfo=datetime.timezone.utc)
+_T1 = datetime.datetime(2026, 11, 12, 9, 45, 30, tzinfo=datetime.timezone.utc)
+_BAG_DNC = Bag(symbol="AAPL", exchange="SMART", currency="USD", comboLegs=list(BAG.comboLegs),
+               deltaNeutralContract=DeltaNeutralContract(conId=8314, delta=-0.5, price=12.25))
+_BAG_NO_LEGS = Bag(symbol="AAPL", exchange="SMART", currency="USD")
+_OPT1 = [TagValue("XYZ", "1")]
+_OPT2 = [TagValue("a", "1.5"), TagValue("b", "two")]
+_NONE = Contract()
+
+
+def _mkt(reqId, contract=AAPL, genericTickList="", snapshot=False, regulatorySnapshot=False, mktDataOptions=()):
+    return {"reqId": reqId, "contract": contract, "genericTickList": genericTickList, "snapshot": snapshot,
+            "regulatorySnapshot": regulatorySnapshot, "mktDataOptions": list(mktDataOptions)}
+
+
+def _hist(reqId, contract=AAPL, endDateTime="", durationStr="1 D", barSizeSetting="5 mins", whatToShow="TRADES",
+          useRTH=False, formatDate=2, keepUpToDate=False, chartOptions=()):
+    return {"reqId": reqId, "contract": contract, "endDateTime": endDateTime, "durationStr": durationStr,
+            "barSizeSetting": barSizeSetting, "whatToShow": whatToShow, "useRTH": useRTH, "formatDate": formatDate,
+            "keepUpToDate": keepUpToDate, "chartOptions": list(chartOptions)}
+
+
+def _ticks(reqId, contract=AAPL, start="", end="", n=0, what="TRADES", rth=False, ignoreSize=False, misc=()):
+    return {"reqId": reqId, "contract": contract, "startDateTime": start, "endDateTime": end, "numberOfTicks": n,
+            "whatToShow": what, "useRth": rth, "ignoreSize": ignoreSize, "miscOptions": list(misc)}
+
+
+MARKET_DATA_CASES = [
+    # reqMktData: generic ticks, snapshot vs regulatorySnapshot alone and together, options, BAG, delta-neutral
+    ("reqMktData/default", "reqMktData", _mkt(0, _NONE)),
+    ("reqMktData/generic-ticks", "reqMktData", _mkt(30, genericTickList="100,mdoff,292:BRFG")),
+    ("reqMktData/snapshot", "reqMktData", _mkt(31, snapshot=True)),
+    ("reqMktData/regulatory-snapshot", "reqMktData", _mkt(32, regulatorySnapshot=True)),
+    ("reqMktData/snapshot-and-regulatory", "reqMktData",
+     _mkt(33, genericTickList="233", snapshot=True, regulatorySnapshot=True)),
+    ("reqMktData/options-1", "reqMktData", _mkt(34, mktDataOptions=_OPT1)),
+    ("reqMktData/options-n", "reqMktData", _mkt(35, mktDataOptions=_OPT2)),
+    ("reqMktData/delta-neutral", "reqMktData",
+     _mkt(36, Stock("AAPL", "SMART", "USD", deltaNeutralContract=DeltaNeutralContract(
+         conId=8314, delta=0.25, price=181.75)))),
+    ("reqMktData/bag", "reqMktData", _mkt(37, BAG)),
+    ("reqMktData/bag-no-legs", "reqMktData", _mkt(38, _BAG_NO_LEGS)),
+    ("reqMktData/bag-delta-neutral", "reqMktData", _mkt(39, _BAG_DNC)),
+    ("reqMktData/set", "reqMktData", _mkt(40, OPTION, "100,101,104,106", True, True, _OPT2)),
+    ("cancelMktData/default", "cancelMktData", {"reqId": 0}),
+    ("cancelMktData/set", "cancelMktData", {"reqId": 41}),
+    # reqMktDepth: numRows vs isSmartDepth
+    ("reqMktDepth/default", "reqMktDepth",
+     {"reqId": 0, "contract": _NONE, "numRows": 0, "isSmartDepth": False, "mktDepthOptions": []}),
+    ("reqMktDepth/smart", "reqMktDepth",
+     {"reqId": 42, "contract": AAPL, "numRows": 7, "isSmartDepth": True, "mktDepthOptions": []}),
+    ("reqMktDepth/not-smart", "reqMktDepth",
+     {"reqId": 43, "contract": AAPL, "numRows": 5, "isSmartDepth": False, "mktDepthOptions": _OPT1}),
+    ("reqMktDepth/set", "reqMktDepth",
+     {"reqId": 44, "contract": OPTION, "numRows": 20, "isSmartDepth": True, "mktDepthOptions": _OPT2}),
+    ("cancelMktDepth/default", "cancelMktDepth", {"reqId": 0, "isSmartDepth": False}),
+    ("cancelMktDepth/smart", "cancelMktDepth", {"reqId": 45, "isSmartDepth": True}),
+    ("cancelMktDepth/not-smart", "cancelMktDepth", {"reqId": 46, "isSmartDepth": False}),
+    # reqHistoricalData: includeExpired / useRTH / keepUpToDate each alone, end date, chart options, BAG, SCHEDULE
+    ("reqHistoricalData/default", "reqHistoricalData", _hist(0, _NONE, durationStr="", barSizeSetting="", whatToShow="")),
+    ("reqHistoricalData/typical", "reqHistoricalData", _hist(50)),
+    ("reqHistoricalData/end-date", "reqHistoricalData",
+     _hist(51, endDateTime=ib_datetime(_T0), durationStr="2 W", barSizeSetting="1 hour", whatToShow="MIDPOINT")),
+    ("reqHistoricalData/include-expired", "reqHistoricalData",
+     _hist(52, OPTION, durationStr="1 M", barSizeSetting="1 day", whatToShow="BID")),
+    ("reqHistoricalData/rth", "reqHistoricalData",
+     _hist(53, durationStr="3 D", barSizeSetting="15 mins", whatToShow="ASK", useRTH=True)),
+    ("reqHistoricalData/keep-up-to-date", "reqHistoricalData",
+     _hist(54, durationStr="1800 S", barSizeSetting="1 min", keepUpToDate=True)),
+    ("reqHistoricalData/chart-options-1", "reqHistoricalData",
+     _hist(55, barSizeSetting="1 min", chartOptions=_OPT1)),
+    ("reqHistoricalData/chart-options-n", "reqHistoricalData",
+     _hist(56, barSizeSetting="1 min", chartOptions=_OPT2)),
+    ("reqHistoricalData/bag", "reqHistoricalData",
+     _hist(57, BAG, endDateTime=ib_datetime(_T1), durationStr="1 W", barSizeSetting="30 mins", useRTH=True)),
+    ("reqHistoricalData/bag-no-legs", "reqHistoricalData",
+     _hist(58, _BAG_NO_LEGS, durationStr="1 W", barSizeSetting="1 day")),
+    # ib.py:2376-2398 (reqHistoricalSchedule): "<n> D", "1 day", SCHEDULE, formatDate 1, no chart options (None)
+    ("reqHistoricalData/schedule", "reqHistoricalData",
+     {**_hist(59, durationStr="7 D", barSizeSetting="1 day", whatToShow="SCHEDULE", useRTH=True, formatDate=1),
+      "chartOptions": None}),
+    ("reqHistoricalData/set", "reqHistoricalData",
+     _hist(60, OPTION, ib_datetime(_T0), "2 M", "4 hours", "HISTORICAL_VOLATILITY", True, 2, True, _OPT2)),
+    ("cancelHistoricalData/default", "cancelHistoricalData", {"reqId": 0}),
+    ("cancelHistoricalData/set", "cancelHistoricalData", {"reqId": 61}),
+    # reqRealTimeBars: ib.py always asks for 5-second bars (ib.py:1152)
+    ("reqRealTimeBars/default", "reqRealTimeBars",
+     {"reqId": 0, "contract": _NONE, "barSize": 5, "whatToShow": "", "useRTH": False, "realTimeBarsOptions": []}),
+    ("reqRealTimeBars/rth", "reqRealTimeBars",
+     {"reqId": 62, "contract": AAPL, "barSize": 5, "whatToShow": "MIDPOINT", "useRTH": True,
+      "realTimeBarsOptions": []}),
+    ("reqRealTimeBars/options-1", "reqRealTimeBars",
+     {"reqId": 63, "contract": AAPL, "barSize": 5, "whatToShow": "TRADES", "useRTH": False,
+      "realTimeBarsOptions": _OPT1}),
+    ("reqRealTimeBars/set", "reqRealTimeBars",
+     {"reqId": 64, "contract": OPTION, "barSize": 5, "whatToShow": "BID", "useRTH": True,
+      "realTimeBarsOptions": _OPT2}),
+    ("cancelRealTimeBars/default", "cancelRealTimeBars", {"reqId": 0}),
+    ("cancelRealTimeBars/set", "cancelRealTimeBars", {"reqId": 65}),
+    # reqMktDepthExchanges, reqSmartComponents
+    ("reqMktDepthExchanges/default", "reqMktDepthExchanges", {}),
+    ("reqSmartComponents/default", "reqSmartComponents", {"reqId": 0, "bboExchange": ""}),
+    ("reqSmartComponents/set", "reqSmartComponents", {"reqId": 66, "bboExchange": "a6"}),
+    # reqHeadTimeStamp and reqHistogramData: includeExpired and useRTH each alone, then both (formatDate 2: what
+    # swift-ibkr always asks for, so Bar.time is a Date)
+    ("reqHeadTimeStamp/default", "reqHeadTimeStamp",
+     {"reqId": 0, "contract": _NONE, "whatToShow": "", "useRTH": False, "formatDate": 2}),
+    ("reqHeadTimeStamp/include-expired", "reqHeadTimeStamp",
+     {"reqId": 67, "contract": OPTION, "whatToShow": "TRADES", "useRTH": False, "formatDate": 2}),
+    ("reqHeadTimeStamp/rth", "reqHeadTimeStamp",
+     {"reqId": 68, "contract": AAPL, "whatToShow": "MIDPOINT", "useRTH": True, "formatDate": 2}),
+    ("reqHeadTimeStamp/set", "reqHeadTimeStamp",
+     {"reqId": 69, "contract": OPTION, "whatToShow": "BID_ASK", "useRTH": True, "formatDate": 2}),
+    ("cancelHeadTimeStamp/default", "cancelHeadTimeStamp", {"reqId": 0}),
+    ("cancelHeadTimeStamp/set", "cancelHeadTimeStamp", {"reqId": 70}),
+    ("reqHistogramData/default", "reqHistogramData",
+     {"tickerId": 0, "contract": _NONE, "useRTH": False, "timePeriod": ""}),
+    ("reqHistogramData/include-expired", "reqHistogramData",
+     {"tickerId": 71, "contract": OPTION, "useRTH": False, "timePeriod": "1 week"}),
+    ("reqHistogramData/rth", "reqHistogramData",
+     {"tickerId": 72, "contract": AAPL, "useRTH": True, "timePeriod": "3 days"}),
+    ("reqHistogramData/set", "reqHistogramData",
+     {"tickerId": 73, "contract": OPTION, "useRTH": True, "timePeriod": "2 months"}),
+    ("cancelHistogramData/default", "cancelHistogramData", {"tickerId": 0}),
+    ("cancelHistogramData/set", "cancelHistogramData", {"tickerId": 74}),
+    # reqHistoricalTicks: start vs end, includeExpired / useRth / ignoreSize each alone, misc options
+    ("reqHistoricalTicks/default", "reqHistoricalTicks", _ticks(0, _NONE, what="")),
+    ("reqHistoricalTicks/start-only", "reqHistoricalTicks", _ticks(75, start=ib_datetime(_T1), n=100)),
+    ("reqHistoricalTicks/end-only", "reqHistoricalTicks", _ticks(76, end=ib_datetime(_T0), n=200, what="BID_ASK")),
+    ("reqHistoricalTicks/start-and-end", "reqHistoricalTicks",
+     _ticks(77, start=ib_datetime(_T1), end=ib_datetime(_T0), n=300, what="MIDPOINT")),
+    ("reqHistoricalTicks/include-expired", "reqHistoricalTicks", _ticks(78, OPTION, n=10)),
+    ("reqHistoricalTicks/rth", "reqHistoricalTicks", _ticks(79, n=20, rth=True)),
+    ("reqHistoricalTicks/ignore-size", "reqHistoricalTicks", _ticks(80, n=30, what="BID_ASK", ignoreSize=True)),
+    ("reqHistoricalTicks/misc-options-1", "reqHistoricalTicks", _ticks(81, n=40, misc=_OPT1)),
+    ("reqHistoricalTicks/misc-options-n", "reqHistoricalTicks", _ticks(82, n=50, misc=_OPT2)),
+    ("reqHistoricalTicks/set", "reqHistoricalTicks",
+     _ticks(83, OPTION, ib_datetime(_T1), ib_datetime(_T0), 1000, "BID_ASK", True, True, _OPT2)),
+    # reqTickByTickData: each type, count and ignoreSize
+    ("reqTickByTickData/default", "reqTickByTickData",
+     {"reqId": 0, "contract": _NONE, "tickType": "Last", "numberOfTicks": 0, "ignoreSize": False}),
+    ("reqTickByTickData/last", "reqTickByTickData",
+     {"reqId": 84, "contract": AAPL, "tickType": "Last", "numberOfTicks": 0, "ignoreSize": False}),
+    ("reqTickByTickData/all-last", "reqTickByTickData",
+     {"reqId": 85, "contract": AAPL, "tickType": "AllLast", "numberOfTicks": 100, "ignoreSize": True}),
+    ("reqTickByTickData/bid-ask", "reqTickByTickData",
+     {"reqId": 86, "contract": AAPL, "tickType": "BidAsk", "numberOfTicks": 50, "ignoreSize": False}),
+    ("reqTickByTickData/mid-point", "reqTickByTickData",
+     {"reqId": 87, "contract": AAPL, "tickType": "MidPoint", "numberOfTicks": 25, "ignoreSize": True}),
+    ("reqTickByTickData/set", "reqTickByTickData",
+     {"reqId": 88, "contract": OPTION, "tickType": "BidAsk", "numberOfTicks": 10, "ignoreSize": True}),
+    ("cancelTickByTickData/default", "cancelTickByTickData", {"reqId": 0}),
+    ("cancelTickByTickData/set", "cancelTickByTickData", {"reqId": 89}),
+]
+
 CASES: list[tuple[str, str, dict]] = [
     # session
     ("startApi/default", "startApi", {}),  # Client's own clientId -1 and optCapab "" (client.py:114-115)
@@ -334,4 +490,5 @@ CASES: list[tuple[str, str, dict]] = [
      {"reqId": 24, "execFilter": ExecutionFilter(clientId=3, acctCode="DU0000001", time="20261113-09:30:00",
                                                  symbol="AAPL", secType="STK", exchange="ISLAND", side="BOT")}),
     *PLACE_ORDER_CASES,
+    *MARKET_DATA_CASES,
 ]

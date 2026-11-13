@@ -15758,5 +15758,77 @@
   "equalAsNumbers": true,
   "cite": "protocol-178 Disagreements 4",
   "note": "the case's float 0.0 is written by str() (client.py:278-280); swift-ibkr's Decimal writes 0"
+ },
+ {
+  "scope": "out 20",
+  "field": "15",
+  "frames": "reqHistoricalData/end-date",
+  "pair": ["20261113-15:30:00", "20261113 15:30:00 UTC"],
+  "cite": "DECISIONS: `historicalData`'s end date goes out as the same `yyyyMMdd-HH:mm:ss` UTC text",
+  "note": "end date text: ours yyyyMMdd-HH:mm:ss, ib.py's util.formatIBDatetime writes yyyyMMdd HH:mm:ss UTC (ib.py:2353)"
+ },
+ {
+  "scope": "out 20",
+  "field": "15",
+  "frames": "reqHistoricalData/bag",
+  "pair": ["20261112-09:45:30", "20261112 09:45:30 UTC"],
+  "cite": "DECISIONS: `historicalData`'s end date goes out as the same `yyyyMMdd-HH:mm:ss` UTC text",
+  "note": "end date text: ours yyyyMMdd-HH:mm:ss, ib.py's util.formatIBDatetime writes yyyyMMdd HH:mm:ss UTC (ib.py:2353)"
+ },
+ {
+  "scope": "out 20",
+  "field": "15",
+  "frames": "reqHistoricalData/set",
+  "pair": ["20261113-15:30:00", "20261113 15:30:00 UTC"],
+  "cite": "DECISIONS: `historicalData`'s end date goes out as the same `yyyyMMdd-HH:mm:ss` UTC text",
+  "note": "end date text: ours yyyyMMdd-HH:mm:ss, ib.py's util.formatIBDatetime writes yyyyMMdd HH:mm:ss UTC (ib.py:2353)"
+ },
+ {
+  "scope": "out 96",
+  "field": "15",
+  "frames": "reqHistoricalTicks/start-only",
+  "pair": ["20261112-09:45:30", "20261112 09:45:30 UTC"],
+  "cite": "DECISIONS: `start`/`end` go out as the library's `yyyyMMdd-HH:mm:ss` UTC text",
+  "note": "date text: ours yyyyMMdd-HH:mm:ss, ib.py's util.formatIBDatetime writes yyyyMMdd HH:mm:ss UTC (ib.py:2414-2415)"
+ },
+ {
+  "scope": "out 96",
+  "field": "16",
+  "frames": "reqHistoricalTicks/end-only",
+  "pair": ["20261113-15:30:00", "20261113 15:30:00 UTC"],
+  "cite": "DECISIONS: `start`/`end` go out as the library's `yyyyMMdd-HH:mm:ss` UTC text",
+  "note": "date text: ours yyyyMMdd-HH:mm:ss, ib.py's util.formatIBDatetime writes yyyyMMdd HH:mm:ss UTC (ib.py:2414-2415)"
+ },
+ {
+  "scope": "out 96",
+  "field": "15",
+  "frames": "reqHistoricalTicks/start-and-end",
+  "pair": ["20261112-09:45:30", "20261112 09:45:30 UTC"],
+  "cite": "DECISIONS: `start`/`end` go out as the library's `yyyyMMdd-HH:mm:ss` UTC text",
+  "note": "date text: ours yyyyMMdd-HH:mm:ss, ib.py's util.formatIBDatetime writes yyyyMMdd HH:mm:ss UTC (ib.py:2414-2415)"
+ },
+ {
+  "scope": "out 96",
+  "field": "16",
+  "frames": "reqHistoricalTicks/start-and-end",
+  "pair": ["20261113-15:30:00", "20261113 15:30:00 UTC"],
+  "cite": "DECISIONS: `start`/`end` go out as the library's `yyyyMMdd-HH:mm:ss` UTC text",
+  "note": "date text: ours yyyyMMdd-HH:mm:ss, ib.py's util.formatIBDatetime writes yyyyMMdd HH:mm:ss UTC (ib.py:2414-2415)"
+ },
+ {
+  "scope": "out 96",
+  "field": "15",
+  "frames": "reqHistoricalTicks/set",
+  "pair": ["20261112-09:45:30", "20261112 09:45:30 UTC"],
+  "cite": "DECISIONS: `start`/`end` go out as the library's `yyyyMMdd-HH:mm:ss` UTC text",
+  "note": "date text: ours yyyyMMdd-HH:mm:ss, ib.py's util.formatIBDatetime writes yyyyMMdd HH:mm:ss UTC (ib.py:2414-2415)"
+ },
+ {
+  "scope": "out 96",
+  "field": "16",
+  "frames": "reqHistoricalTicks/set",
+  "pair": ["20261113-15:30:00", "20261113 15:30:00 UTC"],
+  "cite": "DECISIONS: `start`/`end` go out as the library's `yyyyMMdd-HH:mm:ss` UTC text",
+  "note": "date text: ours yyyyMMdd-HH:mm:ss, ib.py's util.formatIBDatetime writes yyyyMMdd HH:mm:ss UTC (ib.py:2414-2415)"
  }
 ]

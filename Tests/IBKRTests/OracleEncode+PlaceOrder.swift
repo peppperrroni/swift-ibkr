@@ -247,7 +247,9 @@ private extension CaseArgs {
         default: return try int(key)
         }
     }
+}
 
+extension CaseArgs {
     /// A list of ib_async `TagValue`s (a NamedTuple, so each is a two-element list).
     mutating func tagValues(_ key: String) throws -> [TagValue] {
         try list(key).map { item in
