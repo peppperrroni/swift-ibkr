@@ -70,8 +70,9 @@ realized P&L. The stage-4 run of 2026-11-11 (paper account, no market-data subsc
   order with the same values except displaySize: swift-ibkr sends `0` where `ib_async` sends `""` (the gateway's
   `2147483647` decodes to 0; protocol-178 Disagreements 15). For an order the client placed, the tracker keeps the
   caller's own order, as `ib_async` does, so `modifyOrder(id, snapshot.contract, snapshot.order)` re-sends the
-  caller's values; only another client's, the sync's or client 0's auto-bound order carries the echo (its `?` texts
-  dropped, `right` `?`, `None` and clearingIntent `IB` kept; Disagreements 20). Live check to run: modify a client 0
+  caller's values; only another client's order, client 0's auto-bound one, or the sync's after a fresh `connect`
+  carries the echo (its `?` texts dropped, `right` `?`, `None` and clearingIntent `IB` kept; Disagreements 20). An
+  auto-reconnect keeps the tracker, so the sync's openOrders for the client's own orders keep the caller's order. Live check to run: modify a client 0
   auto-bound order from its snapshot and see whether the gateway accepts the `?` and `None` values back. Also
   unchecked: an order sent with the `Order` init's `tif` `DAY`
   where `ib_async`'s `""` follows the login's preset (Disagreements 21).

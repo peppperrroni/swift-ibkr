@@ -1991,15 +1991,20 @@ agrees type by type. The differences are in default values and value formatting 
    `Decimal` (`MAX` is `nil`). An `ib_async` defect; swift-ibkr is unchanged. Messages 10 (evMultiplier) and 18.
 20. **A modify of an order the client placed re-sends the caller's own order, as in `ib_async`.** For an order this
    client placed or modified, swift-ibkr's order tracker (`OrderTracker.applyOpen`) keeps the caller's own `Contract`
-   and `Order` and copies only permId, totalQuantity, lmtPrice, auxPrice, orderType and orderRef from each openOrder
-   into them, as `ib_async` does (wrapper.py:687-693); so `modifyOrder(id, snapshot.contract, snapshot.order)`
-   re-sends the caller's values, not the gateway's echo (contract `right` `?`, deltaNeutralOpenClose `?`,
-   displaySize 0 (item 15), deltaNeutralOrderType and adjustedOrderType `None`, clearingIntent `IB`; item 9). Any
+   and `Order`, copies only totalQuantity, lmtPrice, auxPrice, orderType and orderRef from each openOrder into the
+   order and sets the snapshot's `permID` (`ib_async` copies permId into its order; swift-ibkr's `Order` has none), as
+   `ib_async` does (wrapper.py:687-693); so `modifyOrder(id, snapshot.contract, snapshot.order)` re-sends the caller's
+   values, not the gateway's echo (contract `right` `?`, deltaNeutralOpenClose `?`, displaySize 0 (item 15),
+   deltaNeutralOrderType and adjustedOrderType `None`, clearingIntent `IB`; item 9). That includes `transmit`: a
+   bracket's parent and take-profit keep the `false` `placeBracket` sent them, so re-sent from the snapshot the
+   modification is staged at IB, not transmitted, unless the caller sets `transmit = true` (as with `ib_async`'s
+   `trade.order`; `modifyOrder`'s documentation says so). Any
    other order (another client's, the sync's, client 0's auto-bound ones) takes the decoded order with every `String`
    field IB sent as `?` set to `Order`'s default (`tif` `DAY`, item 21; `openClose` `O`; `""` for the rest), as
    `ib_async` drops `?` from the order of a trade it did not place (wrapper.py:695-698); the contract stays as
-   decoded (`Contract.recreate` keeps `right` `?`). One difference remains: swift-ibkr takes the whole decoded order
-   from every openOrder of such an order, where `ib_async` takes it from the first and then copies the six fields.
+   decoded (`Contract.recreate` keeps `right` `?`). One difference remains: swift-ibkr replaces such an order's
+   contract and order with the decoded ones on every openOrder, where `ib_async` keeps the first openOrder's contract
+   and order and afterwards copies only the six fields.
    Until 2026-11-13 swift-ibkr replaced the contract and order with each openOrder for its own orders too; the
    owner chose `ib_async`'s rule. The decoders and encoders agree (`placeOrder/modify/recorded-openOrder`); the rule
    is in the tracker, outside the oracle's layer.

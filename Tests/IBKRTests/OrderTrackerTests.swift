@@ -470,6 +470,41 @@ private func fill(_ execID: String, orderID: Int = 12, permID: Int = 918273001, 
 
 /// `droppingUnknown` must reach every `String` field of `Order`: a new one is a new place IB's `?` can land.
 @Test func droppingUnknownCoversEveryStringField() {
-    let order = Order(action: .buy, quantity: 1, orderType: "LMT")
-    #expect(OrderTracker.stringFields.count == Mirror(reflecting: order).children.filter { $0.value is String }.count)
+    var order = Order(action: .buy, quantity: 1, orderType: "LMT")
+    let keys = OrderTracker.stringFields
+    for (i, k) in keys.enumerated() { order[keyPath: k] = "k\(i)" }
+    let children = Mirror(reflecting: order).children
+    let strings = children.compactMap { type(of: $0.value) == String.self ? $0.value as? String : nil }
+    #expect(strings.sorted() == keys.indices.map { "k\($0)" }.sorted())
+    #expect(!children.contains { type(of: $0.value) == Optional<String>.self }, "a String? field droppingUnknown misses")
+}
+
+/// The caller's own order with a field openOrder does not copy (tif) apart from the fixture's.
+private func placedOwn(_ tracker: inout OrderTracker) -> Order {
+    var mine = Order(action: .buy, quantity: 100, orderType: "LMT", limitPrice: d("187.25"), tif: "GTC")
+    mine.orderRef = "r"
+    _ = tracker.placed(orderID: 12, clientID: 1, contract: Contract(symbol: "AAPL"), order: mine)
+    return mine
+}
+
+/// A held Filled openOrder of an own order, applied by its orderStatus, keeps the caller's order.
+@Test func ownFilledOrderKeepsItsOrderThroughOrderStatus() throws {
+    var tracker = OrderTracker(clientID: 1)
+    let mine = placedOwn(&tracker)
+    #expect(tracker.apply(open(status: "Filled")).isEmpty)
+    let s = try #require(tracker.apply(status(.filled, filled: "100", remaining: "0", avg: "187.25")).first)
+    #expect(s.status == .filled && s.permID == 918273001)
+    #expect(s.order == mine && s.order.tif == "GTC")
+    #expect(s.contract == Contract(symbol: "AAPL"))
+}
+
+/// A held Filled openOrder of an own order, consumed by its completedOrder, keeps the caller's order.
+@Test func ownFilledOrderKeepsItsOrderThroughCompletedOrder() throws {
+    var tracker = OrderTracker(clientID: 1)
+    let mine = placedOwn(&tracker)
+    #expect(tracker.apply(open(status: "Filled")).isEmpty)
+    let s = try #require(tracker.apply(completed(permID: 918273001, filledQuantity: "100")).first)
+    #expect(s.status == .filled && s.orderID == 12)
+    #expect(s.order == mine && s.order.tif == "GTC")
+    #expect(s.contract == Contract(symbol: "AAPL"))
 }

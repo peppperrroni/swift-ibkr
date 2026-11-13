@@ -276,6 +276,10 @@ public actor IBClient {
     /// Re-sends the order under its id; IB treats that as a modification. A known order that is not final gets the
     /// new order, loses its `rejectReason`, logs `"Modify"` and goes to `orders()` and, as `.modified`, to
     /// `orderEvents()`; an unknown id is recorded as a new `.pendingSubmit` order.
+    ///
+    /// The snapshot of an order this client placed keeps the caller's own order, as `ib_async`'s does, so a bracket
+    /// leg's keeps the `transmit` `false` `placeBracket` gave the parent and take-profit: a caller modifying a
+    /// bracket leg from its snapshot must set `transmit = true`, or IB stages the change and does not transmit it.
     public func modifyOrder(_ orderID: Int, _ contract: Contract, _ order: Order) throws(IBClientError) {
         try requireConnected()
         try submit(orderID, contract, order, verb: "modifyOrder")

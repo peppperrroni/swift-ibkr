@@ -132,12 +132,13 @@ private func until(_ condition: @escaping @Sendable () async -> Bool) async thro
     try await within2s { try await client.connect(clientID: 77) }
     let (_, updates) = await client.orders()
     var mine = buy
-    mine.totalQuantity = 3; mine.limitPrice = d("2"); mine.orderRef = "mine"
+    mine.totalQuantity = 3; mine.orderType = "STP LMT"; mine.limitPrice = d("2"); mine.orderRef = "mine"
     #expect(try await client.placeOrder(aapl, mine) == 2)
-    gateway.feed(echo)   // orderID 2, client 77, permID 610467324, 1 @ 1, auxPrice 0, orderRef ""
+    gateway.feed(echo)   // orderID 2, client 77, permID 610467324, 1 LMT @ 1, auxPrice 0, orderRef ""
     let s = try await next(updates) { $0.permID == 610467324 }
     var expected = mine
-    expected.totalQuantity = 1; expected.limitPrice = d("1"); expected.auxPrice = 0; expected.orderRef = ""
+    expected.totalQuantity = 1; expected.orderType = "LMT"; expected.limitPrice = d("1"); expected.auxPrice = 0
+    expected.orderRef = ""
     #expect(s.contract == aapl)
     #expect(s.order == expected)
     #expect(s.status == .preSubmitted)
@@ -314,6 +315,27 @@ private func until(_ condition: @escaping @Sendable () async -> Bool) async thro
     #expect(legs.map { Array($0.prefix(2)) } == [["3", "101"], ["3", "102"], ["3", "103"]])
     #expect(legs.map { $0[28] } == ["0", "101", "101"])
     #expect(legs.map { $0[27] } == ["0", "0", "1"])
+}
+
+/// A bracket leg's snapshot keeps the `transmit` false `placeBracket` gave the parent, as ib_async's Trade keeps
+/// the user's order: re-sent from the snapshot it is staged, not transmitted, unless the caller sets `transmit`.
+@Test func bracketParentModifiedFromItsSnapshotKeepsTransmitOff() async throws {
+    let gateway = FakeGateway(nextValidID: 100)
+    let client = try await connected(gateway)
+    let (_, updates) = await client.orders()
+    let ids = try await client.placeBracket(aapl, Order.bracket(.buy, quantity: 100, limitPrice: 180, takeProfitPrice: 190, stopLossPrice: 175))
+    gateway.feed(Fixtures.openOrderFields(
+        orderID: ids.parent, permID: 901, clientID: 7, symbol: "AAPL", action: "BUY", quantity: "100", orderType: "LMT",
+        limitPrice: "180", auxPrice: unset, tif: "DAY", parentID: "0", outsideRTH: "0", orderRef: "", status: "PreSubmitted"))
+    let s = try await next(updates) { $0.orderID == ids.parent && $0.permID == 901 }
+    #expect(!s.order.transmit)
+    try await client.modifyOrder(ids.parent, s.contract, s.order)
+    var transmitted = s.order
+    transmitted.transmit = true
+    try await client.modifyOrder(ids.parent, s.contract, transmitted)
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 5)
+    #expect(sent[FakeGateway.syncFrames + 3].prefix(2) == ["3", "101"] && sent[FakeGateway.syncFrames + 3][27] == "0")
+    #expect(sent[FakeGateway.syncFrames + 4].prefix(2) == ["3", "101"] && sent[FakeGateway.syncFrames + 4][27] == "1")
 }
 
 @Test func placeBracketSendsNothingWhenALegFailsToEncode() async throws {
