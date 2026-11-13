@@ -129,14 +129,14 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `reqHistoricalTicks` / `reqHistoricalTicksAsync` | `historicalTicks(_:start:end:count:whatToShow:rth:ignoreSize:options:)` | present | |
 | `reqMarketDataType` | `setMarketDataType(_:)` | present | |
 | `reqHeadTimeStamp` / `reqHeadTimeStampAsync` | `headTimeStamp(_:whatToShow:rth:)` | present | `formatDate` fixed to 2 (`Date`) |
-| `reqMktData` | `marketData(_:genericTicks:snapshot:regulatorySnapshot:options:)`; `tickers(_:genericTicks:depthRows:smartDepth:options:)` | present | raw ticks, or a whole `Ticker` after each |
+| `reqMktData` | `marketData(_:genericTicks:snapshot:regulatorySnapshot:options:)`; `tickers(_:genericTicks:depthRows:smartDepth:tickByTick:options:)` | present | raw ticks, or a whole `Ticker` after each |
 | `cancelMktData` | stop the stream | present | |
 | `reqTickByTickData` | `tickByTick(_:_:count:ignoreSize:)` | present | |
 | `reqTickByTickData(numberOfTicks:ignoreSize:)` | `tickByTick(_:_:count:ignoreSize:)` | added | `count: Int = 0`, `ignoreSize: Bool = false`, sent as numberOfTicks and ignoreSize |
 | `cancelTickByTickData` | stop `tickByTick` | present | |
 | `reqSmartComponents` / `reqSmartComponentsAsync` | `smartComponents(_:)` | present | |
 | `reqMktDepthExchanges` / `reqMktDepthExchangesAsync` | `depthExchanges()` | present | |
-| `reqMktDepth` | `marketDepth(_:rows:smart:options:)`; `tickers(_:genericTicks:depthRows:smartDepth:options:)` with `depthRows` | present | Swift's `smart` defaults to true, ib_async's `isSmartDepth` to False |
+| `reqMktDepth` | `marketDepth(_:rows:smart:options:)`; `tickers(_:genericTicks:depthRows:smartDepth:tickByTick:options:)` with `depthRows` | present | Swift's `smart` defaults to true, ib_async's `isSmartDepth` to False |
 | `cancelMktDepth` | stop the stream | present | |
 | `mktDataOptions`, `chartOptions`, `realTimeBarsOptions`, `mktDepthOptions`, `miscOptions` | `options:` on `marketData`, `tickers`, `historicalBars`, `realTimeBars`, `marketDepth`, `historicalTicks` | added | `[TagValue] = []`, sent as `tag=value;` per pair (IB: internal use); `tickers` sends its options with the market-data request only |
 | `reqHistogramData` / `reqHistogramDataAsync` | `histogramData(_:period:rth:)` | present | |
@@ -165,25 +165,25 @@ connect), **model helper** (a computed property or method on a model), **factory
 | ib_async | swift-ibkr | Status | Note |
 |---|---|---|---|
 | `Ticker` | `Ticker` | present | |
-| `Ticker.updateEvent` | `tickers(_:genericTicks:depthRows:smartDepth:options:)` | present | yields the whole ticker after each update |
+| `Ticker.updateEvent` | `tickers(_:genericTicks:depthRows:smartDepth:tickByTick:options:)` | present | yields the whole ticker after each update; a slow consumer gets the newest, carrying the `ticks`, `tickByTicks` and `domTicks` of every update it skipped |
 | `Ticker.events`, `defaults`, `created`, `__post_init__`, `__eq__`, `__hash__`, `__repr__`, `__str__` | — | n/a | eventkit, dataclass and dunder mechanics; `defaults` is the `IBDefaults` row |
 | `contract` | `Ticker.contract` | present | |
-| `time` | — | MISSING | field `Ticker.time: Date?`, the arrival time of the last update (wrapper.py:1739) |
-| `timestamp` | — | MISSING | the same as epoch seconds; one field `time` covers both |
+| `time` | `Ticker.time` | added | the time `tickers` folded in the latest update (wrapper.py:1739); one update is one message, not one TCP packet (DECISIONS) |
+| `timestamp` | `Ticker.time` | added | the same instant as epoch seconds in ib_async; `Date` covers both |
 | `marketDataType` | `Ticker.marketDataType` | present | |
 | `minTick` | `Ticker.minTick` | present | |
 | `bid`, `bidSize`, `ask`, `askSize`, `last`, `lastSize` | `Ticker.bid` … `Ticker.lastSize` | present | |
 | `bidExchange`, `askExchange`, `lastExchange` | `Ticker.bidExchange`, `askExchange`, `lastExchange` | added | model helper: named `Ticker.bidExchange`, `askExchange`, `lastExchange` |
 | `lastTimestamp` | `Ticker.lastTimestamp` | present | |
-| `prevBid`, `prevBidSize`, `prevAsk`, `prevAskSize`, `prevLast`, `prevLastSize` | — | MISSING | fields set by `apply(_:)` before each bid/ask/last change, as wrapper.py:1000 |
+| `prevBid`, `prevBidSize`, `prevAsk`, `prevAskSize`, `prevLast`, `prevLastSize` | `Ticker.prevBid`, `Ticker.prevBidSize`, `Ticker.prevAsk`, `Ticker.prevAskSize`, `Ticker.prevLast`, `Ticker.prevLastSize` | added | set by `apply(_:at:)` (ticks and tick-by-tick events) before each bid/ask/last change, as wrapper.py:1000-1178 |
 | `volume`, `open`, `high`, `low`, `close` | `Ticker.volume` … `Ticker.close` | present | |
-| `vwap` | — | MISSING | field parsed from RT volume (48/77, wrapper.py:482); Swift keeps the raw string in `strings` |
+| `vwap` | `Ticker.vwap` | added | parsed from RT volume (48/77, wrapper.py:482); the raw string stays in `strings` |
 | `low13week`, `high13week`, `low26week`, `high26week`, `low52week`, `high52week` | `Ticker.low13Week` … `high52Week` | added | model helper: named properties |
 | `bidYield`, `askYield`, `lastYield` | `Ticker.bidYield`, `askYield`, `lastYield` | added | model helper: named properties |
 | `markPrice` | `Ticker.markPrice` | added | model helper |
 | `halted` | `Ticker.halted` | added | model helper `Ticker.halted` |
 | `rtHistVolatility` | `Ticker.rtHistVolatility` | added | model helper |
-| `rtVolume`, `rtTradeVolume`, `rtTime` | raw string in `strings[TickField(rawValue: 48 / 77)]` | MISSING | fields parsed from RT volume (wrapper.py:482); ib_async also moves `last`/`lastSize` from it, Swift keeps them from ticks 4/5 only (DECISIONS row kept; a documented difference) |
+| `rtVolume`, `rtTradeVolume`, `rtTime` | `Ticker.rtVolume`, `Ticker.rtTradeVolume`, `Ticker.rtTime` | added | parsed from RT volume (wrapper.py:482), the raw string kept in `strings`; ib_async also moves `last`/`lastSize` from it, Swift keeps them from ticks 4/5 only (DECISIONS row kept; a documented difference); the trade is recorded in `Ticker.ticks` as ib_async records it |
 | `avVolume` | `Ticker.averageVolume` | added | model helper |
 | `tradeCount`, `tradeRate`, `volumeRate` | `Ticker.tradeCount`, `tradeRate`, `volumeRate` | added | model helper |
 | `volumeRate3Min`, `volumeRate5Min`, `volumeRate10Min` | `Ticker.volumeRate3Min`, `volumeRate5Min`, `volumeRate10Min` | added | model helper |
@@ -200,19 +200,19 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `optionBidExch`, `optionAskExch` | `Ticker.optionBidExchange`, `optionAskExchange` | added | model helper |
 | `bondFactorMultiplier` | `Ticker.bondFactorMultiplier` | added | model helper |
 | `creditmanMarkPrice`, `creditmanSlowMarkPrice` | `Ticker.creditmanMarkPrice`, `creditmanSlowMarkPrice` | added | model helper |
-| `delayedLastTimestamp` | folded into `lastTimestamp` (`TickField.live` maps 88 to 45) | MISSING | field kept apart from `lastTimestamp`, as ib_async |
+| `delayedLastTimestamp` | `Ticker.delayedLastTimestamp` | added | tick 88, kept apart from `lastTimestamp` as ib_async; 1.0.0 folded it into `lastTimestamp` (CHANGELOG, Changed) |
 | `delayedHalted` | `Ticker.delayedHalted` | added | model helper |
 | `reutersMutualFunds` | `Ticker.reutersMutualFunds` | added | model helper |
 | `etfNavClose`, `etfNavPriorClose`, `etfNavBid`, `etfNavAsk`, `etfNavLast`, `etfFrozenNavLast`, `etfNavHigh`, `etfNavLow` | `Ticker.etfNavClose` … `etfNavLow` | added | model helper |
 | `socialMarketAnalytics` | `Ticker.socialMarketAnalytics` | added | model helper |
 | `estimatedIpoMidpoint`, `finalIpoLast` | `Ticker.estimatedIPOMidpoint`, `finalIPOLast` | added | model helper |
-| `dividends` | raw string in `strings[TickField(rawValue: 59)]` | MISSING | field `Ticker.dividends: Dividends?` parsed as wrapper.py:1233 |
-| `fundamentalRatios` | raw string in `strings[TickField(rawValue: 47)]` | MISSING | field `Ticker.fundamentalRatios: FundamentalRatios?` parsed as wrapper.py:1208 |
-| `ticks` | — | MISSING | field: the ticks of the last update with their time (`[TickData]`); the raw ticks are on `marketData` |
-| `tickByTicks` | — | MISSING | field: tick-by-tick events folded into the ticker (and their bid/ask/last), as wrapper.py:1111 |
+| `dividends` | `Ticker.dividends` | added | parsed as wrapper.py:1233; the raw string stays in `strings` |
+| `fundamentalRatios` | `Ticker.fundamentalRatios` | added | parsed as wrapper.py:1208; the raw string stays in `strings` |
+| `ticks` | `Ticker.ticks` | added | the price and size ticks of the latest `tickers` update with their time (`[TickData]`), recorded as wrapper.py:1046/1103/1262 |
+| `tickByTicks` | `Ticker.tickByTicks` | added | the tick-by-tick events of the latest update (`tickers(…, tickByTick:)`), folded into bid/ask/last as wrapper.py:1111; each keeps IB's time where ib_async stamps the arrival time |
 | `domBids`, `domAsks` | `Ticker.depth.bids`, `Ticker.depth.asks` | present | |
-| `domBidsDict`, `domAsksDict` | — | MISSING | model helper: the book keyed by position (`DepthBook` keeps it privately) |
-| `domTicks` | — | MISSING | field: the depth updates of the last update with their time (`[MktDepthData]`) |
+| `domBidsDict`, `domAsksDict` | `DepthBook.bidsByPosition`, `DepthBook.asksByPosition` | added | on `Ticker.depth` |
+| `domTicks` | `Ticker.domTicks` | added | the depth updates of the latest update with their time (`[DepthTick]`); a delete carries the removed row's price, and the reset (317) one delete per row, as wrapper.py:1338/1681 |
 | `bidGreeks`, `askGreeks`, `lastGreeks`, `modelGreeks`, `custGreeks` | `Ticker.bidGreeks` … `Ticker.custGreeks` | present | |
 | `bidEfp`, `askEfp`, `lastEfp`, `openEfp`, `highEfp`, `lowEfp`, `closeEfp` | `Ticker.bidEFP` … `closeEFP` | added | model helper: named properties |
 | `auctionVolume`, `auctionPrice`, `auctionImbalance`, `regulatoryImbalance` | `Ticker.auctionVolume`, `auctionPrice`, `auctionImbalance`, `regulatoryImbalance` | added | model helper |
@@ -253,7 +253,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `CommissionReport` | `CommissionReport` | present | |
 | `ConnectionStats` | — | MISSING | model `ConnectionStats` (start time, duration, bytes and messages each way); see `Client.connectionStats` |
 | `DepthMktDataDescription` | `DepthMarketDataDescription` | present | |
-| `Dividends` | — | MISSING | model `Dividends` (past12Months, next12Months, nextDate, nextAmount); see `Ticker.dividends` |
+| `Dividends` | `Dividends` | added | `past12Months`, `next12Months`, `nextDate` (00:00 UTC), `nextAmount`; see `Ticker.dividends` |
 | `DOMLevel` | `DepthLevel` | present | |
 | `Execution` | `Execution` | present | |
 | `Execution.evRule`, `evMultiplier`, `modelCode` | `Execution.evRule`, `.evMultiplier`, `.modelCode` | added | decoded from execDetails (in 11) after `orderRef`; `evMultiplier` is `Decimal?` |
@@ -262,7 +262,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `FamilyCode` | `FamilyCode` | present | |
 | `Fill` | `Fill` | present | |
 | `Fill.time` | — | MISSING | field `Fill.time: Date`: arrival time for a live fill, execution time for a replayed one (wrapper.py:823) |
-| `FundamentalRatios` | — | MISSING | model: tag → `Decimal?` (`-99999.99` → `nil`); see `Ticker.fundamentalRatios` |
+| `FundamentalRatios` | `FundamentalRatios` | added | IB's text per tag (`values`, subscript), `decimal(_:)` reads a number (`-99999.99` → `nil`); see `Ticker.fundamentalRatios` |
 | `HistogramData` | `HistogramData` | present | |
 | `HistoricalNews` | `HistoricalNews` | present | `time` stays IB's string (DECISIONS) |
 | `HistoricalSchedule`, `HistoricalSession` | `HistoricalSchedule`, `HistoricalSession` | present | |
@@ -270,7 +270,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `HistoricalTickBidAsk` | `TickByTick.bidAsk` | present | the attributes are its `bidPastLow`, `askPastHigh` (`TickAttribBidAsk` row) |
 | `HistoricalTickLast` | `TickByTick.trade` | present | |
 | `IBDefaults` | — | n/a | configures the NaN/-1/0 placeholders of Python's float fields (Swift models use `nil`) and `timezone`, the zone of the log-entry times (Swift's `Date` carries no zone); nothing to configure |
-| `MktDepthData` | `DepthUpdate` (`messages()` → `.depth`) | present | no arrival time |
+| `MktDepthData` | `DepthUpdate` (`messages()` → `.depth`) | present | no arrival time; `DepthTick` adds it in `Ticker.domTicks` |
 | `NewsArticle` | `NewsArticle` | present | |
 | `NewsBulletin` | `NewsBulletin` | present | |
 | `NewsProvider` | `NewsProvider` | present | |
@@ -296,7 +296,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `TickByTickAllLast` | `TickByTick.trade` | present | |
 | `TickByTickBidAsk` | `TickByTick.bidAsk` | present | with `bidPastLow`, `askPastHigh` |
 | `TickByTickMidPoint` | `TickByTick.midPoint` | present | |
-| `TickData` | `Tick` | present | no arrival time (see `Ticker.ticks`) |
+| `TickData` | `TickData` | added | `time`, `field` (IB's raw tick type), `price`, `size`, in `Ticker.ticks`; the raw ticks stay `Tick` on `marketData` |
 | `TradeLogEntry` | — | MISSING | model (time, status, message, errorCode) for `Trade.log` |
 | `WshEventData` | `WshEventData` | present | |
 | `EfpData` | `EFPData` | present | |
@@ -494,4 +494,4 @@ connect), **model helper** (a computed property or method on a model), **factory
 
 ## Totals
 
-Rows, where one row may carry several names: `present` 219 · `added` 42 · `MISSING` 122 · `n/a` 33.
+Rows, where one row may carry several names: `present` 218 · `added` 57 · `MISSING` 108 · `n/a` 33.

@@ -297,20 +297,20 @@ public enum IBDecoder {
     /// 8 characters is a calendar day (checked first, as ib_async does: daily bars are dates under either
     /// formatDate); all digits is epoch seconds. Anything else, such as formatDate 1 text, is refused.
     static func barTime(_ r: inout FieldReader) throws -> Date {
-        let s = try r.string(), at = r.index - 1
-        guard !s.isEmpty, s.utf8.allSatisfy({ $0 >= 48 && $0 <= 57 }) else {
-            throw IBProtocolError.unexpectedValue(s, index: at)
-        }
+        let s = try r.string()
+        guard let date = barTime(s) else { throw IBProtocolError.unexpectedValue(s, index: r.index - 1) }
+        return date
+    }
+
+    /// `barTime`'s rule on a string; `nil` where the reader throws.
+    static func barTime(_ s: String) -> Date? {
+        guard !s.isEmpty, s.utf8.allSatisfy({ $0 >= 48 && $0 <= 57 }) else { return nil }
         if s.utf8.count == 8, let day = Int(s) {
             var c = DateComponents(); c.year = day / 10000; c.month = day / 100 % 100; c.day = day % 100
             var cal = Calendar(identifier: .gregorian); cal.timeZone = TimeZone(identifier: "UTC")!
-            guard let date = cal.date(from: c) else { throw IBProtocolError.unexpectedValue(s, index: at) }
-            return date
+            return cal.date(from: c)
         }
-        guard let t = Double(s) else {
-            throw IBProtocolError.unexpectedValue(s, index: at)
-        }
-        return Date(timeIntervalSince1970: t)
+        return Double(s).map { Date(timeIntervalSince1970: $0) }
     }
 
     private static func list(_ s: String) -> [String] { s.split(separator: ",").map(String.init) }

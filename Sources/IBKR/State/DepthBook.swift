@@ -11,6 +11,10 @@ public struct DepthBook: Sendable, Equatable, Encodable {
     public var bids: [DepthLevel] { bidRows.sorted { $0.key < $1.key }.map(\.value) }
     /// The ask rows, sorted by position.
     public var asks: [DepthLevel] { askRows.sorted { $0.key < $1.key }.map(\.value) }
+    /// The bid rows keyed by position, gaps kept, as `ib_async`'s `domBidsDict`.
+    public var bidsByPosition: [Int: DepthLevel] { bidRows }
+    /// The ask rows keyed by position, gaps kept, as `ib_async`'s `domAsksDict`.
+    public var asksByPosition: [Int: DepthLevel] { askRows }
 
     /// Applies one update: insert and update set the row at its position, delete removes it, and a negative position
     /// is ignored.

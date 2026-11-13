@@ -96,7 +96,8 @@ These need the owner's accounts:
 - Subscriber buffers are `.unbounded` (orders, fills, the positions stream and every request stream) on purpose:
   each element counts (a tick, a bar, a trade, a lookup row), so none may be dropped. The exceptions are
   `marketDepth` and `scannerSubscription`, which keep only the newest element (`.bufferingNewest(1)`) because every
-  element is a whole book or a whole scan.
+  element is a whole book or a whole scan, and `tickers`, which hands a slow consumer the newest `Ticker` carrying
+  the `ticks`, `tickByTicks` and `domTicks` of every update it skipped.
 - `frameAfterDisconnectIsIgnored` cannot catch a removed generation guard, because FakeGateway closes its stream;
   it needs a mode that stays open after close. The same goes for the generation guard in `IBClient`'s request-stream
   `stopped(...)`, which stops a late consumer-stop from an old connection cancelling a reused reqId.

@@ -21,9 +21,12 @@ try await client.setMarketDataType(.delayed)
 `genericTicks` adds IB's generic ticks: numbers (`[233]`) or tagged entries (`["mdoff", "292:BRFG"]` for news);
 `snapshot: true` ends the stream at tickSnapshotEnd, with no cancel.
 
-``IBClient/tickers(_:genericTicks:depthRows:smartDepth:options:)`` yields a whole ``Ticker`` after every update, built with
-``Ticker/apply(_:)``; `depthRows` adds the book. ``IBClient/tickers(for:regulatorySnapshot:)`` takes snapshots of many
-contracts at once, in input order; the first error is thrown and the rest cancelled.
+``IBClient/tickers(_:genericTicks:depthRows:smartDepth:tickByTick:options:)`` yields a whole ``Ticker`` after every
+update, built with its two `apply(_:at:)` methods (one for a ``Tick``, one for a ``TickByTick``); `depthRows` adds the
+book and `tickByTick` IB's tick-by-tick events. Each element carries the arrival `time` and what its update brought in
+`ticks`, `tickByTicks` and `domTicks`; a slow consumer gets the newest ticker with the lists of every update it skipped,
+so no tick is lost or seen twice. ``IBClient/tickers(for:regulatorySnapshot:)`` takes snapshots of many contracts at
+once, in input order; the first error is thrown and the rest cancelled.
 
 ```swift
 // Quotes. Without a subscription ask for delayed data; it is not kept across reconnects, so set it after connect.

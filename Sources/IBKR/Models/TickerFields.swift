@@ -1,7 +1,7 @@
 import Foundation
 
-/// The named fields of `ib_async`'s `Ticker`, each reading the live-keyed dictionaries `apply(_:)` fills; `nil` until
-/// the tick arrives. A delayed tick lands on the same name as its real-time twin.
+/// The named fields of `ib_async`'s `Ticker`, each reading the live-keyed dictionaries `apply(_:at:)` fills; `nil`
+/// until the tick arrives. A delayed tick lands on the same name as its real-time twin.
 extension Ticker {
     // MARK: Strings
 

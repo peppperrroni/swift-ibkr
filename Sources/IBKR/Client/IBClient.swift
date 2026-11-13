@@ -580,16 +580,29 @@ public actor IBClient {
     /// Every element is a whole book, so a slow consumer keeps only the newest. `options` are IB's depth options.
     public func marketDepth(_ contract: Contract, rows: Int, smart: Bool = true, options: [TagValue] = [])
         throws(IBClientError) -> AsyncThrowingStream<DepthBook, any Error> {
+        var book = DepthBook()
+        return try depthRequest(contract, rows: rows, smart: smart, options: options, buffering: .bufferingNewest(1)) {
+            if let u = $0 { book.apply(u) } else { book.reset() }
+            return book
+        }
+    }
+
+    /// IB's depth request, shared by `marketDepth` and `tickers`: each update, or `nil` for IB's reset (317), goes
+    /// out through `element`; a 2152 that grants no depth ends it, and stopping it sends the cancel.
+    private func depthRequest<E: Sendable>(
+        _ contract: Contract, rows: Int, smart: Bool, options: [TagValue],
+        buffering: AsyncThrowingStream<E, any Error>.Continuation.BufferingPolicy,
+        _ element: @escaping (DepthUpdate?) -> E
+    ) throws(IBClientError) -> AsyncThrowingStream<E, any Error> {
         try requireConnected()
         let id = nextRequestID()
-        var book = DepthBook()
         return try openStream(.marketDepth(requestID: id, contract: contract, rows: rows, smart: smart,
                                            options: options), id: id,
                               cancel: .cancelMarketDepth(requestID: id, smart: smart),
-                              buffering: .bufferingNewest(1)) { message, out in
+                              buffering: buffering) { message, out in
             switch message {
-            case .depth(_, let u): book.apply(u); out.yield(book)
-            case .error(let e) where e.code == 317: book.reset(); out.yield(book)
+            case .depth(_, let u): out.yield(element(u))
+            case .error(let e) where e.code == 317: out.yield(element(nil))
             case .error(let e) where e.code == 2152 && ErrorCode.grantsNoDepth(e.text):
                 out.finish(throwing: IBClientError.noMarketDataPermission(code: 2152, text: e.text))
             default: break
@@ -598,16 +611,22 @@ public actor IBClient {
         }
     }
 
-    /// `contract`'s market data folded into one `Ticker`, yielded whole after every tick or depth book, with no
-    /// deduplication; a slow consumer keeps only the newest. `depthRows` adds `marketDepth`'s book; it is opened
-    /// first, since it refuses everything `marketData` refuses and BAG too. The first inner error ends the stream with
-    /// that error, and however it ends, every request still open is cancelled. `options` go with the market data
-    /// request only.
+    /// `contract`'s market data folded into one `Ticker`, yielded whole after every tick, depth update or
+    /// tick-by-tick event, with no deduplication. Each update stamps `time` and replaces `ticks`, `tickByTicks` and
+    /// `domTicks` with its own; a slow consumer gets the newest ticker carrying the lists of every update it skipped,
+    /// so no tick is lost or seen twice. `depthRows` adds the depth book, opened first, since it refuses everything
+    /// `marketData` refuses and BAG too; `tickByTick` adds IB's tick-by-tick events of that type, opened last. An
+    /// open error stops what was already opened. The first inner error ends the stream with that error, and however
+    /// it ends, every request still open is cancelled. `options` go with the market data request only.
     public func tickers(_ contract: Contract, genericTicks: [GenericTick] = [], depthRows: Int? = nil,
-                        smartDepth: Bool = true, options: [TagValue] = [])
+                        smartDepth: Bool = true, tickByTick: TickByTickType? = nil, options: [TagValue] = [])
         throws(IBClientError) -> AsyncThrowingStream<Ticker, any Error> {
-        var depth: AsyncThrowingStream<DepthBook, any Error>?
-        if let depthRows { depth = try marketDepth(contract, rows: depthRows, smart: smartDepth) }
+        var depth: AsyncThrowingStream<TickerPart, any Error>?
+        if let depthRows {
+            depth = try depthRequest(contract, rows: depthRows, smart: smartDepth, options: [], buffering: .unbounded) {
+                $0.map(TickerPart.depth) ?? .depthReset
+            }
+        }
         let quotes: AsyncThrowingStream<Tick, any Error>
         do throws(IBClientError) {
             quotes = try marketData(contract, genericTicks: genericTicks, options: options)
@@ -615,7 +634,15 @@ public actor IBClient {
             if let depth { Self.stop(depth) }
             throw error
         }
-        return Self.fold(contract, quotes, depth)
+        var events: AsyncThrowingStream<TickByTick, any Error>?
+        do throws(IBClientError) {
+            if let tickByTick { events = try self.tickByTick(contract, tickByTick) }
+        } catch {
+            if let depth { Self.stop(depth) }
+            Self.stop(quotes)
+            throw error
+        }
+        return Self.fold(contract, quotes, depth, events)
     }
 
     /// One snapshot `Ticker` per contract, in the order of `contracts`, each read to IB's snapshot end. Every request
@@ -656,14 +683,16 @@ public actor IBClient {
         return tickers
     }
 
-    /// What `tickers` folds: a tick, or a whole depth book.
-    private enum TickerPart: Sendable { case tick(Tick), book(DepthBook) }
+    /// What `tickers` folds: a tick, a depth update, IB's depth reset (317), or a tick-by-tick event.
+    private enum TickerPart: Sendable { case tick(Tick), depth(DepthUpdate), depthReset, tickByTick(TickByTick) }
 
     /// One task per inner stream forwards it into an unbounded channel (a dropped tick is lost state); the fold
-    /// yields the whole ticker after each part. The first inner end or error ends the fold, and the outer stream's end
+    /// applies each part with one `now`, clears and refills the per-update lists, and puts the whole ticker in a
+    /// `TickerMailbox`. The first inner end or error ends the fold; the mailbox's end, or the consumer leaving,
     /// cancels the readers, which stops each inner stream and so sends its cancel.
     private nonisolated static func fold(_ contract: Contract, _ quotes: AsyncThrowingStream<Tick, any Error>,
-                                         _ depth: AsyncThrowingStream<DepthBook, any Error>?)
+                                         _ depth: AsyncThrowingStream<TickerPart, any Error>?,
+                                         _ events: AsyncThrowingStream<TickByTick, any Error>?)
         -> AsyncThrowingStream<Ticker, any Error> {
         let (parts, feed) = AsyncThrowingStream.makeStream(of: TickerPart.self, throwing: (any Error).self)
         func forward<E: Sendable>(_ s: AsyncThrowingStream<E, any Error>, _ wrap: @escaping @Sendable (E) -> TickerPart)
@@ -673,24 +702,29 @@ public actor IBClient {
                 catch { feed.finish(throwing: error) }
             }
         }
-        let readers = [forward(quotes, TickerPart.tick)] + (depth.map { [forward($0, TickerPart.book)] } ?? [])
-        let (stream, out) = AsyncThrowingStream.makeStream(of: Ticker.self, throwing: (any Error).self,
-                                                           bufferingPolicy: .bufferingNewest(1))
-        out.onTermination = { _ in readers.forEach { $0.cancel() } }   // set before the fold below can finish `out`
+        var readers = [forward(quotes, TickerPart.tick)]
+        if let depth { readers.append(forward(depth) { $0 }) }
+        if let events { readers.append(forward(events, TickerPart.tickByTick)) }
+        let box = TickerMailbox(readers: readers)
         Task {
             var ticker = Ticker(contract: contract)
             do {
                 for try await part in parts {
+                    let now = Date()
+                    ticker.ticks = []; ticker.tickByTicks = []; ticker.domTicks = []
                     switch part {
-                    case .tick(let t): ticker.apply(t)
-                    case .book(let b): ticker.depth = b
+                    case .tick(let t): ticker.apply(t, at: now)
+                    case .depth(let u): ticker.apply(u, at: now)
+                    case .depthReset: ticker.resetDepth(at: now)
+                    case .tickByTick(let t): ticker.apply(t, at: now)
                     }
-                    out.yield(ticker)
+                    ticker.time = now
+                    box.put(ticker)
                 }
-                out.finish()
-            } catch { out.finish(throwing: error) }
+                box.finish(throwing: nil)
+            } catch { box.finish(throwing: error) }
         }
-        return stream
+        return box.stream()
     }
 
     /// Stops a stream nobody reads: a cancelled reader terminates it, which sends its cancel. Freeing an unread

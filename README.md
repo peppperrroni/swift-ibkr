@@ -55,7 +55,7 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | Account | account summary, per-position P&L, portfolio, account values, Multi, account P&L | ✅ summary and per-position P&L live-checked; the rest on the fake gateway, not yet run live (see KNOWN-GAPS) |
 | Contract lookup | contract details with bonds, matching symbols, factories, qualifyContracts | ✅ details (not bonds) and symbols live-checked; the rest on the fake gateway, not yet run live (see KNOWN-GAPS) |
 | Options and reference | option chains, option calculations, market rules, family codes, soft-dollar tiers | ✅ on hand-built frames and the fake gateway; not yet run live (see KNOWN-GAPS) |
-| Market data | quotes with generic ticks and snapshots, `Ticker` streams and batch snapshots, greeks, EFP, news ticks, real-time bars, depth book, depth exchanges, SMART components, tick-by-tick, BAG, typed «no permission» refusal | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
+| Market data | quotes with generic ticks and snapshots, `Ticker` streams and batch snapshots, greeks, EFP, news ticks, real-time bars, depth book, depth exchanges, SMART components, tick-by-tick (alone or folded into a `Ticker`), BAG, typed «no permission» refusal | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
 | History | bars with keepUpToDate, historical ticks, head timestamp, histogram, trading schedule, BAG | ✅ refusals live-checked; the data only on hand-built frames (no subscription yet) |
 | Scanner | scan stream, one-shot scan, scanner parameters | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
 | News | providers, article text, historical headlines, bulletins, news ticks through `marketData` | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
@@ -314,7 +314,13 @@ Task { for try await tick in try await client.marketData(aapl) { print(tick) } }
 // A whole Ticker (bid/ask/last, OHLC, greeks, the rest keyed by field) after every update; depthRows adds the book.
 // ib_async's names read the same ticks: t.low52Week, t.bidExchange, t.shortableShares, t.impliedVolatility, t.bidEFP, ...
 // (nil until set; generic ticks of 0 or less read nil). t.marketPrice is the last when it is within bid/ask, else t.midpoint.
+// As ib_async keeps them: t.prevBid ... t.prevLastSize, t.rtVolume, t.vwap, t.rtTime (RT volume never moves t.last),
+// t.dividends, t.fundamentalRatios?.decimal("MKTCAP"), t.delayedLastTimestamp (tick 88), t.depth.bidsByPosition.
+// t.time is when the update arrived; t.ticks, t.tickByTicks and t.domTicks hold what it brought. A slow consumer
+// gets the newest ticker with the lists of every update it skipped: no tick is lost or seen twice.
 Task { for try await t in try await client.tickers(aapl, depthRows: 5) { print(t.bid as Any, t.depth.bids.first as Any) } }
+// tickByTick: .bidAsk (or .last, .allLast, .midPoint) folds IB's tick-by-tick events in too.
+Task { for try await t in try await client.tickers(aapl, tickByTick: .last) { print(t.tickByTicks) } }
 // Snapshots of many contracts at once, in input order; the first error is thrown and the rest cancelled.
 let snaps = try await client.tickers(for: [aapl, msft])
 
@@ -506,14 +512,17 @@ library leaves out.
 | `reqMarketRule` | `marketRule(_:)` |
 | `reqFamilyCodes` | `familyCodes()` |
 | `reqSoftDollarTiers` | `softDollarTiers()` |
-| `reqMktData`, `ticker` | `marketData(_:genericTicks:snapshot:regulatorySnapshot:options:)` (raw ticks) or `tickers(_:genericTicks:depthRows:smartDepth:options:)` (whole `Ticker`s), both streams |
+| `reqMktData`, `ticker` | `marketData(_:genericTicks:snapshot:regulatorySnapshot:options:)` (raw ticks) or `tickers(_:genericTicks:depthRows:smartDepth:tickByTick:options:)` (whole `Ticker`s), both streams |
 | `reqTickers` | `tickers(for:regulatorySnapshot:)` |
 | `pendingTickers` | none: each `tickers` stream yields its own `Ticker` |
 | `Ticker` | `Ticker` |
 | `Ticker.marketPrice`, `Ticker.midpoint`, `Ticker.hasBidAsk` | `Ticker.marketPrice`, `Ticker.midpoint`, `Ticker.hasBidAsk` |
+| `Ticker.ticks`, `Ticker.tickByTicks`, `Ticker.domTicks`, `Ticker.time` | the same names: what each `tickers` update brought, and when |
+| `TickData`, `MktDepthData` (in `domTicks`), `Dividends`, `FundamentalRatios` | `TickData`, `DepthTick`, `Dividends`, `FundamentalRatios` |
 | the tick filters and bar builders | none |
 | `newsTicks` | `Tick.news` from `marketData` with the news generic ticks |
 | `reqMktDepth` | `marketDepth(_:rows:smart:options:)` (whole `DepthBook`s), or `tickers` with `depthRows` |
+| `Ticker.domBidsDict`, `Ticker.domAsksDict` | `Ticker.depth.bidsByPosition`, `Ticker.depth.asksByPosition` |
 | `reqMktDepthExchanges` | `depthExchanges()` |
 | `reqSmartComponents` | `smartComponents(_:)` |
 | `reqTickByTickData` | `tickByTick(_:_:count:ignoreSize:)` |

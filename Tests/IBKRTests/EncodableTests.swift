@@ -39,6 +39,10 @@ private func json<T: Encodable>(_ v: T) throws -> String {
         json(DepthLevel(price: 1, size: 2, marketMaker: "")), json(OptionComputation(tickAttrib: 0)),
         json(EFPData()), json(NewsTick(timeStamp: 1, providerCode: "P", articleID: "A", headline: "H")),
         json(Ticker(contract: contract)),
+        json(TickData(time: Date(timeIntervalSince1970: 0), field: .bid, price: 1, size: 2)),
+        json(DepthTick(time: Date(timeIntervalSince1970: 0), update: DepthUpdate(
+            position: 0, marketMaker: "", operation: .insert, side: .bid, price: 1, size: 2))),
+        json(Dividends()), json(FundamentalRatios(values: ["MKTCAP": "1"])),
         json(DepthUpdate(position: 0, marketMaker: "", operation: .insert, side: .bid, price: 1, size: 2)),
         json(OrderStatusMessage(orderID: 5, status: .filled, filled: 1, remaining: 0, permID: 3, parentID: 0,
                                 clientID: 4, whyHeld: "")),

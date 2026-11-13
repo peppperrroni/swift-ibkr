@@ -378,3 +378,87 @@ private let aapl = Contract(symbol: "AAPL")
     #expect(Set(cancels) == Set(opened.map { ["2", "2", $0[2]] }))
     try await noStreamsLeft(client)
 }
+
+@Test func tickersStampTimeAndResetPerUpdate() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.tickers(aapl)
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][2]
+    let (reader, seen) = reading(stream)
+    gateway.feed(["1", "6", id, "1", "351.5", "200", "0"])
+    let first = try #require(try await within2s { try await seen.first { _ in true } })
+    gateway.feed(["2", "6", id, "0", "300"])   // fed after the first was read: one update per element
+    let second = try #require(try await within2s { try await seen.first { _ in true } })
+    #expect(first.ticks.map(\.field) == [.bid] && second.ticks.map(\.field) == [.bidSize])
+    let (t1, t2) = (try #require(first.time), try #require(second.time))
+    #expect(t2 >= t1 && second.ticks.first?.time == t2)
+    reader.cancel()
+}
+
+@Test func tickersFoldTickByTickAndCancelIt() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.tickers(aapl, tickByTick: .bidAsk)
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
+    #expect(sent[FakeGateway.syncFrames][0] == "1" && sent[FakeGateway.syncFrames + 1][0] == "97")
+    #expect(sent[FakeGateway.syncFrames + 1].suffix(3) == ["BidAsk", "0", "0"])
+    let (qid, tid) = (sent[FakeGateway.syncFrames][2], sent[FakeGateway.syncFrames + 1][1])
+    let (reader, seen) = reading(stream)
+    gateway.feed(["99", tid, "3", "1794321000", "351.4", "351.6", "300", "200", "0"])
+    let ticker = try await within2s { try await seen.first { _ in true } }
+    #expect(ticker?.bid == d("351.4") && ticker?.ask == d("351.6") && ticker?.tickByTicks.count == 1)
+    reader.cancel()
+    let cancels = try await gateway.waitForSent(FakeGateway.syncFrames + 4).suffix(2)
+    #expect(Set(cancels) == [["2", "2", qid], ["98", tid]])
+    try await noStreamsLeft(client)
+}
+
+@Test func tickersStopWhatTheyOpenedWhenTickByTickIsRefused() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    await #expect(throws: IBClientError.encoding(.unsupported("secType BAG"))) {
+        _ = try await client.tickers(bagContract, tickByTick: .last)
+    }
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
+    #expect(sent[FakeGateway.syncFrames + 1] == ["2", "2", sent[FakeGateway.syncFrames][2]])
+    try await noStreamsLeft(client)
+}
+
+@Test func tickersRecordDepthTicksAndReset() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.tickers(aapl, depthRows: 5)
+    let did = try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames][2]
+    let (reader, seen) = reading(stream)
+    gateway.feed(["12", "1", did, "0", "0", "1", "351.5", "100"])
+    let first = try #require(try await within2s { try await seen.first { _ in true } })
+    #expect(first.domTicks.count == 1 && first.depth.bids.count == 1)
+    gateway.feed(["4", "2", did, "317", "Market depth data has been RESET. Please empty deep book contents", ""])
+    let reset = try #require(try await within2s { try await seen.first { _ in true } })
+    #expect(reset.depth == DepthBook())
+    // wrapper.py:1681: one delete per removed row, at position 0 with size 0
+    #expect(reset.domTicks == [DepthTick(time: try #require(reset.time), update: DepthUpdate(
+        position: 0, marketMaker: "", operation: .delete, side: .bid, price: d("351.5"), size: 0))])
+    reader.cancel()
+}
+
+/// Review Focus 1: whatever the consumer skips, the ticks of every update arrive exactly once, in order.
+@Test func droppedTickerHandsOnItsTicks() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.tickers(aapl)
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][2]
+    for p in ["10", "11", "12"] { gateway.feed(["1", "6", id, "4", p, "1", "0"]) }
+    gateway.feed(["1", "6", id, "9", "99", "0", "0"])   // the sentinel: a close
+    try await Task.sleep(for: .milliseconds(50))   // room for the fold to run ahead, so the reader skips updates
+    let ticks = try await within2s {
+        var all: [TickData] = []
+        for try await t in stream {
+            all += t.ticks
+            if t.close != nil { break }
+        }
+        return all
+    }
+    #expect(ticks.map(\.field) == [.last, .last, .last, .close])
+    #expect(ticks.map(\.price) == [10, 11, 12, 99])
+}

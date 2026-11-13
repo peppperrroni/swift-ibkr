@@ -71,6 +71,11 @@ struct FieldReader {
         return i == u.count
     }
 
+    /// A plain number (see `isPlainNumber`) as a `Decimal`; `nil` for anything else, IB's unset markers included.
+    static func plainDecimal(_ s: String) -> Decimal? {
+        isPlainNumber(s) ? Decimal(string: s, locale: Locale(identifier: "en_US_POSIX")) : nil
+    }
+
     mutating func int() throws -> Int { try optionalInt() ?? 0 }
     mutating func decimal() throws -> Decimal { try optionalDecimal() ?? 0 }
 
