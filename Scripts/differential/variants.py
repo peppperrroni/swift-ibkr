@@ -122,6 +122,7 @@ VARIANTS[3] = [
                       "avgFillPrice": (5, "double"), "permId": (6, "int"), "parentId": (7, "int"),
                       "lastFillPrice": (8, "double"), "clientId": (9, "int"), "mktCapPrice": (11, "double")}),
     ("long-max-permId", [*_STATUS[:6], "9223372036854775807", *_STATUS[7:]]),
+    ("without-mkt-cap-price", _STATUS[:11]),  # wrap zips, so ib_async calls with the default mktCapPrice
     ("short-after-status", _STATUS[:3]),
 ]
 _EXEC = ["11", "-1", "5", "265598", "AAPL", "STK", "", "0", "", "", "ISLAND", "USD", "AAPL", "NMS",
@@ -151,7 +152,8 @@ VARIANTS[11] = [
     *_unset(_EXEC, {"orderId": (2, "int"), "conId": (3, "int"), "strike": (7, "double"), "shares": (19, "double"),
                     "price": (20, "double"), "permId": (21, "int"), "clientId": (22, "int"),
                     "liquidation": (23, "int"), "cumQty": (24, "double"), "avgPrice": (25, "double"),
-                    "evMultiplier": (28, "double"), "lastLiquidity": (30, "int")}),
+                    "evMultiplier": (28, "double"), "lastLiquidity": (30, "int"),
+                    "pendingPriceRevision": (31, "int")}),
 ]
 VARIANTS[53] = [("base", ["53", "1"])]
 VARIANTS[55] = [("base", ["55", "1", "9"])]

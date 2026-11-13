@@ -1030,5 +1030,37 @@
   "pair": ["0", ""],
   "cite": "protocol-178 Disagreements 13",
   "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174 (int(field or 0)))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-empty-pendingPriceRevision",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "gen/11/unset-max-pendingPriceRevision",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.pendingPriceRevision",
+  "frames": "gen/11/unset-max-pendingPriceRevision",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional flag reads an unset value as false here; ib_async reads bool(int(x)) (decoder.py:426-475, parse 185-198)"
+ },
+ {
+  "scope": "in 3",
+  "field": "#error",
+  "frames": "gen/3/without-mkt-cap-price",
+  "pair": ["malformed: missingField(index: 11)", "decoded"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "ib_async's wrap zips fields with types, so the wrapper's mktCapPrice default fills the missing argument (decoder.py:143-174)"
  }
 ]

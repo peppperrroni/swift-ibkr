@@ -1907,7 +1907,12 @@ agrees type by type. The differences are in default values and value formatting 
    non-optional in swift-ibkr's models, so an empty or
    `MAX` (2147483647, 1.7976931348623157E308) value decodes to 0 where `ib_async` keeps the sentinel (`""` in the oracle)
    or, for a plain `float()` / `int()` read (updatePortfolio, positionMulti's reqId), rejects the frame. IB never leaves
-   them unset, and making them optional would be Breaking for no observed frame. Messages 3, 7, 11, 59, 61, 63, 71, 73, 94, 95, 100.
+   them unset, and making them optional would be Breaking for no observed frame. A non-optional flag does the same: an unset value (empty or `MAX`) reads as false where `ib_async` reads
+   `bool(int(x))` (execDetails' `pendingPriceRevision`). Messages 3, 7, 11, 59, 61, 63, 71, 73, 94, 95, 100.
+14. **A frame shorter than the 178 layout is malformed.** swift-ibkr reports `.malformed(missingField …)` where
+   `ib_async`'s `wrap` zips the fields with its types and lets the wrapper's defaults fill the missing trailing
+   arguments (orderStatus without mktCapPrice, message 3). Deliberate strictness at the pinned version, where IB always sends
+   the whole layout.
 
 No row in this document is unverified: every table was checked line by line against the
 verbatim source of both clients.
