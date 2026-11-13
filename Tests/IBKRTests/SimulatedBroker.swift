@@ -13,6 +13,7 @@ struct SimOrder {
     var parentID: Int
     var transmit: Bool
     var ocaGroup: String
+    var ocaType: Int
     var whatIf: Bool
     var status: OrderStatus
     var filled: Decimal
@@ -62,6 +63,10 @@ final class SimulatedBroker: @unchecked Sendable {
     private var holdings: [HoldingKey: Holding] = [:]
     private var marketPrices: [Int: Decimal] = [:]
     private var permIDs = 0, execIDs = 0, conIDs = 0
+    private var _answers: [(request: [String], replies: [[String]])] = []
+    private var pendingReject: (code: Int, text: String)?
+    /// The what-if answers' account: flat, this equity with loan.
+    private static let equity: Decimal = 1_000_000
 
     init(accounts: [String] = ["DU0000001"], nextOrderID: Int = 1, clock: Int = 1794321000) {
         (self.accounts, self.nextOrderID, self.clock) = (accounts, nextOrderID, clock)
@@ -92,6 +97,18 @@ final class SimulatedBroker: @unchecked Sendable {
 
     /// Every gateway's `fed`, in hand-out order.
     var emitted: [[String]] { gateways.flatMap(\.fed) }
+
+    /// Every request the broker answered, with the frames it fed back, in arrival order.
+    var answers: [(request: [String], replies: [[String]])] { lock.withLock { _answers } }
+
+    /// Every order in the book, in the order placed.
+    var bookedOrders: [SimOrder] { lock.withLock { orders } }
+
+    /// Refuses the next placeOrder, a new order or a modification: IB's error `code` with `text` on its id is the
+    /// whole answer and the book stays as it was. A fatal code ends a new order `.inactive` in the client; a warning
+    /// (105, 321, …) on a modification leaves the order working with its old terms.
+    // assumption: unrecorded live — the error alone, no openOrder or orderStatus
+    func reject(nextOrderWith code: Int, text: String) { lock.withLock { pendingReject = (code, text) } }
 
     func order(clientID: Int, orderID: Int) -> SimOrder? {
         lock.withLock { orders.first { $0.clientID == clientID && $0.orderID == orderID } }
@@ -138,7 +155,7 @@ final class SimulatedBroker: @unchecked Sendable {
             orders[n].filled += shares
             orders[n].status = orders[n].filled == orders[n].quantity ? .filled : .submitted
             let o = orders[n]
-            let key = HoldingKey(account: account(n), conID: o.contract.conID)
+            let key = HoldingKey(account: account(placed[n]), conID: o.contract.conID)
             let signed = o.action == .buy ? shares : -shares
             var h = holdings[key] ?? Holding()
             let pnl = Self.trade(&h, signed, at: price)
@@ -175,6 +192,7 @@ final class SimulatedBroker: @unchecked Sendable {
                 events += openAndStatus(n, commission: fills.filter { $0.order == n }.map(\.fee).reduce(0, +))
             }
             events.append(report)
+            events += consequences(of: n)
             for i in sessions.indices where !_gateways[i].isClosed {
                 let s = sessions[i]
                 var frames: [[String]] = s.positions ? [before] : []
@@ -186,19 +204,52 @@ final class SimulatedBroker: @unchecked Sendable {
         }
     }
 
+    /// What a fill of order `n` does to the owner's other orders: a filled parent sends its children to work
+    /// (openOrder + Submitted each); a fill cancels the rest of its OCA group, and of its bracket (IB links a
+    /// bracket's children as one group), each with the bare orderStatus Cancelled that ends the recorded cancel.
+    // assumption: unrecorded live — children work only once the parent is wholly filled; ocaType 1 (cancel the rest)
+    // only: 2 and 3 (reduce the rest) are refused, model them when a scenario uses them
+    private func consequences(of n: Int) -> [[String]] {
+        let o = orders[n]
+        var out: [[String]] = []
+        let mine = orders.indices.filter { $0 != n && orders[$0].clientID == o.clientID }
+        if o.status == .filled {
+            for k in mine where orders[k].parentID == o.orderID && orders[k].status == .preSubmitted {
+                orders[k].status = .submitted
+                out += openAndStatus(k)
+            }
+        }
+        if !o.ocaGroup.isEmpty && o.ocaType != 1 {
+            Issue.record("SimulatedBroker: ocaType \(o.ocaType) is not modelled")
+            return out
+        }
+        for k in mine where !orders[k].status.isFinal
+            && (o.ocaGroup.isEmpty ? o.parentID != 0 && orders[k].parentID == o.parentID
+                                   : orders[k].ocaGroup == o.ocaGroup) {
+            orders[k].status = .cancelled
+            out.append(openAndStatus(k)[1])
+        }
+        return out
+    }
+
     // MARK: - Requests
 
     /// Feeds the replies to one request from session `i` under the lock that guards the state they show, so a
     /// concurrent `fill` lands wholly before or after them; `FakeGateway`'s own end markers follow. Runs in the
     /// client's write path: it never blocks and never calls back into the client.
     private func answer(_ f: [String], session i: Int) {
-        lock.withLock { replies(f, session: i).forEach(_gateways[i].feed) }
+        lock.withLock {
+            let out = replies(f, session: i)
+            _answers.append((f, out))
+            out.forEach(_gateways[i].feed)
+        }
     }
 
     private func replies(_ f: [String], session i: Int) -> [[String]] {
         switch f.first {
         case "71": sessions[i].clientID = Int(f[2])
         case "3": return place(f, session: i)
+        case "4": return cancel(f, session: i)
         case "16":   // assumption: unrecorded live — every client's working orders, openOrder + orderStatus each
             return orders.indices.filter { !orders[$0].status.isFinal }.flatMap { openAndStatus($0) }
         case "99":   // assumption: unrecorded live — completedOrder per final order
@@ -220,12 +271,20 @@ final class SimulatedBroker: @unchecked Sendable {
         return []
     }
 
-    /// Books a base-case placeOrder (docs/protocol-178.md's placeOrder indices) and answers as
-    /// liveOrderFillsWithCommission.json: openOrder + PreSubmitted, openOrder + Submitted.
+    /// Books a placeOrder (docs/protocol-178.md's placeOrder indices: the base case, or with the 8-field
+    /// delta-neutral group a modify of a decoded live order re-sends, R24) and answers as
+    /// liveOrderFillsWithCommission.json: openOrder + PreSubmitted, openOrder + Submitted. A re-send of a known id is
+    /// a modify; `whatIf` gets the what-if answer and books nothing; `transmit` off holds the order, unanswered, until
+    /// a transmitting leg of its bracket sends the group.
     private func place(_ f: [String], session i: Int) -> [[String]] {
-        guard f.count == 114 else {
-            Issue.record("SimulatedBroker: placeOrder with \(f.count) fields, not the base case's 114; not booked")
+        let shift = f.count > 64 && !f[64].isEmpty ? 8 : 0
+        guard f.count == 114 + shift else {
+            Issue.record("SimulatedBroker: placeOrder with \(f.count) fields, not 114 (122 with delta-neutral); not booked")
             return []
+        }
+        if let r = pendingReject {
+            pendingReject = nil
+            return [["4", "2", f[1], "\(r.code)", r.text, ""]]
         }
         var contract = Contract(symbol: f[3], secType: f[4], exchange: f[9], currency: f[11], primaryExchange: f[10])
         contract.conID = resolve(f)
@@ -234,9 +293,11 @@ final class SimulatedBroker: @unchecked Sendable {
             clientID: clientID, orderID: orderID, permID: 0, contract: contract,
             action: OrderAction(rawValue: f[16]) ?? .buy, quantity: Decimal(string: f[17]) ?? 0, orderType: f[18],
             limitPrice: Decimal(string: f[19]), parentID: Int(f[28]) ?? 0, transmit: f[27] == "1", ocaGroup: f[22],
-            whatIf: f[84] == "1", status: .preSubmitted, filled: 0)
+            ocaType: Int(f[46]) ?? 0, whatIf: f[84 + shift] == "1", status: .preSubmitted, filled: 0)
+        if order.whatIf { return [whatIfFrame(order, f)] }
         if let n = orders.firstIndex(where: { $0.clientID == clientID && $0.orderID == orderID }) {
-            // a re-send of a known id: new terms, same permID, status and fills
+            // assumption: unrecorded live — a modify: new terms, same permID, status and fills, one openOrder +
+            // orderStatus
             (order.permID, order.status, order.filled) = (orders[n].permID, orders[n].status, orders[n].filled)
             (orders[n], placed[n]) = (order, f)
             return openAndStatus(n)
@@ -246,9 +307,40 @@ final class SimulatedBroker: @unchecked Sendable {
         orders.append(order)
         placed.append(f)
         let n = orders.count - 1
+        // assumption: unrecorded live — an untransmitted leg gets no answer (ib_async leaves it PendingSubmit)
+        guard order.transmit else { orders[n].status = .pendingSubmit; return [] }
+        let held = orders.indices.filter { k in
+            k != n && order.parentID != 0 && orders[k].clientID == clientID && orders[k].status == .pendingSubmit
+                && (orders[k].orderID == order.parentID || orders[k].parentID == order.parentID)
+        }
+        return (held + [n]).flatMap(submit)
+    }
+
+    /// openOrder + PreSubmitted, then openOrder + Submitted; a child of a parent not yet filled stays PreSubmitted.
+    // assumption: unrecorded live — a bracket's children wait PreSubmitted
+    private func submit(_ n: Int) -> [[String]] {
+        orders[n].status = .preSubmitted
         let preSubmitted = openAndStatus(n)
+        let o = orders[n]
+        if o.parentID != 0,
+           orders.first(where: { $0.clientID == o.clientID && $0.orderID == o.parentID })?.status != .filled {
+            return preSubmitted
+        }
         orders[n].status = .submitted
         return preSubmitted + openAndStatus(n)
+    }
+
+    /// Cancels the client's working order as liveLimitOrderPlacesAndCancels.json: openOrder + orderStatus
+    /// PendingCancel twice, orderStatus Cancelled, error 202 with a bare reason.
+    private func cancel(_ f: [String], session i: Int) -> [[String]] {
+        let clientID = sessions[i].clientID ?? 0
+        // shortcut: an unknown or final id gets no answer where live sends 10147; add it when a scenario needs it
+        guard let n = orders.firstIndex(where: { $0.clientID == clientID && "\($0.orderID)" == f[2] }),
+              !orders[n].status.isFinal else { return [] }
+        orders[n].status = .pendingCancel
+        let pending = openAndStatus(n)
+        orders[n].status = .cancelled
+        return pending + pending + [openAndStatus(n)[1], ["4", "2", f[2], "202", "Order Canceled - reason:", ""]]
     }
 
     /// IB's conID for placeOrder's contract: the one it names, else a known contract with the same terms, else a new
@@ -273,25 +365,47 @@ final class SimulatedBroker: @unchecked Sendable {
 
     // MARK: - Frames
 
-    private func account(_ n: Int) -> String { placed[n][23].isEmpty ? accounts[0] : placed[n][23] }
+    /// placeOrder's account, else the first managed one.
+    private func account(_ f: [String]) -> String { f[23].isEmpty ? accounts[0] : f[23] }
 
     /// The recorded openOrder with order `n`'s values, and its orderStatus.
     private func openAndStatus(_ n: Int, commission: Decimal? = nil) -> [[String]] {
-        let o = orders[n], f = placed[n], c = contracts[o.contract.conID]!
-        var open = replacing(Self.openTemplate, [
-            1: "\(o.orderID)", 2: "\(c.conID)", 3: c.symbol, 4: c.secType, 5: c.lastTrade,
-            6: c.strike == "0.0" ? "0" : c.strike, 7: c.right.isEmpty ? "?" : c.right, 8: c.multiplier,
-            9: o.contract.exchange, 10: c.currency, 11: c.localSymbol, 12: c.tradingClass,
-            13: o.action.rawValue, 14: "\(o.quantity)", 15: o.orderType, 16: Self.price(f[19]), 17: Self.price(f[20]),
-            18: f[21], 19: o.ocaGroup, 20: account(n), 23: f[26], 24: "\(o.clientID)", 25: "\(o.permID)", 26: f[33],
-            30: "\(o.permID).0/\(account(n))/100", 57: "\(o.parentID)", 93: o.status.rawValue,
-            113: Self.trailStopPrice(o)])
+        let o = orders[n]
+        var open = openFrame(o, placed[n])
         if let commission { open = replacing(open, [103: "\(commission)", 106: "USD"]) }
         let own = fills.filter { $0.order == n }
         let average = o.filled == 0 ? 0 : Self.round(own.map(\.amount).reduce(0, +) / o.filled)
         let status = ["3", "\(o.orderID)", o.status.rawValue, "\(o.filled)", "\(o.quantity - o.filled)", "\(average)",
                       "\(o.permID)", "\(o.parentID)", "\(own.last?.price ?? 0)", "\(o.clientID)", "", "0"]
         return [open, status]
+    }
+
+    /// The recorded openOrder with the values of `o`, placed by placeOrder `f`. An OCA order echoes its ocaType where
+    /// the template has live's 3 for a plain order.
+    // assumption: unrecorded live — the OCA echo
+    private func openFrame(_ o: SimOrder, _ f: [String]) -> [String] {
+        let c = contracts[o.contract.conID]!
+        return replacing(Self.openTemplate, [
+            1: "\(o.orderID)", 2: "\(c.conID)", 3: c.symbol, 4: c.secType, 5: c.lastTrade,
+            6: c.strike == "0.0" ? "0" : c.strike, 7: c.right.isEmpty ? "?" : c.right, 8: c.multiplier,
+            9: o.contract.exchange, 10: c.currency, 11: c.localSymbol, 12: c.tradingClass,
+            13: o.action.rawValue, 14: "\(o.quantity)", 15: o.orderType, 16: Self.price(f[19]), 17: Self.price(f[20]),
+            18: f[21], 19: o.ocaGroup, 20: account(f), 23: f[26], 24: "\(o.clientID)", 25: "\(o.permID)", 26: f[33],
+            30: "\(o.permID).0/\(account(f))/100", 53: o.ocaGroup.isEmpty ? Self.openTemplate[53] : "\(o.ocaType)",
+            57: "\(o.parentID)", 93: o.status.rawValue, 113: Self.trailStopPrice(o)])
+    }
+
+    /// The what-if answer: `o`'s openOrder with whatIf set (92), the nine margins (94–102) and the commission.
+    // assumption: unrecorded live — one PreSubmitted openOrder, no orderStatus; Reg T margins (50 % initial, 25 %
+    // maintenance of the notional at the limit, else the market price) on a flat account, equity with loan less the
+    // commission of 1
+    private func whatIfFrame(_ o: SimOrder, _ f: [String]) -> [String] {
+        let notional = o.quantity * (o.limitPrice ?? marketPrices[o.contract.conID] ?? 0), commission: Decimal = 1
+        let before: [Decimal] = [0, 0, Self.equity], change = [notional / 2, notional / 4, -commission]
+        let margins = before + change + zip(before, change).map { $0 + $1 }
+        var changes = [92: "1", 103: "\(commission)", 106: "USD"]
+        for (k, m) in margins.enumerated() { changes[94 + k] = "\(m)" }
+        return replacing(openFrame(o, f), changes)
     }
 
     /// The recorded completedOrder with order `n`'s values; a filled one carries totalQuantity 0, as live.
@@ -301,7 +415,7 @@ final class SimulatedBroker: @unchecked Sendable {
             1: "\(c.conID)", 2: c.symbol, 3: c.secType, 4: c.lastTrade, 5: c.strike == "0.0" ? "0" : c.strike,
             6: c.right.isEmpty ? "?" : c.right, 7: c.multiplier, 8: o.contract.exchange, 9: c.currency,
             10: c.localSymbol, 11: c.tradingClass, 12: o.action.rawValue, 13: o.status == .filled ? "0" : "\(o.quantity)",
-            14: o.orderType, 15: Self.price(f[19]), 16: Self.price(f[20]), 17: f[21], 18: o.ocaGroup, 19: account(n),
+            14: o.orderType, 15: Self.price(f[19]), 16: Self.price(f[20]), 17: f[21], 18: o.ocaGroup, 19: account(f),
             22: f[26], 23: "\(o.permID)", 24: f[33], 76: o.status.rawValue, 80: Self.trailStopPrice(o),
             86: "\(o.filled)", 93: fills.last { $0.order == n }.map { Self.eastern($0.time) } ?? "",
             94: o.status == .filled ? "Filled Size: \(o.filled)" : o.status.rawValue])

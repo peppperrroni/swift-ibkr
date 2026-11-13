@@ -39,6 +39,19 @@ private func statuses(_ stream: AsyncStream<OrderSnapshot>, orderID: Int, until 
     }
 }
 
+/// The latest snapshot of each order on `stream`, once `done` holds for them.
+private func until(_ stream: AsyncStream<OrderSnapshot>, _ done: @escaping @Sendable ([Int: OrderSnapshot]) -> Bool)
+    async throws -> [Int: OrderSnapshot] {
+    try await within2s {
+        var latest: [Int: OrderSnapshot] = [:]
+        for await s in stream {
+            latest[s.orderID] = s
+            if done(latest) { return latest }
+        }
+        throw TimedOut()
+    }
+}
+
 /// Place LMT BUY 100, fill 40 then 60: the client sees each status, the partial fill, both fills on the order, the
 /// position, and the portfolio revalued at a new market price.
 private func placePartialFill(_ client: IBClient, _ broker: SimulatedBroker, clientID: Int) async throws {
@@ -125,4 +138,150 @@ private func placePartialFill(_ client: IBClient, _ broker: SimulatedBroker, cli
     let positions = await second.positions().snapshot
     #expect(positions.map(\.quantity) == [30] && positions.map(\.averageCost) == [d("187.225")])
     expectInCorpus(broker.emitted, source: "sim/syncReplaysTheBook")
+}
+
+/// A modify re-sends the order as swift-ibkr decoded it from IB's openOrder (R24, `?` placeholders and the live
+/// `None` delta-neutral type included) with a new limit; IB echoes openOrder + orderStatus.
+@Test func modifyKeepsTheOrderAndLogsModified() async throws {
+    let broker = SimulatedBroker()
+    let client = try await connected(broker, clientID: 7)
+    let (_, orders) = await client.orders()
+    let events = await client.orderEvents()
+    let id = try await client.placeOrder(aapl, limit(.buy, 100, "187.25"))
+    let working = try await next(orders) { $0.orderID == id && $0.status == .submitted }
+    var changed = working.order
+    changed.limitPrice = d("187.5")
+    try await client.modifyOrder(id, working.contract, changed)
+    guard case .modified(let modified) = try await next(events, { _ in true }) else {
+        Issue.record("no .modified event"); return
+    }
+    #expect(modified.orderID == id && modified.order.limitPrice == d("187.5"))
+    let acknowledged = try await next(orders) { $0.orderID == id && $0.log.last?.message == "Modified" }
+    #expect(acknowledged.log.suffix(2).map(\.message) == ["Modify", "Modified"])
+    #expect(acknowledged.status == .submitted && acknowledged.order.limitPrice == d("187.5"))
+    #expect(acknowledged.permID == working.permID)
+    let booked = broker.order(clientID: 7, orderID: id)
+    #expect(booked?.limitPrice == d("187.5") && booked?.permID == working.permID && booked?.status == .submitted)
+    expectInCorpus(broker.emitted, source: "sim/modifyKeepsTheOrderAndLogsModified")
+}
+
+/// cancelOrder → openOrder + PendingCancel twice, Cancelled, then 202 with a bare reason, which leaves
+/// `rejectReason` unset (DECISIONS' 202 row).
+@Test func cancelFollowsTheRecordedSequence() async throws {
+    let broker = SimulatedBroker()
+    let client = try await connected(broker, clientID: 7)
+    let (_, orders) = await client.orders()
+    let events = await client.orderEvents()
+    let id = try await client.placeOrder(aapl, limit(.buy, 100, "187.25"))
+    _ = try await next(orders) { $0.orderID == id && $0.status == .submitted }
+    try await client.cancelOrder(id)
+    guard case .cancelRequested(let requested) = try await next(events, { _ in true }) else {
+        Issue.record("no .cancelRequested event"); return
+    }
+    #expect(requested.status == .pendingCancel)
+    let cancelled = try await next(orders) { $0.orderID == id && $0.log.last?.errorCode == 202 }
+    #expect(cancelled.status == .cancelled && cancelled.rejectReason == nil)
+    #expect(cancelled.log.suffix(3).map(\.status) == [.pendingCancel, .cancelled, .cancelled])
+    #expect(cancelled.log.last?.message == "Order Canceled - reason:")
+    #expect(broker.order(clientID: 7, orderID: id)?.status == .cancelled)
+    expectInCorpus(broker.emitted, source: "sim/cancelFollowsTheRecordedSequence")
+}
+
+/// IB refuses a new order with 201 before acknowledging it: the client ends it `.inactive` with IB's text.
+@Test func rejectedOrderEndsInactive() async throws {
+    let text = "Order rejected - reason:YOUR ORDER IS NOT ACCEPTED. IN ORDER TO OBTAIN THE DESIRED POSITION YOUR "
+        + "EQUITY WITH LOAN VALUE [0.00 USD] MUST EXCEED THE INITIAL MARGIN [9362.50 USD]"
+    let broker = SimulatedBroker()
+    let client = try await connected(broker, clientID: 7)
+    let (_, orders) = await client.orders()
+    broker.reject(nextOrderWith: 201, text: text)
+    let id = try await client.placeOrder(aapl, limit(.buy, 100, "187.25"))
+    let rejected = try await next(orders) { $0.orderID == id && $0.status.isFinal }
+    #expect(rejected.status == .inactive && rejected.rejectReason == text && rejected.permID == 0)
+    #expect(rejected.log.last?.errorCode == 201)
+    #expect(broker.order(clientID: 7, orderID: id) == nil)
+    expectInCorpus(broker.emitted, source: "sim/rejectedOrderEndsInactive")
+}
+
+/// A warning on a modification (105) leaves the order working at IB with its old terms; the client marks it
+/// `.validationError`, still active, with IB's text (DECISIONS' warning row).
+@Test func warnedModifyKeepsTheOrderLive() async throws {
+    let text = "Order being modified does not match original order"
+    let broker = SimulatedBroker()
+    let client = try await connected(broker, clientID: 7)
+    let (_, orders) = await client.orders()
+    let id = try await client.placeOrder(aapl, limit(.buy, 100, "187.25"))
+    let working = try await next(orders) { $0.orderID == id && $0.status == .submitted }
+    broker.reject(nextOrderWith: 105, text: text)
+    var changed = working.order
+    changed.limitPrice = d("187.5")
+    try await client.modifyOrder(id, working.contract, changed)
+    let warned = try await next(orders) { $0.orderID == id && $0.log.last?.errorCode == 105 }
+    #expect(warned.status == .validationError && warned.isActive && warned.rejectReason == text)
+    let booked = broker.order(clientID: 7, orderID: id)
+    #expect(booked?.limitPrice == d("187.25") && booked?.status == .submitted)
+    expectInCorpus(broker.emitted, source: "sim/warnedModifyKeepsTheOrderLive")
+}
+
+/// placeBracket: the legs sent with transmit off get no answer until the stop-loss transmits the group; the
+/// children wait PreSubmitted under their parent, work once it fills, and the take-profit's fill cancels the stop.
+@Test func bracketHoldsUntilTheLastLegAndCancelsTheSibling() async throws {
+    let broker = SimulatedBroker()
+    let client = try await connected(broker, clientID: 7)
+    let (_, orders) = await client.orders()
+    let ids = try await client.placeBracket(aapl, Order.bracket(.buy, quantity: 100, limitPrice: d("187.25"),
+                                                          takeProfitPrice: 190, stopLossPrice: 185))
+    let sent = try await until(orders) { s in
+        s[ids.parent]?.status == .submitted && s[ids.takeProfit]?.status == .preSubmitted
+            && s[ids.stopLoss]?.status == .preSubmitted
+    }
+    #expect(broker.answers.filter { $0.request.first == "3" }.map(\.replies.isEmpty) == [true, true, false])
+    #expect(sent[ids.takeProfit]?.order.parentID == ids.parent && sent[ids.stopLoss]?.order.parentID == ids.parent)
+    #expect(sent[ids.stopLoss]?.order.orderType == "STP" && sent[ids.stopLoss]?.order.auxPrice == 185)
+
+    broker.fill(orderID: ids.parent, clientID: 7, shares: 100, price: d("187.25"))
+    _ = try await until(orders) { s in
+        s[ids.parent]?.status == .filled && s[ids.takeProfit]?.status == .submitted
+            && s[ids.stopLoss]?.status == .submitted
+    }
+    broker.fill(orderID: ids.takeProfit, clientID: 7, shares: 100, price: 190)
+    let done = try await until(orders) { s in
+        s[ids.takeProfit]?.status == .filled && s[ids.stopLoss]?.status == .cancelled
+    }
+    #expect(done[ids.stopLoss]?.filled == 0 && done[ids.stopLoss]?.isActive == false)
+    #expect(broker.order(clientID: 7, orderID: ids.stopLoss)?.status == .cancelled)
+    #expect(broker.position(account: "DU0000001", conID: 265598).quantity == 0)
+    expectInCorpus(broker.emitted, source: "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling")
+}
+
+/// Two limits in one OCA group (type 1, cancel the rest): one fills, IB cancels the other.
+@Test func ocaFillCancelsTheOthers() async throws {
+    let broker = SimulatedBroker()
+    let client = try await connected(broker, clientID: 7)
+    let (_, orders) = await client.orders()
+    let legs = Order.oneCancelsAll([limit(.buy, 100, "187"), limit(.buy, 100, "186")], group: "exit-1", type: 1)
+    let first = try await client.placeOrder(aapl, legs[0])
+    let second = try await client.placeOrder(aapl, legs[1])
+    _ = try await until(orders) { s in s[first]?.status == .submitted && s[second]?.status == .submitted }
+    broker.fill(orderID: first, clientID: 7, shares: 100, price: 187)
+    let done = try await until(orders) { s in s[first]?.status == .filled && s[second]?.status == .cancelled }
+    #expect(done[second]?.order.ocaGroup == "exit-1" && done[second]?.filled == 0)
+    #expect(broker.order(clientID: 7, orderID: second)?.status == .cancelled)
+    expectInCorpus(broker.emitted, source: "sim/ocaFillCancelsTheOthers")
+}
+
+/// whatIfOrder: one openOrder with whatIf set and the margins; no orderStatus, nothing booked on either side.
+@Test func whatIfReturnsMarginsAndBooksNothing() async throws {
+    let broker = SimulatedBroker()
+    let client = try await connected(broker, clientID: 7)
+    let state = try await within2s { try await client.whatIfOrder(aapl, limit(.buy, 100, "187.25")) }
+    // the broker's rule: 50 % / 25 % of the 18725 notional, equity 1,000,000 less the commission of 1
+    #expect(state.initMarginBefore == 0 && state.maintMarginBefore == 0 && state.equityWithLoanBefore == 1_000_000)
+    #expect(state.initMarginChange == d("9362.5") && state.maintMarginChange == d("4681.25"))
+    #expect(state.equityWithLoanChange == -1 && state.equityWithLoanAfter == 999_999)
+    #expect(state.initMarginAfter == d("9362.5") && state.maintMarginAfter == d("4681.25"))
+    #expect(state.commission == 1 && state.commissionCurrency == "USD")
+    #expect(await client.orders().snapshot.isEmpty)
+    #expect(broker.bookedOrders.isEmpty && !broker.emitted.contains { $0.first == "3" })
+    expectInCorpus(broker.emitted, source: "sim/whatIfReturnsMarginsAndBooksNothing")
 }

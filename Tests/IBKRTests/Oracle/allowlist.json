@@ -1032,6 +1032,14 @@
   "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
  },
  {
+  "scope": "in 59",
+  "field": "commissionReport.yieldRedemptionDate",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/36",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
+ },
+ {
   "scope": "in 100",
   "field": "reqId",
   "frames": "gen/100/unset-max-permId",
@@ -1107,6 +1115,30 @@
   "scope": "in 11",
   "field": "execution.evMultiplier",
   "frames": "sim/syncReplaysTheBook/41",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/18",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/31",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "sim/ocaFillCancelsTheOthers/18",
   "pair": ["", "0"],
   "cite": "DECISIONS: One shared unset set",
   "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
@@ -3881,6 +3913,134 @@
  },
  {
   "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/13",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/15",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/21",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/24",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/26",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/32",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/34",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/cancelFollowsTheRecordedSequence/13",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/modifyKeepsTheOrderAndLogsModified/13",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/ocaFillCancelsTheOthers/11",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/ocaFillCancelsTheOthers/13",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/ocaFillCancelsTheOthers/15",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/ocaFillCancelsTheOthers/19",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/ocaFillCancelsTheOthers/21",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/ocaFillCancelsTheOthers/9",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/whatIfReturnsMarginsAndBooksNothing/9",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
   "field": "order.dontUseAutoPriceForHedge",
   "frames": "gen/5/unset-long-min",
   "pair": ["false", "true"],
@@ -4609,6 +4769,126 @@
  },
  {
   "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/21",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/24",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/26",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/32",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/34",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/cancelFollowsTheRecordedSequence/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/modifyKeepsTheOrderAndLogsModified/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/ocaFillCancelsTheOthers/11",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/ocaFillCancelsTheOthers/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/ocaFillCancelsTheOthers/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/ocaFillCancelsTheOthers/19",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/ocaFillCancelsTheOthers/21",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/ocaFillCancelsTheOthers/9",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
   "field": "orderState.equityWithLoanBefore",
   "frames": "gen/5/what-if-unset-long",
   "equalAsNumbers": true,
@@ -4681,6 +4961,126 @@
  },
  {
   "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/21",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/24",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/26",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/32",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/34",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/cancelFollowsTheRecordedSequence/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/modifyKeepsTheOrderAndLogsModified/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/ocaFillCancelsTheOthers/11",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/ocaFillCancelsTheOthers/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/ocaFillCancelsTheOthers/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/ocaFillCancelsTheOthers/19",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/ocaFillCancelsTheOthers/21",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/ocaFillCancelsTheOthers/9",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
   "field": "orderState.equityWithLoanChange",
   "frames": "gen/5/what-if-unset-long",
   "equalAsNumbers": true,
@@ -4753,6 +5153,126 @@
  },
  {
   "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/21",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/24",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/26",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/32",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/34",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/cancelFollowsTheRecordedSequence/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/modifyKeepsTheOrderAndLogsModified/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/ocaFillCancelsTheOthers/11",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/ocaFillCancelsTheOthers/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/ocaFillCancelsTheOthers/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/ocaFillCancelsTheOthers/19",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/ocaFillCancelsTheOthers/21",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/ocaFillCancelsTheOthers/9",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
   "field": "orderState.initMarginAfter",
   "frames": "gen/5/what-if-unset-long",
   "equalAsNumbers": true,
@@ -4825,6 +5345,126 @@
  },
  {
   "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/21",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/24",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/26",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/32",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/34",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/cancelFollowsTheRecordedSequence/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/modifyKeepsTheOrderAndLogsModified/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/ocaFillCancelsTheOthers/11",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/ocaFillCancelsTheOthers/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/ocaFillCancelsTheOthers/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/ocaFillCancelsTheOthers/19",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/ocaFillCancelsTheOthers/21",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/ocaFillCancelsTheOthers/9",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
   "field": "orderState.initMarginBefore",
   "frames": "gen/5/what-if-unset-long",
   "equalAsNumbers": true,
@@ -4897,6 +5537,126 @@
  },
  {
   "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/21",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/24",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/26",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/32",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/34",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/cancelFollowsTheRecordedSequence/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/modifyKeepsTheOrderAndLogsModified/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/ocaFillCancelsTheOthers/11",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/ocaFillCancelsTheOthers/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/ocaFillCancelsTheOthers/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/ocaFillCancelsTheOthers/19",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/ocaFillCancelsTheOthers/21",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/ocaFillCancelsTheOthers/9",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
   "field": "orderState.initMarginChange",
   "frames": "gen/5/what-if-unset-long",
   "equalAsNumbers": true,
@@ -4969,6 +5729,126 @@
  },
  {
   "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/21",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/24",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/26",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/32",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/34",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/cancelFollowsTheRecordedSequence/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/modifyKeepsTheOrderAndLogsModified/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/ocaFillCancelsTheOthers/11",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/ocaFillCancelsTheOthers/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/ocaFillCancelsTheOthers/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/ocaFillCancelsTheOthers/19",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/ocaFillCancelsTheOthers/21",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/ocaFillCancelsTheOthers/9",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
   "field": "orderState.maintMarginAfter",
   "frames": "gen/5/what-if-unset-long",
   "equalAsNumbers": true,
@@ -5041,6 +5921,126 @@
  },
  {
   "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/21",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/24",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/26",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/32",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/34",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/cancelFollowsTheRecordedSequence/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/modifyKeepsTheOrderAndLogsModified/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/ocaFillCancelsTheOthers/11",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/ocaFillCancelsTheOthers/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/ocaFillCancelsTheOthers/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/ocaFillCancelsTheOthers/19",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/ocaFillCancelsTheOthers/21",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/ocaFillCancelsTheOthers/9",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
   "field": "orderState.maintMarginBefore",
   "frames": "gen/5/what-if-unset-long",
   "equalAsNumbers": true,
@@ -5113,6 +6113,126 @@
  },
  {
   "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/21",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/24",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/26",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/32",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/34",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/cancelFollowsTheRecordedSequence/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/modifyKeepsTheOrderAndLogsModified/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/ocaFillCancelsTheOthers/11",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/ocaFillCancelsTheOthers/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/ocaFillCancelsTheOthers/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/ocaFillCancelsTheOthers/19",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/ocaFillCancelsTheOthers/21",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/ocaFillCancelsTheOthers/9",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
   "field": "orderState.maintMarginChange",
   "frames": "gen/5/what-if-unset-long",
   "equalAsNumbers": true,
@@ -5179,6 +6299,126 @@
   "scope": "in 5",
   "field": "orderState.maintMarginChange",
   "frames": "sim/syncReplaysTheBook/9",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/21",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/24",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/26",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/32",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/bracketHoldsUntilTheLastLegAndCancelsTheSibling/34",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/cancelFollowsTheRecordedSequence/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/modifyKeepsTheOrderAndLogsModified/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/ocaFillCancelsTheOthers/11",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/ocaFillCancelsTheOthers/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/ocaFillCancelsTheOthers/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/ocaFillCancelsTheOthers/19",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/ocaFillCancelsTheOthers/21",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/ocaFillCancelsTheOthers/9",
   "equalAsNumbers": true,
   "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
   "note": "ib_async keeps the margin text as sent (order.py:310-318)"

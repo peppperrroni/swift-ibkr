@@ -59,7 +59,8 @@ realized P&L. The stage-4 run of 2026-11-11 (paper account, no market-data subsc
   so it would be duplicated).
 - **Live gateway.** Recorded (`Tests/IBKRTests/Recorded/`): the handshake and sync, one limit order placed and
   cancelled, and one BUY + SELL of 1 AAPL filled pre-market with the BUY's commission and a completedOrder. Still
-  hand-built: a bracket's three openOrders, an execution correction.
+  hand-built: an execution correction. A bracket's three openOrders (the simulated broker's, `parentId` at index 57)
+  are cross-checked against ib_async 2.1.0, unseen live.
 - **Live gateway.** Whether `accountSummaryEnd` repeats after IB's 3-minute updates: the live test ends after the
   first set.
 - **Live gateway.** IB's price cap is about 1.8% from the market in regular hours. The live fill test uses +-1% and
@@ -70,9 +71,10 @@ realized P&L. The stage-4 run of 2026-11-11 (paper account, no market-data subsc
   decodes to 0; protocol-178 Disagreements 15).
 - **Live gateway.** Conditions, algos, PEG and combo orders are cross-checked against ib_async 2.1.0 both ways,
   unseen live: no live order has carried one.
-- **Live gateway.** What-if is unchecked live: `whatIfOrder` is tested on hand-built frames only; the request and the
-  margin / commission decoding are cross-checked against ib_async 2.1.0, unseen live, so the margin text format of a
-  real answer (and whether IB echoes the order first) is unconfirmed.
+- **Live gateway.** What-if is unchecked live: `whatIfOrder` is tested on hand-built frames and on the simulated
+  broker's answer (its own margin rule); the request and the margin / commission decoding are cross-checked against
+  ib_async 2.1.0, unseen live, so the margin text format of a real answer (and whether IB echoes the order first) is
+  unconfirmed.
 - **Live gateway.** The simulated broker (`Tests/IBKRTests/SimulatedBroker.swift`) sends the recorded frames where a
   recording shows them: openOrder and completedOrder are liveOrderFillsWithCommission.json's (deltaNeutralOrderType
   `None` with its 8 fields, adjustedOrderType `None`, the margins as sent) with the order's own values put in, and
@@ -82,10 +84,17 @@ realized P&L. The stage-4 run of 2026-11-11 (paper account, no market-data subsc
   and reqCompletedOrders; the account subscription's replies (AccountCode, the portfolio, the account time) and the
   portfolio updates after a fill or a market price; a contract no recording traded (its replies echo placeOrder's
   terms, a missing conID becomes 900000001 on); an order type other than LMT (its openOrder keeps the recorded LMT
-  order's other fields, trailStopPrice unset where live sends lmtPrice + 1); and, as their scenarios join, bracket,
-  OCA, reject and what-if.
-- **Live gateway.** The local `.validationError` is checked on hand-built frames only: no live order has drawn a
-  warning (105, 321, 329, 434, 492), so IB's status messages after one are unrecorded.
+  order's other fields, trailStopPrice unset where live sends lmtPrice + 1); a modify (one openOrder + orderStatus
+  with the new terms; the cancel copies liveLimitOrderPlacesAndCancels.json); `reject(nextOrderWith:text:)` (IB's
+  error alone, no openOrder or orderStatus, and the book unchanged); a bracket (legs with transmit off unanswered
+  until the transmitting leg sends the group, children PreSubmitted until the parent is wholly filled, then
+  Submitted); OCA (a fill cancels the rest of the group, ocaType 1 only, and a bracket child's fill its sibling, each
+  with a bare orderStatus Cancelled; an OCA order's openOrder echoes its ocaType); what-if (one PreSubmitted openOrder
+  with whatIf set, margins of 50 % / 25 % of the notional on a flat account with equity 1,000,000, commission 1, no
+  orderStatus, nothing booked).
+- **Live gateway.** The local `.validationError` is checked on hand-built frames and on the simulated broker's 105 on a
+  modify (the error alone, an assumption): no live order has drawn a warning (105, 321, 329, 434, 492), so IB's
+  status messages after one are unrecorded.
 - **Live gateway, logged in another zone.** execDetails `time` comes in two formats: `20261110-11:56:31` (UTC, no
   zone) on a live fill and `20261110 06:56:31 US/Eastern` in the reqExecutions reply. `Execution.date` reads both;
   the live format's UTC is evidence from one recording, so a gateway whose login zone differs needs
