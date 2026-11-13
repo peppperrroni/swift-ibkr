@@ -68,6 +68,11 @@ Still open:
 - `ConnectOptions` is checked on the fake gateway only: a read-only API login, `+PACEAPI`, a non-empty
   `optionalCapabilities`, client 0's auto-bind with TWS's manual orders, and more than 50 sub-accounts have not
   been seen live.
+- `IBC` and `Watchdog` never ran against an IBC install: the tests drive the loop with a fake launcher and the fake
+  gateway, and run the real launcher only on a stand-in script (`/bin/sh` or a `.bat`). IBC's real stdout, a
+  Gateway's startup time against `appStartupTime`, the history probe's answer from a real app and `taskkill /T` on
+  IBC's Java child are unconfirmed. A password with `cmd.exe` metacharacters (`&`, `^`, `%`) may not survive
+  `StartIBC.bat`'s command line; IBC's `config.ini` avoids it.
 
 ## Not covered by CI
 

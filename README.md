@@ -62,6 +62,7 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | Fundamentals and Wall Street Horizon | fundamentals report XML, WSH metadata and event JSON, all as IB's text | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
 | FA, display groups and verify | FA XML read and replace, TWS display groups (list, follow, update), the vendor verify handshake | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
 | Flex reports | download by token and query id, topics, records as IB's strings with a strict Decimal accessor (the separate product IBKRFlex, SwiftPM only) | ✅ on hand-written XML and a fake HTTP layer; never run against IB's service |
+| Gateway control | `IBC` starts and stops IB Gateway or TWS through an IBC install; `Watchdog` connects, probes on silence and restarts the app (macOS, Linux and Windows) | ✅ on a fake process and the fake gateway; never run against IBC |
 
 What is still unconfirmed against a live gateway is listed in [`docs/KNOWN-GAPS.md`](docs/KNOWN-GAPS.md).
 Releases follow [Semantic Versioning](https://semver.org/): from 1.0.0 on, a change that breaks the public API
@@ -498,6 +499,30 @@ shows its id. `topics` lists every tag that has attributes. Records keep IB's st
 query sets; `decimal(_:)` is `nil` for anything that is not entirely a number. Errors are `FlexError` (`.request`,
 `.statement`, `.malformedXML`, `.http`). Cancel the task to stop the polling.
 
+### Running the gateway with IBC
+
+On macOS, Linux and Windows, `IBC` starts IB Gateway or TWS through an [IBC](https://github.com/IbcAlpha/IBC)
+install, and `Watchdog` keeps it up, as `ib_async`'s classes of the same names do:
+
+```swift
+let ibc = IBC(twsVersion: 1030, gateway: true, tradingMode: "paper")   // credentials in IBC's config.ini
+let client = IBClient()
+client.setLogHandler { level, line in print(level, line) }             // IBC's stdout comes here at .debug
+let watchdog = Watchdog(controller: ibc, client: client, port: 4002)
+Task { for await event in await watchdog.events() { print(event) } }   // .starting, .started, .softTimeout, …
+try await watchdog.start()
+// … use `client`; react to `.started` to subscribe again after a restart …
+await watchdog.stop()                                                   // disconnects and terminates the app
+```
+
+`Watchdog` starts the app, waits `appStartupTime` (30 s), connects, and after `appTimeout` (20 s) of silence
+probes the app with `currentTime()`, or, with `probeContract`, with `ib_async`'s 30-second MIDPOINT history
+request. No answer within `probeTimeout`, IB's error 100 or 1100, or a dropped connection restarts the app: it is
+terminated (`.stopped`), and `retryDelay` later started and connected again (`.started`). `ibcPath` defaults to
+`/opt/ibc`, or `C:\IBC` on Windows. `userID` and `password` go on IBC's command line, where other local users can
+read them, as with `ib_async`; keep them in IBC's `config.ini` instead. `IBC` alone (`start()`, `terminate()`)
+starts and stops the app without watching it.
+
 ### Errors
 
 IB sends informational notices and real errors through the same message. The library sorts them with an explicit
@@ -527,8 +552,9 @@ library leaves out.
 | `connect(readonly:account:raiseSyncErrors:fetchFields:)`, `StartupFetch`, `MaxSyncedSubAccounts` | `ConnectOptions` (`readOnly`, `account`, `throwsOnSyncError`, `fetch: StartupFetch`, `maxSyncedSubAccounts`), passed as `connect(…, options:)` |
 | `disconnect` | `disconnect()` |
 | `isConnected`, `connectedEvent`, `disconnectedEvent` | `states()` (the current state first) |
-| `Watchdog` | `ReconnectPolicy`, passed as `connect(…, reconnect:)` |
-| `IBC` | none |
+| `Watchdog` | `Watchdog` (macOS, Linux, Windows); `ReconnectPolicy`, passed as `connect(…, reconnect:)`, reconnects the socket without restarting the app |
+| `Watchdog.startingEvent`, `startedEvent`, `stoppingEvent`, `stoppedEvent`, `softTimeoutEvent`, `hardTimeoutEvent` | `Watchdog.events()`: `WatchdogEvent` `.starting`, `.started`, `.stopping`, `.stopped`, `.softTimeout`, `.hardTimeout` |
+| `IBC` (`start`, `terminate`, `IbcLogLevel`) | `IBC` (macOS, Linux, Windows): `start(logTo:)`, `terminate()`, `logLevel` |
 | `setTimeout`, `timeoutEvent` | `idleTimeouts(after:)` (a stream of idle times) |
 | `sleep`, `waitOnUpdate`, `loopUntil` | none: `async`/`await` |
 | `Client.MaxRequests`, `Client.RequestsInterval`, `Client.setConnectOptions`, `Client.optCapab` | `ConnectOptions.maxRequests`, `.requestsInterval`, `.connectOptions`, `.optionalCapabilities` |

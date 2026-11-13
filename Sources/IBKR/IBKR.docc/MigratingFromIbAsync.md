@@ -29,9 +29,11 @@ A thrown ``IBClientError`` replaces `errorEvent`.
 
 Money and sizes are `Decimal`, and IB's unset values are `nil` instead of `nan`.
 
-## Reconnect
+## Reconnect and the gateway
 
-A ``ReconnectPolicy`` replaces `Watchdog`. There is no IBC: start IB Gateway yourself.
+``IBC`` and ``Watchdog`` start, probe and restart IB Gateway or TWS through an IBC install as `ib_async`'s classes
+do, on macOS, Linux and Windows; ``Watchdog/events()`` replaces its six events. Without IBC, a ``ReconnectPolicy``
+reconnects the socket to a gateway you start yourself.
 
 ## The full table
 

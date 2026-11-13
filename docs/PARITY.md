@@ -401,33 +401,33 @@ connect), **model helper** (a computed property or method on a model), **factory
 
 | ib_async | swift-ibkr | Status | Note |
 |---|---|---|---|
-| `IBC` | — | MISSING | type `IBC` in `IBKR`, on macOS, Linux and Windows only (an `#if os(…)` guard), starting IB Gateway or TWS through IBC with Foundation `Process` |
-| `IBC.IbcLogLevel` | — | MISSING | the `IBLogLevel` at which IBC's stdout goes to `setLogHandler` |
-| `IBC.twsVersion`, `gateway`, `tradingMode`, `twsPath`, `twsSettingsPath`, `ibcPath`, `ibcIni`, `javaPath`, `userid`, `password`, `fixuserid`, `fixpassword`, `on2fatimeout` | — | MISSING | fields of `IBC`, each a command-line argument of `ibcstart.sh` / `StartIBC.bat` (ibcontroller.py:129) |
-| `IBC.start`, `startAsync` | — | MISSING | `IBC.start() async throws` |
-| `IBC.terminate`, `terminateAsync` | — | MISSING | `IBC.terminate() async` (taskkill /T on Windows) |
-| `IBC.monitorAsync` | — | MISSING | reads the child's stdout line by line into the log |
+| `IBC` | `IBC` | added | actor in `IBKR`, on macOS, Linux and Windows only (an `#if os(…)` guard), starting IB Gateway or TWS through IBC with Foundation `Process` |
+| `IBC.IbcLogLevel` | `IBC.logLevel` | added | the `IBLogLevel` (`.debug` by default) at which IBC's stdout lines go to the client's log handler |
+| `IBC.twsVersion`, `gateway`, `tradingMode`, `twsPath`, `twsSettingsPath`, `ibcPath`, `ibcIni`, `javaPath`, `userid`, `password`, `fixuserid`, `fixpassword`, `on2fatimeout` | `IBC.twsVersion`, `.gateway`, `.tradingMode`, `.twsPath`, `.twsSettingsPath`, `.ibcPath`, `.ibcIni`, `.javaPath`, `.userID`, `.password`, `.fixUserID`, `.fixPassword`, `.on2FATimeout` | added | each non-empty one a command-line argument of `ibcstart.sh` / `StartIBC.bat` in ib_async's order (ibcontroller.py:129); `twsSettingsPath` bare on Windows, as ib_async; an empty `ibcPath` is `/opt/ibc` or `C:\IBC` |
+| `IBC.start`, `startAsync` | `IBC.start(logTo:)` | added | a no-op while running; throws when the script cannot start |
+| `IBC.terminate`, `terminateAsync` | `IBC.terminate()` | added | `taskkill /F /T /PID` of the launched child on Windows, SIGTERM and wait elsewhere; a no-op when not running |
+| `IBC.monitorAsync` | `IBC.start(logTo:)` | added | an internal task reads the child's stdout line by line into the client's log handler |
 | `IBC.__enter__`, `__exit__` | — | n/a | Python dunders |
-| `Watchdog` | — | MISSING | type `Watchdog(controller: IBC, client: IBClient, …)`: start the app, connect, probe, restart |
-| `Watchdog.controller` | — | MISSING | the `IBC` |
-| `Watchdog.ib` | — | MISSING | init parameter `client: IBClient`, which `Watchdog` connects itself |
-| `Watchdog.host`, `port`, `clientId`, `connectTimeout` | — | MISSING | the host, port, client and timeout `Watchdog` passes to `connect` on every restart (with its `ConnectOptions`) |
-| `Watchdog.readonly`, `account`, `raiseSyncErrors` | — | MISSING | `ConnectOptions.readOnly`, `.account`, `.throwsOnSyncError` stored on `Watchdog` |
-| `Watchdog.appStartupTime` | — | MISSING | field (30 s): pause after starting the app before connecting |
-| `Watchdog.appTimeout` | — | MISSING | field (20 s): idle time before the probe, on the mechanics of `ReconnectPolicy.probeAfter` |
-| `Watchdog.retryDelay` | — | MISSING | field (2 s): pause after the app is terminated before it is started again; `ReconnectPolicy.delays` only spaces socket reconnects |
-| `Watchdog.probeContract` | — | MISSING | field `probeContract: Contract?`: `nil` probes with reqCurrentTime, a contract with ib_async's 30 s MIDPOINT history request (ibcontroller.py:342) |
-| `Watchdog.probeTimeout` | — | MISSING | field (4 s): how long the history probe may take |
-| `Watchdog.startingEvent` | — | MISSING | `WatchdogEvent.starting` on a `Watchdog.events()` stream |
-| `Watchdog.startedEvent` | — | MISSING | `WatchdogEvent.started`: a `Watchdog`-driven connect succeeded |
-| `Watchdog.stoppingEvent` | — | MISSING | `WatchdogEvent.stopping` |
-| `Watchdog.stoppedEvent` | — | MISSING | `WatchdogEvent.stopped`, after `IBC.terminate` |
-| `Watchdog.softTimeoutEvent` | — | MISSING | `WatchdogEvent.softTimeout`: the probe went out |
-| `Watchdog.hardTimeoutEvent` | — | MISSING | `WatchdogEvent.hardTimeout`, followed by an app restart (`.disconnected(.timeout)` only reconnects) |
+| `Watchdog` | `Watchdog` | added | actor `Watchdog(controller:client:host:port:clientID:connectTimeout:options:appStartupTime:appTimeout:retryDelay:probeContract:probeTimeout:)`, on macOS, Linux and Windows only |
+| `Watchdog.controller` | `Watchdog.controller` | added | the `IBC` |
+| `Watchdog.ib` | `Watchdog.client` | added | an `IBClient` that must be disconnected; `Watchdog` connects it itself |
+| `Watchdog.host`, `port`, `clientId`, `connectTimeout` | `Watchdog.host`, `.port`, `.clientID`, `.connectTimeout` | added | passed to `connect` on every round (127.0.0.1, 7497, 1, 2 s) |
+| `Watchdog.readonly`, `account`, `raiseSyncErrors` | `Watchdog.options` | added | one `ConnectOptions` (`readOnly`, `account`, `throwsOnSyncError`, R12), passed to every connect |
+| `Watchdog.appStartupTime` | `Watchdog.appStartupTime` | added | 30 s: pause after starting the app before connecting |
+| `Watchdog.appTimeout` | `Watchdog.appTimeout` | added | 20 s: silence before the probe, on `idleTimeouts(after:)` |
+| `Watchdog.retryDelay` | `Watchdog.retryDelay` | added | 2 s: pause after the app is terminated before it is started again; `ReconnectPolicy.delays` only spaces socket reconnects |
+| `Watchdog.probeContract` | `Watchdog.probeContract` | added | `nil` (default) probes with `currentTime()`; a contract with ib_async's 30 S / 5 secs / MIDPOINT history request outside RTH, whose first batch must hold a bar (R8; ib_async defaults to EURUSD) |
+| `Watchdog.probeTimeout` | `Watchdog.probeTimeout` | added | 4 s: how long either probe may take |
+| `Watchdog.startingEvent` | `WatchdogEvent.starting` | added | on `Watchdog.events()`, from `start()` only |
+| `Watchdog.startedEvent` | `WatchdogEvent.started` | added | a `Watchdog`-driven connect succeeded |
+| `Watchdog.stoppingEvent` | `WatchdogEvent.stopping` | added | from `stop()` |
+| `Watchdog.stoppedEvent` | `WatchdogEvent.stopped` | added | after each round's disconnect and `IBC.terminate()` |
+| `Watchdog.softTimeoutEvent` | `WatchdogEvent.softTimeout` | added | the probe went out |
+| `Watchdog.hardTimeoutEvent` | `WatchdogEvent.hardTimeout` | added | the probe got no answer; the app is restarted (`.disconnected(.timeout)` only reconnects) |
 | `Watchdog.events` | — | n/a | eventkit bookkeeping list |
-| `Watchdog.start` | — | MISSING | `Watchdog.start()` |
-| `Watchdog.stop` | — | MISSING | `Watchdog.stop()`: disconnect and terminate the app; `disconnect()` only covers the first half |
-| `Watchdog.runAsync` | — | MISSING | the loop: start app, wait, connect, probe on silence, restart on 100/1100, disconnect or hard timeout |
+| `Watchdog.start` | `Watchdog.start()` | added | throws `.alreadyConnected` while running or unless the client is disconnected |
+| `Watchdog.stop` | `Watchdog.stop()` | added | disconnects, ends the loop and returns once the app is terminated |
+| `Watchdog.runAsync` | `Watchdog.start()` | added | the loop: start app, wait, connect, probe on silence, restart on no answer, 100/1100 or a disconnect; every round ends with disconnect, terminate, `.stopped` |
 
 ## flexreport.py
 
@@ -494,4 +494,4 @@ connect), **model helper** (a computed property or method on a model), **factory
 
 ## Totals
 
-Rows, where one row may carry several names: `present` 218 · `added` 140 · `MISSING` 25 · `n/a` 33.
+Rows, where one row may carry several names: `present` 218 · `added` 165 · `MISSING` 0 · `n/a` 33.

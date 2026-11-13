@@ -26,6 +26,11 @@ synced at connect and offered as a snapshot plus a stream of changes; every othe
 - ``IBLogHandler``
 - ``IBClientError``
 
+### Gateway control
+- ``IBC``
+- ``Watchdog``
+- ``WatchdogEvent``
+
 ### Contracts
 - ``Contract``
 - ``ContractDetails``

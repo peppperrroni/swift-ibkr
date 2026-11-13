@@ -948,6 +948,8 @@ public actor IBClient {
     func setFrameTap(_ tap: (@Sendable ([String]) -> Void)?) { frameTap = tap }
 
     var orderSubscriberCount: Int { orderSubscribers.count }
+    var stateSubscriberCount: Int { stateSubscribers.count }
+    var messageSubscriberCount: Int { messageSubscribers.count }
     var requestStreamCount: Int { requestStreams.count }
     func hasStream(_ key: Int) -> Bool { requestStreams[key] != nil }
 
