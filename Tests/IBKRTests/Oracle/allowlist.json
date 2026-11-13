@@ -1010,7 +1010,7 @@
  {
   "scope": "in 59",
   "field": "commissionReport.yieldRedemptionDate",
-  "frames": "sim/placedOrderGoesSubmittedPartialFilled/17",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/17",
   "pair": ["", "0"],
   "cite": "DECISIONS: One shared unset set",
   "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
@@ -1018,7 +1018,7 @@
  {
   "scope": "in 59",
   "field": "commissionReport.yieldRedemptionDate",
-  "frames": "sim/placedOrderGoesSubmittedPartialFilled/26",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/26",
   "pair": ["", "0"],
   "cite": "DECISIONS: One shared unset set",
   "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
@@ -1074,7 +1074,7 @@
  {
   "scope": "in 11",
   "field": "execution.evMultiplier",
-  "frames": "sim/placedOrderGoesSubmittedPartialFilled/14",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/14",
   "pair": ["", "0"],
   "cite": "DECISIONS: One shared unset set",
   "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
@@ -1082,7 +1082,7 @@
  {
   "scope": "in 11",
   "field": "execution.evMultiplier",
-  "frames": "sim/placedOrderGoesSubmittedPartialFilled/21",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/21",
   "pair": ["", "0"],
   "cite": "DECISIONS: One shared unset set",
   "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
@@ -3817,6 +3817,70 @@
  },
  {
   "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/22",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/24",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/syncReplaysTheBook/11",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/syncReplaysTheBook/13",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/syncReplaysTheBook/15",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/syncReplaysTheBook/26",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/syncReplaysTheBook/28",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
+  "field": "order.displaySize",
+  "frames": "sim/syncReplaysTheBook/9",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:882-1147)"
+ },
+ {
+  "scope": "in 5",
   "field": "order.dontUseAutoPriceForHedge",
   "frames": "gen/5/unset-long-min",
   "pair": ["false", "true"],
@@ -4481,8 +4545,136 @@
  },
  {
   "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/22",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/24",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/syncReplaysTheBook/11",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/syncReplaysTheBook/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/syncReplaysTheBook/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/syncReplaysTheBook/26",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/syncReplaysTheBook/28",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanAfter",
+  "frames": "sim/syncReplaysTheBook/9",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
   "field": "orderState.equityWithLoanBefore",
   "frames": "gen/5/what-if-unset-long",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/22",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/24",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/syncReplaysTheBook/11",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/syncReplaysTheBook/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/syncReplaysTheBook/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/syncReplaysTheBook/26",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/syncReplaysTheBook/28",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanBefore",
+  "frames": "sim/syncReplaysTheBook/9",
   "equalAsNumbers": true,
   "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
   "note": "ib_async keeps the margin text as sent (order.py:310-318)"
@@ -4497,8 +4689,136 @@
  },
  {
   "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/22",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/24",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/syncReplaysTheBook/11",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/syncReplaysTheBook/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/syncReplaysTheBook/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/syncReplaysTheBook/26",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/syncReplaysTheBook/28",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.equityWithLoanChange",
+  "frames": "sim/syncReplaysTheBook/9",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
   "field": "orderState.initMarginAfter",
   "frames": "gen/5/what-if-unset-long",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/22",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/24",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/syncReplaysTheBook/11",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/syncReplaysTheBook/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/syncReplaysTheBook/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/syncReplaysTheBook/26",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/syncReplaysTheBook/28",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginAfter",
+  "frames": "sim/syncReplaysTheBook/9",
   "equalAsNumbers": true,
   "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
   "note": "ib_async keeps the margin text as sent (order.py:310-318)"
@@ -4513,8 +4833,136 @@
  },
  {
   "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/22",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/24",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/syncReplaysTheBook/11",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/syncReplaysTheBook/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/syncReplaysTheBook/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/syncReplaysTheBook/26",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/syncReplaysTheBook/28",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginBefore",
+  "frames": "sim/syncReplaysTheBook/9",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
   "field": "orderState.initMarginChange",
   "frames": "gen/5/what-if-unset-long",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/22",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/24",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/syncReplaysTheBook/11",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/syncReplaysTheBook/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/syncReplaysTheBook/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/syncReplaysTheBook/26",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/syncReplaysTheBook/28",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.initMarginChange",
+  "frames": "sim/syncReplaysTheBook/9",
   "equalAsNumbers": true,
   "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
   "note": "ib_async keeps the margin text as sent (order.py:310-318)"
@@ -4529,6 +4977,70 @@
  },
  {
   "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/22",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/24",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/syncReplaysTheBook/11",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/syncReplaysTheBook/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/syncReplaysTheBook/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/syncReplaysTheBook/26",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/syncReplaysTheBook/28",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginAfter",
+  "frames": "sim/syncReplaysTheBook/9",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
   "field": "orderState.maintMarginBefore",
   "frames": "gen/5/what-if-unset-long",
   "equalAsNumbers": true,
@@ -4537,8 +5049,136 @@
  },
  {
   "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/22",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/24",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/syncReplaysTheBook/11",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/syncReplaysTheBook/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/syncReplaysTheBook/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/syncReplaysTheBook/26",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/syncReplaysTheBook/28",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginBefore",
+  "frames": "sim/syncReplaysTheBook/9",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
   "field": "orderState.maintMarginChange",
   "frames": "gen/5/what-if-unset-long",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/22",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilledOverLoopback/24",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/syncReplaysTheBook/11",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/syncReplaysTheBook/13",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/syncReplaysTheBook/15",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/syncReplaysTheBook/26",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/syncReplaysTheBook/28",
+  "equalAsNumbers": true,
+  "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
+  "note": "ib_async keeps the margin text as sent (order.py:310-318)"
+ },
+ {
+  "scope": "in 5",
+  "field": "orderState.maintMarginChange",
+  "frames": "sim/syncReplaysTheBook/9",
   "equalAsNumbers": true,
   "cite": "DECISIONS: `OrderState` holds openOrder's nine margins",
   "note": "ib_async keeps the margin text as sent (order.py:310-318)"
@@ -4601,24 +5241,8 @@
  },
  {
   "scope": "in 101",
-  "field": "order.parentPermId",
-  "frames": "sim/syncReplaysTheBook/38",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "empty on the wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 101",
   "field": "order.refFuturesConId",
   "frames": "gen/101/unset-empty",
-  "pair": ["", "0"],
-  "cite": "DECISIONS: One shared unset set",
-  "note": "empty on the wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
- },
- {
-  "scope": "in 101",
-  "field": "order.refFuturesConId",
-  "frames": "sim/syncReplaysTheBook/38",
   "pair": ["", "0"],
   "cite": "DECISIONS: One shared unset set",
   "note": "empty on the wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
@@ -5859,6 +6483,14 @@
   "scope": "in 101",
   "field": "order.displaySize",
   "frames": "gen/101/unset-long-min",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:1149-1359)"
+ },
+ {
+  "scope": "in 101",
+  "field": "order.displaySize",
+  "frames": "sim/syncReplaysTheBook/38",
   "pair": ["0", ""],
   "cite": "protocol-178 Disagreements 15",
   "note": "ib_async keeps the sentinel (decoder.py:1149-1359)"

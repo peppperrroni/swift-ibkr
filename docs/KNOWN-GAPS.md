@@ -73,12 +73,17 @@ realized P&L. The stage-4 run of 2026-11-11 (paper account, no market-data subsc
 - **Live gateway.** What-if is unchecked live: `whatIfOrder` is tested on hand-built frames only; the request and the
   margin / commission decoding are cross-checked against ib_async 2.1.0, unseen live, so the margin text format of a
   real answer (and whether IB echoes the order first) is unconfirmed.
-- **Live gateway.** The simulated broker's (`Tests/IBKRTests/SimulatedBroker.swift`) sequences that no recording
-  shows are assumptions, marked `// assumption: unrecorded live`: a part fill (openOrder + orderStatus stay
-  Submitted with filled and remaining), the replies to reqAllOpenOrders (openOrder + orderStatus per working order)
-  and reqCompletedOrders, the reqExecutions replay in the live fill's UTC time form (live replays in the login zone),
-  the account subscription's replies (AccountCode, the portfolio, the account time) and the portfolio updates after a
-  fill or a market price; and, as their scenarios join, bracket, OCA, reject and what-if.
+- **Live gateway.** The simulated broker (`Tests/IBKRTests/SimulatedBroker.swift`) sends the recorded frames where a
+  recording shows them: openOrder and completedOrder are liveOrderFillsWithCommission.json's (deltaNeutralOrderType
+  `None` with its 8 fields, adjustedOrderType `None`, the margins as sent) with the order's own values put in, and
+  positions, executions and the executions replay carry IB's description of AAPL (265598: NASDAQ, NMS) and the
+  recorded time forms. Assumptions, marked `// assumption: unrecorded live`: a part fill (openOrder + orderStatus stay
+  Submitted with filled and remaining); the replies to reqAllOpenOrders (openOrder + orderStatus per working order)
+  and reqCompletedOrders; the account subscription's replies (AccountCode, the portfolio, the account time) and the
+  portfolio updates after a fill or a market price; a contract no recording traded (its replies echo placeOrder's
+  terms, a missing conID becomes 900000001 on); an order type other than LMT (its openOrder keeps the recorded LMT
+  order's other fields, trailStopPrice unset where live sends lmtPrice + 1); and, as their scenarios join, bracket,
+  OCA, reject and what-if.
 - **Live gateway.** The local `.validationError` is checked on hand-built frames only: no live order has drawn a
   warning (105, 321, 329, 434, 492), so IB's status messages after one are unrecorded.
 - **Live gateway, logged in another zone.** execDetails `time` comes in two formats: `20261110-11:56:31` (UTC, no

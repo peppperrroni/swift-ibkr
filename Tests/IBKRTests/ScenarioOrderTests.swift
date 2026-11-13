@@ -39,11 +39,13 @@ private func statuses(_ stream: AsyncStream<OrderSnapshot>, orderID: Int, until 
     }
 }
 
-/// Place LMT BUY 100, fill 40 then 60: the client sees each status, the partial fill and the position.
+/// Place LMT BUY 100, fill 40 then 60: the client sees each status, the partial fill, both fills on the order, the
+/// position, and the portfolio revalued at a new market price.
 private func placePartialFill(_ client: IBClient, _ broker: SimulatedBroker, clientID: Int) async throws {
     let (_, orders) = await client.orders()
     let (_, fills) = await client.executions()
     let (_, positions) = await client.positions()
+    let (_, portfolio) = await client.portfolio()
     let id = try await client.placeOrder(aapl, limit(.buy, 100, "187.25"))
     #expect(try await statuses(orders, orderID: id, until: .submitted) == [.pendingSubmit, .preSubmitted, .submitted])
 
@@ -57,10 +59,20 @@ private func placePartialFill(_ client: IBClient, _ broker: SimulatedBroker, cli
     broker.fill(orderID: id, clientID: clientID, shares: 60, price: d("187.25"))
     let done = try await next(orders) { $0.orderID == id && $0.status == .filled }
     #expect(done.filled == 100 && done.remaining == 0)
+    let both = try await next(orders) { $0.orderID == id && $0.fills.count == 2 }
+    #expect(both.averageFillPrice == d("187.23") && both.lastFillPrice == d("187.25"))
+    #expect(both.fills.map(\.execution.shares) == [40, 60] && both.fills.map(\.commission.commission) == [1, 1])
+    #expect(both.permID > 0 && both.permID == broker.order(clientID: clientID, orderID: id)?.permID)
+    #expect(both.fills.allSatisfy { $0.execution.permID == both.permID })
     let held = try await next(positions) { $0.first?.quantity == 100 }
     #expect(held.map(\.contract.conID) == [265598])
     #expect(broker.order(clientID: clientID, orderID: id)?.filled == 100)
-    #expect(broker.position(account: "DU0000001", conID: 265598).quantity == 100)
+    #expect(broker.position(account: "DU0000001", conID: 265598) == (100, d("187.25")))   // commissions included
+
+    broker.setMarketPrice(conID: 265598, d("190"))
+    let valued = try await next(portfolio) { $0.first?.marketPrice == d("190") }
+    #expect(valued.map(\.quantity) == [100] && valued.map(\.averageCost) == [d("187.25")])
+    #expect(valued.map(\.marketValue) == [19000] && valued.map(\.unrealizedPNL) == [275])
 }
 
 @Test func placedOrderGoesSubmittedPartialFilled() async throws {
@@ -74,12 +86,16 @@ private func placePartialFill(_ client: IBClient, _ broker: SimulatedBroker, cli
 @Test func placedOrderGoesSubmittedPartialFilledOverLoopback() async throws {
     let broker = SimulatedBroker()
     let listener = Listener()
-    let pump = Task { bridge(await listener.acceptOffPool(), broker.newGateway()) }
+    let pump = Task {
+        guard let peer = await listener.acceptOffPool() else { return }
+        await bridge(peer, broker.newGateway()).value
+    }
+    defer { listener.close() }   // after the pump: the accept is over by then, or timed out
     let client = IBClient()
     try await within2s { try await client.connect(host: "127.0.0.1", port: listener.port, clientID: 7) }
     try await placePartialFill(client, broker, clientID: 7)
     await client.disconnect()
-    try await within2s { await pump.value.value }
+    try await within2s { await pump.value }
     expectInCorpus(broker.emitted, source: "sim/placedOrderGoesSubmittedPartialFilledOverLoopback")
 }
 

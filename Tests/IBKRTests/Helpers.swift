@@ -118,19 +118,37 @@ struct Listener: Sendable {
     /// Returns at once when a connection is already queued.
     func accept() -> TCPSocket { TCPSocket(handle: acceptHandle(handle)) }
 
-    /// Waits for the next connection on a thread of its own: a blocking accept on the cooperative pool could starve
-    /// the client that is about to connect.
-    func acceptOffPool() async -> TCPSocket {
-        await withCheckedContinuation { c in Thread { c.resume(returning: accept()) }.start() }
+    /// Waits up to 2 s for the next connection, on a thread of its own: a blocking accept on the cooperative pool could
+    /// starve the client that is about to connect. `nil` when none came, so a failed connect leaves no thread behind.
+    func acceptOffPool() async -> TCPSocket? {
+        await withCheckedContinuation { c in
+            Thread { c.resume(returning: readable(handle, 2000) ? accept() : nil) }.start()
+        }
     }
+
+    /// Stops listening. Call it once `acceptOffPool` has returned.
+    func close() { closeListener(handle) }
 }
 
 #if os(Windows)
 private func acceptHandle(_ h: TCPSocket.Handle) -> TCPSocket.Handle { WinSDK.accept(h, nil, nil) }
-#elseif canImport(Darwin)
+private func closeListener(_ h: TCPSocket.Handle) { _ = closesocket(h) }
+private func readable(_ h: TCPSocket.Handle, _ ms: Int32) -> Bool {
+    var p = WSAPOLLFD(fd: h, events: Int16(POLLRDNORM), revents: 0)
+    return WSAPoll(&p, 1, ms) > 0
+}
+#else
+#if canImport(Darwin)
 private func acceptHandle(_ h: TCPSocket.Handle) -> TCPSocket.Handle { Darwin.accept(h, nil, nil) }
+private func closeListener(_ h: TCPSocket.Handle) { _ = Darwin.close(h) }
 #else
 private func acceptHandle(_ h: TCPSocket.Handle) -> TCPSocket.Handle { Glibc.accept(h, nil, nil) }
+private func closeListener(_ h: TCPSocket.Handle) { _ = Glibc.close(h) }
+#endif
+private func readable(_ h: TCPSocket.Handle, _ ms: Int32) -> Bool {
+    var p = pollfd(fd: h, events: Int16(POLLIN), revents: 0)
+    return poll(&p, 1, ms) > 0
+}
 #endif
 
 /// Pumps a loopback peer into `gateway` one frame per write, the hello first (as `FakeGateway` expects), and the

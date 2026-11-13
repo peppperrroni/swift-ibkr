@@ -19,9 +19,11 @@ struct SimOrder {
 }
 
 /// A stateful simulated broker over `FakeGateway` (composed, never forked): one wired gateway per connect, and one
-/// book of orders, fills and positions shared by every client. Order, fill and commission sequences copy
-/// Recorded/liveLimitOrderPlacesAndCancels.json and liveOrderFillsWithCommission.json; times, permIDs and execIds
-/// come from counters, so a scenario emits the same frames on every run.
+/// book of orders, fills and positions shared by every client. Its frames are the live ones where a recording shows
+/// them: order, fill and commission sequences copy Recorded/liveLimitOrderPlacesAndCancels.json and
+/// liveOrderFillsWithCommission.json, and openOrder and completedOrder are that recording's frames with the order's
+/// own values put in. Times, permIDs, execIds and new conIDs come from counters, so a scenario emits the same frames
+/// on every run.
 // @unchecked Sendable: every mutable member sits behind `lock`.
 final class SimulatedBroker: @unchecked Sendable {
     private struct Session { var clientID: Int?; var positions = false; var account: String? }
@@ -30,10 +32,23 @@ final class SimulatedBroker: @unchecked Sendable {
         var account: String, conID: Int
         static func < (a: Self, b: Self) -> Bool { (a.account, a.conID) < (b.account, b.conID) }
     }
-    private struct SimFill { var order: Int; var price, amount, fee: Decimal; var execution, report: [String] }
+    /// IB's description of a contract, as its replies carry it (strike in placeOrder's `0.0` form).
+    private struct SimContract {
+        var conID: Int
+        var symbol, secType, lastTrade, strike, right, multiplier, primary, currency, localSymbol, tradingClass: String
+    }
+    private struct SimFill { var order: Int; var time: Int; var price, amount, fee: Decimal; var execution, report: [String] }
 
     private static let unset = "1.7976931348623157E308"
-    private static let noContract = Array(repeating: "", count: 12)
+    /// AAPL as the live recordings describe it (positions on NASDAQ, trading class NMS).
+    private static let recordedContracts = [
+        SimContract(conID: 265598, symbol: "AAPL", secType: "STK", lastTrade: "", strike: "0.0", right: "",
+                    multiplier: "", primary: "NASDAQ", currency: "USD", localSymbol: "AAPL", tradingClass: "NMS"),
+    ]
+    /// liveOrderFillsWithCommission.json's first openOrder (LMT BUY, PreSubmitted, deltaNeutralOrderType `None` and its
+    /// 8 fields, 135 in all) and its completedOrder of a filled LMT BUY (100 fields).
+    private static let openTemplate = template(25, "5", 135)
+    private static let completedTemplate = template(8, "101", 100)
 
     private let lock = NSLock()
     private let accounts: [String], nextOrderID: Int
@@ -41,15 +56,16 @@ final class SimulatedBroker: @unchecked Sendable {
     private var _gateways: [FakeGateway] = []
     private var sessions: [Session] = []   // per gateway
     private var orders: [SimOrder] = []
-    private var orderAccounts: [String] = []   // per order: placeOrder's account, else the first managed one
-    private var contractBlocks: [Int: [String]] = [:]   // conID → placeOrder fields 2–13, echoed back as sent
+    private var placed: [[String]] = []    // per order, the placeOrder frame that set its terms
+    private var contracts: [Int: SimContract]
     private var fills: [SimFill] = []
     private var holdings: [HoldingKey: Holding] = [:]
     private var marketPrices: [Int: Decimal] = [:]
-    private var permIDs = 0, execIDs = 0
+    private var permIDs = 0, execIDs = 0, conIDs = 0
 
     init(accounts: [String] = ["DU0000001"], nextOrderID: Int = 1, clock: Int = 1794321000) {
         (self.accounts, self.nextOrderID, self.clock) = (accounts, nextOrderID, clock)
+        contracts = Dictionary(uniqueKeysWithValues: Self.recordedContracts.map { ($0.conID, $0) })
     }
 
     /// Hands out a new wired gateway per connect.
@@ -68,7 +84,7 @@ final class SimulatedBroker: @unchecked Sendable {
             sessions.append(Session())
             return _gateways.count - 1
         }
-        gateway.onRequest = { [weak self] in self?.answer($0, session: i) ?? [] }
+        gateway.onRequest = { [weak self] in self?.answer($0, session: i); return [] }
         return gateway
     }
 
@@ -105,7 +121,8 @@ final class SimulatedBroker: @unchecked Sendable {
     /// Executes `shares` of the order at `price`, as liveOrderFillsWithCommission.json: position, execDetails,
     /// openOrder + orderStatus (twice when filled, the second with the commission), commission report, the
     /// position after commission. Order events go to the owning client only, positions to every client that asked for
-    /// them, the portfolio to every client subscribed to the account.
+    /// them, the portfolio to every client subscribed to the account. More than the order's remaining quantity is
+    /// refused.
     // assumption: unrecorded live — a part fill: openOrder + orderStatus stay Submitted with filled and remaining
     func fill(orderID: Int, clientID: Int, shares: Decimal, price: Decimal, commission: Decimal = 1) {
         lock.withLock {
@@ -113,10 +130,15 @@ final class SimulatedBroker: @unchecked Sendable {
                 Issue.record("SimulatedBroker.fill: no order \(orderID) of client \(clientID)")
                 return
             }
+            guard shares > 0, orders[n].filled + shares <= orders[n].quantity else {
+                let o = orders[n]
+                Issue.record("SimulatedBroker.fill: \(shares) of order \(orderID), \(o.filled) of \(o.quantity) filled")
+                return
+            }
             orders[n].filled += shares
-            orders[n].status = orders[n].filled >= orders[n].quantity ? .filled : .submitted
+            orders[n].status = orders[n].filled == orders[n].quantity ? .filled : .submitted
             let o = orders[n]
-            let key = HoldingKey(account: orderAccounts[n], conID: o.contract.conID)
+            let key = HoldingKey(account: account(n), conID: o.contract.conID)
             let signed = o.action == .buy ? shares : -shares
             var h = holdings[key] ?? Holding()
             let pnl = Self.trade(&h, signed, at: price)
@@ -133,18 +155,20 @@ final class SimulatedBroker: @unchecked Sendable {
 
             execIDs += 1
             let execID = String(format: "0000e0d5.%08x.01.01", execIDs)
-            let time = Self.format(clock, "yyyyMMdd-HH:mm:ss")
+            let time = clock
             clock += 1
             let amount = shares * price
             let average = Self.round((fills.filter { $0.order == n }.map(\.amount).reduce(0, +) + amount) / o.filled)
-            let b = contractBlocks[o.contract.conID] ?? Self.noContract
-            let execution = ["11", "-1", "\(o.orderID)"] + b[0..<7] + ["IBKRATS"] + b[9..<12]
-                + [execID, time, key.account, "IBKRATS", o.action == .buy ? "BOT" : "SLD", "\(shares)", "\(price)",
-                   "\(o.permID)", "\(o.clientID)", "0", "\(o.filled)", "\(average)", "", "", "", "", "2", "0"]
+            let c = contracts[o.contract.conID]!
+            let execution = ["11", "-1", "\(o.orderID)", "\(c.conID)", c.symbol, c.secType, c.lastTrade, c.strike,
+                             c.right, c.multiplier, "IBKRATS", c.currency, c.localSymbol, c.tradingClass, execID,
+                             Self.format(time, "yyyyMMdd-HH:mm:ss", "UTC"), key.account, "IBKRATS",
+                             o.action == .buy ? "BOT" : "SLD", "\(shares)", "\(price)", "\(o.permID)", "\(o.clientID)",
+                             "0", "\(o.filled)", "\(average)", "", "", "", "", "2", "0"]
             let report = ["59", "1", execID, "\(commission)", "USD", realized.map { "\($0)" } ?? Self.unset,
                           Self.unset, ""]
-            fills.append(SimFill(order: n, price: price, amount: amount, fee: commission, execution: execution,
-                                 report: report))
+            fills.append(SimFill(order: n, time: time, price: price, amount: amount, fee: commission,
+                                 execution: execution, report: report))
 
             var events = [execution] + openAndStatus(n)
             if o.status == .filled {
@@ -164,34 +188,36 @@ final class SimulatedBroker: @unchecked Sendable {
 
     // MARK: - Requests
 
-    /// The replies to one request from session `i`, fed before `FakeGateway`'s own end markers. Runs in the client's
-    /// write path: it never blocks and never calls back into the client.
-    private func answer(_ f: [String], session i: Int) -> [[String]] {
-        lock.withLock {
-            switch f.first {
-            case "71": sessions[i].clientID = Int(f[2])
-            case "3": return place(f, session: i)
-            case "16":   // assumption: unrecorded live — every client's working orders, openOrder + orderStatus each
-                return orders.indices.filter { !orders[$0].status.isFinal }.flatMap { openAndStatus($0) }
-            case "99":   // assumption: unrecorded live — completedOrder per final order
-                return orders.indices.filter { orders[$0].status.isFinal }.map(completedFrame)
-            case "7":   // as recorded: every execDetails under the request's id, then the commission reports
-                // assumption: unrecorded live — the replay keeps the live fill's UTC time form
-                return fills.map { replacing($0.execution, [1: f[2]]) } + fills.map(\.report)
-            case "61":
-                sessions[i].positions = true
-                return holdings.keys.sorted().map(positionFrame)
-            case "64": sessions[i].positions = false
-            case "6" where f[2] == "1":   // assumption: unrecorded live — AccountCode, the portfolio, the time
-                sessions[i].account = f[3]
-                return [["6", "2", "AccountCode", f[3], "", f[3]]]
-                    + holdings.keys.filter { $0.account == f[3] }.sorted().map(portfolioFrame)
-                    + [["8", "1", Self.format(clock, "HH:mm")]]
-            case "6": sessions[i].account = nil
-            default: break
-            }
-            return []
+    /// Feeds the replies to one request from session `i` under the lock that guards the state they show, so a
+    /// concurrent `fill` lands wholly before or after them; `FakeGateway`'s own end markers follow. Runs in the
+    /// client's write path: it never blocks and never calls back into the client.
+    private func answer(_ f: [String], session i: Int) {
+        lock.withLock { replies(f, session: i).forEach(_gateways[i].feed) }
+    }
+
+    private func replies(_ f: [String], session i: Int) -> [[String]] {
+        switch f.first {
+        case "71": sessions[i].clientID = Int(f[2])
+        case "3": return place(f, session: i)
+        case "16":   // assumption: unrecorded live — every client's working orders, openOrder + orderStatus each
+            return orders.indices.filter { !orders[$0].status.isFinal }.flatMap { openAndStatus($0) }
+        case "99":   // assumption: unrecorded live — completedOrder per final order
+            return orders.indices.filter { orders[$0].status.isFinal }.map(completedFrame)
+        case "7":   // as recorded: every execDetails under the request's id and in the login zone, then the reports
+            return fills.map { replacing($0.execution, [1: f[2], 15: Self.eastern($0.time)]) } + fills.map(\.report)
+        case "61":
+            sessions[i].positions = true
+            return holdings.keys.sorted().map(positionFrame)
+        case "64": sessions[i].positions = false
+        case "6" where f[2] == "1":   // assumption: unrecorded live — AccountCode, the portfolio, the time
+            sessions[i].account = f[3]
+            return [["6", "2", "AccountCode", f[3], "", f[3]]]
+                + holdings.keys.filter { $0.account == f[3] }.sorted().map(portfolioFrame)
+                + [["8", "1", Self.format(clock, "HH:mm", "UTC")]]
+        case "6": sessions[i].account = nil
+        default: break
         }
+        return []
     }
 
     /// Books a base-case placeOrder (docs/protocol-178.md's placeOrder indices) and answers as
@@ -202,43 +228,65 @@ final class SimulatedBroker: @unchecked Sendable {
             return []
         }
         var contract = Contract(symbol: f[3], secType: f[4], exchange: f[9], currency: f[11], primaryExchange: f[10])
-        contract.conID = Int(f[2]) ?? 0
-        contractBlocks[contract.conID] = Array(f[2...13])
+        contract.conID = resolve(f)
         let clientID = sessions[i].clientID ?? 0, orderID = Int(f[1]) ?? 0
         var order = SimOrder(
             clientID: clientID, orderID: orderID, permID: 0, contract: contract,
             action: OrderAction(rawValue: f[16]) ?? .buy, quantity: Decimal(string: f[17]) ?? 0, orderType: f[18],
             limitPrice: Decimal(string: f[19]), parentID: Int(f[28]) ?? 0, transmit: f[27] == "1", ocaGroup: f[22],
             whatIf: f[84] == "1", status: .preSubmitted, filled: 0)
-        let account = f[23].isEmpty ? accounts[0] : f[23]
         if let n = orders.firstIndex(where: { $0.clientID == clientID && $0.orderID == orderID }) {
             // a re-send of a known id: new terms, same permID, status and fills
             (order.permID, order.status, order.filled) = (orders[n].permID, orders[n].status, orders[n].filled)
-            (orders[n], orderAccounts[n]) = (order, account)
+            (orders[n], placed[n]) = (order, f)
             return openAndStatus(n)
         }
         permIDs += 1
         order.permID = 1_000_000_000 + permIDs
         orders.append(order)
-        orderAccounts.append(account)
+        placed.append(f)
         let n = orders.count - 1
         let preSubmitted = openAndStatus(n)
         orders[n].status = .submitted
         return preSubmitted + openAndStatus(n)
     }
 
+    /// IB's conID for placeOrder's contract: the one it names, else a known contract with the same terms, else a new
+    /// one. A contract no recording describes keeps the terms placeOrder sent.
+    private func resolve(_ f: [String]) -> Int {
+        let c = SimContract(conID: Int(f[2]) ?? 0, symbol: f[3], secType: f[4], lastTrade: f[5], strike: f[6],
+                            right: f[7], multiplier: f[8], primary: f[10].isEmpty ? f[9] : f[10], currency: f[11],
+                            localSymbol: f[12].isEmpty ? f[3] : f[12], tradingClass: f[13])
+        if c.conID != 0 { if contracts[c.conID] == nil { contracts[c.conID] = c }; return c.conID }
+        let same = { (k: SimContract) in
+            (k.symbol, k.secType, k.lastTrade, k.strike, k.right, k.currency) ==
+                (c.symbol, c.secType, c.lastTrade, c.strike, c.right, c.currency)
+        }
+        if let known = contracts.values.sorted(by: { $0.conID < $1.conID }).first(where: same) { return known.conID }
+        conIDs += 1
+        let id = 900_000_000 + conIDs   // assumption: unrecorded live — a contract the recordings never traded
+        contracts[id] = SimContract(conID: id, symbol: c.symbol, secType: c.secType, lastTrade: c.lastTrade,
+                                    strike: c.strike, right: c.right, multiplier: c.multiplier, primary: c.primary,
+                                    currency: c.currency, localSymbol: c.localSymbol, tradingClass: c.tradingClass)
+        return id
+    }
+
     // MARK: - Frames
 
-    /// openOrder (Fixtures.openOrderFields with the book's contract id, OCA group and account) and orderStatus.
+    private func account(_ n: Int) -> String { placed[n][23].isEmpty ? accounts[0] : placed[n][23] }
+
+    /// The recorded openOrder with order `n`'s values, and its orderStatus.
     private func openAndStatus(_ n: Int, commission: Decimal? = nil) -> [[String]] {
-        let o = orders[n]
-        var open = Fixtures.openOrderFields(
-            orderID: o.orderID, permID: o.permID, clientID: o.clientID, symbol: o.contract.symbol,
-            action: o.action.rawValue, quantity: "\(o.quantity)", orderType: o.orderType,
-            limitPrice: o.limitPrice.map { "\($0)" } ?? Self.unset, auxPrice: Self.unset, tif: "DAY",
-            parentID: "\(o.parentID)", outsideRTH: "0", orderRef: "", status: o.status.rawValue)
-        open = replacing(open, [2: "\(o.contract.conID)", 19: o.ocaGroup, 20: orderAccounts[n]])
-        if let commission { open = replacing(open, [95: "\(commission)", 98: "USD"]) }
+        let o = orders[n], f = placed[n], c = contracts[o.contract.conID]!
+        var open = replacing(Self.openTemplate, [
+            1: "\(o.orderID)", 2: "\(c.conID)", 3: c.symbol, 4: c.secType, 5: c.lastTrade,
+            6: c.strike == "0.0" ? "0" : c.strike, 7: c.right.isEmpty ? "?" : c.right, 8: c.multiplier,
+            9: o.contract.exchange, 10: c.currency, 11: c.localSymbol, 12: c.tradingClass,
+            13: o.action.rawValue, 14: "\(o.quantity)", 15: o.orderType, 16: Self.price(f[19]), 17: Self.price(f[20]),
+            18: f[21], 19: o.ocaGroup, 20: account(n), 23: f[26], 24: "\(o.clientID)", 25: "\(o.permID)", 26: f[33],
+            30: "\(o.permID).0/\(account(n))/100", 57: "\(o.parentID)", 93: o.status.rawValue,
+            113: Self.trailStopPrice(o)])
+        if let commission { open = replacing(open, [103: "\(commission)", 106: "USD"]) }
         let own = fills.filter { $0.order == n }
         let average = o.filled == 0 ? 0 : Self.round(own.map(\.amount).reduce(0, +) / o.filled)
         let status = ["3", "\(o.orderID)", o.status.rawValue, "\(o.filled)", "\(o.quantity - o.filled)", "\(average)",
@@ -246,35 +294,51 @@ final class SimulatedBroker: @unchecked Sendable {
         return [open, status]
     }
 
-    /// completedOrder (Fixtures.completedOrderFields with the book's contract id and account).
+    /// The recorded completedOrder with order `n`'s values; a filled one carries totalQuantity 0, as live.
     private func completedFrame(_ n: Int) -> [String] {
-        let o = orders[n]
-        let f = Fixtures.completedOrderFields(
-            orderID: o.orderID, permID: o.permID, clientID: o.clientID, symbol: o.contract.symbol,
-            action: o.action.rawValue, quantity: "\(o.quantity)", orderType: o.orderType,
-            limitPrice: o.limitPrice.map { "\($0)" } ?? Self.unset, auxPrice: Self.unset, tif: "DAY",
-            parentID: "\(o.parentID)", outsideRTH: "0", orderRef: "", status: o.status.rawValue,
-            completedTime: fills.last { $0.order == n }?.execution[15] ?? "",
-            completedStatus: o.status == .filled ? "Filled Size: \(o.filled)" : o.status.rawValue,
-            filledQuantity: "\(o.filled)")
-        return replacing(f, [1: "\(o.contract.conID)", 19: orderAccounts[n]])
+        let o = orders[n], f = placed[n], c = contracts[o.contract.conID]!
+        return replacing(Self.completedTemplate, [
+            1: "\(c.conID)", 2: c.symbol, 3: c.secType, 4: c.lastTrade, 5: c.strike == "0.0" ? "0" : c.strike,
+            6: c.right.isEmpty ? "?" : c.right, 7: c.multiplier, 8: o.contract.exchange, 9: c.currency,
+            10: c.localSymbol, 11: c.tradingClass, 12: o.action.rawValue, 13: o.status == .filled ? "0" : "\(o.quantity)",
+            14: o.orderType, 15: Self.price(f[19]), 16: Self.price(f[20]), 17: f[21], 18: o.ocaGroup, 19: account(n),
+            22: f[26], 23: "\(o.permID)", 24: f[33], 76: o.status.rawValue, 80: Self.trailStopPrice(o),
+            86: "\(o.filled)", 93: fills.last { $0.order == n }.map { Self.eastern($0.time) } ?? "",
+            94: o.status == .filled ? "Filled Size: \(o.filled)" : o.status.rawValue])
     }
 
-    /// position (61, version 3) as the live gateway sends it.
+    /// position (61, version 3) as the live gateway sends it: the primary exchange, `0.0` for a flat position's cost.
     private func positionFrame(_ key: HoldingKey) -> [String] {
-        let h = holdings[key] ?? Holding()
-        let b = contractBlocks[key.conID] ?? Self.noContract
-        return ["61", "3", key.account] + b[0..<8] + b[9..<12] + ["\(h.quantity)", "\(h.averageCost)"]
+        let h = holdings[key] ?? Holding(), c = contracts[key.conID]!
+        return ["61", "3", key.account, "\(c.conID)", c.symbol, c.secType, c.lastTrade, c.strike, c.right,
+                c.multiplier, c.primary, c.currency, c.localSymbol, c.tradingClass, "\(h.quantity)",
+                h.quantity == 0 ? "0.0" : "\(h.averageCost)"]
     }
 
     /// portfolioValue (7, version 8), valued at the market price, else the contract's last fill price.
+    // assumption: unrecorded live — no recording subscribes to account updates
     private func portfolioFrame(_ key: HoldingKey) -> [String] {
-        let h = holdings[key] ?? Holding()
-        let b = contractBlocks[key.conID] ?? Self.noContract
+        let h = holdings[key] ?? Holding(), c = contracts[key.conID]!
         let price = marketPrices[key.conID] ?? fills.last { orders[$0.order].contract.conID == key.conID }?.price ?? 0
-        return ["7", "8"] + b[0..<7] + b[8..<12]
-            + ["\(h.quantity)", "\(price)", "\(Self.round(price * h.quantity))", "\(h.averageCost)",
-               "\(Self.round((price - h.averageCost) * h.quantity))", "\(h.realized)", key.account]
+        return ["7", "8", "\(c.conID)", c.symbol, c.secType, c.lastTrade, c.strike, c.right, c.multiplier, c.primary,
+                c.currency, c.localSymbol, c.tradingClass, "\(h.quantity)", "\(price)",
+                "\(Self.round(price * h.quantity))", "\(h.averageCost)",
+                "\(Self.round((price - h.averageCost) * h.quantity))", "\(h.realized)", key.account]
+    }
+
+    /// openOrder / completedOrder price text: live sends `0.0` for placeOrder's unset `""`.
+    private static func price(_ placeOrderText: String) -> String { placeOrderText.isEmpty ? "0.0" : placeOrderText }
+
+    /// Live sends lmtPrice + 1 for every recorded LMT order.
+    // assumption: unrecorded live — any other order type's value
+    private static func trailStopPrice(_ o: SimOrder) -> String {
+        o.orderType == "LMT" ? o.limitPrice.map { "\($0 + 1)" } ?? unset : unset
+    }
+
+    private static func template(_ index: Int, _ id: String, _ count: Int) -> [String] {
+        let f = try! recording("liveOrderFillsWithCommission")[index]
+        precondition(f.first == id && f.count == count, "liveOrderFillsWithCommission.json#\(index) moved")
+        return f
     }
 
     // MARK: - Arithmetic
@@ -304,10 +368,15 @@ final class SimulatedBroker: @unchecked Sendable {
         return out
     }
 
-    private static func format(_ epoch: Int, _ pattern: String) -> String {
+    /// A time as the recorded replay and completedOrder carry it: the login zone, named.
+    private static func eastern(_ epoch: Int) -> String {
+        format(epoch, "yyyyMMdd HH:mm:ss", "America/New_York") + " US/Eastern"
+    }
+
+    private static func format(_ epoch: Int, _ pattern: String, _ zone: String) -> String {
         let f = DateFormatter()
         f.locale = Locale(identifier: "en_US_POSIX")
-        f.timeZone = TimeZone(identifier: "UTC")
+        f.timeZone = TimeZone(identifier: zone)
         f.dateFormat = pattern
         return f.string(from: Date(timeIntervalSince1970: TimeInterval(epoch)))
     }
