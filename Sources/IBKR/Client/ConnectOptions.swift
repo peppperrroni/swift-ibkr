@@ -24,12 +24,15 @@ public struct ConnectOptions: Sendable, Equatable, Encodable {
     public var connectOptions: String
     /// startApi's optional capabilities field.
     public var optionalCapabilities: String
+    /// How long an id-less one-shot (`currentTime()`, `faData(_:)`, `fetchOpenOrders()`, ...) waits for its answer
+    /// before it throws `.timeout`; `nil` waits without bound. IB cannot address an error to these requests.
+    public var idlessRequestTimeout: Duration?
 
     /// Creates options; every default is today's behaviour.
     public init(readOnly: Bool = false, account: String? = nil, fetch: StartupFetch = .all,
                 maxSyncedSubAccounts: Int = 50, throwsOnSyncError: Bool = true, maxRequests: Int = 45,
                 requestsInterval: Duration = .seconds(1), connectOptions: String = "",
-                optionalCapabilities: String = "") {
+                optionalCapabilities: String = "", idlessRequestTimeout: Duration? = .seconds(10)) {
         self.readOnly = readOnly
         self.account = account
         self.fetch = fetch
@@ -39,6 +42,7 @@ public struct ConnectOptions: Sendable, Equatable, Encodable {
         self.requestsInterval = requestsInterval
         self.connectOptions = connectOptions
         self.optionalCapabilities = optionalCapabilities
+        self.idlessRequestTimeout = idlessRequestTimeout
     }
 }
 

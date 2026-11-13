@@ -462,3 +462,24 @@ private let reportSnapshot = "<ReportSnapshot/>"
     #expect(Array(sent[(FakeGateway.syncFrames + 2)...]) == [["66", "1", "m"], ["72", "1", "app", "1.0", "k"]])
     #expect(await client.requestStreamCount == 0)
 }
+
+@Test func faDataTimesOut() async throws {
+    let gateway = FakeGateway()
+    let client = IBClient(connector: gateway.connector)
+    try await within2s { try await client.connect(clientID: 7, options: ConnectOptions(idlessRequestTimeout: .milliseconds(50))) }
+    await #expect(throws: IBClientError.timeout) { _ = try await within2s { try await client.faData(.groups) } }
+    #expect(await client.requestStreamCount == 0)
+}
+
+/// P4: the -1 failure and the timeout are for one-shots only; the bulletin stream, also under a local key, goes on.
+@Test func newsBulletinsOutliveAMinusOneErrorAndTheTimeout() async throws {
+    let gateway = FakeGateway()
+    let client = IBClient(connector: gateway.connector)
+    try await within2s { try await client.connect(clientID: 7, options: ConnectOptions(idlessRequestTimeout: .milliseconds(20))) }
+    let bulletins = try await client.newsBulletins()
+    _ = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
+    gateway.feed(ibError("-1", "1100", "Connectivity between IB and Trader Workstation has been lost."))
+    try await Task.sleep(for: .milliseconds(60))
+    gateway.feed(halted)
+    #expect(try await within2s { try await bulletins.first { _ in true } } == haltedBulletin)
+}

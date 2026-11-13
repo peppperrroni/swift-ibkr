@@ -42,14 +42,14 @@ extension IBClient {
         }
     }
 
-    /// IB's scanner parameters XML: every instrument, location, scan code and filter it offers. IB addresses no
-    /// error to it.
+    /// IB's scanner parameters XML: every instrument, location, scan code and filter it offers. An id-less one-shot:
+    /// it ends like `currentTime()`.
     public func scannerParameters() async throws(IBClientError) -> String {
         try requireConnected()
         return try await answer(.scannerParameters) { if case .scannerParameters(let xml) = $0 { xml } else { nil } }
     }
 
-    /// The news providers this account may read. IB addresses no error to it.
+    /// The news providers this account may read. An id-less one-shot: it ends like `currentTime()`.
     public func newsProviders() async throws(IBClientError) -> [NewsProvider] {
         try requireConnected()
         return try await answer(.newsProviders) { if case .newsProviders(let list) = $0 { list } else { nil } }
@@ -150,8 +150,8 @@ extension IBClient {
     }
 
     /// The account's financial-advisor configuration of `type` as IB's XML text, never parsed. 16 carries no reqId, so
-    /// each call takes only an answer of its own type. A login that is not an FA account gets an error IB addresses
-    /// to no request, so the call then waits until the caller cancels it.
+    /// each call takes only an answer of its own type. An id-less one-shot: it ends like `currentTime()`, so a login
+    /// that is not an FA account, which gets an error IB addresses to no request, ends it with that error.
     public func faData(_ type: FADataType) async throws(IBClientError) -> String {
         try requireConnected()
         return try await answer(.requestFA(type)) {

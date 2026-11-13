@@ -4,7 +4,8 @@ public enum IBClientError: Error, Equatable, Sendable {
     case notConnected
     /// `connect` was called while connected, connecting or reconnecting.
     case alreadyConnected
-    /// `connect` ran out of its timeout, or the reconnect probe heard nothing.
+    /// `connect` ran out of its timeout, the reconnect probe heard nothing, or an id-less one-shot heard nothing
+    /// within `ConnectOptions.idlessRequestTimeout`.
     case timeout
     /// The peer closed or reset the connection, a write hit a closed transport, a newer `connect` superseded this
     /// one, or the connection's end finished the streams still open.

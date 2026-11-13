@@ -45,8 +45,8 @@ extension IBClient {
     }
 
     /// The price-increment steps of market rule `marketRuleID` (the ids in `ContractDetails.marketRuleIDs`).
-    /// IB's answer carries the rule id and no reqId, so each call takes only its own rule's answer; IB has no error
-    /// path for it.
+    /// IB's answer carries the rule id and no reqId, so each call takes only its own rule's answer. An id-less
+    /// one-shot: it ends like `currentTime()`.
     public func marketRule(_ marketRuleID: Int) async throws(IBClientError) -> [PriceIncrement] {
         try requireConnected()
         return try await answer(.marketRule(marketRuleID: marketRuleID)) {
@@ -54,7 +54,7 @@ extension IBClient {
         }
     }
 
-    /// Each account's family code. IB addresses no error to it.
+    /// Each account's family code. An id-less one-shot: it ends like `currentTime()`.
     public func familyCodes() async throws(IBClientError) -> [FamilyCode] {
         try requireConnected()
         return try await answer(.familyCodes) { if case .familyCodes(let codes) = $0 { codes } else { nil } }

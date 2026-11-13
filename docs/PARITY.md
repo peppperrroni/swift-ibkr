@@ -77,7 +77,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `managedAccounts` | `managedAccounts()`; `states()` → `.connected(accounts:)` | present | Swift asks IB afresh; the state keeps the list seen at connect |
 | `accountValues` | `accountValues()` | present | filter by account with `.filter { $0.account == a }` |
 | `accountSummary` / `accountSummaryAsync` | `accountSummary(tags:group:)` | present | |
-| `accountSummary` with no tags (cached, re-requested on 1102) | — | MISSING | ib_async's tag set (34 tags + `$LEDGER:ALL`, group All, ib.py:2247) as the default argument of `accountSummary(tags:group:)`, re-requested on notice 1102 (ib.py:414) |
+| `accountSummary` with no tags (cached, re-requested on 1102) | `accountSummary(tags:group:)`, `IBClient.defaultAccountSummaryTags` | added | request stream: `tags` default to ib_async's set (33 tags + `$LEDGER:ALL`, ib.py:2247-2258), `group` to All; on notice 1102 each open stream sends its cancel and its request again under its reqId (ib_async re-requests under a new reqId, ib.py:414); not cached: each call is its own subscription |
 | `portfolio` | `portfolio()` | present | the account reqAccountUpdates follows: `ConnectOptions.account`, by default the only managed account, as ib_async |
 | `positions` | `positions()` | present | |
 | `pnl(account, modelCode)` | `pnlValues(account:modelCode:)` → `[AccountPnL]` | added | the latest value of each open `pnl(account:modelCode:)` stream, oldest first; an empty argument matches all (ib.py:554-570); a stream is listed once its first value arrives, where ib_async lists an all-NaN `PnL` from the request; an entry leaves when its stream ends (consumer stop, IB error, connection end) |
@@ -110,10 +110,10 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `reqAccountUpdatesMulti` / `reqAccountUpdatesMultiAsync` | `accountUpdatesMulti(account:modelCode:ledgerAndNLV:)` | present | |
 | `reqAccountSummary` / `reqAccountSummaryAsync` | `accountSummary(tags:group:)` | present | ib_async's fixed tag set is the `accountSummary` with no tags row |
 | `reqAutoOpenOrders` | `setAutoOpenOrders(_:)` | present | |
-| `reqOpenOrders` / `reqOpenOrdersAsync` | — | MISSING | one-shot `fetchOpenOrders() -> [OrderSnapshot]` (reqOpenOrders 5 to openOrderEnd); wire case `IBRequest.openOrders` exists |
-| `reqAllOpenOrders` / `reqAllOpenOrdersAsync` | — | MISSING | one-shot `fetchAllOpenOrders() -> [OrderSnapshot]` (16 to openOrderEnd); wire case exists, used only by the sync |
-| `reqCompletedOrders` / `reqCompletedOrdersAsync` | — | MISSING | one-shot `completedOrders(apiOnly:) -> [OrderSnapshot]` (99 to completedOrdersEnd); wire case exists, used only by the sync |
-| `reqExecutions` / `reqExecutionsAsync` | — | MISSING | one-shot `executions(filter: ExecutionFilter) -> [Fill]` (7 to execDetailsEnd); `executions()` has every fill but no filter |
+| `reqOpenOrders` / `reqOpenOrdersAsync` | `fetchOpenOrders()` | added | one-shot (id-less) `-> [OrderSnapshot]`: reqOpenOrders 5 to openOrderEnd, the `orders()` snapshot of each order listed, in arrival order |
+| `reqAllOpenOrders` / `reqAllOpenOrdersAsync` | `fetchAllOpenOrders()` | added | one-shot (id-less) `-> [OrderSnapshot]`: 16 to openOrderEnd, as `fetchOpenOrders()` |
+| `reqCompletedOrders` / `reqCompletedOrdersAsync` | `completedOrders(apiOnly:)` | added | one-shot (id-less) `-> [OrderSnapshot]`: 99 to completedOrdersEnd, `apiOnly` defaulting to `false` |
+| `reqExecutions` / `reqExecutionsAsync` | `executions(filter:)` | added | one-shot `-> [Fill]`: 7 with a reqId to execDetailsEnd, the joined fills of the executions listed; one still without its commission report is left out and logged (ib_async returns it with an empty report); no default filter, so `executions()` keeps its name |
 | `reqPositions` / `reqPositionsAsync` | `positions()` | present | on for the whole connection unless `ConnectOptions.fetch` leaves out `.positions` (ib_async always sends it) |
 | `reqPnL` / `cancelPnL` | `pnl(account:modelCode:)` | present | stopping the stream cancels |
 | `reqPnLSingle` / `cancelPnLSingle` | `pnlSingle(account:conID:modelCode:)` | present | |
@@ -465,12 +465,12 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `Client.run` | — | n/a | event-loop glue |
 | `Client.isConnected`, `isReady` | `states()` | present | |
 | `Client.connectionStats` | `connectionStats()` → `ConnectionStats` | added | throws `.notConnected` unless connected; counts both hellos as messages, as ib_async |
-| `Client.getReqId` | — | MISSING | `reserveOrderID() -> Int`: takes an id from the shared sequence, for orders linked by `parentID` before placing |
-| `Client.updateReqId` | — | MISSING | part of `reserveOrderID`: raise the sequence to at least a value |
+| `Client.getReqId` | `reserveOrderID(atLeast:)` | added | takes the next id from the shared sequence, for orders linked by `parentID` before placing; throws `.notConnected` as ib_async raises |
+| `Client.updateReqId` | `reserveOrderID(atLeast:)` | added | its `atLeast` raises the sequence to at least that value before taking the id |
 | `Client.getAccounts` | `states()` → `.connected(accounts:)` | present | |
 | `Client.connect` / `connectAsync` | `connect(host:port:clientID:timeout:reconnect:options:)` | present | the sync runs as `ConnectOptions.fetch` asks; `fetch: StartupFetch.none` gives a bare connection |
 | `Client.disconnect` | `disconnect()` | present | |
-| `Client.send`, `sendMsg` | — | MISSING | one-shot `send(_: IBRequest)`: any request, through the throttle, answers on `messages()` |
+| `Client.send`, `sendMsg` | `send(_:)` | added | any `IBRequest`, through the throttled queue; answers on `messages()`, no tracker state (a `placeOrder` sent this way skips `orders()`'s local states) |
 | `Client.wrapper`, `decoder` | `IBDecoder.decode(_:)`, `messages()` | present | |
 | `Client.reqIds` | `nextOrderID()` | present | |
 | `Client.reqManagedAccts` | `managedAccounts()` | present | |
@@ -494,4 +494,4 @@ connect), **model helper** (a computed property or method on a model), **factory
 
 ## Totals
 
-Rows, where one row may carry several names: `present` 218 · `added` 118 · `MISSING` 47 · `n/a` 33.
+Rows, where one row may carry several names: `present` 218 · `added` 126 · `MISSING` 39 · `n/a` 33.

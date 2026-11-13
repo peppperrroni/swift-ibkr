@@ -48,7 +48,7 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | Area | What you get | State |
 |---|---|---|
 | Connection | handshake, request throttle, `states()`, the raw `messages()` feed, `ib_async`'s connect options (`ConnectOptions`: read-only, account, startup fetch, throttle, connect options), connection stats, idle timeouts, throttle events, a log handler, client-0 auto-bind | ✅ handshake, throttle and feed live-checked; the options, stats, idle timeouts and log on the fake gateway, not yet run live (see KNOWN-GAPS) |
-| Orders | place, modify, cancel, every placeOrder field (conditions, algos, pegged, combos, delta neutral), brackets, OCA, what-if, exercise, open and completed orders merged with ib_async's local states, trade log and fills | ✅ plain orders live-checked; the rest on hand-built frames, not yet run live (see KNOWN-GAPS) |
+| Orders | place, modify, cancel, every placeOrder field (conditions, algos, pegged, combos, delta neutral), brackets, OCA, what-if, exercise, open and completed orders merged with ib_async's local states, trade log and fills, open/completed-order and filtered-execution one-shots, id reservation, raw send | ✅ plain orders live-checked; the rest on hand-built frames, not yet run live (see KNOWN-GAPS) |
 | Executions | fills joined with commissions, corrections applied | ✅ live-checked |
 | Positions | synced at connect, whole sets on every change | ✅ live-checked |
 | Session | current time, accounts, next id, user info, log level, auto-bind, global cancel, opt-in reconnect | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
@@ -534,6 +534,8 @@ library leaves out.
 | `Client.MaxRequests`, `Client.RequestsInterval`, `Client.setConnectOptions`, `Client.optCapab` | `ConnectOptions.maxRequests`, `.requestsInterval`, `.connectOptions`, `.optionalCapabilities` |
 | `Client.throttleStart`, `Client.throttleEnd` | `throttling()` (a stream of `Bool`, the current state first) |
 | `Client.connectionStats`, `ConnectionStats` | `connectionStats()`, `ConnectionStats` |
+| `Client.getReqId`, `Client.updateReqId` | `reserveOrderID(atLeast:)` |
+| `Client.send`, `Client.sendMsg` | `send(_:)` (any `IBRequest`; answers on `messages()`) |
 | `Client.host`, `Client.port`, `Client.clientId` | `endpoint()` |
 | `logToFile`, `logToConsole` | `setLogHandler(_:)` with `IBLogLevel` |
 | `__version__` | `IBClient.libraryVersion` |
@@ -551,13 +553,15 @@ library leaves out.
 | `reqGlobalCancel` | `cancelAllOrders()` |
 | `whatIfOrder` | `whatIfOrder(_:_:)` |
 | `exerciseOptions` | `exerciseOptions(_:action:quantity:account:override:)` |
-| `trades`, `openTrades`, `orders`, `openOrders`, `reqOpenOrders`, `reqAllOpenOrders`, `reqCompletedOrders` | `orders()` (open and completed orders, synced at connect) |
+| `trades`, `openTrades`, `orders`, `openOrders` | `orders()` (open and completed orders, synced at connect) |
+| `reqOpenOrders`, `reqAllOpenOrders`, `reqCompletedOrders` | `fetchOpenOrders()`, `fetchAllOpenOrders()`, `completedOrders(apiOnly:)` (the `orders()` snapshots of the orders IB lists) |
 | `Trade` | `OrderSnapshot` |
 | `Trade.isActive`, `.isWaiting`, `.isWorking`, `OrderStatus.total`, `.mktCapPrice` | `OrderSnapshot.isActive`, `.isWaiting`, `.isWorking`, `.total`, `.marketCapPrice` (the sets also on `OrderStatus`) |
 | `OrderState.transform`, `.formatted` | `OrderState.map(_:)`, `.formatted(digits:)` |
 | `Trade.log`, `Trade.fills`, `TradeLogEntry` | `OrderSnapshot.log`, `.fills`, `TradeLogEntry` |
 | `newOrderEvent`, `orderModifyEvent`, `cancelOrderEvent`, `Trade.modifyEvent`, `Trade.cancelEvent` | `orders()` (the local `.pendingSubmit` first), `orderEvents()` (`.modified`, `.cancelRequested`) |
-| `fills`, `executions`, `reqExecutions` | `executions()` (synced at connect) |
+| `fills`, `executions` | `executions()` (synced at connect) |
+| `reqExecutions` | `executions(filter:)` (the joined fills of the executions IB lists) |
 | `Fill` | `Fill` |
 | `MarketOrder`, `LimitOrder`, `StopOrder`, `StopLimitOrder` | `Order.market(_:quantity:)`, `.limit(_:quantity:price:)`, `.stop(_:quantity:stopPrice:)`, `.stopLimit(_:quantity:limitPrice:stopPrice:)` |
 | `bracketOrder` | `Order.bracket(_:quantity:limitPrice:takeProfitPrice:stopLossPrice:)`, placed with `placeBracket(_:_:)` |
@@ -566,7 +570,7 @@ library leaves out.
 | `positions`, `reqPositions` | `positions()` |
 | `portfolio`, `reqAccountUpdates` | `portfolio()` (synced at connect, one managed account only) |
 | `accountValues` | `accountValues()` |
-| `accountSummary` / `reqAccountSummary` | `accountSummary(tags:group:)` (a stream) |
+| `accountSummary` / `reqAccountSummary` | `accountSummary(tags:group:)` (a stream; `tags` default to `ib_async`'s set, re-requested on 1102) |
 | `reqAccountUpdatesMulti` | `accountUpdatesMulti(account:modelCode:ledgerAndNLV:)` (a stream) |
 | `reqPositionsMulti` | `positionsMulti(account:modelCode:)` (a stream) |
 | `reqPnL` | `pnl(account:modelCode:)` (a stream) |

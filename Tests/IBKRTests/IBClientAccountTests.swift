@@ -295,3 +295,39 @@ private func accountPnL(_ id: String, _ daily: String, realized: String = "0") -
     #expect(try await take(1, stream)[0].map(\.modelCode) == ["M1"])
     #expect(await client.accountValues().snapshot.allSatisfy { $0.modelCode != "M1" })
 }
+
+@Test func accountSummaryDefaultsToIbAsyncTags() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    _ = try await client.accountSummary()
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames]
+    // ib.py:2247-2258, verbatim
+    let ibAsync = "AccountType,NetLiquidation,TotalCashValue,SettledCash,AccruedCash,BuyingPower,EquityWithLoanValue,"
+        + "PreviousDayEquityWithLoanValue,GrossPositionValue,RegTEquity,RegTMargin,SMA,InitMarginReq,MaintMarginReq,"
+        + "AvailableFunds,ExcessLiquidity,Cushion,FullInitMarginReq,FullMaintMarginReq,FullAvailableFunds,"
+        + "FullExcessLiquidity,LookAheadNextChange,LookAheadInitMarginReq,LookAheadMaintMarginReq,"
+        + "LookAheadAvailableFunds,LookAheadExcessLiquidity,HighestSeverity,DayTradesRemaining,DayTradesRemainingT+1,"
+        + "DayTradesRemainingT+2,DayTradesRemainingT+3,DayTradesRemainingT+4,Leverage,$LEDGER:ALL"
+    #expect(sent == ["62", "1", sent[2], "All", ibAsync])
+    #expect(IBClient.defaultAccountSummaryTags.count == 34)
+}
+
+/// ib.py:414: on 1102 (connectivity restored) the summary is asked again; here cancel and resend under its reqId.
+/// A stream that resends on another code (bars: 10225) is left alone.
+@Test func accountSummaryResubscribesOn1102() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.accountSummary(tags: ["NetLiquidation"])
+    let id = try await lastRequestID(gateway, FakeGateway.syncFrames + 1, at: 2)
+    let bars = try await client.realTimeBars(Contract(symbol: "AAPL"))
+    _ = try await gateway.waitForSent(FakeGateway.syncFrames + 2)
+    gateway.feed(ibError("-1", "1102", "Connectivity between IB and Trader Workstation has been restored - data maintained."))
+    let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 4)
+    try await client.send(.currentTime)   // a marker: nothing else was sent in between
+    let after = Array(try await gateway.waitForSent(FakeGateway.syncFrames + 5)[(FakeGateway.syncFrames + 2)...])
+    #expect(after == [["63", "1", id], sent[FakeGateway.syncFrames], ["49", "1"]])
+    gateway.feed(value(id, "NetLiquidation", "100000"))
+    gateway.feed(end(id))
+    #expect(pairs(try await take(1, stream)[0]) == ["DU1/NetLiquidation=100000"])
+    withExtendedLifetime(bars) {}
+}

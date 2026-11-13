@@ -124,3 +124,45 @@ private func connected(_ gateway: FakeGateway) async throws -> IBClient {
     await notConnected { try await client.setAutoOpenOrders(false) }
     await notConnected { try await client.cancelAllOrders() }
 }
+
+/// Review Focus 3: a -1 notice leaves an id-less one-shot waiting; a fatal -1 (connectivity lost) ends it with `.ib`.
+@Test func idlessOneShotIgnoresNoticesAndFailsOnFatal() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let lost = "Connectivity between IB and Trader Workstation has been lost."
+    gateway.onRequest = { f in
+        f == ["49", "1"] ? [ibError("-1", "2104", "Market data farm connection is OK:usfarm"), ["49", "1", "1700000000"]] : []
+    }
+    #expect(try await within2s { try await client.currentTime() } == Date(timeIntervalSince1970: 1_700_000_000))
+    gateway.onRequest = { f in f == ["49", "1"] ? [ibError("-1", "1100", lost)] : [] }
+    await #expect(throws: IBClientError.ib(code: 1100, text: lost)) { _ = try await within2s { try await client.currentTime() } }
+    #expect(await client.requestStreamCount == 0)
+}
+
+@Test func idlessOneShotTimesOut() async throws {
+    let gateway = FakeGateway()
+    let client = IBClient(connector: gateway.connector)
+    try await within2s { try await client.connect(clientID: 7, options: ConnectOptions(idlessRequestTimeout: .milliseconds(50))) }
+    await #expect(throws: IBClientError.timeout) { _ = try await within2s { try await client.currentTime() } }
+    #expect(await client.requestStreamCount == 0)
+    gateway.onRequest = { f in f == ["49", "1"] ? [["49", "1", "1700000000"]] : [] }   // the connection is still up
+    #expect(try await within2s { try await client.currentTime() } == Date(timeIntervalSince1970: 1_700_000_000))
+}
+
+@Test func reserveOrderIDTakesFromTheSequence() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let n = try await client.reserveOrderID()
+    #expect(try await client.reserveOrderID() == n + 1)
+    #expect(try await client.reserveOrderID(atLeast: 100) == 100)
+    #expect(try await client.reserveOrderID(atLeast: 50) == 101)   // never lowers the sequence
+    #expect(try await client.placeOrder(aapl, buy) == 102)
+    await #expect(throws: IBClientError.notConnected) { try await IBClient().reserveOrderID() }
+}
+
+@Test func rawSendGoesThroughTheQueue() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    try await client.send(.currentTime)
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames] == ["49", "1"])
+}

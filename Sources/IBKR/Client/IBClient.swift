@@ -27,13 +27,16 @@ public actor IBClient {
     /// A per-request stream, by reqId: `route` gets what IB sends for it, `finish` ends it, `cancel` is sent
     /// when the consumer stops it (`nil`: nothing to send). `route` returns true when it finished the stream
     /// itself, and the entry is then removed. On IB error `resend.onCode` for its reqId the client sends `cancel`
-    /// and then `resend.request` again, and the stream stays open. Every entry belongs to the current connection;
+    /// and then `resend.request` again, and the stream stays open; an error with reqId -1 does that for every stream
+    /// whose `resend.onCode` it carries. A `oneShot` (an id-less one-shot, R16) ends on a fatal or warning error with
+    /// reqId -1 and after `ConnectOptions.idlessRequestTimeout`. Every entry belongs to the current connection;
     /// `end()` clears them all.
     private struct RequestStream {
         let route: (IBMessage) -> Bool
         let finish: (IBClientError) -> Void
         let cancel: IBRequest?
         let resend: (onCode: Int, request: IBRequest)?
+        let oneShot: Bool
     }
     private var requestStreams: [Int: RequestStream] = [:]
     /// The open `realTimeBars` and `liveHistoricalBars` subscriptions, by reqId; an entry goes with its stream.
@@ -67,8 +70,8 @@ public actor IBClient {
     private var serverVersion: Int?
     private var accounts: [String]?
     private var nextID: Int?
-    private var orderTracker = OrderTracker(clientID: 0)
-    private var executionTracker = ExecutionTracker()
+    var orderTracker = OrderTracker(clientID: 0)
+    var executionTracker = ExecutionTracker()
     private var positionTracker = PositionTracker()
     private var accountTracker = AccountTracker()
     private var accountSyncIDs: Set<Int> = []   // the sync's reqAccountUpdatesMulti ids; only these feed accountTracker
@@ -355,16 +358,29 @@ public actor IBClient {
          accountValueSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(accountValue: id) } })
     }
 
-    /// The account summary for `tags`: the whole set, keyed and sorted by account, tag and currency, at
-    /// IB's first end marker, then again on every change. Ends, throwing, on a fatal IB error for it or
-    /// when the connection ends; stopping it cancels the subscription. IB allows two at a time.
-    public func accountSummary(tags: [String], group: String = "All") throws(IBClientError)
-        -> AsyncThrowingStream<[AccountValue], any Error> {
+    /// `ib_async`'s account summary tags (ib.py:2247-2258): 33 tags and `"$LEDGER:ALL"`.
+    public static let defaultAccountSummaryTags = [
+        "AccountType", "NetLiquidation", "TotalCashValue", "SettledCash", "AccruedCash", "BuyingPower",
+        "EquityWithLoanValue", "PreviousDayEquityWithLoanValue", "GrossPositionValue", "RegTEquity", "RegTMargin", "SMA",
+        "InitMarginReq", "MaintMarginReq", "AvailableFunds", "ExcessLiquidity", "Cushion", "FullInitMarginReq",
+        "FullMaintMarginReq", "FullAvailableFunds", "FullExcessLiquidity", "LookAheadNextChange",
+        "LookAheadInitMarginReq", "LookAheadMaintMarginReq", "LookAheadAvailableFunds", "LookAheadExcessLiquidity",
+        "HighestSeverity", "DayTradesRemaining", "DayTradesRemainingT+1", "DayTradesRemainingT+2",
+        "DayTradesRemainingT+3", "DayTradesRemainingT+4", "Leverage", "$LEDGER:ALL",
+    ]
+
+    /// The account summary for `tags` (by default `ib_async`'s set) in `group`: the whole set, keyed and sorted by
+    /// account, tag and currency, at IB's first end marker, then again on every change. On IB's notice 1102
+    /// (connectivity restored) it sends its cancel and then the same request under the same reqId, as `ib_async`
+    /// re-requests it (ib.py:414), and goes on. Ends, throwing, on a fatal IB error for it or when the connection
+    /// ends; stopping it cancels the subscription. IB allows two at a time.
+    public func accountSummary(tags: [String] = IBClient.defaultAccountSummaryTags, group: String = "All")
+        throws(IBClientError) -> AsyncThrowingStream<[AccountValue], any Error> {
         try requireConnected()
         let id = nextRequestID()
         var values: [AccountValue] = [], ended = false, last: [AccountValue]?
         return try openStream(.accountSummary(requestID: id, group: group, tags: tags), id: id,
-                              cancel: .cancelAccountSummary(requestID: id)) { message, out in
+                              cancel: .cancelAccountSummary(requestID: id), resendOn: 1102) { message, out in
             switch message {
             case .accountSummary(_, let v):
                 values.removeAll { ($0.account, $0.tag, $0.currency) == (v.account, v.tag, v.currency) }
@@ -835,15 +851,17 @@ public actor IBClient {
         }
     }
 
-    /// IB's clock. Throws like `contractDetails` when the connection ends, or `.cancelled`.
+    /// IB's clock. Throws like `contractDetails` when the connection ends, or `.cancelled`. Its reply carries no
+    /// reqId, so, as for every id-less one-shot, a fatal or warning IB error with reqId -1 that arrives while it
+    /// waits ends it with `.ib(code:text:)`, related or not, and `ConnectOptions.idlessRequestTimeout` ends it with
+    /// `.timeout`.
     public func currentTime() async throws(IBClientError) -> Date {
         try requireConnected()
         let seconds = try await answer(.currentTime) { if case .currentTime(let t) = $0 { t } else { nil } }
         return Date(timeIntervalSince1970: Double(seconds))
     }
 
-    /// The exchanges that offer market depth. The reply carries no reqId, so IB cannot name an error for it and
-    /// this call has no IB-error path: it ends only with the answer, the connection, or `.cancelled`.
+    /// The exchanges that offer market depth. An id-less one-shot: it ends like `currentTime()`.
     public func depthExchanges() async throws(IBClientError) -> [DepthMarketDataDescription] {
         try requireConnected()
         return try await answer(.depthExchanges) { if case .depthExchanges(let d) = $0 { d } else { nil } }
@@ -860,13 +878,14 @@ public actor IBClient {
     }
 
     /// The accounts IB lists for this login now. Only the returned list is fresh: `states()` keeps the accounts seen
-    /// at connect.
+    /// at connect. An id-less one-shot: it ends like `currentTime()`.
     public func managedAccounts() async throws(IBClientError) -> [String] {
         try requireConnected()
         return try await answer(.managedAccounts) { if case .managedAccounts(let a) = $0 { a } else { nil } }
     }
 
-    /// The id the next `placeOrder` takes, with IB's answer merged by `max` as at connect. Does not consume it.
+    /// The id the next `placeOrder` takes, with IB's answer merged by `max` as at connect. Does not consume it. An
+    /// id-less one-shot: it ends like `currentTime()`.
     public func nextOrderID() async throws(IBClientError) -> Int {
         try requireConnected()
         let told = try await answer(.requestIDs) { if case .nextValidID(let n) = $0 { n } else { nil } }
@@ -900,13 +919,13 @@ public actor IBClient {
         try send(.globalCancel)
     }
 
-    /// Sends `request` and waits for the first message `pick` takes. Without `id` the waiter is keyed by a local
-    /// negative id and `routeToStream` offers it the id-less messages, oldest waiter first. `cancel` is sent for a
-    /// cancelled caller; with `thenCancel` it is also sent after the answer (the termination hop sends it).
+    /// Sends `request` and waits for the first message `pick` takes. Without `id` the waiter is an id-less one-shot
+    /// keyed by a local negative id: `routeToStream` offers it the id-less messages, oldest waiter first. `cancel` is
+    /// sent for a cancelled caller; with `thenCancel` it is also sent after the answer (the termination hop sends it).
     func answer<T: Sendable>(_ request: IBRequest, id: Int? = nil, cancel: IBRequest? = nil, thenCancel: Bool = false,
                              pick: @escaping @Sendable (IBMessage) -> T?) async throws(IBClientError) -> T {
         let key = id ?? nextLocalID()
-        let stream = try openStream(request, id: key, cancel: cancel) {
+        let stream = try openStream(request, id: key, cancel: cancel, oneShot: id == nil) {
             (message, out: AsyncThrowingStream<T, any Error>.Continuation) in
             guard let value = pick(message) else { return false }
             out.yield(value); out.finish(); return !thenCancel
@@ -953,8 +972,11 @@ public actor IBClient {
             + [order.limitPrice, order.auxPrice].compactMap { $0.map { "\($0)" } }).joined(separator: " ")
     }
 
-    /// Encodes, frames and queues; throws before queuing when the request does not encode.
-    func send(_ request: IBRequest) throws(IBClientError) {
+    /// Sends any request as is, through the same throttled queue as every call (`ib_async`'s `client.send`). IB's
+    /// answers arrive on `messages()` only, and no stream or tracker state is kept for the request: a `placeOrder`
+    /// sent this way skips `orders()`'s local `.pendingSubmit`, modify and cancel states. Throws `.notConnected`
+    /// without a connection and `.encoding` when the request does not encode, before queuing it.
+    public func send(_ request: IBRequest) throws(IBClientError) {
         try enqueue(encode(request))
     }
 
@@ -990,9 +1012,10 @@ public actor IBClient {
     }
 
     /// Sends `request`, then registers its stream; nothing is registered when it does not encode. `resendOn` is the IB
-    /// error code on which the same request is cancelled and sent again (`RequestStream.resend`).
+    /// error code on which the same request is cancelled and sent again (`RequestStream.resend`). A `oneShot` gets
+    /// a timer of `ConnectOptions.idlessRequestTimeout`, cancelled whenever the stream ends.
     func openStream<Element: Sendable>(
-        _ request: IBRequest, id: Int, cancel: IBRequest?, resendOn: Int? = nil,
+        _ request: IBRequest, id: Int, cancel: IBRequest?, resendOn: Int? = nil, oneShot: Bool = false,
         buffering: AsyncThrowingStream<Element, any Error>.Continuation.BufferingPolicy = .unbounded,
         route: @escaping (IBMessage, AsyncThrowingStream<Element, any Error>.Continuation) -> Bool
     ) throws(IBClientError) -> AsyncThrowingStream<Element, any Error> {
@@ -1000,10 +1023,25 @@ public actor IBClient {
         let (stream, out) = AsyncThrowingStream.makeStream(of: Element.self, throwing: (any Error).self,
                                                            bufferingPolicy: buffering)
         requestStreams[id] = RequestStream(route: { route($0, out) }, finish: { out.finish(throwing: $0) },
-                                           cancel: cancel, resend: resendOn.map { ($0, request) })
+                                           cancel: cancel, resend: resendOn.map { ($0, request) }, oneShot: oneShot)
         let gen = generation
-        out.onTermination = { [weak self] _ in Task { await self?.stopped(id, gen) } }
+        let timer = oneShot ? options.idlessRequestTimeout.map { bound in
+            Task { [weak self] in
+                guard (try? await Task.sleep(for: bound)) != nil else { return }
+                await self?.oneShotTimedOut(id, gen)
+            }
+        } : nil
+        out.onTermination = { [weak self] _ in
+            timer?.cancel()
+            Task { await self?.stopped(id, gen) }
+        }
         return stream
+    }
+
+    /// An id-less one-shot heard nothing within `ConnectOptions.idlessRequestTimeout`.
+    private func oneShotTimedOut(_ id: Int, _ gen: Int) {
+        guard gen == generation, let s = requestStreams.removeValue(forKey: id) else { return }
+        s.finish(.timeout)
     }
 
     /// The consumer stopped the stream. An entry already gone was finished by the client, which sends no cancel;
@@ -1027,23 +1065,30 @@ public actor IBClient {
              .softDollarTiers(let id, _), .scannerData(let id, _), .newsArticle(let id, _), .historicalNews(let id, _),
              .historicalNewsEnd(let id, _), .fundamentalData(let id, _), .wshMetaData(let id, _),
              .wshEventData(let id, _), .replaceFAEnd(let id, _), .displayGroupList(let id, _),
-             .displayGroupUpdated(let id, _):
+             .displayGroupUpdated(let id, _), .execDetails(let id, _, _), .execDetailsEnd(let id):
             if requestStreams[id]?.route(message) == true { requestStreams[id] = nil }   // before any termination hop
         case .openOrder(let m) where m.order.whatIf:   // whatIfOrder's answer, keyed by the order id it took
             if requestStreams[m.orderID]?.route(message) == true { requestStreams[m.orderID] = nil }
         case .currentTime, .managedAccounts, .nextValidID, .depthExchanges, .marketRule, .familyCodes,
              // no reqId: the oldest waiter that takes it gets it
-             .scannerParameters, .newsProviders, .newsBulletin, .receiveFA:
+             .scannerParameters, .newsProviders, .newsBulletin, .receiveFA, .openOrder, .openOrderEnd,
+             .completedOrder, .completedOrdersEnd:
             for key in requestStreams.keys.filter({ $0 < -1 }).sorted(by: >)
                 where requestStreams[key]?.route(message) == true {
                 requestStreams[key] = nil
                 break
             }
         case .error(let e) where requestStreams[e.requestID]?.resend?.onCode == e.code:
-            // ib_async's resubscribe (wrapper.py:1694-1721): the same request, same reqId; the stream stays open
-            guard let s = requestStreams[e.requestID], let resend = s.resend else { break }
-            if let cancel = s.cancel { try? send(cancel) }
-            try? send(resend.request)   // it encoded when the stream opened
+            resend(e.requestID)
+        case .error(let e) where e.requestID == -1 && ErrorCode.kind(e.code).failsRequest:
+            // R16: IB cannot name an id-less one-shot, so any such error may be its refusal and fails each one waiting
+            for (key, s) in requestStreams where s.oneShot {
+                requestStreams[key] = nil
+                s.finish(.ib(code: e.code, text: e.text))
+            }
+        case .error(let e) where e.requestID == -1:
+            // ib.py:414's 1102 re-request: only the streams that resend on this code (bars resend on 10225)
+            for key in requestStreams.keys.sorted() where requestStreams[key]?.resend?.onCode == e.code { resend(key) }
         case .error(let e) where ErrorCode.kind(e.code) == .notice:
             if requestStreams[e.requestID]?.route(message) == true { requestStreams[e.requestID] = nil }
         case .error(let e) where ErrorCode.kind(e.code).failsRequest:
@@ -1057,6 +1102,14 @@ public actor IBClient {
             }
         default: break
         }
+    }
+
+    /// `ib_async`'s resubscribe (wrapper.py:1694-1721): the stream's cancel, then the same request under the same
+    /// reqId; the stream stays open.
+    private func resend(_ id: Int) {
+        guard let s = requestStreams[id], let resend = s.resend else { return }
+        if let cancel = s.cancel { try? send(cancel) }
+        try? send(resend.request)   // it encoded when the stream opened
     }
 
     /// The whole fill an execDetails or commissionReport names when the execution tracker already had it: the sync
@@ -1074,6 +1127,15 @@ public actor IBClient {
         let id = nextID ?? 0
         nextID = id + 1
         return id
+    }
+
+    /// Takes the next id from the sequence that orders and requests share, after raising the sequence to at least
+    /// `minimum` (`ib_async`'s `getReqId` and `updateReqId`), e.g. for orders linked by `parentID` before placing.
+    /// The id is used up: no later call or order takes it. Throws `.notConnected` unless the state is `.connected`.
+    public func reserveOrderID(atLeast minimum: Int = 0) throws(IBClientError) -> Int {
+        try requireConnected()
+        nextID = max(nextID ?? 0, minimum)
+        return nextRequestID()
     }
 
     /// Keys for waiters with no reqId: -2, -3, ... (-1 is IB's "no request" in errors).
