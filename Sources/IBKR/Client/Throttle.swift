@@ -1,4 +1,4 @@
-/// Sliding-window send limiter: reserves send slots so no window holds more than `limit`.
+/// Sliding-window send limiter: reserves send slots so no window holds more than `limit`; a `limit` of 0 never waits.
 struct Throttle {
     let limit: Int
     let window: Duration
@@ -11,6 +11,7 @@ struct Throttle {
 
     /// Reserves the earliest slot at or after `now`; returns how long to wait for it.
     mutating func reserve(at now: ContinuousClock.Instant) -> Duration {
+        guard limit > 0 else { return .zero }
         var slot = now
         if slots.count >= limit { slot = max(now, slots[slots.count - limit] + window) }
         slots.append(slot)

@@ -19,6 +19,11 @@ synced at connect and offered as a snapshot plus a stream of changes; every othe
 - ``IBClient``
 - ``ConnectionState``
 - ``ReconnectPolicy``
+- ``ConnectOptions``
+- ``StartupFetch``
+- ``ConnectionStats``
+- ``IBLogLevel``
+- ``IBLogHandler``
 - ``IBClientError``
 
 ### Contracts

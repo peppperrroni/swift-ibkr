@@ -47,7 +47,7 @@ The protocol is pinned to **server version 178**, which has one field layout and
 
 | Area | What you get | State |
 |---|---|---|
-| Connection | handshake, request throttle, `states()`, the raw `messages()` feed | ✅ live-checked |
+| Connection | handshake, request throttle, `states()`, the raw `messages()` feed, `ib_async`'s connect options (`ConnectOptions`: read-only, account, startup fetch, throttle, connect options), connection stats, idle timeouts, throttle events, a log handler, client-0 auto-bind | ✅ handshake, throttle and feed live-checked; the options, stats, idle timeouts and log on the fake gateway, not yet run live (see KNOWN-GAPS) |
 | Orders | place, modify, cancel, every placeOrder field (conditions, algos, pegged, combos, delta neutral), brackets, OCA, what-if, exercise, open and completed orders merged with ib_async's local states, trade log and fills | ✅ plain orders live-checked; the rest on hand-built frames, not yet run live (see KNOWN-GAPS) |
 | Executions | fills joined with commissions, corrections applied | ✅ live-checked |
 | Positions | synced at connect, whole sets on every change | ✅ live-checked |
@@ -129,8 +129,33 @@ await client.disconnect()
 - **When `connect` returns.** It returns once the handshake is done and the open orders, completed orders,
   executions, positions, portfolio and account values are all synced. One timeout covers all of that.
 - **Accounts.** With one managed account, `connect` subscribes to its account updates (portfolio and values). With
-  several, it subscribes to each account's values only, and `portfolio()` stays empty: use `positions()`. Each
-  connect drops the values of accounts the login no longer manages, and with several accounts the portfolio too.
+  several, it subscribes to each account's values only (up to `maxSyncedSubAccounts`, 50), and `portfolio()` stays
+  empty unless `ConnectOptions.account` names the one whose portfolio to follow. Each connect drops the values of
+  accounts the login no longer manages, and with several accounts the portfolio too.
+- **Options.** `ib_async`'s connect options go in one `ConnectOptions`, reused by every reconnect attempt:
+
+  ```swift
+  try await client.connect(port: 4002, clientID: 7, options: ConnectOptions(
+      readOnly: true,                       // no open or completed orders in the sync
+      account: "DU0000001",                 // whose portfolio and values reqAccountUpdates follows
+      fetch: [.positions, .executions],     // which sync requests run (`.all` by default, `[]` for none)
+      throwsOnSyncError: false,             // a failed or late sync request is logged at .error, not thrown
+      maxRequests: 45, requestsInterval: .seconds(1),   // the throttle; maxRequests 0 turns it off
+      connectOptions: "+PACEAPI"))          // appended to the handshake
+  ```
+
+  Client id 0 also binds TWS's manual orders (`setAutoOpenOrders(true)`) first in the sync, as `ib_async` does.
+- **Watching the connection.** `connectionStats()` (bytes and messages each way, both hellos included),
+  `idleTimeouts(after:)` (the idle time once per silence, re-armed by the next frame), `throttling()` (`true`
+  while the writer waits on the throttle) and `endpoint()`.
+- **Logging.** The library logs nothing until you set a handler; it is then called synchronously, so keep it quick:
+
+  ```swift
+  client.setLogHandler { level, text in if level >= .info { print(level, text) } }
+  ```
+
+  `.debug` shows every frame (`>>> ` out, `<<< ` in, fields joined by `|`), `.info` state changes, orders and
+  fills, `.warning` IB's warning codes and `.error` its fatal errors.
 - **What it throws.** On failure it throws an `IBClientError`:
   - `.timeout`;
   - `.connectionClosed`;
@@ -498,12 +523,20 @@ library leaves out.
 
 | ib_async | swift-ibkr |
 |---|---|
-| `connect` / `connectAsync` (with `startApi`) | `connect(host:port:clientID:timeout:reconnect:)` |
+| `connect` / `connectAsync` (with `startApi`) | `connect(host:port:clientID:timeout:reconnect:options:)` |
+| `connect(readonly:account:raiseSyncErrors:fetchFields:)`, `StartupFetch`, `MaxSyncedSubAccounts` | `ConnectOptions` (`readOnly`, `account`, `throwsOnSyncError`, `fetch: StartupFetch`, `maxSyncedSubAccounts`), passed as `connect(…, options:)` |
 | `disconnect` | `disconnect()` |
 | `isConnected`, `connectedEvent`, `disconnectedEvent` | `states()` (the current state first) |
 | `Watchdog` | `ReconnectPolicy`, passed as `connect(…, reconnect:)` |
 | `IBC` | none |
-| `sleep`, `waitOnUpdate`, `loopUntil`, `setTimeout` | none: `async`/`await` |
+| `setTimeout`, `timeoutEvent` | `idleTimeouts(after:)` (a stream of idle times) |
+| `sleep`, `waitOnUpdate`, `loopUntil` | none: `async`/`await` |
+| `Client.MaxRequests`, `Client.RequestsInterval`, `Client.setConnectOptions`, `Client.optCapab` | `ConnectOptions.maxRequests`, `.requestsInterval`, `.connectOptions`, `.optionalCapabilities` |
+| `Client.throttleStart`, `Client.throttleEnd` | `throttling()` (a stream of `Bool`, the current state first) |
+| `Client.connectionStats`, `ConnectionStats` | `connectionStats()`, `ConnectionStats` |
+| `Client.host`, `Client.port`, `Client.clientId` | `endpoint()` |
+| `logToFile`, `logToConsole` | `setLogHandler(_:)` with `IBLogLevel` |
+| `__version__` | `IBClient.libraryVersion` |
 | `errorEvent` and the other raw events | thrown `IBClientError`s, the streams below, and `messages()` for every decoded frame |
 | `reqCurrentTime` | `currentTime()` |
 | `managedAccounts` / `reqManagedAccts` | `managedAccounts()` |

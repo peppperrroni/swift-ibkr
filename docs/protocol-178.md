@@ -46,8 +46,8 @@ Client → server, one write:
 | 4 | big-endian length of the version text: `00 00 00 09` |
 | 9 | `v100..178` (`76 31 30 30 2E 2E 31 37 38`) — **no** trailing NUL |
 
-`ib_async` itself sends `v157..178`; a connect option, when used, is appended after one space
-(`v100..178 +PACEAPI`) and counted in the length.
+`ib_async` itself sends `v157..178`. `ConnectOptions.connectOptions`, when not empty, is appended after one
+space, `v100..178 <connectOptions>` (`v100..178 +PACEAPI`), and counted in the length (client.py:218-224).
 
 Server → client, first frame: a normal length-prefixed frame of **two** NUL-terminated fields
 and no message id.
@@ -73,7 +73,7 @@ notices about data farms) may interleave.
 | 0 | msgId | int | `71` |
 | 1 | version | int | `2` |
 | 2 | clientId | int | (caller) |
-| 3 | optionalCapabilities | string | `""` |
+| 3 | optionalCapabilities | string | `ConnectOptions.optionalCapabilities`, default `""` (client.py:1016) |
 
 Total: 4 fields.
 
@@ -316,7 +316,8 @@ Total: 2 fields.
 | 1 | version | int | `1` |
 | 2 | autoBind | bool | (caller; `ib_async`'s `IB.reqAutoOpenOrders` defaults to `1`) |
 
-Total: 3 fields. Meaningful only for clientId 0 (per `ib_async`'s docstring).
+Total: 3 fields. Meaningful only for clientId 0 (per `ib_async`'s docstring). `connect` with clientId 0 sends
+`15|1|1` first in the sync, as `ib_async` does (ib.py:2046).
 
 ### reqCurrentTime (out 49)
 

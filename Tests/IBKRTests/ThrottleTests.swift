@@ -23,3 +23,9 @@ import Testing
     #expect(th.reserve(at: t + .milliseconds(600)) == .zero)
     #expect(th.reserve(at: t + .milliseconds(800)) == .milliseconds(200))
 }
+
+@Test func zeroLimitNeverWaits() {
+    var th = Throttle(limit: 0, window: .seconds(1))
+    let t = ContinuousClock.now
+    for _ in 0..<100 { #expect(th.reserve(at: t) == .zero) }
+}

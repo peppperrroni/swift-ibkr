@@ -6,6 +6,11 @@ import Testing
         #expect(Handshake.hello() == Array("API\0".utf8) + [0, 0, 0, 9] + Array("v100..178".utf8))
     }
 
+    @Test func helloCarriesConnectOptions() {
+        let range = Array("v100..178 +PACEAPI".utf8)
+        #expect(Handshake.hello(connectOptions: "+PACEAPI") == Array("API\0".utf8) + [0, 0, 0, 18] + range)
+    }
+
     @Test func serverHelloParses() throws {
         let t = "20261109 10:41:35 Central European Standard Time"
         let r = try Handshake.parseServerHello(body("178", t))

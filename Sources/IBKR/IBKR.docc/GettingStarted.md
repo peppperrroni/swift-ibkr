@@ -34,8 +34,9 @@ API* off. These are the default ports:
 
 ## Connect and read
 
-``IBClient/connect(host:port:clientID:timeout:reconnect:)`` returns once the handshake is done and the open orders,
-completed orders, executions, positions, portfolio and account values are synced.
+``IBClient/connect(host:port:clientID:timeout:reconnect:options:)`` returns once the handshake is done and the open
+orders, completed orders, executions, positions, portfolio and account values are synced; ``ConnectOptions`` chooses
+which of them, the throttle and `ib_async`'s other connect options.
 
 ```swift
 import IBKR

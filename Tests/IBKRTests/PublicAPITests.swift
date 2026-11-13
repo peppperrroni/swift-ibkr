@@ -93,6 +93,15 @@ import Testing
     #expect(ExerciseAction(rawValue: 2) == .lapse)
     #expect(ReconnectPolicy().maxAttempts == nil)
     #expect(ReconnectPolicy(probeAfter: nil).probeAfter == nil)
+    #expect(ConnectOptions(readOnly: true, account: "DU1", fetch: StartupFetch.none, maxSyncedSubAccounts: 1,
+                           throwsOnSyncError: false, maxRequests: 0, requestsInterval: .seconds(2),
+                           connectOptions: "+PACEAPI", optionalCapabilities: "").fetch.isEmpty)
+    #expect(StartupFetch.all.contains([.positions, .ordersOpen, .ordersComplete, .accountUpdates,
+                                       .subAccountUpdates, .executions]))
+    #expect(ConnectionStats(startTime: Date(), duration: .zero, bytesReceived: 0, bytesSent: 0, messagesReceived: 0,
+                            messagesSent: 0).bytesSent == 0)
+    #expect(IBLogLevel.debug < .error)
+    #expect(!IBClient.libraryVersion.isEmpty)
     #expect(TagValue(tag: "a", value: "1").tag == "a")
     #expect(SoftDollarTier().displayName == "")
     #expect(ComboLeg(conID: 1, ratio: 2, action: .sell, exchange: "SMART").exemptCode == -1)

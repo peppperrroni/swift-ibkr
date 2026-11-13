@@ -7,7 +7,7 @@ final class FakeGateway: Transport, @unchecked Sendable {
     let incoming: AsyncThrowingStream<[UInt8], any Error>
     private let continuation: AsyncThrowingStream<[UInt8], any Error>.Continuation
     private let serverVersion: String, nextValidID: Int, accounts: String, answersStartAPI: Bool
-    private let answersPositions: Bool, answersAccountUpdates: Bool
+    private let answersPositions: Bool, answersAccountUpdates: Bool, answersExecutions: Bool
     private let lock = NSLock()
     private var sawHello = false
     private var sent: [[String]] = []
@@ -16,7 +16,7 @@ final class FakeGateway: Transport, @unchecked Sendable {
     private var _onRequest: (@Sendable ([String]) -> [[String]])?
 
     init(serverVersion: String = "178", nextValidID: Int = 1, accounts: String = "DU1", answersStartAPI: Bool = true,
-         answersPositions: Bool = true, answersAccountUpdates: Bool = true) {
+         answersPositions: Bool = true, answersAccountUpdates: Bool = true, answersExecutions: Bool = true) {
         (incoming, continuation) = AsyncThrowingStream.makeStream()
         self.serverVersion = serverVersion
         self.nextValidID = nextValidID
@@ -24,6 +24,7 @@ final class FakeGateway: Transport, @unchecked Sendable {
         self.answersStartAPI = answersStartAPI
         self.answersPositions = answersPositions
         self.answersAccountUpdates = answersAccountUpdates
+        self.answersExecutions = answersExecutions
     }
 
     /// What `connect` sends with one account: 71, 16, 99, 7, 61, 6.
@@ -79,7 +80,7 @@ final class FakeGateway: Transport, @unchecked Sendable {
             feed(["15", "1", accounts])
         case "16": feed(["53", "1"])
         case "99": feed(["102"])
-        case "7": feed(["55", "1", fields[2]])
+        case "7" where answersExecutions: feed(["55", "1", fields[2]])
         case "61" where answersPositions: feed(["62", "1"])
         case "6" where answersAccountUpdates && fields[2] == "1": feed(["54", "1", fields[3]])
         // only the sync's 76s (several accounts): a consumer's accountUpdatesMulti must wait for the test's end marker

@@ -63,6 +63,9 @@ Still open:
   in `filled`. The tracker keeps the 0 and clamps `remaining` at 0; a consumer reads the size from `filled`.
 - execDetails `time` comes in two formats: `20261110-11:56:31` (UTC, no zone) on a live fill and
   `20261110 06:56:31 US/Eastern` in the reqExecutions reply. It stays a raw string; a consumer parses both.
+- `ConnectOptions` is checked on the fake gateway only: a read-only API login, `+PACEAPI`, a non-empty
+  `optionalCapabilities`, client 0's auto-bind with TWS's manual orders, and more than 50 sub-accounts have not
+  been seen live.
 
 ## Not covered by CI
 

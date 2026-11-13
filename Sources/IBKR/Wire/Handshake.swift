@@ -4,8 +4,9 @@ public enum Handshake {
     public static let version = 178
 
     /// "API\0", then the length-prefixed version range with no trailing NUL; the only unframed write.
-    static func hello() -> [UInt8] {
-        let range = Array("v100..\(version)".utf8)
+    /// `connectOptions` (e.g. `"+PACEAPI"`) follows the range after one space (`ib_async`'s client.py:218-224).
+    static func hello(connectOptions: String = "") -> [UInt8] {
+        let range = Array("v100..\(version)\(connectOptions.isEmpty ? "" : " " + connectOptions)".utf8)
         let n = UInt32(range.count)
         return Array("API\0".utf8)
             + [UInt8(n >> 24), UInt8(n >> 16 & 0xFF), UInt8(n >> 8 & 0xFF), UInt8(n & 0xFF)] + range

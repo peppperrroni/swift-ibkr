@@ -44,7 +44,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `wshMetaEvent` | `wshMetaData()` | present | the answer is returned |
 | `wshEvent` | `wshEventData(_:)` | present | the answer is returned |
 | `errorEvent` | `messages()` → `.error(IBErrorMessage)`; thrown `IBClientError` | present | the message carries no contract |
-| `timeoutEvent` | — | MISSING | request stream `idleTimeouts(after: Duration) -> AsyncStream<Duration>` (seconds idle) without dropping the connection; `ReconnectPolicy.probeAfter` only probes and reconnects |
+| `timeoutEvent` | `idleTimeouts(after:)` → `AsyncStream<Duration>` | added | a fresh stream per call: while connected, the idle time once each time `after` passes with no incoming frame; the next frame re-arms it (ib_async re-arms by calling `setTimeout` again); the connection is left alone, where `ReconnectPolicy.probeAfter` probes and reconnects |
 
 ## `IB` (ib.py): class attributes and module names
 
@@ -55,23 +55,23 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `IB.wrapper`, `IB.client` | `IBClient` | present | see the `Client` and `Wrapper` rows |
 | `RequestTimeout` | — | n/a | timeout of the synchronous wrappers only; cancel the calling task |
 | `RaiseRequestErrors` | thrown `IBClientError` | present | the `True` mode only; ib_async's default `False` (log, resolve empty or partial, wrapper.py:1647) is deliberately not offered (DECISIONS rows 61 and 74) |
-| `MaxSyncedSubAccounts` | — | MISSING | `ConnectOptions.maxSyncedSubAccounts` (50): cap on the connect-time per-account sync; Swift syncs every account |
+| `MaxSyncedSubAccounts` | `ConnectOptions.maxSyncedSubAccounts` | added | 50: with more accounts the sync sends no reqAccountUpdatesMulti; with one account none goes out at all (ib_async sends one for it too, DECISIONS) |
 | `TimezoneTWS` | — | MISSING | `ConnectOptions.gatewayTimeZone: TimeZone?`, used to read `Execution.time` as a `Date` |
-| `StartupFetch` | — | MISSING | type `StartupFetch: OptionSet` (positions, ordersOpen, ordersComplete, accountUpdates, subAccountUpdates, executions), as `ConnectOptions.fetch` |
-| `StartupFetchALL`, `StartupFetchNONE` | — | MISSING | `StartupFetch.all`, `StartupFetch.none` (`[]`) |
+| `StartupFetch` | `StartupFetch` | added | `OptionSet` with `positions`, `ordersOpen`, `ordersComplete`, `accountUpdates`, `subAccountUpdates`, `executions`, as `ConnectOptions.fetch`; `.positions` gates reqPositions, which ib_async always sends |
+| `StartupFetchALL`, `StartupFetchNONE` | `StartupFetch.all`, `StartupFetch.none` | added | `.none` is `[]`; in an optional context write `StartupFetch.none` |
 | `__enter__`, `__exit__`, `__del__`, `__repr__` | — | n/a | Python dunders |
 
 ## `IB` (ib.py): methods
 
 | ib_async | swift-ibkr | Status | Note |
 |---|---|---|---|
-| `connect` / `connectAsync` | `connect(host:port:clientID:timeout:reconnect:)` | present | waits for the whole sync like ib_async |
-| `connect(readonly:account:raiseSyncErrors:fetchFields:)` | — | MISSING | one `ConnectOptions` struct for every connect option, `connect(…, options: ConnectOptions = .init())`: `readOnly` (skip open/completed orders), `account` (whose reqAccountUpdates; lets one of several accounts have a portfolio), `throwsOnSyncError`, `fetch: StartupFetch` |
-| `connectAsync`: `reqAutoOpenOrders(True)` for clientId 0 | — | MISSING | behaviour in `connect`: `setAutoOpenOrders(true)` in the sync when `clientID == 0` (ib.py:2046) |
+| `connect` / `connectAsync` | `connect(host:port:clientID:timeout:reconnect:options:)` | present | waits for the whole sync like ib_async |
+| `connect(readonly:account:raiseSyncErrors:fetchFields:)` | `connect(host:port:clientID:timeout:reconnect:options:)`, `ConnectOptions.readOnly`, `.account`, `.throwsOnSyncError`, `.fetch` | added | `readOnly` skips open and completed orders; `account` gets reqAccountUpdates (one of several accounts gets a portfolio); `throwsOnSyncError` defaults to `true` (ib_async's `raiseSyncErrors` to `false`): off, a failed sync request or the deadline with only sync markers due is logged at `.error` and `connect` succeeds |
+| `connectAsync`: `reqAutoOpenOrders(True)` for clientId 0 | `connect(…)` with `clientID: 0` | added | sends `setAutoOpenOrders(true)` first in the sync (ib.py:2046) |
 | `disconnect` | `disconnect()` | present | ib_async also returns a stats line (see `Client.connectionStats`) |
 | `isConnected` | `states()` (current state first) | present | |
 | `waitOnUpdate`, `loopUntil` | — | n/a | synchronous wrappers over `updateEvent`; `for await` on a stream |
-| `setTimeout` | — | MISSING | see `timeoutEvent`: `idleTimeouts(after:)` |
+| `setTimeout` | `idleTimeouts(after:)` | added | see `timeoutEvent` |
 | `run`, `schedule`, `sleep` | — | n/a | event-loop glue (`util` aliases); `Task.sleep` |
 | `timeRange`, `timeRangeAsync`, `waitUntil` | — | MISSING | aliases of the `util` rows of the same names |
 | `managedAccounts` | `managedAccounts()`; `states()` → `.connected(accounts:)` | present | Swift asks IB afresh; the state keeps the list seen at connect |
@@ -251,7 +251,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `BarDataList` | `historicalBars(…)` → `BarEvent.history([Bar])` | present | the request parameters are the caller's own |
 | `BarDataList.updateEvent` (keepUpToDate) | `liveHistoricalBars(_:duration:barSize:whatToShow:rth:options:)` → `BarList`, `BarList.apply(_:)` | added | the first batch (`hasNewBar` true), then the whole list after each update that changes it: an older bar is dropped, a later one appended (`hasNewBar` true), one at the last bar's time replaces it (`false`) unless identical (wrapper.py:923-942). Unlike ib_async (`if not bars: return`), an update after an empty batch is appended rather than dropped; updates before the batch are dropped as in ib_async. `historicalBars(…keepUpToDate: true)` still yields raw `BarEvent.update` |
 | `CommissionReport` | `CommissionReport` | present | |
-| `ConnectionStats` | — | MISSING | model `ConnectionStats` (start time, duration, bytes and messages each way); see `Client.connectionStats` |
+| `ConnectionStats` | `ConnectionStats` | added | `startTime`, `duration`, `bytesReceived`, `bytesSent`, `messagesReceived`, `messagesSent`; described with `formatSI` and raw message counts, as ib.py:394-398 |
 | `DepthMktDataDescription` | `DepthMarketDataDescription` | present | |
 | `Dividends` | `Dividends` | added | `past12Months`, `next12Months`, `nextDate` (00:00 UTC), `nextAmount`; see `Ticker.dividends` |
 | `DOMLevel` | `DepthLevel` | present | |
@@ -386,9 +386,9 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `tree` | — | added | synthesised `Encodable` (one-way to JSON, not `Decodable`) on every public model; `TickField` is `CodingKeyRepresentable` |
 | `barplot` | — | n/a | plotting |
 | `allowCtrlC` | — | n/a | event-loop glue: asyncio's SIGINT handling |
-| `logToFile`, `logToConsole` | — | MISSING | Swift has a meaning for it: the library logs nothing and its outgoing frames are invisible; `setLogHandler(_:)` taking a public `IBLogLevel` and text (connects, orders, errors, `>>>`/`<<<` frames), no dependency |
+| `logToFile`, `logToConsole` | `IBClient.setLogHandler(_:)`, `IBLogLevel`, `IBLogHandler` | added | the caller's handler gets every line: `.debug` frames `>>>`/`<<<`, `.info` state changes, orders and fills, `.warning` warning codes, `.error` fatal errors; no dependency |
 | `isNan` | — | n/a | NaN placeholder test; Swift's unset is `nil` |
-| `formatSI` | — | MISSING | model helper: SI-prefix formatting (`ConnectionStats` description) |
+| `formatSI` | `ConnectionStats.description` | added | internal `formatSI(_:)` for `Int` and `Double` (util.py:274-299), behind the description; a negative integer keeps its sign, which ib_async drops |
 | `timeit` | — | n/a | Python context manager; `ContinuousClock().measure {}` |
 | `run`, `schedule`, `sleep` | — | n/a | event-loop glue |
 | `timeRange`, `timeRangeAsync` | — | MISSING | request stream `timeRange(from:to:every:) -> AsyncStream<Date>`: waits for each point and yields it, skipping past ones |
@@ -451,24 +451,24 @@ connect), **model helper** (a computed property or method on a model), **factory
 | ib_async | swift-ibkr | Status | Note |
 |---|---|---|---|
 | `Client` | `IBClient` | present | |
-| `Client.MaxRequests`, `RequestsInterval` | — | MISSING | `ConnectOptions.maxRequests` (45, 0 off) and `.requestsInterval` (1 s); Swift's `Throttle` is fixed |
+| `Client.MaxRequests`, `RequestsInterval` | `ConnectOptions.maxRequests`, `ConnectOptions.requestsInterval` | added | 45 per 1 s by default, `maxRequests` 0 turns the throttle off |
 | `Client.MinClientVersion`, `MaxClientVersion` | `Handshake.version` | present | pinned to 178 |
 | `Client.DISCONNECTED`, `CONNECTING`, `CONNECTED` | `ConnectionState` | present | |
 | `Client.events` | — | n/a | eventkit bookkeeping tuple |
 | `Client.apiStart`, `apiEnd`, `apiError` | `states()` | present | |
-| `Client.throttleStart`, `throttleEnd` | — | MISSING | snapshot+stream `throttling() -> AsyncStream<Bool>` |
-| `Client.host`, `port`, `clientId` | — | MISSING | model fields: where the client is connected (on `ConnectionState.connected` or `IBClient.endpoint`) |
-| `Client.optCapab` | — | MISSING | `ConnectOptions.optionalCapabilities`: startApi's capabilities field; Swift sends `""` |
-| `Client.connectOptions`, `setConnectOptions` | — | MISSING | `ConnectOptions.connectOptions`: appended to the handshake's version range (`+PACEAPI`) |
+| `Client.throttleStart`, `throttleEnd` | `throttling()` → `AsyncStream<Bool>` | added | the current state first, then `true` when the writer starts waiting on the throttle and `false` when everything queued is written |
+| `Client.host`, `port`, `clientId` | `endpoint()` → `(host: String, port: Int, clientID: Int)?` | added | `nil` when disconnected |
+| `Client.optCapab` | `ConnectOptions.optionalCapabilities` | added | startApi's capabilities field, `""` by default |
+| `Client.connectOptions`, `setConnectOptions` | `ConnectOptions.connectOptions` | added | appended to the handshake's version range after one space (`v100..178 +PACEAPI`) |
 | `Client.reset` | `disconnect()` | present | |
 | `Client.serverVersion` | `states()` → `.connected(serverVersion:)` | present | |
 | `Client.run` | — | n/a | event-loop glue |
 | `Client.isConnected`, `isReady` | `states()` | present | |
-| `Client.connectionStats` | — | MISSING | one-shot `connectionStats() -> ConnectionStats` |
+| `Client.connectionStats` | `connectionStats()` → `ConnectionStats` | added | throws `.notConnected` unless connected; counts both hellos as messages, as ib_async |
 | `Client.getReqId` | — | MISSING | `reserveOrderID() -> Int`: takes an id from the shared sequence, for orders linked by `parentID` before placing |
 | `Client.updateReqId` | — | MISSING | part of `reserveOrderID`: raise the sequence to at least a value |
 | `Client.getAccounts` | `states()` → `.connected(accounts:)` | present | |
-| `Client.connect` / `connectAsync` | `connect(host:port:clientID:timeout:reconnect:)` | present | Swift always syncs; `StartupFetch.none` gives a bare connection |
+| `Client.connect` / `connectAsync` | `connect(host:port:clientID:timeout:reconnect:options:)` | present | the sync runs as `ConnectOptions.fetch` asks; `fetch: StartupFetch.none` gives a bare connection |
 | `Client.disconnect` | `disconnect()` | present | |
 | `Client.send`, `sendMsg` | — | MISSING | one-shot `send(_: IBRequest)`: any request, through the throttle, answers on `messages()` |
 | `Client.wrapper`, `decoder` | `IBDecoder.decode(_:)`, `messages()` | present | |
@@ -490,8 +490,8 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `RequestError` | `IBClientError.ib(code:text:)` | present | |
 | `Connection` | — | n/a | asyncio `Protocol` glue; `IBClient` owns its socket |
 | `Event` (eventkit re-export) | — | n/a | event-loop glue; Swift uses `AsyncStream` |
-| `__version__`, `__version_info__` | — | MISSING | `IBKR.version` static string |
+| `__version__`, `__version_info__` | `IBClient.libraryVersion` | added | the podspec's `s.version` (a test keeps them equal); no tuple form |
 
 ## Totals
 
-Rows, where one row may carry several names: `present` 218 · `added` 101 · `MISSING` 64 · `n/a` 33.
+Rows, where one row may carry several names: `present` 218 · `added` 118 · `MISSING` 47 · `n/a` 33.

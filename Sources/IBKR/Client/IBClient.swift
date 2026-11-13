@@ -14,7 +14,7 @@ public enum ConnectionState: Sendable, Equatable {
 /// `ReconnectPolicy` given to `connect`.
 public actor IBClient {
     private let connector: Connector
-    private var state: ConnectionState = .disconnected(nil)
+    var state: ConnectionState = .disconnected(nil)
     private var stateSubscribers = Subscribers<ConnectionState>()
     private var messageSubscribers = Subscribers<IBMessage>()
     private var orderSubscribers = Subscribers<OrderSnapshot>()
@@ -63,7 +63,7 @@ public actor IBClient {
     private var transport: (any Transport)?
     private var outbox: AsyncStream<[UInt8]>.Continuation?
     private var frames = FrameReader()
-    private var clientID = 0
+    var clientID = 0
     private var serverVersion: Int?
     private var accounts: [String]?
     private var nextID: Int?
@@ -85,7 +85,19 @@ public actor IBClient {
     private var reconnect: (policy: ReconnectPolicy, host: String, port: Int, clientID: Int, timeout: Duration)?
     private var reconnectTask: Task<Void, Never>?
     private var probeTask: Task<Void, Never>?
-    private var lastFrame = ContinuousClock.now
+    var lastFrame = ContinuousClock.now
+
+    // What the last manual `connect` was given (reconnect attempts reuse it), where the connection goes, its
+    // counters, and the writer's throttle state: frames queued and not yet written, and whether it is waiting.
+    private var options = ConnectOptions()
+    var address = (host: "", port: 0)
+    var stats = ConnectionStats(startTime: Date(), duration: .zero, bytesReceived: 0, bytesSent: 0,
+                                messagesReceived: 0, messagesSent: 0)
+    var startedAt = ContinuousClock.now
+    private var queuedFrames = 0
+    var isThrottling = false
+    var throttleSubscribers = Subscribers<Bool>()
+    let logBox = LogBox()
 
     /// Creates a client that is not connected; `connect` opens the socket.
     public init() {
@@ -97,17 +109,21 @@ public actor IBClient {
     init(connector: @escaping Connector) { self.connector = connector }
 
     /// Returns once the handshake is done and open orders, completed orders, executions, positions, the portfolio
-    /// and the account values are synced.
+    /// and the account values are synced, as far as `options` asks for them (`ib_async`'s sync: client 0 first
+    /// binds TWS's manual orders with `setAutoOpenOrders(true)`).
     /// `timeout` covers all of it. Cancelling the calling task stops it with `.cancelled`.
     /// With `reconnect`, a connection that reached `.connected` and then ends with an error publishes
     /// `.disconnected(error)`, then `.connecting`, and is retried under the policy until `disconnect()`; request
     /// streams still end at the drop, and nothing outside the sync is resent (`setMarketDataType` included).
     /// While it retries, `connect` throws `.alreadyConnected`. A first connect that fails is not retried.
+    /// Every reconnect attempt uses the same `options`.
     public func connect(host: String = "127.0.0.1", port: Int = 4002, clientID: Int,
-                        timeout: Duration = .seconds(10), reconnect policy: ReconnectPolicy? = nil)
+                        timeout: Duration = .seconds(10), reconnect policy: ReconnectPolicy? = nil,
+                        options: ConnectOptions = .init())
         async throws(IBClientError) {
         guard case .disconnected = state else { throw .alreadyConnected }
         (newsTickLog, bulletins) = ([], [])   // ib_async's wrapper.reset at connect
+        self.options = options
         reconnect = policy.map { ($0, host, port, clientID, timeout) }   // acts only once this connect succeeds
         try await open(host: host, port: port, clientID: clientID, timeout: timeout).get()
     }
@@ -118,6 +134,7 @@ public actor IBClient {
         generation += 1
         let gen = generation
         self.clientID = clientID
+        address = (host, port)
         frames = FrameReader()
         (serverVersion, accounts, nextID, syncEnds, accountSyncIDs) = (nil, nil, nil, nil, [])
         // A reconnect attempt keeps the orders (same client id) so they stay visible while it retries. Fills are
@@ -222,7 +239,7 @@ public actor IBClient {
     public func placeOrder(_ contract: Contract, _ order: Order) throws(IBClientError) -> Int {
         try requireConnected()
         let id = nextRequestID()
-        try submit(id, contract, order)
+        try submit(id, contract, order, verb: "placeOrder")
         return id
     }
 
@@ -244,6 +261,7 @@ public actor IBClient {
         }
         for (i, leg) in legs.enumerated() {
             try enqueue(frames[i])
+            log(.info, "placeOrder \(leg.0): \(Self.describe(contract, leg.1))")
             for s in orderTracker.placed(orderID: leg.0, clientID: clientID, contract: contract, order: leg.1) {
                 orderSubscribers.yield(s)
             }
@@ -256,7 +274,7 @@ public actor IBClient {
     /// `orderEvents()`; an unknown id is recorded as a new `.pendingSubmit` order.
     public func modifyOrder(_ orderID: Int, _ contract: Contract, _ order: Order) throws(IBClientError) {
         try requireConnected()
-        try submit(orderID, contract, order)
+        try submit(orderID, contract, order, verb: "modifyOrder")
     }
 
     /// IB's margin and commission for `order`, worked out without placing it; nothing reaches `orders()`. Throws
@@ -278,6 +296,7 @@ public actor IBClient {
     public func cancelOrder(_ orderID: Int, manualCancelOrderTime: String = "") throws(IBClientError) {
         try requireConnected()
         try send(.cancelOrder(orderID: orderID, manualCancelTime: manualCancelOrderTime))
+        log(.info, "cancelOrder \(orderID)")
         for s in orderTracker.cancelRequested(orderID: orderID) {
             orderSubscribers.yield(s)
             orderEventSubscribers.yield(.cancelRequested(s))
@@ -312,22 +331,24 @@ public actor IBClient {
          fillSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(fill: id) } })
     }
 
-    /// The positions known now, then every whole new set from now on. Always on: `connect` requests them and
-    /// they stream for the whole connection.
+    /// The positions known now, then every whole new set from now on. On unless `ConnectOptions.fetch` leaves out
+    /// `.positions`: `connect` requests them and they stream for the whole connection.
     public func positions() -> (snapshot: [Position], updates: AsyncStream<[Position]>) {
         (positionTracker.positions,
          positionSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(position: id) } })
     }
 
-    /// The portfolio known now, then every whole new set from now on. Always on, like `positions()`: `connect`
-    /// subscribes with reqAccountUpdates when the login has one account (with several, IB sends no portfolio).
+    /// The portfolio known now, then every whole new set from now on. On like `positions()` (`fetch` flag
+    /// `.accountUpdates`): `connect` subscribes with reqAccountUpdates for `ConnectOptions.account`, by default the
+    /// login's only account (with several and none named, IB sends no portfolio).
     public func portfolio() -> (snapshot: [PortfolioItem], updates: AsyncStream<[PortfolioItem]>) {
         (accountTracker.portfolio,
          portfolioSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(portfolio: id) } })
     }
 
-    /// The account values known now, then every changed value from now on. Always on: `connect` subscribes with
-    /// reqAccountUpdates for one account, or reqAccountUpdatesMulti per account when there are several.
+    /// The account values known now, then every changed value from now on. On like `portfolio()`: `connect`
+    /// subscribes with reqAccountUpdates for one account, and with several also with reqAccountUpdatesMulti per
+    /// account while there are at most `maxSyncedSubAccounts` (`fetch` flag `.subAccountUpdates`).
     public func accountValues() -> (snapshot: [AccountValue], updates: AsyncStream<AccountValue>) {
         (accountTracker.values,
          accountValueSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(accountValue: id) } })
@@ -915,13 +936,20 @@ public actor IBClient {
     }
 
     /// A what-if order is never placed: it goes through `whatIfOrder`.
-    private func submit(_ id: Int, _ contract: Contract, _ order: Order) throws(IBClientError) {
+    private func submit(_ id: Int, _ contract: Contract, _ order: Order, verb: String) throws(IBClientError) {
         if order.whatIf { throw .encoding(.unsupported("whatIf")) }
         try send(.placeOrder(orderID: id, contract: contract, order: order))
+        log(.info, "\(verb) \(id): \(Self.describe(contract, order))")
         for s in orderTracker.placed(orderID: id, clientID: clientID, contract: contract, order: order) {
             orderSubscribers.yield(s)
             if s.log.last?.message == "Modify" { orderEventSubscribers.yield(.modified(s)) }   // a new id logs ""
         }
+    }
+
+    /// An order as the log names it: `BUY 1 AAPL LMT 180`, then the aux price when set.
+    private static func describe(_ contract: Contract, _ order: Order) -> String {
+        ([order.action.rawValue, "\(order.totalQuantity)", contract.symbol, order.orderType]
+            + [order.limitPrice, order.auxPrice].compactMap { $0.map { "\($0)" } }).joined(separator: " ")
     }
 
     /// Encodes, frames and queues; throws before queuing when the request does not encode.
@@ -936,6 +964,28 @@ public actor IBClient {
     private func enqueue(_ frame: [UInt8]) throws(IBClientError) {
         guard let outbox else { throw .notConnected }
         outbox.yield(frame)
+        queuedFrames += 1
+        log(.debug, ">>> " + FieldReader(Array(frame.dropFirst(4))).fields.joined(separator: "|"))
+    }
+
+    /// The writer wrote one frame of `count` bytes; its queue is empty again when none is left.
+    private func wrote(_ count: Int, _ gen: Int) {
+        guard gen == generation else { return }
+        stats.messagesSent += 1
+        stats.bytesSent += count
+        queuedFrames -= 1
+        if queuedFrames == 0 { setThrottling(false) }
+    }
+
+    /// The writer starts waiting on the throttle.
+    private func throttleWaits(_ gen: Int) {
+        if gen == generation { setThrottling(true) }
+    }
+
+    private func setThrottling(_ on: Bool) {
+        guard on != isThrottling else { return }
+        isThrottling = on
+        throttleSubscribers.yield(on)
     }
 
     /// Sends `request`, then registers its stream; nothing is registered when it does not encode. `resendOn` is the IB
@@ -1035,12 +1085,19 @@ public actor IBClient {
         transport = t
         let (queued, outbox) = AsyncStream.makeStream(of: [UInt8].self)
         self.outbox = outbox
+        (stats, startedAt) = (ConnectionStats(startTime: Date(), duration: .zero, bytesReceived: 0, bytesSent: 0,
+                                              messagesReceived: 0, messagesSent: 0), .now)
+        let (limit, window) = (options.maxRequests, options.requestsInterval)
         Task.detached {   // detached: a blocking write must never hold the actor
-            var throttle = Throttle()
+            var throttle = Throttle(limit: limit, window: window)
             for await frame in queued {
                 let wait = throttle.reserve(at: .now)
-                if wait > .zero { try? await Task.sleep(for: wait) }
+                if wait > .zero {
+                    await self.throttleWaits(gen)
+                    try? await Task.sleep(for: wait)
+                }
                 do { try t.write(frame) } catch { return await self.closed(error, gen) }
+                await self.wrote(frame.count, gen)
             }
             t.close()   // the outbox finished: after a draining disconnect, this is the close
         }
@@ -1056,22 +1113,30 @@ public actor IBClient {
             guard (try? await Task.sleep(until: deadline)) != nil else { return }   // cancelled: connect is over
             timedOut(gen)
         }
-        do { try t.write(Handshake.hello()) } catch { end(error) }
+        let hello = Handshake.hello(connectOptions: options.connectOptions)
+        do { try t.write(hello) } catch { return end(error) }
+        stats.messagesSent += 1   // as ib_async's connection.sendMsg counts it
+        stats.bytesSent += hello.count
     }
 
     private func receive(_ chunk: [UInt8], _ gen: Int) {
         guard gen == generation else { return }
         lastFrame = .now
+        stats.bytesReceived += chunk.count
         do { try frames.append(chunk) } catch { return end(.protocolError(error)) }
         while gen == generation, let body = frames.next() { handle(body) }
     }
 
     private func handle(_ body: [UInt8]) {
+        stats.messagesReceived += 1
+        log(.debug, "<<< " + FieldReader(body).fields.joined(separator: "|"))
         guard serverVersion != nil else {   // the first frame answers the hello
             do { serverVersion = try Handshake.parseServerHello(body).serverVersion } catch {
                 return end(.protocolError(error))
             }
-            try? send(.startAPI(clientID: clientID, capabilities: ""))   // all-ASCII, cannot throw
+            do { try send(.startAPI(clientID: clientID, capabilities: options.optionalCapabilities)) } catch {
+                return end(error)   // capabilities that are not ASCII
+            }
             return
         }
         frameTap?(FieldReader(body).fields)
@@ -1079,7 +1144,12 @@ public actor IBClient {
         messageSubscribers.yield(message)
         for snapshot in orderTracker.apply(message) { orderSubscribers.yield(snapshot) }
         let fills = executionTracker.apply(message)
-        for fill in fills { fillSubscribers.yield(fill) }
+        for fill in fills {
+            fillSubscribers.yield(fill)
+            let e = fill.execution
+            log(.info, "fill \(e.execID): order \(e.orderID) \(e.side) \(e.shares) \(fill.contract.symbol) "
+                + "at \(e.price)")
+        }
         for fill in fills.isEmpty ? knownFill(message) : fills {
             for s in orderTracker.add(fill) { orderSubscribers.yield(s) }
         }
@@ -1090,44 +1160,79 @@ public actor IBClient {
         case .value(let v)?: accountValueSubscribers.yield(v)
         case nil: break
         }
+        logError(message)
         routeToStream(message)
         recordNews(message)
         switch message {
         case .nextValidID(let n): nextID = max(nextID ?? n, n)
         case .managedAccounts(let a): accounts = a
-        case .error(let e) where pendingConnect != nil
-                && ((e.requestID == -1 && ErrorCode.kind(e.code) == .fatal)
-                    || (ErrorCode.kind(e.code).failsRequest
-                        && (syncEnds?.contains(.execDetailsEnd(requestID: e.requestID)) == true
-                            || accountSyncIDs.contains(e.requestID)))):
-            return end(.ib(code: e.code, text: e.text))   // -1: the connection itself; else a sync request
+        case .error(let e) where pendingConnect != nil && e.requestID == -1 && ErrorCode.kind(e.code) == .fatal:
+            return end(.ib(code: e.code, text: e.text))   // the connection itself
+        case .error(let e) where pendingConnect != nil && ErrorCode.kind(e.code).failsRequest
+                && (syncEnds?.contains(.execDetailsEnd(requestID: e.requestID)) == true
+                    || accountSyncIDs.contains(e.requestID)):
+            // a sync request: fails connect, or (logged by logError) is given up so the sync stops waiting for it
+            if options.throwsOnSyncError { return end(.ib(code: e.code, text: e.text)) }
+            syncEnds?.removeAll {
+                $0 == .execDetailsEnd(requestID: e.requestID) || $0 == .accountUpdateMultiEnd(requestID: e.requestID)
+            }
         default: break
         }
         guard pendingConnect != nil else { return }
         if syncEnds == nil {
-            if nextID != nil, accounts != nil { sync() }
+            guard nextID != nil, accounts != nil else { return }
+            sync()
         } else {
             syncEnds?.removeAll { $0 == message }
-            if syncEnds == [] { connected() }
+        }
+        if syncEnds == [] { connected() }   // `fetch: []` sends nothing to wait for
+    }
+
+    /// IB's warnings and fatal errors as log lines; notices and 202 stay on `messages()`.
+    private func logError(_ message: IBMessage) {
+        guard case .error(let e) = message else { return }
+        switch ErrorCode.kind(e.code) {
+        case .warning: log(.warning, "IB warning \(e.code), reqId \(e.requestID): \(e.text)")
+        case .fatal: log(.error, "IB error \(e.code), reqId \(e.requestID): \(e.text)")
+        case .notice, .orderCancelled: break
         }
     }
 
-    /// Only end markers that arrive after these requests are counted.
+    /// `ib_async`'s sync (ib.py:2040-2100), each request under its `options.fetch` flag. Only end markers that
+    /// arrive after these requests are counted.
     private func sync() {
-        let executionsID = nextRequestID()
-        syncEnds = [.openOrderEnd, .completedOrdersEnd, .execDetailsEnd(requestID: executionsID), .positionEnd]
-        try? send(.allOpenOrders)   // none of these can fail to encode: IB account ids are ASCII
-        try? send(.completedOrders(apiOnly: false))
-        try? send(.executions(requestID: executionsID, filter: ExecutionFilter()))
-        try? send(.positions)
+        let o = options
+        syncEnds = []
+        // none of these can fail to encode but reqAccountUpdates: IB's account ids are ASCII, a caller's may not be
+        if clientID == 0 { try? send(.autoOpenOrders(true)) }   // binds TWS's manual orders, as ib.py:2046
+        if !o.readOnly, o.fetch.contains(.ordersOpen) {
+            syncEnds?.append(.openOrderEnd)
+            try? send(.allOpenOrders)
+        }
+        if !o.readOnly, o.fetch.contains(.ordersComplete) {
+            syncEnds?.append(.completedOrdersEnd)
+            try? send(.completedOrders(apiOnly: false))
+        }
+        if o.fetch.contains(.executions) {
+            let id = nextRequestID()
+            syncEnds?.append(.execDetailsEnd(requestID: id))
+            try? send(.executions(requestID: id, filter: ExecutionFilter()))
+        }
+        if o.fetch.contains(.positions) {
+            syncEnds?.append(.positionEnd)
+            try? send(.positions)
+        }
         guard let accounts else { return }
         if accountTracker.prune(to: accounts) { portfolioSubscribers.yield([]) }   // another login's state is stale
-        if accounts.count == 1 {   // reqAccountUpdates: the portfolio too, but for one account at a time
+        // reqAccountUpdates: the portfolio too, but for one account at a time
+        let account = o.account.flatMap { $0.isEmpty ? nil : $0 } ?? (accounts.count == 1 ? accounts[0] : nil)
+        if let account, o.fetch.contains(.accountUpdates),
+           (try? send(.accountUpdates(subscribe: true, account: account))) != nil {
             accountTracker.reload()
-            syncEnds?.append(.accountDownloadEnd(account: accounts[0]))
-            try? send(.accountUpdates(subscribe: true, account: accounts[0]))
-            return
+            syncEnds?.append(.accountDownloadEnd(account: account))
         }
+        guard accounts.count > 1, accounts.count <= o.maxSyncedSubAccounts, o.fetch.contains(.subAccountUpdates)
+        else { return }
         for account in accounts {   // values only; IB has no Multi portfolio
             let id = nextRequestID()
             accountSyncIDs.insert(id)
@@ -1149,8 +1254,13 @@ public actor IBClient {
         pendingConnect = nil
     }
 
+    /// The connect deadline: fails `connect`, or, with `throwsOnSyncError` off and only sync end markers due, logs
+    /// them and lets it succeed.
     private func timedOut(_ gen: Int) {
-        if gen == generation, pendingConnect != nil { end(.timeout) }
+        guard gen == generation, pendingConnect != nil else { return }
+        guard let due = syncEnds, !options.throwsOnSyncError else { return end(.timeout) }
+        log(.error, "connect: the sync timed out waiting for \(due)")
+        connected()
     }
 
     private func closed(_ error: (any Error)?, _ gen: Int) {
@@ -1176,7 +1286,8 @@ public actor IBClient {
         }
         outbox?.finish()
         connectTimer?.cancel()
-        (transport, outbox, connectTimer, syncEnds) = (nil, nil, nil, nil)
+        (transport, outbox, connectTimer, syncEnds, queuedFrames) = (nil, nil, nil, nil, 0)
+        setThrottling(false)
         let streams = requestStreams.values
         requestStreams = [:]   // emptied first: their termination then sends no cancel
         (liveBars, accountPnLs, positionPnLs, tickerRegistry) = ([:], [:], [:], [:])
@@ -1194,6 +1305,7 @@ public actor IBClient {
     private func setState(_ new: ConnectionState) {
         guard new != state else { return }
         state = new
+        log(.info, "\(new)")
         stateSubscribers.yield(new)
     }
 
@@ -1205,4 +1317,5 @@ public actor IBClient {
     private func unsubscribe(position id: Int) { positionSubscribers.remove(id) }
     private func unsubscribe(portfolio id: Int) { portfolioSubscribers.remove(id) }
     private func unsubscribe(accountValue id: Int) { accountValueSubscribers.remove(id) }
+    func unsubscribe(throttling id: Int) { throttleSubscribers.remove(id) }
 }
