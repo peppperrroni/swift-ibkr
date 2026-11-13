@@ -219,7 +219,7 @@ private let ready = ConnectionState.connected(serverVersion: 178, accounts: ["DU
     let gateway = FakeGateway()
     let client = try await connected(gateway)
     let messages = await client.messages()
-    for byte in Frame.encode(body("49", "1", "1700000000")) + Frame.encode(body("9", "1", "50")) {
+    for byte in try Frame.encode(body("49", "1", "1700000000")) + Frame.encode(body("9", "1", "50")) {
         gateway.feedRaw([byte])
     }
     let got = try await within2s {
@@ -236,6 +236,24 @@ private let ready = ConnectionState.connected(serverVersion: 178, accounts: ["DU
     gateway.feedRaw([0x01, 0, 0, 0])
     #expect(try await first(states, where: isDisconnected) == .disconnected(.protocolError(.frameTooLong(16_777_216))))
     #expect(gateway.isClosed)
+}
+
+/// An oversized header right behind a good frame, in one chunk, ends the connection without waiting for more bytes.
+@Test func oversizedHeaderBehindAGoodFrameDisconnectsAtOnce() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let states = await client.states()
+    gateway.feedRaw(try Frame.encode(body("49", "1", "1700000000")) + [0x01, 0, 0, 0])
+    #expect(try await first(states, where: isDisconnected) == .disconnected(.protocolError(.frameTooLong(16_777_216))))
+}
+
+/// A writer stuck in a send (the peer reads nothing) must not hold a clean disconnect open past its 2 s bound.
+@Test func drainingDisconnectClosesWithinTwoSeconds() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    gateway.blocksWrites = true   // cancelPositions never leaves
+    await client.disconnect()
+    try await within("close", seconds: 4) { try await gateway.waitUntilClosed(within: .milliseconds(2500)) }
 }
 
 @Test func liveFillTimeIsTheArrivalAndTheGatewayZoneReadsTheText() async throws {

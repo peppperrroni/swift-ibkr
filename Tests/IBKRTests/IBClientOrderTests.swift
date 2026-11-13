@@ -172,8 +172,9 @@ private func until(_ condition: @escaping @Sendable () async -> Bool) async thro
     try await until { await client.orderSubscriberCount == 0 }
 }
 
+/// The gateway's stream stays open after the close, so the frame does reach `receive`: its generation guard drops it.
 @Test func frameAfterDisconnectIsIgnored() async throws {
-    let gateway = FakeGateway()
+    let gateway = FakeGateway(staysOpenAfterClose: true)
     let client = try await connected(gateway)
     let messages = await client.messages()
     await client.disconnect()
@@ -187,6 +188,28 @@ private func until(_ condition: @escaping @Sendable () async -> Bool) async thro
     #expect(await got.value == nil)
     var it = await client.states().makeAsyncIterator()
     #expect(await it.next() == .disconnected(nil))
+}
+
+/// A consumer stop from the first connection that reaches the actor only after a reconnect reused its reqId. The
+/// stop is the stream's termination hop (`stopped`) called with the old generation: a real one cannot be delayed
+/// past a reconnect on purpose.
+@Test func lateStopDoesNotCancelAReusedID() async throws {
+    let (one, two) = (FakeGateway(nextValidID: 100), FakeGateway(nextValidID: 100))
+    let client = IBClient(connector: Gateways([one, two]).connector)
+    try await within2s { try await client.connect(clientID: 7) }
+    let oldGeneration = await client.generation
+    _ = try await client.marketData(aapl)
+    let id = try await one.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][2]
+    await client.disconnect()
+    try await within2s { try await client.connect(clientID: 7) }
+    let second = try await client.marketData(aapl)
+    #expect(try await two.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][2] == id)   // reused
+    await client.stopped(Int(id)!, oldGeneration)
+    try await client.cancelOrder(1)   // a marker: whatever the stop sent has left before it
+    #expect(!(try await two.waitForSent(FakeGateway.syncFrames + 2)).contains(["2", "2", id]))
+    let (_, result) = take(1, second)
+    two.feed(["2", "6", id, "0", "300"])
+    #expect(try await within2s { try await result.value }.count == 1)
 }
 
 @Test func exerciseOptionsSendsItsFrame() async throws {

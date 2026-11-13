@@ -20,6 +20,35 @@ private func isTransport(_ error: any Error) -> Bool {
     #expect(ContinuousClock.now - start < .seconds(2))
 }
 
+/// A blackholed address keeps the connect waiting; the cancel must end it at the next poll slice, not the timeout.
+@Test func connectReturnsSoonAfterCancel() async throws {
+    let attempt = Task { try await TCPSocket.connect(host: "10.255.255.1", port: 4002, timeout: .seconds(30)) }
+    try await Task.sleep(for: .milliseconds(100))
+    let cancelledAt = ContinuousClock.now
+    attempt.cancel()
+    if case .success(let socket) = try await within2s({ await attempt.result }) { socket.close() }
+    #expect(ContinuousClock.now - cancelledAt < .seconds(1))
+}
+
+@Test func interruptedCallsAreRetried() {
+    var calls = 0
+    let n = retryingInterrupted { () -> Int in
+        calls += 1
+        guard calls == 3 else { setLastError(interrupted); return -1 }
+        return 5
+    }
+    #expect(n == 5 && calls == 3)
+    calls = 0
+    #expect(retryingInterrupted { () -> Int in calls += 1; setLastError(interrupted + 1); return -1 } == -1)
+    #expect(calls == 1)   // any other failure returns at once
+}
+
+#if os(Windows)
+private func setLastError(_ code: Int32) { WSASetLastError(code) }
+#else
+private func setLastError(_ code: Int32) { errno = code }
+#endif
+
 @Test func unknownHostFails() async {
     await #expect(performing: {
         _ = try await TCPSocket.connect(host: "no-such-host.invalid", port: 4001, timeout: .seconds(2))

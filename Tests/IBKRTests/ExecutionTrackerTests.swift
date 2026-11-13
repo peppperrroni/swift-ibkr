@@ -25,6 +25,14 @@ private func commission(_ id: String = id1) -> IBMessage {
     #expect(f[0].contract.symbol == "AAPL")
 }
 
+@Test func unmatchedHalvesAreCapped() {
+    var t = ExecutionTracker(maxPending: 3)
+    let ids = ["a.01", "b.01", "c.01", "d.01"]
+    for id in ids { #expect(t.apply(commission(id)) == []) }
+    #expect(t.apply(exec(ids[0])) == [])   // the oldest of four lone halves went over the cap of three
+    #expect(t.apply(exec(ids[3])).count == 1)
+}
+
 @Test func commissionBeforeExecWaits() {
     var t = ExecutionTracker()
     #expect(t.apply(commission()) == [])

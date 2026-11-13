@@ -73,6 +73,24 @@ import Testing
     #expect(try r.string() == "Ордер отклонён")
 }
 
+@Test func intAndDecimalOfEmptyAreZero() throws {
+    var r = FieldReader(body("", ""))
+    #expect(try r.int() == 0)
+    #expect(try r.decimal() == 0)
+}
+
+@Test func boolDoubleAndSkip() throws {
+    var r = FieldReader(body("1", "0", "", "1.5", "", "a", "b", "c"))
+    #expect(try r.bool() == true)
+    #expect(try r.bool() == false)
+    #expect(try r.bool() == false)
+    #expect(try r.double() == 1.5)
+    #expect(try r.double() == 0)
+    try r.skip(2)
+    #expect(try r.string() == "c")
+    #expect(throws: IBProtocolError.missingField(index: 8)) { try r.skip() }
+}
+
 @Test func readerThrowsPastTheEnd() throws {
     var r = FieldReader(body("x"))
     #expect(try r.string() == "x")

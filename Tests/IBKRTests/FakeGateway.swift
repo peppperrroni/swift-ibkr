@@ -8,16 +8,22 @@ final class FakeGateway: Transport, @unchecked Sendable {
     private let continuation: AsyncThrowingStream<[UInt8], any Error>.Continuation
     private let serverVersion: String, nextValidID: Int, accounts: String, answersStartAPI: Bool
     private let answersPositions: Bool, answersAccountUpdates: Bool, answersExecutions: Bool
+    private let staysOpenAfterClose: Bool
     private let lock = NSLock()
     private var sawHello = false
     private var sent: [[String]] = []
     private var closed = false
     private var _writesAfterClose = 0
+    private var _blocksWrites = false
     private var _onRequest: (@Sendable ([String]) -> [[String]])?
 
+    /// `staysOpenAfterClose`: `close()` leaves `incoming` open, so `feed` still reaches the client after it closed,
+    /// as a socket's last bytes can.
     init(serverVersion: String = "178", nextValidID: Int = 1, accounts: String = "DU1", answersStartAPI: Bool = true,
-         answersPositions: Bool = true, answersAccountUpdates: Bool = true, answersExecutions: Bool = true) {
+         answersPositions: Bool = true, answersAccountUpdates: Bool = true, answersExecutions: Bool = true,
+         staysOpenAfterClose: Bool = false) {
         (incoming, continuation) = AsyncThrowingStream.makeStream()
+        self.staysOpenAfterClose = staysOpenAfterClose
         self.serverVersion = serverVersion
         self.nextValidID = nextValidID
         self.accounts = accounts
@@ -38,7 +44,7 @@ final class FakeGateway: Transport, @unchecked Sendable {
         set { lock.withLock { _onRequest = newValue } }
     }
 
-    func feed(_ fields: [String]) { feedRaw(Frame.encode(body(fields))) }
+    func feed(_ fields: [String]) { feedRaw(try! Frame.encode(body(fields))) }
 
     func feedRaw(_ bytes: [UInt8]) { continuation.yield(bytes) }
 
@@ -47,9 +53,15 @@ final class FakeGateway: Transport, @unchecked Sendable {
     /// Writes attempted after `close()`; they throw and never reach the sent frames.
     var writesAfterClose: Int { lock.withLock { _writesAfterClose } }
 
-    /// Returns once the client closed this transport, within 2 s.
-    func waitUntilClosed() async throws {
-        let deadline = ContinuousClock.now + .seconds(2)
+    /// While set, a write blocks until `close()`, as a socket's send does when the peer reads nothing.
+    var blocksWrites: Bool {
+        get { lock.withLock { _blocksWrites } }
+        set { lock.withLock { _blocksWrites = newValue } }
+    }
+
+    /// Returns once the client closed this transport, within `limit`.
+    func waitUntilClosed(within limit: Duration = .seconds(2)) async throws {
+        let deadline = ContinuousClock.now + limit
         while !isClosed {
             guard ContinuousClock.now < deadline else { throw TimedOut() }
             try await Task.sleep(for: .milliseconds(5))
@@ -58,10 +70,11 @@ final class FakeGateway: Transport, @unchecked Sendable {
 
     func close() {
         lock.withLock { closed = true }
-        continuation.finish()
+        if !staysOpenAfterClose { continuation.finish() }
     }
 
     func write(_ bytes: [UInt8]) throws(IBClientError) {
+        while lock.withLock({ _blocksWrites && !closed }) { Thread.sleep(forTimeInterval: 0.005) }
         let (wasClosed, isHello) = lock.withLock { () -> (Bool, Bool) in
             defer { sawHello = true }
             if closed { _writesAfterClose += 1 }

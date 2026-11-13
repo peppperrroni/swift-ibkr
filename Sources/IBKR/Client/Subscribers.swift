@@ -22,6 +22,13 @@ struct Subscribers<Element: Sendable> {
 
     mutating func remove(_ id: Int) { continuations[id] = nil }
 
+    /// Ends every current stream; later calls to `stream` start fresh ones.
+    mutating func finish() {
+        let ending = continuations.values
+        continuations = [:]
+        for c in ending { c.finish() }
+    }
+
     func yield(_ element: Element) {
         for c in continuations.values { c.yield(element) }
     }

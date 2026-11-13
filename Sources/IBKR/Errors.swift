@@ -20,4 +20,6 @@ public enum IBEncodingError: Error, Equatable, Sendable {
     case nonASCII(field: String)
     /// The request asks for something the library does not send, e.g. `"secType BAG"` or `"whatIf"`.
     case unsupported(String)
+    /// The encoded request is this many bytes, above the wire's limit of 0xFFFFFF per frame.
+    case frameTooLong(Int)
 }

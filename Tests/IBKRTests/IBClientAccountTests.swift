@@ -296,6 +296,29 @@ private func accountPnL(_ id: String, _ daily: String, realized: String = "0") -
     #expect(await client.accountValues().snapshot.allSatisfy { $0.modelCode != "M1" })
 }
 
+/// R17: after `connect`, an error that fails a sync reqAccountUpdatesMulti ends the `accountValues()` streams instead
+/// of leaving them silent, logs it at `.error`, and the id stops feeding the values.
+@Test func fatalErrorOnASyncMultiIDEndsAccountValues() async throws {
+    let gateway = FakeGateway(accounts: "DU1,DU2")
+    let log = LogLines()
+    let client = IBClient(connector: gateway.connector)
+    client.setLogHandler(log.handler)
+    try await within2s { try await client.connect(clientID: 7) }
+    let id = try #require(try await gateway.waitForSent(7).first { $0[0] == "76" })[2]
+    let (_, updates) = await client.accountValues()
+    gateway.feed(ibError(id, "321", "x"))
+    try await within2s { for await _ in updates {} }
+    #expect(log.at(.error).count == 1)
+    let (_, later) = await client.accountValues()
+    gateway.feed(multiValue(id, "NetLiquidation", "5"))   // a dropped id: not a value any more
+    gateway.feed(["6", "2", "NetLiquidation", "7", "USD", "DU1"])
+    let first = try await within2s { () async throws -> AccountValue in
+        for await v in later { return v }
+        throw TimedOut()
+    }
+    #expect(first.value == "7")
+}
+
 @Test func accountSummaryDefaultsToIbAsyncTags() async throws {
     let gateway = FakeGateway()
     let client = try await connected(gateway)

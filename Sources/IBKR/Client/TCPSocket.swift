@@ -24,13 +24,19 @@ final class TCPSocket: Transport, @unchecked Sendable {
         Thread { [self] in readLoop() }.start()
     }
 
+    /// Cancelling the calling task ends the attempt with `.cancelled` within one poll slice (100 ms).
     static func connect(host: String, port: Int, timeout: Duration) async throws -> TCPSocket {
-        try await withCheckedThrowingContinuation { continuation in
-            Thread {
-                continuation.resume(with: Result { () throws(IBClientError) in
-                    TCPSocket(handle: try openHandle(host: host, port: port, timeout: timeout))
-                })
-            }.start()
+        let cancel = CancelFlag()
+        return try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                Thread {
+                    continuation.resume(with: Result { () throws(IBClientError) in
+                        TCPSocket(handle: try openHandle(host: host, port: port, timeout: timeout, cancel: cancel))
+                    })
+                }.start()
+            }
+        } onCancel: {
+            cancel.set()
         }
     }
 
@@ -40,7 +46,9 @@ final class TCPSocket: Transport, @unchecked Sendable {
         guard isOpen else { throw .connectionClosed }
         var sent = 0
         while sent < bytes.count {
-            let n = bytes.withUnsafeBytes { sendBytes(handle, $0.baseAddress! + sent, $0.count - sent) }
+            let n = bytes.withUnsafeBytes { b in
+                retryingInterrupted { sendBytes(handle, b.baseAddress! + sent, b.count - sent) }
+            }
             guard n > 0 else {
                 let code = lastError()
                 // A peer that hung up is a closed connection whether or not our reader has noticed yet.
@@ -63,7 +71,9 @@ final class TCPSocket: Transport, @unchecked Sendable {
     private func readLoop() {
         var buffer = [UInt8](repeating: 0, count: 65_536)
         while true {
-            let n = buffer.withUnsafeMutableBytes { recvBytes(handle, $0.baseAddress!, $0.count) }
+            let n = buffer.withUnsafeMutableBytes { b in
+                retryingInterrupted { recvBytes(handle, b.baseAddress!, b.count) }
+            }
             if n > 0 { continuation.yield(Array(buffer[..<n])); continue }
             let code = lastError()
             if n == 0 || !isOpen {
@@ -80,7 +90,8 @@ final class TCPSocket: Transport, @unchecked Sendable {
 
     /// Resolves `host` and connects to the first address that answers; the connect attempts share `timeout`.
     // shortcut: DNS lookup is not bounded by timeout, upgrade when remote hostnames matter
-    private static func openHandle(host: String, port: Int, timeout: Duration) throws(IBClientError) -> Handle {
+    private static func openHandle(host: String, port: Int, timeout: Duration,
+                                   cancel: CancelFlag) throws(IBClientError) -> Handle {
         _ = startup
         let deadline = ContinuousClock.now + timeout
         var hints = AddrInfo()
@@ -93,9 +104,11 @@ final class TCPSocket: Transport, @unchecked Sendable {
         var failure = IBClientError.transport("connect: no address")
         for ai in sequence(first: list, next: { $0.pointee.ai_next }) {
             do throws(IBClientError) {
-                return try attempt(ai, deadline: deadline)
+                return try attempt(ai, deadline: deadline, cancel: cancel)
             } catch .timeout {
                 throw .timeout
+            } catch .cancelled {
+                throw .cancelled
             } catch {
                 failure = error
             }
@@ -103,9 +116,11 @@ final class TCPSocket: Transport, @unchecked Sendable {
         throw failure
     }
 
-    /// Non-blocking connect bounded by `deadline`, then back to blocking.
-    private static func attempt(_ ai: UnsafeMutablePointer<AddrInfo>,
-                                deadline: ContinuousClock.Instant) throws(IBClientError) -> Handle {
+    /// Non-blocking connect bounded by `deadline`, then back to blocking. It polls in slices of at most 100 ms and
+    /// checks `cancel` before each, so a cancel ends it within one slice.
+    private static func attempt(_ ai: UnsafeMutablePointer<AddrInfo>, deadline: ContinuousClock.Instant,
+                                cancel: CancelFlag) throws(IBClientError) -> Handle {
+        guard !cancel.isSet else { throw .cancelled }
         let h = socket(ai.pointee.ai_family, ai.pointee.ai_socktype, ai.pointee.ai_protocol)
         guard h != invalidHandle else { throw .transport("socket: \(lastError())") }
         do throws(IBClientError) {
@@ -113,12 +128,15 @@ final class TCPSocket: Transport, @unchecked Sendable {
             if connectHandle(h, ai) != 0 {
                 let code = lastError()
                 guard code == connectPending else { throw .transport("connect: \(code)") }
-                let (s, atto) = (deadline - .now).components
-                let ms = Int32(clamping: s * 1000 + atto / 1_000_000_000_000_000)
-                guard ms > 0 else { throw .timeout }
-                let ready = pollWritable(h, ms)
-                if ready == 0 { throw .timeout }
-                if ready < 0 { throw .transport("poll: \(lastError())") }
+                while true {
+                    guard !cancel.isSet else { throw .cancelled }
+                    let (s, atto) = min(deadline - .now, .milliseconds(100)).components
+                    let ms = Int32(clamping: s * 1000 + atto / 1_000_000_000_000_000)
+                    guard ms > 0 else { throw .timeout }
+                    let ready = retryingInterrupted { pollWritable(h, ms) }
+                    if ready > 0 { break }
+                    if ready < 0 { throw .transport("poll: \(lastError())") }
+                }
                 let failed = socketError(h)
                 if failed != 0 { throw .transport("connect: \(failed)") }
             }
@@ -132,7 +150,25 @@ final class TCPSocket: Transport, @unchecked Sendable {
     }
 }
 
+/// Set by a task's cancellation handler, read by the connect thread between poll slices.
+// @unchecked Sendable: `cancelled` sits behind `lock`.
+private final class CancelFlag: @unchecked Sendable {
+    private let lock = NSLock()
+    private var cancelled = false
+    var isSet: Bool { lock.withLock { cancelled } }
+    func set() { lock.withLock { cancelled = true } }
+}
+
+/// Runs `call` again while it fails (a negative result) with EINTR / WSAEINTR: a signal is not a socket failure.
+func retryingInterrupted<T: BinaryInteger>(_ call: () -> T) -> T {
+    while true {
+        let result = call()
+        if result >= 0 || lastError() != interrupted { return result }
+    }
+}
+
 #if os(Windows)
+let interrupted = WSAEINTR
 extension TCPSocket {
     typealias Handle = SOCKET
     static let startup: Void = { var data = WSADATA(); _ = WSAStartup(0x0202, &data) }()
@@ -222,6 +258,7 @@ extension TCPSocket {
 private typealias AddrInfo = addrinfo
 private let invalidHandle: Int32 = -1
 private let connectPending = EINPROGRESS
+let interrupted = EINTR
 let peerGone = [EPIPE, ECONNRESET]
 #if canImport(Glibc)
 private let sendFlags = Int32(MSG_NOSIGNAL)

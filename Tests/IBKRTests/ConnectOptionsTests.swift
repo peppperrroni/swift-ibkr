@@ -3,7 +3,7 @@ import Testing
 @testable import IBKR
 
 /// Collects what a log handler sees.
-private final class LogLines: @unchecked Sendable {
+final class LogLines: @unchecked Sendable {
     private let lock = NSLock()
     private var lines: [(IBLogLevel, String)] = []
     var handler: IBLogHandler { { level, text in self.lock.withLock { self.lines.append((level, text)) } } }

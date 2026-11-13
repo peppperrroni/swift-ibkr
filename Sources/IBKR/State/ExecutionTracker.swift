@@ -28,9 +28,15 @@ public struct ExecutionTracker: Sendable {
     private var pendingCommissions: [String: CommissionReport] = [:]
     private var byCorrectionKey: [String: Int] = [:]
     private var byExecID: [String: Int] = [:]
+    private var pendingOrder: [String] = []   // execIds with a half waiting, oldest first
+    private let maxPending: Int
 
-    /// Creates a tracker with no fills.
-    public init() {}
+    /// Creates a tracker with no fills. It keeps at most 10 000 execDetails / commission halves waiting for their
+    /// other half and drops the oldest beyond that.
+    public init() { self.init(maxPending: 10_000) }
+
+    /// A tracker that keeps at most `maxPending` unmatched halves.
+    init(maxPending: Int) { self.maxPending = maxPending }
 
     /// First-seen order; a correction replaces its fill in place.
     public var fills: [Fill] { all }
@@ -44,10 +50,12 @@ public struct ExecutionTracker: Sendable {
         switch message {
         case .execDetails(_, let contract, let execution):
             guard !isSuperseded(execution.execID) else { return [] }
+            wait(execution.execID)
             pendingExecs[execution.execID] = (contract, execution, receivedAt ?? execution.date)
             return join(execution.execID)
         case .commissionReport(let report):
             guard !isSuperseded(report.execID) else { return [] }
+            wait(report.execID)
             pendingCommissions[report.execID] = report
             return join(report.execID)
         default:
@@ -75,9 +83,20 @@ public struct ExecutionTracker: Sendable {
         return x > y
     }
 
+    /// Queues `id` as waiting for its other half (once), dropping the oldest waiting halves above `maxPending`.
+    private mutating func wait(_ id: String) {
+        guard pendingExecs[id] == nil, pendingCommissions[id] == nil else { return }
+        pendingOrder.append(id)
+        while pendingOrder.count > maxPending {
+            let oldest = pendingOrder.removeFirst()
+            pendingExecs[oldest] = nil; pendingCommissions[oldest] = nil
+        }
+    }
+
     private mutating func join(_ id: String) -> [Fill] {
         guard let e = pendingExecs[id], let c = pendingCommissions[id] else { return [] }
         pendingExecs[id] = nil; pendingCommissions[id] = nil
+        pendingOrder.removeAll { $0 == id }
         let fill = Fill(contract: e.contract, execution: e.execution, commission: c, time: e.time)
         let key = Self.correctionKey(id)
         let i = byCorrectionKey[key] ?? all.count

@@ -62,7 +62,7 @@ public actor IBClient {
 
     // The current connection. `generation` changes whenever one starts or ends, so a late event from an old
     // connection's reader, writer or timer is dropped.
-    private var generation = 0
+    private(set) var generation = 0
     private var transport: (any Transport)?
     private var outbox: AsyncStream<[UInt8]>.Continuation?
     private var frames = FrameReader()
@@ -353,6 +353,9 @@ public actor IBClient {
     /// The account values known now, then every changed value from now on. On like `portfolio()`: `connect`
     /// subscribes with reqAccountUpdates for one account, and with several (or without that request) also with
     /// reqAccountUpdatesMulti per account while there are at most `maxSyncedSubAccounts` (`.subAccountUpdates`).
+    /// An IB error that ends one of those reqAccountUpdatesMulti after `connect` finishes every current updates
+    /// stream instead of leaving it silent; the error is on `messages()` and in the log, and the next `connect`
+    /// subscribes again.
     public func accountValues() -> (snapshot: [AccountValue], updates: AsyncStream<AccountValue>) {
         (accountTracker.values,
          accountValueSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(accountValue: id) } })
@@ -983,7 +986,7 @@ public actor IBClient {
     }
 
     private func encode(_ request: IBRequest) throws(IBClientError) -> [UInt8] {
-        do { return Frame.encode(try request.body()) } catch { throw .encoding(error) }
+        do throws(IBEncodingError) { return try Frame.encode(try request.body()) } catch { throw .encoding(error) }
     }
 
     private func enqueue(_ frame: [UInt8]) throws(IBClientError) {
@@ -1048,7 +1051,7 @@ public actor IBClient {
 
     /// The consumer stopped the stream. An entry already gone was finished by the client, which sends no cancel;
     /// `gen` keeps a late stop from touching a stream that reuses the reqId on a later connection.
-    private func stopped(_ id: Int, _ gen: Int) {
+    func stopped(_ id: Int, _ gen: Int) {
         guard gen == generation, let s = requestStreams.removeValue(forKey: id) else { return }
         dropSubscription(id)
         if let cancel = s.cancel { try? send(cancel) }   // the cancel encodes: it is all integers
@@ -1188,8 +1191,12 @@ public actor IBClient {
         guard gen == generation else { return }
         lastFrame = .now
         stats.bytesReceived += chunk.count
-        do { try frames.append(chunk) } catch { return end(.protocolError(error)) }
-        while gen == generation, let body = frames.next() { handle(body) }
+        do throws(IBProtocolError) {
+            try frames.append(chunk)
+            while gen == generation, let body = try frames.next() { handle(body) }
+        } catch {
+            end(.protocolError(error))
+        }
     }
 
     private func handle(_ body: [UInt8]) {
@@ -1243,6 +1250,12 @@ public actor IBClient {
             syncEnds?.removeAll {
                 $0 == .execDetailsEnd(requestID: e.requestID) || $0 == .accountUpdateMultiEnd(requestID: e.requestID)
             }
+        case .error(let e) where ErrorCode.kind(e.code).failsRequest && accountSyncIDs.contains(e.requestID):
+            // R17, after connect: IB stopped that account's values, so the streams end rather than go silent; an
+            // `AsyncStream` cannot carry the error, which is on `messages()` and here. The next connect re-arms.
+            accountSyncIDs.remove(e.requestID)
+            log(.error, "accountValues: sync request \(e.requestID) ended after IB \(e.code): \(e.text)")
+            accountValueSubscribers.finish()
         default: break
         }
         guard pendingConnect != nil else { return }
