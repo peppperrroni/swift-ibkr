@@ -125,14 +125,14 @@ extension IBClient {
         try requireConnected()
         if let held = wshMetaRequestID {
             wshMetaRequestID = nil
-            try send(.cancelWshMetaData(requestID: held))
+            try post(.cancelWshMetaData(requestID: held))
         }
         let id = nextRequestID()
         let json = try await answer(.wshMetaData(requestID: id), id: id, cancel: .cancelWshMetaData(requestID: id)) {
             if case .wshMetaData(_, let json) = $0 { json } else { nil }
         }
         guard (try? requireConnected()) != nil else { return json }   // the connection ended meanwhile: hold nothing
-        if let other = wshMetaRequestID { try? send(.cancelWshMetaData(requestID: other)) }   // a concurrent call's
+        if let other = wshMetaRequestID { try? post(.cancelWshMetaData(requestID: other)) }   // a concurrent call's
         wshMetaRequestID = id
         return json
     }
@@ -198,7 +198,7 @@ extension IBClient {
     /// and sends no 70.
     public func updateDisplayGroup(_ requestID: Int, contractInfo: String) throws(IBClientError) {
         try requireConnected()
-        try send(.updateDisplayGroup(requestID: requestID, contractInfo: contractInfo))
+        try post(.updateDisplayGroup(requestID: requestID, contractInfo: contractInfo))
     }
 
     /// IB's verify handshake for third-party API vendors. These four only send; IB's answers (`.verifyMessageAPI`,
@@ -206,24 +206,24 @@ extension IBClient {
     /// them before startApi, which `connect` sends itself.
     public func verifyRequest(apiName: String, apiVersion: String) throws(IBClientError) {
         try requireConnected()
-        try send(.verifyRequest(apiName: apiName, apiVersion: apiVersion))
+        try post(.verifyRequest(apiName: apiName, apiVersion: apiVersion))
     }
 
     /// Answers IB's `.verifyMessageAPI` with the vendor's `apiData`.
     public func verifyMessage(_ apiData: String) throws(IBClientError) {
         try requireConnected()
-        try send(.verifyMessage(apiData: apiData))
+        try post(.verifyMessage(apiData: apiData))
     }
 
     /// Starts the verify-and-authenticate handshake with the vendor's opaque ISV key.
     public func verifyAndAuthRequest(apiName: String, apiVersion: String, opaqueISVKey: String) throws(IBClientError) {
         try requireConnected()
-        try send(.verifyAndAuthRequest(apiName: apiName, apiVersion: apiVersion, opaqueISVKey: opaqueISVKey))
+        try post(.verifyAndAuthRequest(apiName: apiName, apiVersion: apiVersion, opaqueISVKey: opaqueISVKey))
     }
 
     /// Answers IB's `.verifyAndAuthMessageAPI` with the vendor's `apiData` and its `xyzResponse` to IB's challenge.
     public func verifyAndAuthMessage(_ apiData: String, xyzResponse: String) throws(IBClientError) {
         try requireConnected()
-        try send(.verifyAndAuthMessage(apiData: apiData, xyzResponse: xyzResponse))
+        try post(.verifyAndAuthMessage(apiData: apiData, xyzResponse: xyzResponse))
     }
 }

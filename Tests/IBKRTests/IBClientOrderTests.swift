@@ -73,8 +73,21 @@ private func until(_ condition: @escaping @Sendable () async -> Bool) async thro
     await #expect(throws: IBClientError.notConnected) { try await client.placeOrder(aapl, buy) }
     await #expect(throws: IBClientError.notConnected) { try await client.modifyOrder(1, aapl, buy) }
     await #expect(throws: IBClientError.notConnected) { try await client.cancelOrder(1) }
+    await #expect(throws: IBClientError.notConnected) { try await client.send(.currentTime) }
     gateway.close()
     await #expect(throws: IBClientError.connectionClosed) { try await within2s { try await connecting.value } }
+}
+
+/// ib_async raises the id sequence past any order id it sees (wrapper.py:714-717), another client's included.
+@Test func openOrderRaisesTheIDSequence() async throws {
+    let gateway = FakeGateway(nextValidID: 100)
+    let client = try await connected(gateway)
+    let (_, updates) = await client.orders()
+    gateway.feed(Fixtures.openOrderFields(
+        orderID: 500, permID: 900, clientID: 3, symbol: "AAPL", action: "BUY", quantity: "1", orderType: "LMT",
+        limitPrice: "1", auxPrice: unset, tif: "DAY", parentID: "0", outsideRTH: "0", orderRef: "", status: "Submitted"))
+    _ = try await next(updates) { $0.orderID == 500 }
+    #expect(try await client.placeOrder(aapl, buy) >= 501)
 }
 
 @Test func placeOrderPublishesWholeOrderOnAck() async throws {

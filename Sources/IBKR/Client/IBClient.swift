@@ -201,7 +201,7 @@ public actor IBClient {
             if let p = probedAt {
                 if lastFrame >= p { probedAt = nil } else { return end(.timeout) }
             } else if ContinuousClock.now - lastFrame >= every {
-                try? send(.currentTime)   // no fields to encode
+                try? post(.currentTime)   // no fields to encode
                 probedAt = .now
             }
         }
@@ -299,7 +299,7 @@ public actor IBClient {
     /// `.pendingCancel`, or `.cancelled` for a `.pendingSubmit` order sent with `transmit` off.
     public func cancelOrder(_ orderID: Int, manualCancelOrderTime: String = "") throws(IBClientError) {
         try requireConnected()
-        try send(.cancelOrder(orderID: orderID, manualCancelTime: manualCancelOrderTime))
+        try post(.cancelOrder(orderID: orderID, manualCancelTime: manualCancelOrderTime))
         log(.info, "cancelOrder \(orderID)")
         for s in orderTracker.cancelRequested(orderID: orderID) {
             orderSubscribers.yield(s)
@@ -313,7 +313,7 @@ public actor IBClient {
                                 override: Bool = false) throws(IBClientError) -> Int {
         try requireConnected()
         let id = nextRequestID()
-        try send(.exerciseOptions(requestID: id, contract: contract, action: action, quantity: quantity,
+        try post(.exerciseOptions(requestID: id, contract: contract, action: action, quantity: quantity,
                                   account: account, override: override))
         return id
     }
@@ -516,7 +516,7 @@ public actor IBClient {
     /// starts at IB's default (real-time), so set it again after `connect`.
     public func setMarketDataType(_ type: MarketDataType) throws(IBClientError) {
         try requireConnected()
-        try send(.marketDataType(type))
+        try post(.marketDataType(type))
     }
 
     /// Every top-of-book tick IB sends for `contract`. Ends like `accountSummary`, with
@@ -907,19 +907,19 @@ public actor IBClient {
     /// How much IB Gateway writes to its own log.
     public func setServerLogLevel(_ level: ServerLogLevel) throws(IBClientError) {
         try requireConnected()
-        try send(.serverLogLevel(level))
+        try post(.serverLogLevel(level))
     }
 
     /// Whether orders placed by other clients or TWS itself bind to this one. Only client 0 can use it.
     public func setAutoOpenOrders(_ autoBind: Bool) throws(IBClientError) {
         try requireConnected()
-        try send(.autoOpenOrders(autoBind))
+        try post(.autoOpenOrders(autoBind))
     }
 
     /// Asks IB to cancel every open order, this client's or not; the outcome arrives through `orders()`.
     public func cancelAllOrders() throws(IBClientError) {
         try requireConnected()
-        try send(.globalCancel)
+        try post(.globalCancel)
     }
 
     /// Sends `request` and waits for the first message `pick` takes. Without `id` the waiter is an id-less one-shot
@@ -963,7 +963,7 @@ public actor IBClient {
     /// A what-if order is never placed: it goes through `whatIfOrder`.
     private func submit(_ id: Int, _ contract: Contract, _ order: Order, verb: String) throws(IBClientError) {
         if order.whatIf { throw .encoding(.unsupported("whatIf")) }
-        try send(.placeOrder(orderID: id, contract: contract, order: order))
+        try post(.placeOrder(orderID: id, contract: contract, order: order))
         log(.info, "\(verb) \(id): \(Self.describe(contract, order))")
         for s in orderTracker.placed(orderID: id, clientID: clientID, contract: contract, order: order) {
             orderSubscribers.yield(s)
@@ -980,8 +980,15 @@ public actor IBClient {
     /// Sends any request as is, through the same throttled queue as every call (`ib_async`'s `client.send`). IB's
     /// answers arrive on `messages()` only, and no stream or tracker state is kept for the request: a `placeOrder`
     /// sent this way skips `orders()`'s local `.pendingSubmit`, modify and cancel states. Throws `.notConnected`
-    /// without a connection and `.encoding` when the request does not encode, before queuing it.
+    /// until `connect` has returned (also while it syncs) and `.encoding` when the request does not encode, before
+    /// queuing it.
     public func send(_ request: IBRequest) throws(IBClientError) {
+        try requireConnected()
+        try post(request)
+    }
+
+    /// `send` without the state check: the sync, the probe and the cancels run while connecting or after a stop.
+    func post(_ request: IBRequest) throws(IBClientError) {
         try enqueue(encode(request))
     }
 
@@ -1024,7 +1031,7 @@ public actor IBClient {
         buffering: AsyncThrowingStream<Element, any Error>.Continuation.BufferingPolicy = .unbounded,
         route: @escaping (IBMessage, AsyncThrowingStream<Element, any Error>.Continuation) -> Bool
     ) throws(IBClientError) -> AsyncThrowingStream<Element, any Error> {
-        try send(request)
+        try post(request)
         let (stream, out) = AsyncThrowingStream.makeStream(of: Element.self, throwing: (any Error).self,
                                                            bufferingPolicy: buffering)
         requestStreams[id] = RequestStream(route: { route($0, out) }, finish: { out.finish(throwing: $0) },
@@ -1054,7 +1061,7 @@ public actor IBClient {
     func stopped(_ id: Int, _ gen: Int) {
         guard gen == generation, let s = requestStreams.removeValue(forKey: id) else { return }
         dropSubscription(id)
-        if let cancel = s.cancel { try? send(cancel) }   // the cancel encodes: it is all integers
+        if let cancel = s.cancel { try? post(cancel) }   // the cancel encodes: it is all integers
     }
 
     private func routeToStream(_ message: IBMessage) {
@@ -1100,7 +1107,7 @@ public actor IBClient {
             guard let s = requestStreams.removeValue(forKey: e.requestID) else { break }
             dropSubscription(e.requestID)
             if ErrorCode.isNoMarketDataPermission(code: e.code, text: e.text) {
-                if let cancel = s.cancel { try? send(cancel) }   // IB keeps a refused subscription open
+                if let cancel = s.cancel { try? post(cancel) }   // IB keeps a refused subscription open
                 s.finish(.noMarketDataPermission(code: e.code, text: e.text))
             } else {
                 s.finish(.ib(code: e.code, text: e.text))
@@ -1113,8 +1120,8 @@ public actor IBClient {
     /// reqId; the stream stays open.
     private func resend(_ id: Int) {
         guard let s = requestStreams[id], let resend = s.resend else { return }
-        if let cancel = s.cancel { try? send(cancel) }
-        try? send(resend.request)   // it encoded when the stream opened
+        if let cancel = s.cancel { try? post(cancel) }
+        try? post(resend.request)   // it encoded when the stream opened
     }
 
     /// The whole fill an execDetails or commissionReport names when the execution tracker already had it: the sync
@@ -1206,7 +1213,7 @@ public actor IBClient {
             do { serverVersion = try Handshake.parseServerHello(body).serverVersion } catch {
                 return end(.protocolError(error))
             }
-            do { try send(.startAPI(clientID: clientID, capabilities: options.optionalCapabilities)) } catch {
+            do { try post(.startAPI(clientID: clientID, capabilities: options.optionalCapabilities)) } catch {
                 return end(error)   // capabilities that are not ASCII
             }
             return
@@ -1238,6 +1245,8 @@ public actor IBClient {
         recordNews(message)
         switch message {
         case .nextValidID(let n): nextID = max(nextID ?? n, n)
+        case .openOrder(let m) where !m.order.whatIf:   // any client's id, so IB never sees a duplicate order id
+            nextID = nextID.map { max($0, m.orderID + 1) }   // nil until nextValidID, which tops IB's own orders
         case .managedAccounts(let a): accounts = a
         case .error(let e) where pendingConnect != nil && e.requestID == -1 && ErrorCode.kind(e.code) == .fatal:
             return end(.ib(code: e.code, text: e.text))   // the connection itself
@@ -1284,23 +1293,23 @@ public actor IBClient {
         let o = options
         syncEnds = []
         // none of these can fail to encode but reqAccountUpdates: IB's account ids are ASCII, a caller's may not be
-        if clientID == 0 { try? send(.autoOpenOrders(true)) }   // binds TWS's manual orders, as ib.py:2046
+        if clientID == 0 { try? post(.autoOpenOrders(true)) }   // binds TWS's manual orders, as ib.py:2046
         if !o.readOnly, o.fetch.contains(.ordersOpen) {
             syncEnds?.append(.openOrderEnd)
-            try? send(.allOpenOrders)
+            try? post(.allOpenOrders)
         }
         if !o.readOnly, o.fetch.contains(.ordersComplete) {
             syncEnds?.append(.completedOrdersEnd)
-            try? send(.completedOrders(apiOnly: false))
+            try? post(.completedOrders(apiOnly: false))
         }
         if o.fetch.contains(.executions) {
             let id = nextRequestID()
             syncEnds?.append(.execDetailsEnd(requestID: id))
-            try? send(.executions(requestID: id, filter: ExecutionFilter()))
+            try? post(.executions(requestID: id, filter: ExecutionFilter()))
         }
         if o.fetch.contains(.positions) {
             syncEnds?.append(.positionEnd)
-            try? send(.positions)
+            try? post(.positions)
         }
         guard let accounts else { return }
         // reqAccountUpdates: the portfolio too, but for one account at a time
@@ -1311,7 +1320,7 @@ public actor IBClient {
             portfolioSubscribers.yield(accountTracker.portfolio)
         }
         if let subscribed {
-            do { try send(.accountUpdates(subscribe: true, account: subscribed)) } catch { return end(error) }
+            do { try post(.accountUpdates(subscribe: true, account: subscribed)) } catch { return end(error) }
             accountTracker.reload()
             syncEnds?.append(.accountDownloadEnd(account: subscribed))
         }
@@ -1323,7 +1332,7 @@ public actor IBClient {
             let id = nextRequestID()
             accountSyncIDs.insert(id)
             syncEnds?.append(.accountUpdateMultiEnd(requestID: id))
-            try? send(.accountUpdatesMulti(requestID: id, account: account, modelCode: "", ledgerAndNLV: false))
+            try? post(.accountUpdatesMulti(requestID: id, account: account, modelCode: "", ledgerAndNLV: false))
         }
     }
 
@@ -1365,7 +1374,7 @@ public actor IBClient {
         probeTask?.cancel()
         probeTask = nil
         if draining, let t = transport {
-            try? send(.cancelPositions)   // all integers: encodes
+            try? post(.cancelPositions)   // all integers: encodes
             Task.detached { try? await Task.sleep(for: .seconds(2)); t.close() }   // close() needs no actor
         } else {
             transport?.close()

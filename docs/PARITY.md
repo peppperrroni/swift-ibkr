@@ -466,11 +466,11 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `Client.isConnected`, `isReady` | `states()` | present | |
 | `Client.connectionStats` | `connectionStats()` → `ConnectionStats` | added | throws `.notConnected` unless connected; counts both hellos as messages, as ib_async |
 | `Client.getReqId` | `reserveOrderID(atLeast:)` | added | takes the next id from the shared sequence, for orders linked by `parentID` before placing; throws `.notConnected` as ib_async raises |
-| `Client.updateReqId` | `reserveOrderID(atLeast:)` | added | its `atLeast` raises the sequence to at least that value before taking the id |
+| `Client.updateReqId` | `reserveOrderID(atLeast:)` | added | its `atLeast` raises the sequence to at least that value before taking the id; an openOrder of any client (not a what-if) raises it past its order id, as wrapper.py:714-717 |
 | `Client.getAccounts` | `states()` → `.connected(accounts:)` | present | |
 | `Client.connect` / `connectAsync` | `connect(host:port:clientID:timeout:reconnect:options:)` | present | the sync runs as `ConnectOptions.fetch` asks; `fetch: StartupFetch.none` gives a bare connection |
 | `Client.disconnect` | `disconnect()` | present | |
-| `Client.send`, `sendMsg` | `send(_:)` | added | any `IBRequest`, through the throttled queue; answers on `messages()`, no tracker state (a `placeOrder` sent this way skips `orders()`'s local states) |
+| `Client.send`, `sendMsg` | `send(_:)` | added | any `IBRequest`, through the throttled queue; answers on `messages()`, no tracker state (a `placeOrder` sent this way skips `orders()`'s local states); throws `.notConnected` until `connect` returns, sync included, where ib_async sends once the handshake is done (client.py:250) |
 | `Client.wrapper`, `decoder` | `IBDecoder.decode(_:)`, `messages()` | present | |
 | `Client.reqIds` | `nextOrderID()` | present | |
 | `Client.reqManagedAccts` | `managedAccounts()` | present | |
