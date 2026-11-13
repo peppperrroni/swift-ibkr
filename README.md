@@ -526,7 +526,6 @@ library leaves out.
 | `ticker.updateEvent.trades()`, `.bids()`, `.asks()`, `.bidasks()`, `.midpoints()` | `trades()`, `bids()`, `asks()`, `bidAsks()`, `midpoints()` on any `Ticker` sequence (`tickers(…)`), yielding `TickPoint` |
 | `Tickfilter.timebars`, `.tickbars`, `.volumebars`, `BarList` | `timeBars(timer:)`, `tickBars(count:)`, `volumeBars(volume:)` on a `TickPoint` stream, yielding `BarList` (`bars`, `hasNewBar`) |
 | `TickData`, `MktDepthData` (in `domTicks`), `Dividends`, `FundamentalRatios` | `TickData`, `DepthTick`, `Dividends`, `FundamentalRatios` |
-| the tick filters and bar builders | none |
 | `newsTicks` | `Tick.news` from `marketData` with the news generic ticks |
 | `reqMktDepth` | `marketDepth(_:rows:smart:options:)` (whole `DepthBook`s), or `tickers` with `depthRows` |
 | `Ticker.domBidsDict`, `Ticker.domAsksDict` | `Ticker.depth.bidsByPosition`, `Ticker.depth.asksByPosition` |
