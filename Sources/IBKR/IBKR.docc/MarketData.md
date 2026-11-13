@@ -33,6 +33,11 @@ every open `tickers` stream, ``IBClient/pendingTickers()`` streams each one it c
 ``IBClient/newsTicks()`` and ``IBClient/receivedBulletins()`` keep every news tick and bulletin since the last
 manual connect.
 
+`Ticker` has `ib_async`'s named fields (``Ticker/low52Week``, ``Ticker/bidExchange``, ``Ticker/midpoint`` and the
+rest) as properties; generic ticks of 0 or less read `nil`. On a stream from `tickers`, the operators `trades()`,
+`bids()`, `asks()`, `bidAsks()` and `midpoints()` yield ``TickPoint`` values, and `timeBars(timer:)`, `tickBars(count:)`
+and `volumeBars(volume:)` fold those into ``BarList``; stopping the returned stream cancels the `tickers` request.
+
 ```swift
 // Quotes. Without a subscription ask for delayed data; it is not kept across reconnects, so set it after connect.
 try await client.setMarketDataType(.delayed)

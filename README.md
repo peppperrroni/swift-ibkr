@@ -69,6 +69,7 @@ Releases follow [Semantic Versioning](https://semver.org/): from 1.0.0 on, a cha
 comes only with a new major version. New cases in the protocol enums (`IBRequest`, `IBMessage`, `Tick`,
 `IBClientError` and the like) follow IB's protocol and arrive in minor versions, so an exhaustive `switch` over
 one may need a new branch after an update.
+The stage 14 parity closure changes some public shapes (listed as **Breaking** under `[Unreleased]` in the CHANGELOG): `Tick.price` and `TickByTick.bidAsk` gain associated values, the `IBRequest` cases take `options`, `tickers` and `Ticker.apply` gain parameters, `IBEncodingError` gains `frameTooLong`, and `==` on `Ticker`, `Execution`, `Fill`, `OrderSnapshot`, `PnL` and `AccountPnL` now compares the new fields. The next version number is chosen when that list is released.
 
 ## Installation
 

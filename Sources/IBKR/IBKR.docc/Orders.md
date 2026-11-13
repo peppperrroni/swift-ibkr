@@ -28,7 +28,9 @@ resends an order under its id, ``IBClient/cancelOrder(_:manualCancelOrderTime:)`
 As in `ib_async`, the client's own calls publish at once: `placeOrder` a local `.pendingSubmit` snapshot,
 `modifyOrder` the re-sent order and `cancelOrder` a `.pendingCancel` one. ``OrderSnapshot/log`` keeps each order's
 history (``TradeLogEntry``) and ``OrderSnapshot/fills`` its fills; ``IBClient/orderEvents()`` reports this client's
-modifications and cancel requests as ``OrderEvent`` values.
+modifications and cancel requests as ``OrderEvent`` values. `ib_async`'s local states are in ``OrderStatus``
+(`.apiUpdate`, `.validationError` for a warning on a live order), with `isActive`, `isWaiting` and `isWorking` on both
+``OrderStatus`` and ``OrderSnapshot``.
 
 Fills arrive through ``IBClient/executions()``; a fill is published once its commission is in:
 

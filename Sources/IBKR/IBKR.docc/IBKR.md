@@ -22,14 +22,13 @@ synced at connect and offered as a snapshot plus a stream of changes; every othe
 - ``ConnectOptions``
 - ``StartupFetch``
 - ``ConnectionStats``
+- ``IBDate``
 - ``IBLogLevel``
 - ``IBLogHandler``
 - ``IBClientError``
 
 ### Gateway control
-- ``IBC``
-- ``Watchdog``
-- ``WatchdogEvent``
+- `IBC`, `Watchdog` and `WatchdogEvent` (macOS, Linux and Windows only, so not linked here)
 
 ### Contracts
 - ``Contract``
@@ -49,6 +48,8 @@ synced at connect and offered as a snapshot plus a stream of changes; every othe
 - ``OrderSnapshot``
 - ``OrderStatus``
 - ``OrderState``
+- ``TradeLogEntry``
+- ``OrderEvent``
 - ``ExerciseAction``
 
 ### Executions, positions and account
@@ -73,11 +74,20 @@ synced at connect and offered as a snapshot plus a stream of changes; every othe
 - ``DepthBook``
 - ``TickByTick``
 - ``TickByTickType``
+- ``TickAttrib``
+- ``TickData``
+- ``TickPoint``
+- ``DepthTick``
+- ``NewsTick``
+- ``Dividends``
+- ``FundamentalRatios``
 
 ### History
 - ``Bar``
 - ``BarEvent``
+- ``BarList``
 - ``LiveBars``
+- ``TradingSession``
 - ``HistoricalSchedule``
 - ``HistoricalSession``
 - ``HistogramData``
