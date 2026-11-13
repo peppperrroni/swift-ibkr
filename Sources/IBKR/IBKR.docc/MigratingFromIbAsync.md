@@ -31,8 +31,8 @@ Money and sizes are `Decimal`, and IB's unset values are `nil` instead of `nan`.
 
 ## Reconnect and the gateway
 
-`IBC` and `Watchdog` start, probe and restart IB Gateway or TWS through an IBC install as `ib_async`'s classes
-do, on macOS, Linux and Windows (so they are not linked here); `Watchdog.events()` replaces its six events. Without IBC, a ``ReconnectPolicy``
+``IBC`` and ``Watchdog`` start, probe and restart IB Gateway or TWS through an IBC install as `ib_async`'s classes
+do, on macOS, Linux and Windows only; ``Watchdog/events()`` replaces its six events. Without IBC, a ``ReconnectPolicy``
 reconnects the socket to a gateway you start yourself.
 
 ## Connect options, logging and the order log

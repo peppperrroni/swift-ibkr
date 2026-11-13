@@ -7,7 +7,8 @@ A pure-Swift client for Interactive Brokers' IB Gateway and TWS, speaking the TW
 ``IBClient`` is one actor per connection. Account state (orders, fills, positions, portfolio, account values) is
 synced at connect and offered as a snapshot plus a stream of changes; every other request is either a one-shot
 `async throws` call or a stream whose end sends IB's cancel. Errors are typed (``IBClientError``), money is
-`Decimal`, and the wire protocol is pinned to server version 178.
+`Decimal`, and the wire protocol is pinned to server version 178. ``IBC`` and ``Watchdog``, which start and
+restart IB Gateway or TWS through an IBC install, exist on macOS, Linux and Windows only.
 
 > Important: Not affiliated with Interactive Brokers. Pointed at a live account the library places real orders; try
 > everything on a paper account first.
@@ -28,7 +29,9 @@ synced at connect and offered as a snapshot plus a stream of changes; every othe
 - ``IBClientError``
 
 ### Gateway control
-- `IBC`, `Watchdog` and `WatchdogEvent` (macOS, Linux and Windows only, so not linked here)
+- ``IBC``
+- ``Watchdog``
+- ``WatchdogEvent``
 
 ### Contracts
 - ``Contract``
