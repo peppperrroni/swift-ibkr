@@ -6,20 +6,20 @@ import Testing
 // helpers that compare swift-ibkr with it. Swift reads only this JSON; Python never runs in `swift test`.
 
 /// One wrapper callback ib_async makes: its method name and every argument flattened to `{path: canonical string}`.
-struct OracleCall: Equatable, Decodable {
+struct OracleCall: Equatable, Decodable, Sendable {
     var method: String
     var args: [String: String]
 }
 
 /// One frame of decode.json: ib_async's calls for it, or the exception its decoder logged.
-struct OracleFrame: Decodable {
+struct OracleFrame: Decodable, Sendable {
     var name: String
     var fields: [String]
     var calls: [OracleCall]?
     var error: String?
 }
 
-struct OracleDecodeFile: Decodable {
+struct OracleDecodeFile: Decodable, Sendable {
     var ibAsync: String
     var serverVersion: Int
     var handlers: [Int]
@@ -194,7 +194,7 @@ struct CorpusFrame: Codable {
 }
 
 /// One allowlist.json entry (docs/DECISIONS.md, the oracle row; CONTRIBUTING «Differential oracle»).
-struct AllowEntry: Decodable {
+struct AllowEntry: Decodable, Sendable {
     /// `in <id>` or `out <id>`.
     var scope: String
     /// A dotted path, `[]` for any index (`bar.date`, `order.conditions[].price`), or `#calls`, `#error`,
@@ -217,6 +217,11 @@ func oracleFile<T: Decodable>(_ name: String, file: String = #filePath) throws -
     let url = URL(fileURLWithPath: file).deletingLastPathComponent().appendingPathComponent("Oracle/\(name)")
     return try JSONDecoder().decode(T.self, from: Data(contentsOf: url))
 }
+
+// Read once for every test: each read is a CPU-bound fraction of a second, and parallel copies on a small CI runner
+// starve the timed tests that run beside them.
+let oracleDecode = Result { () throws -> OracleDecodeFile in try oracleFile("decode.json") }
+let oracleAllowlist = Result { () throws -> [AllowEntry] in try oracleFile("allowlist.json") }
 
 // The canonical form never folds a sentinel: a Swift value that kept IB's 2147483647 shows as a mismatch.
 func canon(_ d: Decimal?) -> String { d.map { "\($0)" } ?? "" }
@@ -297,6 +302,7 @@ func allowlistProblems(_ entries: [AllowEntry], decisions: String, protocol178: 
     let disagreements = protocol178.components(separatedBy: "## Disagreements").dropFirst().joined()
         .split(whereSeparator: \.isNewline)
     var problems: [String] = []
+    var rowsCited: [String: Int] = [:]   // by cite: a few dozen distinct ones over 2000+ entries
     for (i, e) in entries.enumerated() {
         func problem(_ s: String) { problems.append("allowlist[\(i)] \(e.scope) \(e.field): \(s)") }
         let scope = e.scope.split(separator: " ")
@@ -315,13 +321,17 @@ func allowlistProblems(_ entries: [AllowEntry], decisions: String, protocol178: 
         }
         if let pair = e.pair, pair.count != 2 { problem("pair is not [ours, theirs]") }
         let decision = "DECISIONS: ", disagreement = "protocol-178 Disagreements "
-        var hits = -1
-        if e.cite.hasPrefix(decision) {
-            let text = e.cite.dropFirst(decision.count)
-            hits = text.isEmpty ? 0 : rows.filter { $0.contains(text) }.count
-        } else if e.cite.hasPrefix(disagreement), let n = Int(e.cite.dropFirst(disagreement.count)) {
-            hits = disagreements.filter { $0.hasPrefix("\(n). **") }.count
-        }
+        let hits = rowsCited[e.cite] ?? {
+            var hits = -1
+            if e.cite.hasPrefix(decision) {
+                let text = e.cite.dropFirst(decision.count)
+                hits = text.isEmpty ? 0 : rows.filter { $0.contains(text) }.count
+            } else if e.cite.hasPrefix(disagreement), let n = Int(e.cite.dropFirst(disagreement.count)) {
+                hits = disagreements.filter { $0.hasPrefix("\(n). **") }.count
+            }
+            rowsCited[e.cite] = hits
+            return hits
+        }()
         if hits != 1 { problem("cite «\(e.cite)» does not name exactly one row (\(hits == -1 ? "bad form" : "\(hits) rows"))") }
     }
     return problems

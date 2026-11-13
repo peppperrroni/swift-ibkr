@@ -136,7 +136,7 @@ func request(for c: EncodeCase) throws -> IBRequest {
 
 @Test func ibAsyncEncodesLikeSwiftIBKR() throws {
     let file: OracleEncodeFile = try oracleFile("encode.json")
-    let allow: [AllowEntry] = try oracleFile("allowlist.json")
+    let allow: [AllowEntry] = try oracleAllowlist.get()
     var used: Set<Int> = []
     for c in file.cases {
         let built: IBRequest
@@ -202,8 +202,10 @@ func request(for c: EncodeCase) throws -> IBRequest {
 /// cannot be enumerated.
 @Test func ibAsyncMethodStringsAreDistinct() throws {
     let source = try String(contentsOf: URL(fileURLWithPath: #filePath), encoding: .utf8)
-    let body = try #require(source.components(separatedBy: "func ibAsyncMethod(").dropFirst().first?
-        .components(separatedBy: "\n}").first)
+    // computed outside #require: Swift 6.0's expansion of an optional chain there does not compile
+    let found = source.components(separatedBy: "func ibAsyncMethod(").dropFirst().first?
+        .components(separatedBy: "\n}").first
+    let body = try #require(found)
     let strings = body.split(whereSeparator: \.isNewline).compactMap { line -> String? in
         guard line.contains("case ."), let quote = line.firstIndex(of: "\"") else { return nil }
         return String(line[line.index(after: quote)...].prefix { $0 != "\"" })

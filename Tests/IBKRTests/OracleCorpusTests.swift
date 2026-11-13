@@ -14,7 +14,7 @@ import Testing
 
 @Test func everyCorpusFrameHasAnOracleAnswer() throws {
     let corpus: [CorpusFrame] = try oracleFile("corpus.json")
-    let answers = Dictionary(try (oracleFile("decode.json") as OracleDecodeFile).frames.map { ($0.name, $0.fields) },
+    let answers = Dictionary(try oracleDecode.get().frames.map { ($0.name, $0.fields) },
                              uniquingKeysWith: { a, _ in a })
     #expect(Set(corpus.map(\.name)).count == corpus.count, "corpus names are unique")
     #expect(Set(corpus.map(\.fields)).count == corpus.count, "corpus frames are unique")
@@ -24,7 +24,7 @@ import Testing
 }
 
 @Test func oracleRunsIbAsync210At178() throws {
-    let file: OracleDecodeFile = try oracleFile("decode.json")
+    let file: OracleDecodeFile = try oracleDecode.get()
     #expect(file.ibAsync == "2.1.0")
     #expect(file.serverVersion == 178)
     #expect(file.handlers.count == 82)
@@ -33,8 +33,8 @@ import Testing
 /// C6: every message ib_async decodes at 178 has a frame it accepts, unless an `#uncovered` entry says why not. A
 /// request body (`sweep/outgoing/…`) is not a frame of the incoming message that shares its id.
 @Test func everyHandlerHasACorpusEntry() throws {
-    let file: OracleDecodeFile = try oracleFile("decode.json")
-    let allow: [AllowEntry] = try oracleFile("allowlist.json")
+    let file: OracleDecodeFile = try oracleDecode.get()
+    let allow: [AllowEntry] = try oracleAllowlist.get()
     let covered = Set(file.frames.filter { $0.error == nil && !$0.name.hasPrefix("sweep/outgoing/") }
         .compactMap { Int($0.fields[0]) })
     let excused = Set(allow.filter { $0.field == "#uncovered" }.map(\.scope))

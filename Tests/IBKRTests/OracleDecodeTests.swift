@@ -13,7 +13,7 @@ func ibAsyncCalls(id: Int, _ m: IBMessage) -> [OracleCall]? {
 
 /// Review Focus 1: a frame ib_async rejects carries `error`, and swift-ibkr rejects it too.
 @Test func oracleRecordsIbAsyncExceptions() throws {
-    let file: OracleDecodeFile = try oracleFile("decode.json")
+    let file: OracleDecodeFile = try oracleDecode.get()
     let canary = try #require(file.frames.first { $0.name == "gen/canary/short-openOrder" })
     #expect(canary.fields == ["5", "1"])
     #expect(canary.error?.isEmpty == false)
@@ -37,7 +37,7 @@ func ibAsyncCalls(id: Int, _ m: IBMessage) -> [OracleCall]? {
 /// Review Focus 4: every entry is narrow and cites one recorded row (whether each is used is checked by
 /// `ibAsyncDecodesLikeSwiftIBKR`); the checks reject the bad entries they exist for.
 @Test func allowlistEntriesAreNarrowCitedAndUsed() throws {
-    let allow: [AllowEntry] = try oracleFile("allowlist.json")
+    let allow: [AllowEntry] = try oracleAllowlist.get()
     let docs = try oracleDocs()
     for p in allowlistProblems(allow, decisions: docs.decisions, protocol178: docs.protocol178) { Issue.record("\(p)") }
 
@@ -80,10 +80,15 @@ func ibAsyncCalls(id: Int, _ m: IBMessage) -> [OracleCall]? {
 }
 
 @Test func ibAsyncDecodesLikeSwiftIBKR() throws {
-    let file: OracleDecodeFile = try oracleFile("decode.json")
-    let allow: [AllowEntry] = try oracleFile("allowlist.json")
+    let file: OracleDecodeFile = try oracleDecode.get()
+    let allow: [AllowEntry] = try oracleAllowlist.get()
     var used: Set<Int> = []
+    // every entry names one exact frame, so each frame is offered only its own (a linear scan of all is seconds)
+    let byFrame = Dictionary(grouping: allow.indices) { allow[$0].frames ?? "" }
     for frame in file.frames {
+        let mine = byFrame[frame.name] ?? [], own = mine.map { allow[$0] }
+        var usedHere: Set<Int> = []
+        defer { used.formUnion(usedHere.map { mine[$0] }) }
         guard let id = Int(frame.fields[0]) else { Issue.record("\(frame.name): no message id"); continue }
         let scope = "in \(id)"
         let ours = IBDecoder.decode(body(frame.fields))
@@ -96,11 +101,11 @@ func ibAsyncCalls(id: Int, _ m: IBMessage) -> [OracleCall]? {
         } else if let error = frame.error {
             mismatches = [Mismatch(name: frame.name, scope: scope, field: "#error", ours: "decoded", theirs: error)]
         } else if let calls = ibAsyncCalls(id: id, ours) {
-            mismatches = compare(calls, frame.calls ?? [], name: frame.name, scope: scope, allow: allow, used: &used)
+            mismatches = compare(calls, frame.calls ?? [], name: frame.name, scope: scope, allow: own, used: &usedHere)
         } else {
             Issue.record("\(frame.name): no ib_async mapping for \(ours)")
         }
-        for m in unallowed(mismatches, allow: allow, used: &used) { Issue.record("\(m)") }
+        for m in unallowed(mismatches, allow: own, used: &usedHere) { Issue.record("\(m)") }
     }
     for e in unusedDecodeEntries(allow, used: used) {
         Issue.record("allowlist entry \(e.scope) \(e.field) (\(e.frames ?? "*")) accepts no mismatch: remove it")
