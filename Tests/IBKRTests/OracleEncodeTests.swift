@@ -5,18 +5,6 @@ import Testing
 // Encode cross-check (C4): each encode.json case built as an IBRequest by the per-family OracleEncode+<Family>.swift
 // files, and its body compared field by field, as exact strings, with what ib_async 2.1.0's Client sent.
 
-/// The ib_async `Client` methods whose cases are not mapped yet (Task 12); Task 12 deletes the constant.
-let pendingRequestMethods: Set<String> = [
-    "reqContractDetails", "reqMatchingSymbols", "reqSecDefOptParams", "calculateImpliedVolatility",
-    "calculateOptionPrice", "cancelCalculateImpliedVolatility", "cancelCalculateOptionPrice", "reqMarketRule",
-    "reqFamilyCodes", "reqSoftDollarTiers", "reqScannerSubscription", "cancelScannerSubscription",
-    "reqScannerParameters", "reqNewsProviders", "reqNewsBulletins", "cancelNewsBulletins", "reqNewsArticle",
-    "reqHistoricalNews", "reqFundamentalData", "cancelFundamentalData", "reqWshMetaData", "cancelWshMetaData",
-    "reqWshEventData", "cancelWshEventData", "requestFA", "replaceFA", "queryDisplayGroups", "subscribeToGroupEvents",
-    "updateDisplayGroup", "unsubscribeFromGroupEvents", "verifyRequest", "verifyMessage", "verifyAndAuthRequest",
-    "verifyAndAuthMessage",
-]
-
 /// Every ib_async `Client` method that sends, with the out id it sends (client.py:443-1183): one per `IBRequest` case.
 let ibAsyncRequestIDs: [String: Int] = [
     "reqMktData": 1, "cancelMktData": 2, "placeOrder": 3, "cancelOrder": 4, "reqOpenOrders": 5,
@@ -130,7 +118,7 @@ func ibAsyncMethod(_ r: IBRequest) -> String {
 
 /// The `IBRequest` for a case, from the first family that maps its method (each returns `nil` for another family's).
 func request(for c: EncodeCase) throws -> IBRequest {
-    let families: [(EncodeCase) throws -> IBRequest?] = [sessionRequest, placeOrderRequest, marketDataRequest]
+    let families: [(EncodeCase) throws -> IBRequest?] = [sessionRequest, placeOrderRequest, marketDataRequest, referenceRequest]
     for family in families { if let r = try family(c) { return r } }
     throw CaseError("no family maps \(c.method)")
 }
@@ -140,8 +128,7 @@ func request(for c: EncodeCase) throws -> IBRequest {
     #expect(ibAsyncRequestIDs.count == 80)
     #expect(Set(ibAsyncRequestIDs.values).count == 80)
     let methods = Set(file.cases.map(\.method))
-    #expect(methods.union(pendingRequestMethods) == Set(ibAsyncRequestIDs.keys))
-    #expect(methods.isDisjoint(with: pendingRequestMethods), "a pending method has cases")
+    #expect(methods == Set(ibAsyncRequestIDs.keys), "a method has no case, or a case names no method")
     for c in file.cases {
         #expect(c.fields.first == ibAsyncRequestIDs[c.method].map(String.init), "\(c.name): out id")
     }
@@ -151,7 +138,7 @@ func request(for c: EncodeCase) throws -> IBRequest {
     let file: OracleEncodeFile = try oracleFile("encode.json")
     let allow: [AllowEntry] = try oracleFile("allowlist.json")
     var used: Set<Int> = []
-    for c in file.cases where !pendingRequestMethods.contains(c.method) {
+    for c in file.cases {
         let built: IBRequest
         do { built = try request(for: c) } catch { Issue.record("\(c.name): \(error)"); continue }
         #expect(ibAsyncMethod(built) == c.method, "\(c.name)")
@@ -179,8 +166,7 @@ func request(for c: EncodeCase) throws -> IBRequest {
         }
         for m in unallowed(mismatches, allow: allow, used: &used) { Issue.record("\(m)") }
     }
-    let pendingScopes = Set(pendingRequestMethods.compactMap { ibAsyncRequestIDs[$0].map { "out \($0)" } })
-    for (i, e) in allow.enumerated() where e.scope.hasPrefix("out ") && !pendingScopes.contains(e.scope) && !used.contains(i) {
+    for (i, e) in allow.enumerated() where e.scope.hasPrefix("out ") && !used.contains(i) {
         Issue.record("allowlist entry \(e.scope) \(e.field) (\(e.frames ?? "*")) accepts no mismatch: remove it")
     }
 }

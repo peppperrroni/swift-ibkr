@@ -80,7 +80,7 @@ func marketDataRequest(for c: EncodeCase) throws -> IBRequest? {
 
 /// A date argument as ib.py prepares it (`util.formatIBDatetime`, `yyyyMMdd HH:mm:ss UTC`; `""` for none). Text that
 /// `IBDate` does not read back to the same text cannot be built.
-private func dateText(_ a: inout CaseArgs, _ key: String, _ c: EncodeCase) throws -> Date? {
+func dateText(_ a: inout CaseArgs, _ key: String, _ c: EncodeCase) throws -> Date? {
     let text = try a.text(key)
     if text.isEmpty { return nil }
     guard let date = IBDate.parse(text), IBDate.format(date) == text else {

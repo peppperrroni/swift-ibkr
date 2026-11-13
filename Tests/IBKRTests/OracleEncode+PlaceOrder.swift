@@ -229,9 +229,9 @@ func condition(from v: CaseValue) throws -> OrderCondition {
 }
 
 /// `repr(UNSET_DOUBLE)`, ib_async's unset float.
-private let unsetDouble = "1.7976931348623157e+308"
+let unsetDouble = "1.7976931348623157e+308"
 
-private extension CaseArgs {
+extension CaseArgs {
     /// `None` or ib_async's unset float is `nil`.
     mutating func optionalDecimal(_ key: String) throws -> Decimal? {
         switch try value(key) {

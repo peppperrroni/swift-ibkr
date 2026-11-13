@@ -53,14 +53,14 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | Positions | synced at connect, whole sets on every change | ✅ live-checked |
 | Session | current time, accounts, next id, user info, log level, auto-bind, global cancel, opt-in reconnect | ✅ cross-checked against ib_async 2.1.0 and on the fake gateway; not yet run live (see KNOWN-GAPS) |
 | Account | account summary, per-position P&L, portfolio, account values, Multi, account P&L, the latest P&L of each open subscription | ✅ summary and per-position P&L live-checked; the rest cross-checked against ib_async 2.1.0 and on the fake gateway; not yet run live (see KNOWN-GAPS) |
-| Contract lookup | contract details with bonds, matching symbols, factories, qualifyContracts | ✅ details (not bonds) and symbols live-checked; the rest on the fake gateway, not yet run live (see KNOWN-GAPS) |
-| Options and reference | option chains, option calculations, market rules, family codes, soft-dollar tiers | ✅ on hand-built frames and the fake gateway; not yet run live (see KNOWN-GAPS) |
+| Contract lookup | contract details with bonds, matching symbols, factories, qualifyContracts | ✅ details (not bonds) and symbols live-checked; the rest cross-checked against ib_async 2.1.0 and on the fake gateway, not yet run live (see KNOWN-GAPS) |
+| Options and reference | option chains, option calculations, market rules, family codes, soft-dollar tiers | ✅ cross-checked against ib_async 2.1.0 and on the fake gateway; not yet run live (see KNOWN-GAPS) |
 | Market data | quotes with generic ticks and snapshots, `Ticker` streams and batch snapshots, the open-ticker registry, greeks, EFP, news ticks, real-time bars, depth book, depth exchanges, SMART components, tick-by-tick (alone or folded into a `Ticker`), BAG, typed «no permission» refusal | ✅ refusals live-checked; the data and the requests cross-checked against ib_async 2.1.0, unseen live (no subscription yet) |
 | History | bars with keepUpToDate (raw, or folded into whole bar lists), the live-bar registry, the 10225 resend, historical ticks, head timestamp, histogram, trading schedule, BAG | ✅ refusals live-checked; the data and the requests cross-checked against ib_async 2.1.0, unseen live (no subscription yet) |
-| Scanner | scan stream, one-shot scan, scanner parameters | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
-| News | providers, article text, historical headlines, bulletins, news ticks through `marketData`, every news tick and bulletin received | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
-| Fundamentals and Wall Street Horizon | fundamentals report XML, WSH metadata and event JSON, all as IB's text | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
-| FA, display groups and verify | FA XML read and replace, TWS display groups (list, follow, update), the vendor verify handshake | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
+| Scanner | scan stream, one-shot scan, scanner parameters | ✅ cross-checked against ib_async 2.1.0 and on the fake gateway; not yet run live (see KNOWN-GAPS) |
+| News | providers, article text, historical headlines, bulletins, news ticks through `marketData`, every news tick and bulletin received | ✅ cross-checked against ib_async 2.1.0 and on the fake gateway; not yet run live (see KNOWN-GAPS) |
+| Fundamentals and Wall Street Horizon | fundamentals report XML, WSH metadata and event JSON, all as IB's text | ✅ cross-checked against ib_async 2.1.0 and on the fake gateway; not yet run live (see KNOWN-GAPS) |
+| FA, display groups and verify | FA XML read and replace, TWS display groups (list, follow, update), the vendor verify handshake | ✅ cross-checked against ib_async 2.1.0 and on the fake gateway; not yet run live (see KNOWN-GAPS) |
 | Flex reports | download by token and query id, topics, records as IB's strings with a strict Decimal accessor (the separate product IBKRFlex, SwiftPM only) | ✅ on hand-written XML and a fake HTTP layer; never run against IB's service |
 | Gateway control | `IBC` starts and stops IB Gateway or TWS through an IBC install; `Watchdog` connects, probes on silence and restarts the app (macOS, Linux and Windows) | ✅ on a fake process and the fake gateway; never run against IBC |
 
@@ -686,8 +686,9 @@ the frames the tests use (the recordings, the fixtures, the fake gateway's repli
 build) with the wrapper calls `ib_async` makes for each, and `swift test` compares `IBDecoder` with them. All 82
 messages `ib_async`'s decoder handles at protocol 178 are compared. Requests are checked the same way:
 `encode.json` holds the fields `ib_async`'s `Client` sends for each case of `Scripts/differential/cases.py`, and
-`swift test` builds the same `IBRequest` and compares its body with them (the session, account and order-side
-requests, placeOrder's every field group, and the market-data and history requests so far). Python is needed only to regenerate the answers
+`swift test` builds the same `IBRequest` and compares its body with them (all 80 requests: the session, account and order-side
+requests, placeOrder's every field group, the market-data and history requests, and the reference, scanner, news,
+research, FA, display-group and verify requests). Python is needed only to regenerate the answers
 (`python -I Scripts/differential/generate.py`, see
 [CONTRIBUTING](CONTRIBUTING.md#differential-oracle)); CI regenerates them and fails on any difference.
 

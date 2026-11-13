@@ -20019,6 +20019,2908 @@
    ],
    "method": "cancelTickByTickData",
    "name": "cancelTickByTickData/set"
+  },
+  {
+   "args": {
+    "contract": {
+     "_type": "Contract",
+     "comboLegs": [],
+     "comboLegsDescrip": "",
+     "conId": "0",
+     "currency": "",
+     "deltaNeutralContract": null,
+     "description": "",
+     "exchange": "",
+     "includeExpired": "false",
+     "issuerId": "",
+     "lastTradeDateOrContractMonth": "",
+     "localSymbol": "",
+     "multiplier": "",
+     "primaryExchange": "",
+     "right": "",
+     "secId": "",
+     "secIdType": "",
+     "secType": "",
+     "strike": "0.0",
+     "symbol": "",
+     "tradingClass": ""
+    },
+    "reqId": "0"
+   },
+   "fields": [
+    "9",
+    "8",
+    "0",
+    "0",
+    "",
+    "",
+    "",
+    "0.0",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "0",
+    "",
+    "",
+    ""
+   ],
+   "method": "reqContractDetails",
+   "name": "reqContractDetails/default"
+  },
+  {
+   "args": {
+    "contract": {
+     "_type": "Stock",
+     "comboLegs": [],
+     "comboLegsDescrip": "",
+     "conId": "265598",
+     "currency": "USD",
+     "deltaNeutralContract": null,
+     "description": "",
+     "exchange": "SMART",
+     "includeExpired": "false",
+     "issuerId": "",
+     "lastTradeDateOrContractMonth": "",
+     "localSymbol": "AAPL",
+     "multiplier": "",
+     "primaryExchange": "NASDAQ",
+     "right": "",
+     "secId": "",
+     "secIdType": "",
+     "secType": "STK",
+     "strike": "0.0",
+     "symbol": "AAPL",
+     "tradingClass": "NMS"
+    },
+    "reqId": "60"
+   },
+   "fields": [
+    "9",
+    "8",
+    "60",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "SMART",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "NMS",
+    "0",
+    "",
+    "",
+    ""
+   ],
+   "method": "reqContractDetails",
+   "name": "reqContractDetails/typical"
+  },
+  {
+   "args": {
+    "contract": {
+     "_type": "Contract",
+     "comboLegs": [],
+     "comboLegsDescrip": "",
+     "conId": "0",
+     "currency": "USD",
+     "deltaNeutralContract": null,
+     "description": "",
+     "exchange": "CME",
+     "includeExpired": "true",
+     "issuerId": "",
+     "lastTradeDateOrContractMonth": "",
+     "localSymbol": "",
+     "multiplier": "",
+     "primaryExchange": "",
+     "right": "",
+     "secId": "",
+     "secIdType": "",
+     "secType": "FUT",
+     "strike": "0.0",
+     "symbol": "ES",
+     "tradingClass": ""
+    },
+    "reqId": "61"
+   },
+   "fields": [
+    "9",
+    "8",
+    "61",
+    "0",
+    "ES",
+    "FUT",
+    "",
+    "0.0",
+    "",
+    "",
+    "CME",
+    "",
+    "USD",
+    "",
+    "",
+    "1",
+    "",
+    "",
+    ""
+   ],
+   "method": "reqContractDetails",
+   "name": "reqContractDetails/include-expired"
+  },
+  {
+   "args": {
+    "contract": {
+     "_type": "Contract",
+     "comboLegs": [],
+     "comboLegsDescrip": "",
+     "conId": "0",
+     "currency": "USD",
+     "deltaNeutralContract": null,
+     "description": "",
+     "exchange": "SMART",
+     "includeExpired": "false",
+     "issuerId": "",
+     "lastTradeDateOrContractMonth": "",
+     "localSymbol": "",
+     "multiplier": "",
+     "primaryExchange": "",
+     "right": "",
+     "secId": "US0378331005",
+     "secIdType": "ISIN",
+     "secType": "STK",
+     "strike": "0.0",
+     "symbol": "",
+     "tradingClass": ""
+    },
+    "reqId": "62"
+   },
+   "fields": [
+    "9",
+    "8",
+    "62",
+    "0",
+    "",
+    "STK",
+    "",
+    "0.0",
+    "",
+    "",
+    "SMART",
+    "",
+    "USD",
+    "",
+    "",
+    "0",
+    "ISIN",
+    "US0378331005",
+    ""
+   ],
+   "method": "reqContractDetails",
+   "name": "reqContractDetails/sec-id"
+  },
+  {
+   "args": {
+    "contract": {
+     "_type": "Contract",
+     "comboLegs": [],
+     "comboLegsDescrip": "",
+     "conId": "0",
+     "currency": "USD",
+     "deltaNeutralContract": null,
+     "description": "",
+     "exchange": "SMART",
+     "includeExpired": "false",
+     "issuerId": "e1234567",
+     "lastTradeDateOrContractMonth": "",
+     "localSymbol": "",
+     "multiplier": "",
+     "primaryExchange": "",
+     "right": "",
+     "secId": "",
+     "secIdType": "",
+     "secType": "BOND",
+     "strike": "0.0",
+     "symbol": "",
+     "tradingClass": ""
+    },
+    "reqId": "63"
+   },
+   "fields": [
+    "9",
+    "8",
+    "63",
+    "0",
+    "",
+    "BOND",
+    "",
+    "0.0",
+    "",
+    "",
+    "SMART",
+    "",
+    "USD",
+    "",
+    "",
+    "0",
+    "",
+    "",
+    "e1234567"
+   ],
+   "method": "reqContractDetails",
+   "name": "reqContractDetails/issuer-id"
+  },
+  {
+   "args": {
+    "contract": {
+     "_type": "Contract",
+     "comboLegs": [
+      {
+       "_type": "ComboLeg",
+       "action": "SELL",
+       "conId": "8314",
+       "designatedLocation": "LOC",
+       "exchange": "CBOE",
+       "exemptCode": "3",
+       "openClose": "1",
+       "ratio": "2",
+       "shortSaleSlot": "2"
+      }
+     ],
+     "comboLegsDescrip": "leg text",
+     "conId": "681734412",
+     "currency": "USD",
+     "deltaNeutralContract": {
+      "_type": "DeltaNeutralContract",
+      "conId": "265598",
+      "delta": "0.25",
+      "price": "181.75"
+     },
+     "description": "",
+     "exchange": "SMART",
+     "includeExpired": "true",
+     "issuerId": "e1234567",
+     "lastTradeDateOrContractMonth": "20261218",
+     "localSymbol": "AAPL  261218C00182500",
+     "multiplier": "100",
+     "primaryExchange": "CBOE",
+     "right": "C",
+     "secId": "US0378331005",
+     "secIdType": "ISIN",
+     "secType": "OPT",
+     "strike": "182.5",
+     "symbol": "AAPL",
+     "tradingClass": "AAPLW"
+    },
+    "reqId": "64"
+   },
+   "fields": [
+    "9",
+    "8",
+    "64",
+    "681734412",
+    "AAPL",
+    "OPT",
+    "20261218",
+    "182.5",
+    "C",
+    "100",
+    "SMART",
+    "CBOE",
+    "USD",
+    "AAPL  261218C00182500",
+    "AAPLW",
+    "1",
+    "ISIN",
+    "US0378331005",
+    "e1234567"
+   ],
+   "method": "reqContractDetails",
+   "name": "reqContractDetails/set"
+  },
+  {
+   "args": {
+    "pattern": "",
+    "reqId": "0"
+   },
+   "fields": [
+    "81",
+    "0",
+    ""
+   ],
+   "method": "reqMatchingSymbols",
+   "name": "reqMatchingSymbols/default"
+  },
+  {
+   "args": {
+    "pattern": "AAP",
+    "reqId": "65"
+   },
+   "fields": [
+    "81",
+    "65",
+    "AAP"
+   ],
+   "method": "reqMatchingSymbols",
+   "name": "reqMatchingSymbols/set"
+  },
+  {
+   "args": {
+    "futFopExchange": "",
+    "reqId": "0",
+    "underlyingConId": "0",
+    "underlyingSecType": "",
+    "underlyingSymbol": ""
+   },
+   "fields": [
+    "78",
+    "0",
+    "",
+    "",
+    "",
+    "0"
+   ],
+   "method": "reqSecDefOptParams",
+   "name": "reqSecDefOptParams/default"
+  },
+  {
+   "args": {
+    "futFopExchange": "",
+    "reqId": "66",
+    "underlyingConId": "265598",
+    "underlyingSecType": "STK",
+    "underlyingSymbol": "AAPL"
+   },
+   "fields": [
+    "78",
+    "66",
+    "AAPL",
+    "",
+    "STK",
+    "265598"
+   ],
+   "method": "reqSecDefOptParams",
+   "name": "reqSecDefOptParams/stock"
+  },
+  {
+   "args": {
+    "futFopExchange": "CME",
+    "reqId": "67",
+    "underlyingConId": "11004968",
+    "underlyingSecType": "FUT",
+    "underlyingSymbol": "ES"
+   },
+   "fields": [
+    "78",
+    "67",
+    "ES",
+    "CME",
+    "FUT",
+    "11004968"
+   ],
+   "method": "reqSecDefOptParams",
+   "name": "reqSecDefOptParams/set"
+  },
+  {
+   "args": {
+    "contract": {
+     "_type": "Contract",
+     "comboLegs": [],
+     "comboLegsDescrip": "",
+     "conId": "0",
+     "currency": "",
+     "deltaNeutralContract": null,
+     "description": "",
+     "exchange": "",
+     "includeExpired": "false",
+     "issuerId": "",
+     "lastTradeDateOrContractMonth": "",
+     "localSymbol": "",
+     "multiplier": "",
+     "primaryExchange": "",
+     "right": "",
+     "secId": "",
+     "secIdType": "",
+     "secType": "",
+     "strike": "0.0",
+     "symbol": "",
+     "tradingClass": ""
+    },
+    "implVolOptions": [],
+    "optionPrice": "0",
+    "reqId": "0",
+    "underPrice": "0"
+   },
+   "fields": [
+    "54",
+    "3",
+    "0",
+    "0",
+    "",
+    "",
+    "",
+    "0.0",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "0",
+    "0",
+    "0",
+    ""
+   ],
+   "method": "calculateImpliedVolatility",
+   "name": "calculateImpliedVolatility/default"
+  },
+  {
+   "args": {
+    "contract": {
+     "_type": "Contract",
+     "comboLegs": [
+      {
+       "_type": "ComboLeg",
+       "action": "SELL",
+       "conId": "8314",
+       "designatedLocation": "LOC",
+       "exchange": "CBOE",
+       "exemptCode": "3",
+       "openClose": "1",
+       "ratio": "2",
+       "shortSaleSlot": "2"
+      }
+     ],
+     "comboLegsDescrip": "leg text",
+     "conId": "681734412",
+     "currency": "USD",
+     "deltaNeutralContract": {
+      "_type": "DeltaNeutralContract",
+      "conId": "265598",
+      "delta": "0.25",
+      "price": "181.75"
+     },
+     "description": "",
+     "exchange": "SMART",
+     "includeExpired": "true",
+     "issuerId": "e1234567",
+     "lastTradeDateOrContractMonth": "20261218",
+     "localSymbol": "AAPL  261218C00182500",
+     "multiplier": "100",
+     "primaryExchange": "CBOE",
+     "right": "C",
+     "secId": "US0378331005",
+     "secIdType": "ISIN",
+     "secType": "OPT",
+     "strike": "182.5",
+     "symbol": "AAPL",
+     "tradingClass": "AAPLW"
+    },
+    "implVolOptions": [
+     [
+      "XYZ",
+      "1"
+     ]
+    ],
+    "optionPrice": "3.25",
+    "reqId": "68",
+    "underPrice": "182.75"
+   },
+   "fields": [
+    "54",
+    "3",
+    "68",
+    "681734412",
+    "AAPL",
+    "OPT",
+    "20261218",
+    "182.5",
+    "C",
+    "100",
+    "SMART",
+    "CBOE",
+    "USD",
+    "AAPL  261218C00182500",
+    "AAPLW",
+    "3.25",
+    "182.75",
+    "1",
+    "XYZ=1;"
+   ],
+   "method": "calculateImpliedVolatility",
+   "name": "calculateImpliedVolatility/options-1"
+  },
+  {
+   "args": {
+    "contract": {
+     "_type": "Contract",
+     "comboLegs": [
+      {
+       "_type": "ComboLeg",
+       "action": "SELL",
+       "conId": "8314",
+       "designatedLocation": "LOC",
+       "exchange": "CBOE",
+       "exemptCode": "3",
+       "openClose": "1",
+       "ratio": "2",
+       "shortSaleSlot": "2"
+      }
+     ],
+     "comboLegsDescrip": "leg text",
+     "conId": "681734412",
+     "currency": "USD",
+     "deltaNeutralContract": {
+      "_type": "DeltaNeutralContract",
+      "conId": "265598",
+      "delta": "0.25",
+      "price": "181.75"
+     },
+     "description": "",
+     "exchange": "SMART",
+     "includeExpired": "true",
+     "issuerId": "e1234567",
+     "lastTradeDateOrContractMonth": "20261218",
+     "localSymbol": "AAPL  261218C00182500",
+     "multiplier": "100",
+     "primaryExchange": "CBOE",
+     "right": "C",
+     "secId": "US0378331005",
+     "secIdType": "ISIN",
+     "secType": "OPT",
+     "strike": "182.5",
+     "symbol": "AAPL",
+     "tradingClass": "AAPLW"
+    },
+    "implVolOptions": [
+     [
+      "p",
+      "1"
+     ],
+     [
+      "q",
+      "2"
+     ],
+     [
+      "r",
+      "three"
+     ]
+    ],
+    "optionPrice": "4.5",
+    "reqId": "69",
+    "underPrice": "181.25"
+   },
+   "fields": [
+    "54",
+    "3",
+    "69",
+    "681734412",
+    "AAPL",
+    "OPT",
+    "20261218",
+    "182.5",
+    "C",
+    "100",
+    "SMART",
+    "CBOE",
+    "USD",
+    "AAPL  261218C00182500",
+    "AAPLW",
+    "4.5",
+    "181.25",
+    "3",
+    "p=1;q=2;r=three;"
+   ],
+   "method": "calculateImpliedVolatility",
+   "name": "calculateImpliedVolatility/options-n"
+  },
+  {
+   "args": {
+    "contract": {
+     "_type": "Contract",
+     "comboLegs": [],
+     "comboLegsDescrip": "",
+     "conId": "0",
+     "currency": "",
+     "deltaNeutralContract": null,
+     "description": "",
+     "exchange": "",
+     "includeExpired": "false",
+     "issuerId": "",
+     "lastTradeDateOrContractMonth": "",
+     "localSymbol": "",
+     "multiplier": "",
+     "primaryExchange": "",
+     "right": "",
+     "secId": "",
+     "secIdType": "",
+     "secType": "",
+     "strike": "0.0",
+     "symbol": "",
+     "tradingClass": ""
+    },
+    "optPrcOptions": [],
+    "reqId": "0",
+    "underPrice": "0",
+    "volatility": "0"
+   },
+   "fields": [
+    "55",
+    "3",
+    "0",
+    "0",
+    "",
+    "",
+    "",
+    "0.0",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "0",
+    "0",
+    "0",
+    ""
+   ],
+   "method": "calculateOptionPrice",
+   "name": "calculateOptionPrice/default"
+  },
+  {
+   "args": {
+    "contract": {
+     "_type": "Contract",
+     "comboLegs": [
+      {
+       "_type": "ComboLeg",
+       "action": "SELL",
+       "conId": "8314",
+       "designatedLocation": "LOC",
+       "exchange": "CBOE",
+       "exemptCode": "3",
+       "openClose": "1",
+       "ratio": "2",
+       "shortSaleSlot": "2"
+      }
+     ],
+     "comboLegsDescrip": "leg text",
+     "conId": "681734412",
+     "currency": "USD",
+     "deltaNeutralContract": {
+      "_type": "DeltaNeutralContract",
+      "conId": "265598",
+      "delta": "0.25",
+      "price": "181.75"
+     },
+     "description": "",
+     "exchange": "SMART",
+     "includeExpired": "true",
+     "issuerId": "e1234567",
+     "lastTradeDateOrContractMonth": "20261218",
+     "localSymbol": "AAPL  261218C00182500",
+     "multiplier": "100",
+     "primaryExchange": "CBOE",
+     "right": "C",
+     "secId": "US0378331005",
+     "secIdType": "ISIN",
+     "secType": "OPT",
+     "strike": "182.5",
+     "symbol": "AAPL",
+     "tradingClass": "AAPLW"
+    },
+    "optPrcOptions": [
+     [
+      "XYZ",
+      "1"
+     ]
+    ],
+    "reqId": "70",
+    "underPrice": "182.75",
+    "volatility": "0.35"
+   },
+   "fields": [
+    "55",
+    "3",
+    "70",
+    "681734412",
+    "AAPL",
+    "OPT",
+    "20261218",
+    "182.5",
+    "C",
+    "100",
+    "SMART",
+    "CBOE",
+    "USD",
+    "AAPL  261218C00182500",
+    "AAPLW",
+    "0.35",
+    "182.75",
+    "1",
+    "XYZ=1;"
+   ],
+   "method": "calculateOptionPrice",
+   "name": "calculateOptionPrice/options-1"
+  },
+  {
+   "args": {
+    "contract": {
+     "_type": "Contract",
+     "comboLegs": [
+      {
+       "_type": "ComboLeg",
+       "action": "SELL",
+       "conId": "8314",
+       "designatedLocation": "LOC",
+       "exchange": "CBOE",
+       "exemptCode": "3",
+       "openClose": "1",
+       "ratio": "2",
+       "shortSaleSlot": "2"
+      }
+     ],
+     "comboLegsDescrip": "leg text",
+     "conId": "681734412",
+     "currency": "USD",
+     "deltaNeutralContract": {
+      "_type": "DeltaNeutralContract",
+      "conId": "265598",
+      "delta": "0.25",
+      "price": "181.75"
+     },
+     "description": "",
+     "exchange": "SMART",
+     "includeExpired": "true",
+     "issuerId": "e1234567",
+     "lastTradeDateOrContractMonth": "20261218",
+     "localSymbol": "AAPL  261218C00182500",
+     "multiplier": "100",
+     "primaryExchange": "CBOE",
+     "right": "C",
+     "secId": "US0378331005",
+     "secIdType": "ISIN",
+     "secType": "OPT",
+     "strike": "182.5",
+     "symbol": "AAPL",
+     "tradingClass": "AAPLW"
+    },
+    "optPrcOptions": [
+     [
+      "p",
+      "1"
+     ],
+     [
+      "q",
+      "2"
+     ],
+     [
+      "r",
+      "three"
+     ]
+    ],
+    "reqId": "71",
+    "underPrice": "181.25",
+    "volatility": "0.425"
+   },
+   "fields": [
+    "55",
+    "3",
+    "71",
+    "681734412",
+    "AAPL",
+    "OPT",
+    "20261218",
+    "182.5",
+    "C",
+    "100",
+    "SMART",
+    "CBOE",
+    "USD",
+    "AAPL  261218C00182500",
+    "AAPLW",
+    "0.425",
+    "181.25",
+    "3",
+    "p=1;q=2;r=three;"
+   ],
+   "method": "calculateOptionPrice",
+   "name": "calculateOptionPrice/options-n"
+  },
+  {
+   "args": {
+    "reqId": "0"
+   },
+   "fields": [
+    "56",
+    "1",
+    "0"
+   ],
+   "method": "cancelCalculateImpliedVolatility",
+   "name": "cancelCalculateImpliedVolatility/default"
+  },
+  {
+   "args": {
+    "reqId": "72"
+   },
+   "fields": [
+    "56",
+    "1",
+    "72"
+   ],
+   "method": "cancelCalculateImpliedVolatility",
+   "name": "cancelCalculateImpliedVolatility/set"
+  },
+  {
+   "args": {
+    "reqId": "0"
+   },
+   "fields": [
+    "57",
+    "1",
+    "0"
+   ],
+   "method": "cancelCalculateOptionPrice",
+   "name": "cancelCalculateOptionPrice/default"
+  },
+  {
+   "args": {
+    "reqId": "73"
+   },
+   "fields": [
+    "57",
+    "1",
+    "73"
+   ],
+   "method": "cancelCalculateOptionPrice",
+   "name": "cancelCalculateOptionPrice/set"
+  },
+  {
+   "args": {
+    "marketRuleId": "0"
+   },
+   "fields": [
+    "91",
+    "0"
+   ],
+   "method": "reqMarketRule",
+   "name": "reqMarketRule/default"
+  },
+  {
+   "args": {
+    "marketRuleId": "26"
+   },
+   "fields": [
+    "91",
+    "26"
+   ],
+   "method": "reqMarketRule",
+   "name": "reqMarketRule/set"
+  },
+  {
+   "args": {},
+   "fields": [
+    "80"
+   ],
+   "method": "reqFamilyCodes",
+   "name": "reqFamilyCodes/default"
+  },
+  {
+   "args": {
+    "reqId": "0"
+   },
+   "fields": [
+    "79",
+    "0"
+   ],
+   "method": "reqSoftDollarTiers",
+   "name": "reqSoftDollarTiers/default"
+  },
+  {
+   "args": {
+    "reqId": "74"
+   },
+   "fields": [
+    "79",
+    "74"
+   ],
+   "method": "reqSoftDollarTiers",
+   "name": "reqSoftDollarTiers/set"
+  },
+  {
+   "args": {
+    "reqId": "0",
+    "scannerSubscriptionFilterOptions": [],
+    "scannerSubscriptionOptions": [],
+    "subscription": {
+     "_type": "ScannerSubscription",
+     "abovePrice": "1.7976931348623157e+308",
+     "aboveVolume": "2147483647",
+     "averageOptionVolumeAbove": "2147483647",
+     "belowPrice": "1.7976931348623157e+308",
+     "couponRateAbove": "1.7976931348623157e+308",
+     "couponRateBelow": "1.7976931348623157e+308",
+     "excludeConvertible": "false",
+     "instrument": "",
+     "locationCode": "",
+     "marketCapAbove": "1.7976931348623157e+308",
+     "marketCapBelow": "1.7976931348623157e+308",
+     "maturityDateAbove": "",
+     "maturityDateBelow": "",
+     "moodyRatingAbove": "",
+     "moodyRatingBelow": "",
+     "numberOfRows": "-1",
+     "scanCode": "",
+     "scannerSettingPairs": "",
+     "spRatingAbove": "",
+     "spRatingBelow": "",
+     "stockTypeFilter": ""
+    }
+   },
+   "fields": [
+    "22",
+    "0",
+    "-1",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "0",
+    "",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "method": "reqScannerSubscription",
+   "name": "reqScannerSubscription/default"
+  },
+  {
+   "args": {
+    "reqId": "75",
+    "scannerSubscriptionFilterOptions": [],
+    "scannerSubscriptionOptions": [],
+    "subscription": {
+     "_type": "ScannerSubscription",
+     "abovePrice": "1.7976931348623157e+308",
+     "aboveVolume": "2147483647",
+     "averageOptionVolumeAbove": "2147483647",
+     "belowPrice": "1.7976931348623157e+308",
+     "couponRateAbove": "1.7976931348623157e+308",
+     "couponRateBelow": "1.7976931348623157e+308",
+     "excludeConvertible": "false",
+     "instrument": "",
+     "locationCode": "",
+     "marketCapAbove": "1.7976931348623157e+308",
+     "marketCapBelow": "1.7976931348623157e+308",
+     "maturityDateAbove": "",
+     "maturityDateBelow": "",
+     "moodyRatingAbove": "",
+     "moodyRatingBelow": "",
+     "numberOfRows": "25",
+     "scanCode": "",
+     "scannerSettingPairs": "",
+     "spRatingAbove": "",
+     "spRatingBelow": "",
+     "stockTypeFilter": ""
+    }
+   },
+   "fields": [
+    "22",
+    "75",
+    "25",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "0",
+    "",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "method": "reqScannerSubscription",
+   "name": "reqScannerSubscription/rows-only"
+  },
+  {
+   "args": {
+    "reqId": "76",
+    "scannerSubscriptionFilterOptions": [],
+    "scannerSubscriptionOptions": [],
+    "subscription": {
+     "_type": "ScannerSubscription",
+     "abovePrice": "1.7976931348623157e+308",
+     "aboveVolume": "2147483647",
+     "averageOptionVolumeAbove": "2147483647",
+     "belowPrice": "1.7976931348623157e+308",
+     "couponRateAbove": "1.7976931348623157e+308",
+     "couponRateBelow": "1.7976931348623157e+308",
+     "excludeConvertible": "false",
+     "instrument": "STK",
+     "locationCode": "STK.US.MAJOR",
+     "marketCapAbove": "1.7976931348623157e+308",
+     "marketCapBelow": "1.7976931348623157e+308",
+     "maturityDateAbove": "",
+     "maturityDateBelow": "",
+     "moodyRatingAbove": "",
+     "moodyRatingBelow": "",
+     "numberOfRows": "-1",
+     "scanCode": "TOP_PERC_GAIN",
+     "scannerSettingPairs": "",
+     "spRatingAbove": "",
+     "spRatingBelow": "",
+     "stockTypeFilter": ""
+    }
+   },
+   "fields": [
+    "22",
+    "76",
+    "-1",
+    "STK",
+    "STK.US.MAJOR",
+    "TOP_PERC_GAIN",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "0",
+    "",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "method": "reqScannerSubscription",
+   "name": "reqScannerSubscription/basics"
+  },
+  {
+   "args": {
+    "reqId": "77",
+    "scannerSubscriptionFilterOptions": [],
+    "scannerSubscriptionOptions": [
+     [
+      "XYZ",
+      "1"
+     ]
+    ],
+    "subscription": {
+     "_type": "ScannerSubscription",
+     "abovePrice": "12.5",
+     "aboveVolume": "1000",
+     "averageOptionVolumeAbove": "250",
+     "belowPrice": "99.75",
+     "couponRateAbove": "1.25",
+     "couponRateBelow": "7.5",
+     "excludeConvertible": "true",
+     "instrument": "STK",
+     "locationCode": "STK.US.MAJOR",
+     "marketCapAbove": "1500.5",
+     "marketCapBelow": "9000.25",
+     "maturityDateAbove": "20270101",
+     "maturityDateBelow": "20301231",
+     "moodyRatingAbove": "Baa1",
+     "moodyRatingBelow": "Aa2",
+     "numberOfRows": "25",
+     "scanCode": "TOP_PERC_GAIN",
+     "scannerSettingPairs": "key1=1;key2=2",
+     "spRatingAbove": "BBB+",
+     "spRatingBelow": "AA-",
+     "stockTypeFilter": "CORP"
+    }
+   },
+   "fields": [
+    "22",
+    "77",
+    "25",
+    "STK",
+    "STK.US.MAJOR",
+    "TOP_PERC_GAIN",
+    "12.5",
+    "99.75",
+    "1000",
+    "1500.5",
+    "9000.25",
+    "Baa1",
+    "Aa2",
+    "BBB+",
+    "AA-",
+    "20270101",
+    "20301231",
+    "1.25",
+    "7.5",
+    "1",
+    "250",
+    "key1=1;key2=2",
+    "CORP",
+    "",
+    "XYZ=1;"
+   ],
+   "method": "reqScannerSubscription",
+   "name": "reqScannerSubscription/options-1"
+  },
+  {
+   "args": {
+    "reqId": "78",
+    "scannerSubscriptionFilterOptions": [
+     [
+      "f",
+      "9"
+     ]
+    ],
+    "scannerSubscriptionOptions": [],
+    "subscription": {
+     "_type": "ScannerSubscription",
+     "abovePrice": "12.5",
+     "aboveVolume": "1000",
+     "averageOptionVolumeAbove": "250",
+     "belowPrice": "99.75",
+     "couponRateAbove": "1.25",
+     "couponRateBelow": "7.5",
+     "excludeConvertible": "true",
+     "instrument": "STK",
+     "locationCode": "STK.US.MAJOR",
+     "marketCapAbove": "1500.5",
+     "marketCapBelow": "9000.25",
+     "maturityDateAbove": "20270101",
+     "maturityDateBelow": "20301231",
+     "moodyRatingAbove": "Baa1",
+     "moodyRatingBelow": "Aa2",
+     "numberOfRows": "25",
+     "scanCode": "TOP_PERC_GAIN",
+     "scannerSettingPairs": "key1=1;key2=2",
+     "spRatingAbove": "BBB+",
+     "spRatingBelow": "AA-",
+     "stockTypeFilter": "CORP"
+    }
+   },
+   "fields": [
+    "22",
+    "78",
+    "25",
+    "STK",
+    "STK.US.MAJOR",
+    "TOP_PERC_GAIN",
+    "12.5",
+    "99.75",
+    "1000",
+    "1500.5",
+    "9000.25",
+    "Baa1",
+    "Aa2",
+    "BBB+",
+    "AA-",
+    "20270101",
+    "20301231",
+    "1.25",
+    "7.5",
+    "1",
+    "250",
+    "key1=1;key2=2",
+    "CORP",
+    "f=9;",
+    ""
+   ],
+   "method": "reqScannerSubscription",
+   "name": "reqScannerSubscription/filter-1"
+  },
+  {
+   "args": {
+    "reqId": "79",
+    "scannerSubscriptionFilterOptions": [],
+    "scannerSubscriptionOptions": [
+     [
+      "a",
+      "1.5"
+     ],
+     [
+      "b",
+      "two"
+     ]
+    ],
+    "subscription": {
+     "_type": "ScannerSubscription",
+     "abovePrice": "12.5",
+     "aboveVolume": "1000",
+     "averageOptionVolumeAbove": "250",
+     "belowPrice": "99.75",
+     "couponRateAbove": "1.25",
+     "couponRateBelow": "7.5",
+     "excludeConvertible": "true",
+     "instrument": "STK",
+     "locationCode": "STK.US.MAJOR",
+     "marketCapAbove": "1500.5",
+     "marketCapBelow": "9000.25",
+     "maturityDateAbove": "20270101",
+     "maturityDateBelow": "20301231",
+     "moodyRatingAbove": "Baa1",
+     "moodyRatingBelow": "Aa2",
+     "numberOfRows": "25",
+     "scanCode": "TOP_PERC_GAIN",
+     "scannerSettingPairs": "key1=1;key2=2",
+     "spRatingAbove": "BBB+",
+     "spRatingBelow": "AA-",
+     "stockTypeFilter": "CORP"
+    }
+   },
+   "fields": [
+    "22",
+    "79",
+    "25",
+    "STK",
+    "STK.US.MAJOR",
+    "TOP_PERC_GAIN",
+    "12.5",
+    "99.75",
+    "1000",
+    "1500.5",
+    "9000.25",
+    "Baa1",
+    "Aa2",
+    "BBB+",
+    "AA-",
+    "20270101",
+    "20301231",
+    "1.25",
+    "7.5",
+    "1",
+    "250",
+    "key1=1;key2=2",
+    "CORP",
+    "",
+    "a=1.5;b=two;"
+   ],
+   "method": "reqScannerSubscription",
+   "name": "reqScannerSubscription/options-n"
+  },
+  {
+   "args": {
+    "reqId": "80",
+    "scannerSubscriptionFilterOptions": [
+     [
+      "p",
+      "1"
+     ],
+     [
+      "q",
+      "2"
+     ],
+     [
+      "r",
+      "three"
+     ]
+    ],
+    "scannerSubscriptionOptions": [],
+    "subscription": {
+     "_type": "ScannerSubscription",
+     "abovePrice": "12.5",
+     "aboveVolume": "1000",
+     "averageOptionVolumeAbove": "250",
+     "belowPrice": "99.75",
+     "couponRateAbove": "1.25",
+     "couponRateBelow": "7.5",
+     "excludeConvertible": "true",
+     "instrument": "STK",
+     "locationCode": "STK.US.MAJOR",
+     "marketCapAbove": "1500.5",
+     "marketCapBelow": "9000.25",
+     "maturityDateAbove": "20270101",
+     "maturityDateBelow": "20301231",
+     "moodyRatingAbove": "Baa1",
+     "moodyRatingBelow": "Aa2",
+     "numberOfRows": "25",
+     "scanCode": "TOP_PERC_GAIN",
+     "scannerSettingPairs": "key1=1;key2=2",
+     "spRatingAbove": "BBB+",
+     "spRatingBelow": "AA-",
+     "stockTypeFilter": "CORP"
+    }
+   },
+   "fields": [
+    "22",
+    "80",
+    "25",
+    "STK",
+    "STK.US.MAJOR",
+    "TOP_PERC_GAIN",
+    "12.5",
+    "99.75",
+    "1000",
+    "1500.5",
+    "9000.25",
+    "Baa1",
+    "Aa2",
+    "BBB+",
+    "AA-",
+    "20270101",
+    "20301231",
+    "1.25",
+    "7.5",
+    "1",
+    "250",
+    "key1=1;key2=2",
+    "CORP",
+    "p=1;q=2;r=three;",
+    ""
+   ],
+   "method": "reqScannerSubscription",
+   "name": "reqScannerSubscription/filter-n"
+  },
+  {
+   "args": {
+    "reqId": "81",
+    "scannerSubscriptionFilterOptions": [
+     [
+      "p",
+      "1"
+     ],
+     [
+      "q",
+      "2"
+     ],
+     [
+      "r",
+      "three"
+     ]
+    ],
+    "scannerSubscriptionOptions": [
+     [
+      "a",
+      "1.5"
+     ],
+     [
+      "b",
+      "two"
+     ]
+    ],
+    "subscription": {
+     "_type": "ScannerSubscription",
+     "abovePrice": "12.5",
+     "aboveVolume": "1000",
+     "averageOptionVolumeAbove": "250",
+     "belowPrice": "99.75",
+     "couponRateAbove": "1.25",
+     "couponRateBelow": "7.5",
+     "excludeConvertible": "true",
+     "instrument": "STK",
+     "locationCode": "STK.US.MAJOR",
+     "marketCapAbove": "1500.5",
+     "marketCapBelow": "9000.25",
+     "maturityDateAbove": "20270101",
+     "maturityDateBelow": "20301231",
+     "moodyRatingAbove": "Baa1",
+     "moodyRatingBelow": "Aa2",
+     "numberOfRows": "25",
+     "scanCode": "TOP_PERC_GAIN",
+     "scannerSettingPairs": "key1=1;key2=2",
+     "spRatingAbove": "BBB+",
+     "spRatingBelow": "AA-",
+     "stockTypeFilter": "CORP"
+    }
+   },
+   "fields": [
+    "22",
+    "81",
+    "25",
+    "STK",
+    "STK.US.MAJOR",
+    "TOP_PERC_GAIN",
+    "12.5",
+    "99.75",
+    "1000",
+    "1500.5",
+    "9000.25",
+    "Baa1",
+    "Aa2",
+    "BBB+",
+    "AA-",
+    "20270101",
+    "20301231",
+    "1.25",
+    "7.5",
+    "1",
+    "250",
+    "key1=1;key2=2",
+    "CORP",
+    "p=1;q=2;r=three;",
+    "a=1.5;b=two;"
+   ],
+   "method": "reqScannerSubscription",
+   "name": "reqScannerSubscription/set"
+  },
+  {
+   "args": {
+    "reqId": "0"
+   },
+   "fields": [
+    "23",
+    "1",
+    "0"
+   ],
+   "method": "cancelScannerSubscription",
+   "name": "cancelScannerSubscription/default"
+  },
+  {
+   "args": {
+    "reqId": "82"
+   },
+   "fields": [
+    "23",
+    "1",
+    "82"
+   ],
+   "method": "cancelScannerSubscription",
+   "name": "cancelScannerSubscription/set"
+  },
+  {
+   "args": {},
+   "fields": [
+    "24",
+    "1"
+   ],
+   "method": "reqScannerParameters",
+   "name": "reqScannerParameters/default"
+  },
+  {
+   "args": {},
+   "fields": [
+    "85"
+   ],
+   "method": "reqNewsProviders",
+   "name": "reqNewsProviders/default"
+  },
+  {
+   "args": {
+    "allMsgs": "false"
+   },
+   "fields": [
+    "12",
+    "1",
+    "0"
+   ],
+   "method": "reqNewsBulletins",
+   "name": "reqNewsBulletins/default"
+  },
+  {
+   "args": {
+    "allMsgs": "true"
+   },
+   "fields": [
+    "12",
+    "1",
+    "1"
+   ],
+   "method": "reqNewsBulletins",
+   "name": "reqNewsBulletins/set"
+  },
+  {
+   "args": {},
+   "fields": [
+    "13",
+    "1"
+   ],
+   "method": "cancelNewsBulletins",
+   "name": "cancelNewsBulletins/default"
+  },
+  {
+   "args": {
+    "articleId": "",
+    "newsArticleOptions": [],
+    "providerCode": "",
+    "reqId": "0"
+   },
+   "fields": [
+    "84",
+    "0",
+    "",
+    "",
+    ""
+   ],
+   "method": "reqNewsArticle",
+   "name": "reqNewsArticle/default"
+  },
+  {
+   "args": {
+    "articleId": "BRFG$04fb9da2",
+    "newsArticleOptions": [],
+    "providerCode": "BRFG",
+    "reqId": "83"
+   },
+   "fields": [
+    "84",
+    "83",
+    "BRFG",
+    "BRFG$04fb9da2",
+    ""
+   ],
+   "method": "reqNewsArticle",
+   "name": "reqNewsArticle/typical"
+  },
+  {
+   "args": {
+    "articleId": "DJNL$1a2b3c4d",
+    "newsArticleOptions": [
+     [
+      "XYZ",
+      "1"
+     ]
+    ],
+    "providerCode": "DJNL",
+    "reqId": "84"
+   },
+   "fields": [
+    "84",
+    "84",
+    "DJNL",
+    "DJNL$1a2b3c4d",
+    "XYZ=1;"
+   ],
+   "method": "reqNewsArticle",
+   "name": "reqNewsArticle/options-1"
+  },
+  {
+   "args": {
+    "articleId": "FLY$5e6f",
+    "newsArticleOptions": [
+     [
+      "p",
+      "1"
+     ],
+     [
+      "q",
+      "2"
+     ],
+     [
+      "r",
+      "three"
+     ]
+    ],
+    "providerCode": "FLY",
+    "reqId": "85"
+   },
+   "fields": [
+    "84",
+    "85",
+    "FLY",
+    "FLY$5e6f",
+    "p=1;q=2;r=three;"
+   ],
+   "method": "reqNewsArticle",
+   "name": "reqNewsArticle/options-n"
+  },
+  {
+   "args": {
+    "conId": "0",
+    "endDateTime": "",
+    "historicalNewsOptions": [],
+    "providerCodes": "",
+    "reqId": "0",
+    "startDateTime": "",
+    "totalResults": "0"
+   },
+   "fields": [
+    "86",
+    "0",
+    "0",
+    "",
+    "",
+    "",
+    "0",
+    ""
+   ],
+   "method": "reqHistoricalNews",
+   "name": "reqHistoricalNews/default"
+  },
+  {
+   "args": {
+    "conId": "265598",
+    "endDateTime": "",
+    "historicalNewsOptions": [],
+    "providerCodes": "BRFG",
+    "reqId": "86",
+    "startDateTime": "",
+    "totalResults": "5"
+   },
+   "fields": [
+    "86",
+    "86",
+    "265598",
+    "BRFG",
+    "",
+    "",
+    "5",
+    ""
+   ],
+   "method": "reqHistoricalNews",
+   "name": "reqHistoricalNews/one-provider"
+  },
+  {
+   "args": {
+    "conId": "265598",
+    "endDateTime": "",
+    "historicalNewsOptions": [],
+    "providerCodes": "BRFG+DJNL",
+    "reqId": "87",
+    "startDateTime": "20261111 08:15:45 UTC",
+    "totalResults": "6"
+   },
+   "fields": [
+    "86",
+    "87",
+    "265598",
+    "BRFG+DJNL",
+    "20261111 08:15:45 UTC",
+    "",
+    "6",
+    ""
+   ],
+   "method": "reqHistoricalNews",
+   "name": "reqHistoricalNews/start-only"
+  },
+  {
+   "args": {
+    "conId": "265598",
+    "endDateTime": "20261113 15:30:00 UTC",
+    "historicalNewsOptions": [],
+    "providerCodes": "BRFG+DJNL",
+    "reqId": "88",
+    "startDateTime": "",
+    "totalResults": "7"
+   },
+   "fields": [
+    "86",
+    "88",
+    "265598",
+    "BRFG+DJNL",
+    "",
+    "20261113 15:30:00 UTC",
+    "7",
+    ""
+   ],
+   "method": "reqHistoricalNews",
+   "name": "reqHistoricalNews/end-only"
+  },
+  {
+   "args": {
+    "conId": "272093",
+    "endDateTime": "",
+    "historicalNewsOptions": [
+     [
+      "XYZ",
+      "1"
+     ]
+    ],
+    "providerCodes": "FLY",
+    "reqId": "89",
+    "startDateTime": "",
+    "totalResults": "8"
+   },
+   "fields": [
+    "86",
+    "89",
+    "272093",
+    "FLY",
+    "",
+    "",
+    "8",
+    "XYZ=1;"
+   ],
+   "method": "reqHistoricalNews",
+   "name": "reqHistoricalNews/options-1"
+  },
+  {
+   "args": {
+    "conId": "756733",
+    "endDateTime": "20261113 15:30:00 UTC",
+    "historicalNewsOptions": [
+     [
+      "p",
+      "1"
+     ],
+     [
+      "q",
+      "2"
+     ],
+     [
+      "r",
+      "three"
+     ]
+    ],
+    "providerCodes": "BRFG+DJNL+FLY",
+    "reqId": "90",
+    "startDateTime": "20261111 08:15:45 UTC",
+    "totalResults": "10"
+   },
+   "fields": [
+    "86",
+    "90",
+    "756733",
+    "BRFG+DJNL+FLY",
+    "20261111 08:15:45 UTC",
+    "20261113 15:30:00 UTC",
+    "10",
+    "p=1;q=2;r=three;"
+   ],
+   "method": "reqHistoricalNews",
+   "name": "reqHistoricalNews/set"
+  },
+  {
+   "args": {
+    "contract": {
+     "_type": "Contract",
+     "comboLegs": [],
+     "comboLegsDescrip": "",
+     "conId": "0",
+     "currency": "",
+     "deltaNeutralContract": null,
+     "description": "",
+     "exchange": "",
+     "includeExpired": "false",
+     "issuerId": "",
+     "lastTradeDateOrContractMonth": "",
+     "localSymbol": "",
+     "multiplier": "",
+     "primaryExchange": "",
+     "right": "",
+     "secId": "",
+     "secIdType": "",
+     "secType": "",
+     "strike": "0.0",
+     "symbol": "",
+     "tradingClass": ""
+    },
+    "fundamentalDataOptions": [],
+    "reportType": "",
+    "reqId": "0"
+   },
+   "fields": [
+    "52",
+    "2",
+    "0",
+    "0",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "0",
+    ""
+   ],
+   "method": "reqFundamentalData",
+   "name": "reqFundamentalData/default"
+  },
+  {
+   "args": {
+    "contract": {
+     "_type": "Stock",
+     "comboLegs": [],
+     "comboLegsDescrip": "",
+     "conId": "265598",
+     "currency": "USD",
+     "deltaNeutralContract": null,
+     "description": "",
+     "exchange": "SMART",
+     "includeExpired": "false",
+     "issuerId": "",
+     "lastTradeDateOrContractMonth": "",
+     "localSymbol": "AAPL",
+     "multiplier": "",
+     "primaryExchange": "NASDAQ",
+     "right": "",
+     "secId": "",
+     "secIdType": "",
+     "secType": "STK",
+     "strike": "0.0",
+     "symbol": "AAPL",
+     "tradingClass": "NMS"
+    },
+    "fundamentalDataOptions": [],
+    "reportType": "ReportSnapshot",
+    "reqId": "91"
+   },
+   "fields": [
+    "52",
+    "2",
+    "91",
+    "265598",
+    "AAPL",
+    "STK",
+    "SMART",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "ReportSnapshot",
+    "0",
+    ""
+   ],
+   "method": "reqFundamentalData",
+   "name": "reqFundamentalData/ReportSnapshot"
+  },
+  {
+   "args": {
+    "contract": {
+     "_type": "Stock",
+     "comboLegs": [],
+     "comboLegsDescrip": "",
+     "conId": "265598",
+     "currency": "USD",
+     "deltaNeutralContract": null,
+     "description": "",
+     "exchange": "SMART",
+     "includeExpired": "false",
+     "issuerId": "",
+     "lastTradeDateOrContractMonth": "",
+     "localSymbol": "AAPL",
+     "multiplier": "",
+     "primaryExchange": "NASDAQ",
+     "right": "",
+     "secId": "",
+     "secIdType": "",
+     "secType": "STK",
+     "strike": "0.0",
+     "symbol": "AAPL",
+     "tradingClass": "NMS"
+    },
+    "fundamentalDataOptions": [],
+    "reportType": "ReportsFinSummary",
+    "reqId": "92"
+   },
+   "fields": [
+    "52",
+    "2",
+    "92",
+    "265598",
+    "AAPL",
+    "STK",
+    "SMART",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "ReportsFinSummary",
+    "0",
+    ""
+   ],
+   "method": "reqFundamentalData",
+   "name": "reqFundamentalData/ReportsFinSummary"
+  },
+  {
+   "args": {
+    "contract": {
+     "_type": "Stock",
+     "comboLegs": [],
+     "comboLegsDescrip": "",
+     "conId": "265598",
+     "currency": "USD",
+     "deltaNeutralContract": null,
+     "description": "",
+     "exchange": "SMART",
+     "includeExpired": "false",
+     "issuerId": "",
+     "lastTradeDateOrContractMonth": "",
+     "localSymbol": "AAPL",
+     "multiplier": "",
+     "primaryExchange": "NASDAQ",
+     "right": "",
+     "secId": "",
+     "secIdType": "",
+     "secType": "STK",
+     "strike": "0.0",
+     "symbol": "AAPL",
+     "tradingClass": "NMS"
+    },
+    "fundamentalDataOptions": [],
+    "reportType": "ReportsOwnership",
+    "reqId": "93"
+   },
+   "fields": [
+    "52",
+    "2",
+    "93",
+    "265598",
+    "AAPL",
+    "STK",
+    "SMART",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "ReportsOwnership",
+    "0",
+    ""
+   ],
+   "method": "reqFundamentalData",
+   "name": "reqFundamentalData/ReportsOwnership"
+  },
+  {
+   "args": {
+    "contract": {
+     "_type": "Stock",
+     "comboLegs": [],
+     "comboLegsDescrip": "",
+     "conId": "265598",
+     "currency": "USD",
+     "deltaNeutralContract": null,
+     "description": "",
+     "exchange": "SMART",
+     "includeExpired": "false",
+     "issuerId": "",
+     "lastTradeDateOrContractMonth": "",
+     "localSymbol": "AAPL",
+     "multiplier": "",
+     "primaryExchange": "NASDAQ",
+     "right": "",
+     "secId": "",
+     "secIdType": "",
+     "secType": "STK",
+     "strike": "0.0",
+     "symbol": "AAPL",
+     "tradingClass": "NMS"
+    },
+    "fundamentalDataOptions": [],
+    "reportType": "ReportsFinStatements",
+    "reqId": "94"
+   },
+   "fields": [
+    "52",
+    "2",
+    "94",
+    "265598",
+    "AAPL",
+    "STK",
+    "SMART",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "ReportsFinStatements",
+    "0",
+    ""
+   ],
+   "method": "reqFundamentalData",
+   "name": "reqFundamentalData/ReportsFinStatements"
+  },
+  {
+   "args": {
+    "contract": {
+     "_type": "Stock",
+     "comboLegs": [],
+     "comboLegsDescrip": "",
+     "conId": "265598",
+     "currency": "USD",
+     "deltaNeutralContract": null,
+     "description": "",
+     "exchange": "SMART",
+     "includeExpired": "false",
+     "issuerId": "",
+     "lastTradeDateOrContractMonth": "",
+     "localSymbol": "AAPL",
+     "multiplier": "",
+     "primaryExchange": "NASDAQ",
+     "right": "",
+     "secId": "",
+     "secIdType": "",
+     "secType": "STK",
+     "strike": "0.0",
+     "symbol": "AAPL",
+     "tradingClass": "NMS"
+    },
+    "fundamentalDataOptions": [],
+    "reportType": "RESC",
+    "reqId": "95"
+   },
+   "fields": [
+    "52",
+    "2",
+    "95",
+    "265598",
+    "AAPL",
+    "STK",
+    "SMART",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "RESC",
+    "0",
+    ""
+   ],
+   "method": "reqFundamentalData",
+   "name": "reqFundamentalData/RESC"
+  },
+  {
+   "args": {
+    "contract": {
+     "_type": "Stock",
+     "comboLegs": [],
+     "comboLegsDescrip": "",
+     "conId": "265598",
+     "currency": "USD",
+     "deltaNeutralContract": null,
+     "description": "",
+     "exchange": "SMART",
+     "includeExpired": "false",
+     "issuerId": "",
+     "lastTradeDateOrContractMonth": "",
+     "localSymbol": "AAPL",
+     "multiplier": "",
+     "primaryExchange": "NASDAQ",
+     "right": "",
+     "secId": "",
+     "secIdType": "",
+     "secType": "STK",
+     "strike": "0.0",
+     "symbol": "AAPL",
+     "tradingClass": "NMS"
+    },
+    "fundamentalDataOptions": [],
+    "reportType": "CalendarReport",
+    "reqId": "96"
+   },
+   "fields": [
+    "52",
+    "2",
+    "96",
+    "265598",
+    "AAPL",
+    "STK",
+    "SMART",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "CalendarReport",
+    "0",
+    ""
+   ],
+   "method": "reqFundamentalData",
+   "name": "reqFundamentalData/CalendarReport"
+  },
+  {
+   "args": {
+    "contract": {
+     "_type": "Stock",
+     "comboLegs": [],
+     "comboLegsDescrip": "",
+     "conId": "265598",
+     "currency": "USD",
+     "deltaNeutralContract": null,
+     "description": "",
+     "exchange": "SMART",
+     "includeExpired": "false",
+     "issuerId": "",
+     "lastTradeDateOrContractMonth": "",
+     "localSymbol": "AAPL",
+     "multiplier": "",
+     "primaryExchange": "NASDAQ",
+     "right": "",
+     "secId": "",
+     "secIdType": "",
+     "secType": "STK",
+     "strike": "0.0",
+     "symbol": "AAPL",
+     "tradingClass": "NMS"
+    },
+    "fundamentalDataOptions": [
+     [
+      "XYZ",
+      "1"
+     ]
+    ],
+    "reportType": "ReportSnapshot",
+    "reqId": "97"
+   },
+   "fields": [
+    "52",
+    "2",
+    "97",
+    "265598",
+    "AAPL",
+    "STK",
+    "SMART",
+    "NASDAQ",
+    "USD",
+    "AAPL",
+    "ReportSnapshot",
+    "1",
+    "XYZ=1;"
+   ],
+   "method": "reqFundamentalData",
+   "name": "reqFundamentalData/options-1"
+  },
+  {
+   "args": {
+    "contract": {
+     "_type": "Contract",
+     "comboLegs": [
+      {
+       "_type": "ComboLeg",
+       "action": "SELL",
+       "conId": "8314",
+       "designatedLocation": "LOC",
+       "exchange": "CBOE",
+       "exemptCode": "3",
+       "openClose": "1",
+       "ratio": "2",
+       "shortSaleSlot": "2"
+      }
+     ],
+     "comboLegsDescrip": "leg text",
+     "conId": "681734412",
+     "currency": "USD",
+     "deltaNeutralContract": {
+      "_type": "DeltaNeutralContract",
+      "conId": "265598",
+      "delta": "0.25",
+      "price": "181.75"
+     },
+     "description": "",
+     "exchange": "SMART",
+     "includeExpired": "true",
+     "issuerId": "e1234567",
+     "lastTradeDateOrContractMonth": "20261218",
+     "localSymbol": "AAPL  261218C00182500",
+     "multiplier": "100",
+     "primaryExchange": "CBOE",
+     "right": "C",
+     "secId": "US0378331005",
+     "secIdType": "ISIN",
+     "secType": "OPT",
+     "strike": "182.5",
+     "symbol": "AAPL",
+     "tradingClass": "AAPLW"
+    },
+    "fundamentalDataOptions": [
+     [
+      "p",
+      "1"
+     ],
+     [
+      "q",
+      "2"
+     ],
+     [
+      "r",
+      "three"
+     ]
+    ],
+    "reportType": "RESC",
+    "reqId": "98"
+   },
+   "fields": [
+    "52",
+    "2",
+    "98",
+    "681734412",
+    "AAPL",
+    "OPT",
+    "SMART",
+    "CBOE",
+    "USD",
+    "AAPL  261218C00182500",
+    "RESC",
+    "3",
+    "p=1;q=2;r=three;"
+   ],
+   "method": "reqFundamentalData",
+   "name": "reqFundamentalData/set"
+  },
+  {
+   "args": {
+    "reqId": "0"
+   },
+   "fields": [
+    "53",
+    "1",
+    "0"
+   ],
+   "method": "cancelFundamentalData",
+   "name": "cancelFundamentalData/default"
+  },
+  {
+   "args": {
+    "reqId": "99"
+   },
+   "fields": [
+    "53",
+    "1",
+    "99"
+   ],
+   "method": "cancelFundamentalData",
+   "name": "cancelFundamentalData/set"
+  },
+  {
+   "args": {
+    "reqId": "0"
+   },
+   "fields": [
+    "100",
+    "0"
+   ],
+   "method": "reqWshMetaData",
+   "name": "reqWshMetaData/default"
+  },
+  {
+   "args": {
+    "reqId": "100"
+   },
+   "fields": [
+    "100",
+    "100"
+   ],
+   "method": "reqWshMetaData",
+   "name": "reqWshMetaData/set"
+  },
+  {
+   "args": {
+    "reqId": "0"
+   },
+   "fields": [
+    "101",
+    "0"
+   ],
+   "method": "cancelWshMetaData",
+   "name": "cancelWshMetaData/default"
+  },
+  {
+   "args": {
+    "reqId": "101"
+   },
+   "fields": [
+    "101",
+    "101"
+   ],
+   "method": "cancelWshMetaData",
+   "name": "cancelWshMetaData/set"
+  },
+  {
+   "args": {
+    "data": {
+     "_type": "WshEventData",
+     "conId": "2147483647",
+     "endDate": "",
+     "fillCompetitors": "false",
+     "fillPortfolio": "false",
+     "fillWatchlist": "false",
+     "filter": "",
+     "startDate": "",
+     "totalLimit": "2147483647"
+    },
+    "reqId": "0"
+   },
+   "fields": [
+    "102",
+    "0",
+    "2147483647",
+    "",
+    "0",
+    "0",
+    "0",
+    "",
+    "",
+    "2147483647"
+   ],
+   "method": "reqWshEventData",
+   "name": "reqWshEventData/default"
+  },
+  {
+   "args": {
+    "data": {
+     "_type": "WshEventData",
+     "conId": "8314",
+     "endDate": "",
+     "fillCompetitors": "false",
+     "fillPortfolio": "false",
+     "fillWatchlist": "false",
+     "filter": "",
+     "startDate": "",
+     "totalLimit": "2147483647"
+    },
+    "reqId": "102"
+   },
+   "fields": [
+    "102",
+    "102",
+    "8314",
+    "",
+    "0",
+    "0",
+    "0",
+    "",
+    "",
+    "2147483647"
+   ],
+   "method": "reqWshEventData",
+   "name": "reqWshEventData/con-id"
+  },
+  {
+   "args": {
+    "data": {
+     "_type": "WshEventData",
+     "conId": "2147483647",
+     "endDate": "",
+     "fillCompetitors": "false",
+     "fillPortfolio": "false",
+     "fillWatchlist": "false",
+     "filter": "{\"watchlist\":[\"8314\"],\"country\":\"All\"}",
+     "startDate": "",
+     "totalLimit": "2147483647"
+    },
+    "reqId": "103"
+   },
+   "fields": [
+    "102",
+    "103",
+    "2147483647",
+    "{\"watchlist\":[\"8314\"],\"country\":\"All\"}",
+    "0",
+    "0",
+    "0",
+    "",
+    "",
+    "2147483647"
+   ],
+   "method": "reqWshEventData",
+   "name": "reqWshEventData/filter"
+  },
+  {
+   "args": {
+    "data": {
+     "_type": "WshEventData",
+     "conId": "2147483647",
+     "endDate": "",
+     "fillCompetitors": "false",
+     "fillPortfolio": "false",
+     "fillWatchlist": "true",
+     "filter": "",
+     "startDate": "",
+     "totalLimit": "2147483647"
+    },
+    "reqId": "104"
+   },
+   "fields": [
+    "102",
+    "104",
+    "2147483647",
+    "",
+    "1",
+    "0",
+    "0",
+    "",
+    "",
+    "2147483647"
+   ],
+   "method": "reqWshEventData",
+   "name": "reqWshEventData/fill-watchlist"
+  },
+  {
+   "args": {
+    "data": {
+     "_type": "WshEventData",
+     "conId": "2147483647",
+     "endDate": "",
+     "fillCompetitors": "false",
+     "fillPortfolio": "true",
+     "fillWatchlist": "false",
+     "filter": "",
+     "startDate": "",
+     "totalLimit": "2147483647"
+    },
+    "reqId": "105"
+   },
+   "fields": [
+    "102",
+    "105",
+    "2147483647",
+    "",
+    "0",
+    "1",
+    "0",
+    "",
+    "",
+    "2147483647"
+   ],
+   "method": "reqWshEventData",
+   "name": "reqWshEventData/fill-portfolio"
+  },
+  {
+   "args": {
+    "data": {
+     "_type": "WshEventData",
+     "conId": "2147483647",
+     "endDate": "",
+     "fillCompetitors": "true",
+     "fillPortfolio": "false",
+     "fillWatchlist": "false",
+     "filter": "",
+     "startDate": "",
+     "totalLimit": "2147483647"
+    },
+    "reqId": "106"
+   },
+   "fields": [
+    "102",
+    "106",
+    "2147483647",
+    "",
+    "0",
+    "0",
+    "1",
+    "",
+    "",
+    "2147483647"
+   ],
+   "method": "reqWshEventData",
+   "name": "reqWshEventData/fill-competitors"
+  },
+  {
+   "args": {
+    "data": {
+     "_type": "WshEventData",
+     "conId": "2147483647",
+     "endDate": "20261130",
+     "fillCompetitors": "false",
+     "fillPortfolio": "false",
+     "fillWatchlist": "false",
+     "filter": "",
+     "startDate": "20261101",
+     "totalLimit": "2147483647"
+    },
+    "reqId": "107"
+   },
+   "fields": [
+    "102",
+    "107",
+    "2147483647",
+    "",
+    "0",
+    "0",
+    "0",
+    "20261101",
+    "20261130",
+    "2147483647"
+   ],
+   "method": "reqWshEventData",
+   "name": "reqWshEventData/dates"
+  },
+  {
+   "args": {
+    "data": {
+     "_type": "WshEventData",
+     "conId": "2147483647",
+     "endDate": "",
+     "fillCompetitors": "false",
+     "fillPortfolio": "false",
+     "fillWatchlist": "false",
+     "filter": "",
+     "startDate": "",
+     "totalLimit": "25"
+    },
+    "reqId": "108"
+   },
+   "fields": [
+    "102",
+    "108",
+    "2147483647",
+    "",
+    "0",
+    "0",
+    "0",
+    "",
+    "",
+    "25"
+   ],
+   "method": "reqWshEventData",
+   "name": "reqWshEventData/total-limit"
+  },
+  {
+   "args": {
+    "data": {
+     "_type": "WshEventData",
+     "conId": "265598",
+     "endDate": "20261130",
+     "fillCompetitors": "true",
+     "fillPortfolio": "false",
+     "fillWatchlist": "true",
+     "filter": "{\"wshe_ed\":\"true\"}",
+     "startDate": "20261101",
+     "totalLimit": "50"
+    },
+    "reqId": "109"
+   },
+   "fields": [
+    "102",
+    "109",
+    "265598",
+    "{\"wshe_ed\":\"true\"}",
+    "1",
+    "0",
+    "1",
+    "20261101",
+    "20261130",
+    "50"
+   ],
+   "method": "reqWshEventData",
+   "name": "reqWshEventData/set"
+  },
+  {
+   "args": {
+    "reqId": "0"
+   },
+   "fields": [
+    "103",
+    "0"
+   ],
+   "method": "cancelWshEventData",
+   "name": "cancelWshEventData/default"
+  },
+  {
+   "args": {
+    "reqId": "110"
+   },
+   "fields": [
+    "103",
+    "110"
+   ],
+   "method": "cancelWshEventData",
+   "name": "cancelWshEventData/set"
+  },
+  {
+   "args": {
+    "faData": "1"
+   },
+   "fields": [
+    "18",
+    "1",
+    "1"
+   ],
+   "method": "requestFA",
+   "name": "requestFA/groups"
+  },
+  {
+   "args": {
+    "faData": "2"
+   },
+   "fields": [
+    "18",
+    "1",
+    "2"
+   ],
+   "method": "requestFA",
+   "name": "requestFA/profiles"
+  },
+  {
+   "args": {
+    "faData": "3"
+   },
+   "fields": [
+    "18",
+    "1",
+    "3"
+   ],
+   "method": "requestFA",
+   "name": "requestFA/aliases"
+  },
+  {
+   "args": {
+    "cxml": "",
+    "faData": "1",
+    "reqId": "0"
+   },
+   "fields": [
+    "19",
+    "1",
+    "1",
+    "",
+    "0"
+   ],
+   "method": "replaceFA",
+   "name": "replaceFA/default"
+  },
+  {
+   "args": {
+    "cxml": "<ListOfProfiles/>",
+    "faData": "2",
+    "reqId": "111"
+   },
+   "fields": [
+    "19",
+    "1",
+    "2",
+    "<ListOfProfiles/>",
+    "111"
+   ],
+   "method": "replaceFA",
+   "name": "replaceFA/profiles"
+  },
+  {
+   "args": {
+    "cxml": "<?xml version=\"1.0\"?>\n<ListOfGroups>\r\n\t<Group name=\"G&amp;1\"><method>EqualQuantity</method></Group>\n</ListOfGroups>",
+    "faData": "3",
+    "reqId": "112"
+   },
+   "fields": [
+    "19",
+    "1",
+    "3",
+    "<?xml version=\"1.0\"?>\n<ListOfGroups>\r\n\t<Group name=\"G&amp;1\"><method>EqualQuantity</method></Group>\n</ListOfGroups>",
+    "112"
+   ],
+   "method": "replaceFA",
+   "name": "replaceFA/set"
+  },
+  {
+   "args": {
+    "reqId": "0"
+   },
+   "fields": [
+    "67",
+    "1",
+    "0"
+   ],
+   "method": "queryDisplayGroups",
+   "name": "queryDisplayGroups/default"
+  },
+  {
+   "args": {
+    "reqId": "113"
+   },
+   "fields": [
+    "67",
+    "1",
+    "113"
+   ],
+   "method": "queryDisplayGroups",
+   "name": "queryDisplayGroups/set"
+  },
+  {
+   "args": {
+    "groupId": "0",
+    "reqId": "0"
+   },
+   "fields": [
+    "68",
+    "1",
+    "0",
+    "0"
+   ],
+   "method": "subscribeToGroupEvents",
+   "name": "subscribeToGroupEvents/default"
+  },
+  {
+   "args": {
+    "groupId": "7",
+    "reqId": "114"
+   },
+   "fields": [
+    "68",
+    "1",
+    "114",
+    "7"
+   ],
+   "method": "subscribeToGroupEvents",
+   "name": "subscribeToGroupEvents/set"
+  },
+  {
+   "args": {
+    "contractInfo": "",
+    "reqId": "0"
+   },
+   "fields": [
+    "69",
+    "1",
+    "0",
+    ""
+   ],
+   "method": "updateDisplayGroup",
+   "name": "updateDisplayGroup/default"
+  },
+  {
+   "args": {
+    "contractInfo": "265598@SMART",
+    "reqId": "115"
+   },
+   "fields": [
+    "69",
+    "1",
+    "115",
+    "265598@SMART"
+   ],
+   "method": "updateDisplayGroup",
+   "name": "updateDisplayGroup/set"
+  },
+  {
+   "args": {
+    "reqId": "0"
+   },
+   "fields": [
+    "70",
+    "1",
+    "0"
+   ],
+   "method": "unsubscribeFromGroupEvents",
+   "name": "unsubscribeFromGroupEvents/default"
+  },
+  {
+   "args": {
+    "reqId": "116"
+   },
+   "fields": [
+    "70",
+    "1",
+    "116"
+   ],
+   "method": "unsubscribeFromGroupEvents",
+   "name": "unsubscribeFromGroupEvents/set"
+  },
+  {
+   "args": {
+    "apiName": "",
+    "apiVersion": ""
+   },
+   "fields": [
+    "65",
+    "1",
+    "",
+    ""
+   ],
+   "method": "verifyRequest",
+   "name": "verifyRequest/default"
+  },
+  {
+   "args": {
+    "apiName": "MyApi",
+    "apiVersion": "9.72"
+   },
+   "fields": [
+    "65",
+    "1",
+    "MyApi",
+    "9.72"
+   ],
+   "method": "verifyRequest",
+   "name": "verifyRequest/set"
+  },
+  {
+   "args": {
+    "apiData": ""
+   },
+   "fields": [
+    "66",
+    "1",
+    ""
+   ],
+   "method": "verifyMessage",
+   "name": "verifyMessage/default"
+  },
+  {
+   "args": {
+    "apiData": "challenge-1"
+   },
+   "fields": [
+    "66",
+    "1",
+    "challenge-1"
+   ],
+   "method": "verifyMessage",
+   "name": "verifyMessage/set"
+  },
+  {
+   "args": {
+    "apiName": "",
+    "apiVersion": "",
+    "opaqueIsvKey": ""
+   },
+   "fields": [
+    "72",
+    "1",
+    "",
+    "",
+    ""
+   ],
+   "method": "verifyAndAuthRequest",
+   "name": "verifyAndAuthRequest/default"
+  },
+  {
+   "args": {
+    "apiName": "MyApi",
+    "apiVersion": "9.72",
+    "opaqueIsvKey": "isv-key-1"
+   },
+   "fields": [
+    "72",
+    "1",
+    "MyApi",
+    "9.72",
+    "isv-key-1"
+   ],
+   "method": "verifyAndAuthRequest",
+   "name": "verifyAndAuthRequest/set"
+  },
+  {
+   "args": {
+    "apiData": "",
+    "xyzResponse": ""
+   },
+   "fields": [
+    "73",
+    "1",
+    "",
+    ""
+   ],
+   "method": "verifyAndAuthMessage",
+   "name": "verifyAndAuthMessage/default"
+  },
+  {
+   "args": {
+    "apiData": "challenge-2",
+    "xyzResponse": "xyz-response"
+   },
+   "fields": [
+    "73",
+    "1",
+    "challenge-2",
+    "xyz-response"
+   ],
+   "method": "verifyAndAuthMessage",
+   "name": "verifyAndAuthMessage/set"
   }
  ]
 }

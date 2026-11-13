@@ -44,8 +44,8 @@ realized P&L. The stage-4 run of 2026-11-11 (paper account, no market-data subsc
   (docs/DECISIONS.md, the `marketDepth` 2152 row). The recorded grant is `Top: IBEOS; OVERNIGHT`, venues closed in
   regular hours, so both cases are unseen live: a 2152 that grants `Depth:` on some exchanges keeps the book open;
   one that grants `Top:` only on regular venues ends it.
-- **Live gateway; subscriptions for fundamentals, WSH and news; TWS for display groups.** Stages 10–11 are checked
-  only against hand-built frames and the fake gateway. Check on the first live run: WSH meta request handling (the
+- **Live gateway; subscriptions for fundamentals, WSH and news; TWS for display groups.** Stages 10–11 are cross-checked
+  against ib_async 2.1.0 and run on the fake gateway, unseen live. Check on the first live run: WSH meta request handling (the
   meta request stays open until the next `wshMetaData()`, and IB may refuse event data otherwise), an IB error on
   `updateDisplayGroup` ending the stream with `.ib` and no 70, bond details (18), and the news date format
   (`historicalNews` sends `yyyyMMdd HH:mm:ss UTC`).

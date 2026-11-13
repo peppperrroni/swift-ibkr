@@ -16,7 +16,7 @@ from ib_async import util
 from ib_async.contract import Bag, ComboLeg, Contract, DeltaNeutralContract, Stock, TagValue
 from ib_async.decoder import Decoder
 from ib_async.ib import IB
-from ib_async.objects import ExecutionFilter, SoftDollarTier
+from ib_async.objects import ExecutionFilter, ScannerSubscription, SoftDollarTier, WshEventData
 from ib_async.order import (
     ExecutionCondition, LimitOrder, MarginCondition, MarketOrder, Order, OrderComboLeg, PercentChangeCondition,
     PriceCondition, StopLimitOrder, StopOrder, TimeCondition, VolumeCondition,
@@ -426,6 +426,173 @@ MARKET_DATA_CASES = [
     ("cancelTickByTickData/set", "cancelTickByTickData", {"reqId": 89}),
 ]
 
+# Reference, scanner, news, research, FA, display groups and verify (client.py:743-757, 784-788, 867-908, 925-978,
+# 1000-1110, 1160-1180). A float swift-ibkr writes as Decimal is non-integral where set (Disagreements 4); a required
+# float at its zero is the int 0, which `Client.send` writes as "0" like swift-ibkr.
+_T2 = datetime.datetime(2026, 11, 11, 8, 15, 45, tzinfo=datetime.timezone.utc)  # ib.py:2570-2583 formats news dates
+_OPT3 = [TagValue("p", "1"), TagValue("q", "2"), TagValue("r", "three")]
+_SCAN_SET = ScannerSubscription(
+    numberOfRows=25, instrument="STK", locationCode="STK.US.MAJOR", scanCode="TOP_PERC_GAIN", abovePrice=12.5,
+    belowPrice=99.75, aboveVolume=1000, marketCapAbove=1500.5, marketCapBelow=9000.25, moodyRatingAbove="Baa1",
+    moodyRatingBelow="Aa2", spRatingAbove="BBB+", spRatingBelow="AA-", maturityDateAbove="20270101",
+    maturityDateBelow="20301231", couponRateAbove=1.25, couponRateBelow=7.5, excludeConvertible=True,
+    averageOptionVolumeAbove=250, scannerSettingPairs="key1=1;key2=2", stockTypeFilter="CORP")
+
+
+def _scan(reqId, sub, options=(), filters=()):
+    return {"reqId": reqId, "subscription": sub, "scannerSubscriptionOptions": list(options),
+            "scannerSubscriptionFilterOptions": list(filters)}
+
+
+def _news(reqId, conId=0, providers="", start="", end="", total=0, options=()):
+    return {"reqId": reqId, "conId": conId, "providerCodes": providers, "startDateTime": start,
+            "endDateTime": end, "totalResults": total, "historicalNewsOptions": list(options)}
+
+
+def _fund(reqId, contract=AAPL, reportType="ReportSnapshot", options=()):
+    return {"reqId": reqId, "contract": contract, "reportType": reportType, "fundamentalDataOptions": list(options)}
+
+
+_FA_XML = ('<?xml version="1.0"?>\n<ListOfGroups>\r\n\t<Group name="G&amp;1"><method>EqualQuantity</method></Group>\n'
+           '</ListOfGroups>')
+
+REFERENCE_CASES = [
+    ("reqContractDetails/default", "reqContractDetails", {"reqId": 0, "contract": _NONE}),
+    ("reqContractDetails/typical", "reqContractDetails", {"reqId": 60, "contract": AAPL}),
+    ("reqContractDetails/include-expired", "reqContractDetails",
+     {"reqId": 61, "contract": Contract(symbol="ES", secType="FUT", exchange="CME", currency="USD",
+                                        includeExpired=True)}),
+    ("reqContractDetails/sec-id", "reqContractDetails",
+     {"reqId": 62, "contract": Contract(secType="STK", exchange="SMART", currency="USD", secIdType="ISIN",
+                                        secId="US0378331005")}),
+    ("reqContractDetails/issuer-id", "reqContractDetails",
+     {"reqId": 63, "contract": Contract(secType="BOND", exchange="SMART", currency="USD", issuerId="e1234567")}),
+    ("reqContractDetails/set", "reqContractDetails", {"reqId": 64, "contract": OPTION}),
+    ("reqMatchingSymbols/default", "reqMatchingSymbols", {"reqId": 0, "pattern": ""}),
+    ("reqMatchingSymbols/set", "reqMatchingSymbols", {"reqId": 65, "pattern": "AAP"}),
+    ("reqSecDefOptParams/default", "reqSecDefOptParams",
+     {"reqId": 0, "underlyingSymbol": "", "futFopExchange": "", "underlyingSecType": "", "underlyingConId": 0}),
+    ("reqSecDefOptParams/stock", "reqSecDefOptParams",
+     {"reqId": 66, "underlyingSymbol": "AAPL", "futFopExchange": "", "underlyingSecType": "STK",
+      "underlyingConId": 265598}),
+    ("reqSecDefOptParams/set", "reqSecDefOptParams",
+     {"reqId": 67, "underlyingSymbol": "ES", "futFopExchange": "CME", "underlyingSecType": "FUT",
+      "underlyingConId": 11004968}),
+    ("calculateImpliedVolatility/default", "calculateImpliedVolatility",
+     {"reqId": 0, "contract": _NONE, "optionPrice": 0, "underPrice": 0, "implVolOptions": []}),
+    ("calculateImpliedVolatility/options-1", "calculateImpliedVolatility",
+     {"reqId": 68, "contract": OPTION, "optionPrice": 3.25, "underPrice": 182.75, "implVolOptions": _OPT1}),
+    ("calculateImpliedVolatility/options-n", "calculateImpliedVolatility",
+     {"reqId": 69, "contract": OPTION, "optionPrice": 4.5, "underPrice": 181.25, "implVolOptions": _OPT3}),
+    ("calculateOptionPrice/default", "calculateOptionPrice",
+     {"reqId": 0, "contract": _NONE, "volatility": 0, "underPrice": 0, "optPrcOptions": []}),
+    ("calculateOptionPrice/options-1", "calculateOptionPrice",
+     {"reqId": 70, "contract": OPTION, "volatility": 0.35, "underPrice": 182.75, "optPrcOptions": _OPT1}),
+    ("calculateOptionPrice/options-n", "calculateOptionPrice",
+     {"reqId": 71, "contract": OPTION, "volatility": 0.425, "underPrice": 181.25, "optPrcOptions": _OPT3}),
+    ("cancelCalculateImpliedVolatility/default", "cancelCalculateImpliedVolatility", {"reqId": 0}),
+    ("cancelCalculateImpliedVolatility/set", "cancelCalculateImpliedVolatility", {"reqId": 72}),
+    ("cancelCalculateOptionPrice/default", "cancelCalculateOptionPrice", {"reqId": 0}),
+    ("cancelCalculateOptionPrice/set", "cancelCalculateOptionPrice", {"reqId": 73}),
+    ("reqMarketRule/default", "reqMarketRule", {"marketRuleId": 0}),
+    ("reqMarketRule/set", "reqMarketRule", {"marketRuleId": 26}),
+    ("reqFamilyCodes/default", "reqFamilyCodes", {}),
+    ("reqSoftDollarTiers/default", "reqSoftDollarTiers", {"reqId": 0}),
+    ("reqSoftDollarTiers/set", "reqSoftDollarTiers", {"reqId": 74}),
+    # scanner: client.py:871-872 sends the filter options before the options
+    ("reqScannerSubscription/default", "reqScannerSubscription", _scan(0, ScannerSubscription())),
+    ("reqScannerSubscription/rows-only", "reqScannerSubscription", _scan(75, ScannerSubscription(numberOfRows=25))),
+    ("reqScannerSubscription/basics", "reqScannerSubscription",
+     _scan(76, ScannerSubscription(instrument="STK", locationCode="STK.US.MAJOR", scanCode="TOP_PERC_GAIN"))),
+    ("reqScannerSubscription/options-1", "reqScannerSubscription", _scan(77, _SCAN_SET, _OPT1, [])),
+    ("reqScannerSubscription/filter-1", "reqScannerSubscription", _scan(78, _SCAN_SET, [], [TagValue("f", "9")])),
+    ("reqScannerSubscription/options-n", "reqScannerSubscription", _scan(79, _SCAN_SET, _OPT2, [])),
+    ("reqScannerSubscription/filter-n", "reqScannerSubscription", _scan(80, _SCAN_SET, [], _OPT3)),
+    ("reqScannerSubscription/set", "reqScannerSubscription", _scan(81, _SCAN_SET, _OPT2, _OPT3)),
+    ("cancelScannerSubscription/default", "cancelScannerSubscription", {"reqId": 0}),
+    ("cancelScannerSubscription/set", "cancelScannerSubscription", {"reqId": 82}),
+    ("reqScannerParameters/default", "reqScannerParameters", {}),
+    # news
+    ("reqNewsProviders/default", "reqNewsProviders", {}),
+    ("reqNewsBulletins/default", "reqNewsBulletins", {"allMsgs": False}),
+    ("reqNewsBulletins/set", "reqNewsBulletins", {"allMsgs": True}),
+    ("cancelNewsBulletins/default", "cancelNewsBulletins", {}),
+    ("reqNewsArticle/default", "reqNewsArticle",
+     {"reqId": 0, "providerCode": "", "articleId": "", "newsArticleOptions": []}),
+    ("reqNewsArticle/typical", "reqNewsArticle",
+     {"reqId": 83, "providerCode": "BRFG", "articleId": "BRFG$04fb9da2", "newsArticleOptions": []}),
+    ("reqNewsArticle/options-1", "reqNewsArticle",
+     {"reqId": 84, "providerCode": "DJNL", "articleId": "DJNL$1a2b3c4d", "newsArticleOptions": _OPT1}),
+    ("reqNewsArticle/options-n", "reqNewsArticle",
+     {"reqId": 85, "providerCode": "FLY", "articleId": "FLY$5e6f", "newsArticleOptions": _OPT3}),
+    ("reqHistoricalNews/default", "reqHistoricalNews", _news(0)),
+    ("reqHistoricalNews/one-provider", "reqHistoricalNews", _news(86, 265598, "BRFG", total=5)),
+    ("reqHistoricalNews/start-only", "reqHistoricalNews",
+     _news(87, 265598, "BRFG+DJNL", ib_datetime(_T2), "", 6)),
+    ("reqHistoricalNews/end-only", "reqHistoricalNews",
+     _news(88, 265598, "BRFG+DJNL", "", ib_datetime(_T0), 7)),
+    ("reqHistoricalNews/options-1", "reqHistoricalNews", _news(89, 272093, "FLY", total=8, options=_OPT1)),
+    ("reqHistoricalNews/set", "reqHistoricalNews",
+     _news(90, 756733, "BRFG+DJNL+FLY", ib_datetime(_T2), ib_datetime(_T0), 10, _OPT3)),
+    # fundamentals (swift-ibkr refuses a BAG, so no case)
+    ("reqFundamentalData/default", "reqFundamentalData", _fund(0, _NONE, "")),
+    *[(f"reqFundamentalData/{name}", "reqFundamentalData", _fund(91 + i, AAPL, name))
+      for i, name in enumerate(["ReportSnapshot", "ReportsFinSummary", "ReportsOwnership", "ReportsFinStatements",
+                                "RESC", "CalendarReport"])],
+    ("reqFundamentalData/options-1", "reqFundamentalData", _fund(97, AAPL, "ReportSnapshot", _OPT1)),
+    ("reqFundamentalData/set", "reqFundamentalData", _fund(98, OPTION, "RESC", _OPT3)),
+    ("cancelFundamentalData/default", "cancelFundamentalData", {"reqId": 0}),
+    ("cancelFundamentalData/set", "cancelFundamentalData", {"reqId": 99}),
+    # Wall Street Horizon: makeEmpty=False (client.py:1177), so an unset conId/totalLimit is 2147483647
+    ("reqWshMetaData/default", "reqWshMetaData", {"reqId": 0}),
+    ("reqWshMetaData/set", "reqWshMetaData", {"reqId": 100}),
+    ("cancelWshMetaData/default", "cancelWshMetaData", {"reqId": 0}),
+    ("cancelWshMetaData/set", "cancelWshMetaData", {"reqId": 101}),
+    ("reqWshEventData/default", "reqWshEventData", {"reqId": 0, "data": WshEventData()}),
+    ("reqWshEventData/con-id", "reqWshEventData", {"reqId": 102, "data": WshEventData(conId=8314)}),
+    ("reqWshEventData/filter", "reqWshEventData",
+     {"reqId": 103, "data": WshEventData(filter='{"watchlist":["8314"],"country":"All"}')}),
+    ("reqWshEventData/fill-watchlist", "reqWshEventData", {"reqId": 104, "data": WshEventData(fillWatchlist=True)}),
+    ("reqWshEventData/fill-portfolio", "reqWshEventData", {"reqId": 105, "data": WshEventData(fillPortfolio=True)}),
+    ("reqWshEventData/fill-competitors", "reqWshEventData",
+     {"reqId": 106, "data": WshEventData(fillCompetitors=True)}),
+    ("reqWshEventData/dates", "reqWshEventData",
+     {"reqId": 107, "data": WshEventData(startDate="20261101", endDate="20261130")}),
+    ("reqWshEventData/total-limit", "reqWshEventData", {"reqId": 108, "data": WshEventData(totalLimit=25)}),
+    ("reqWshEventData/set", "reqWshEventData",
+     {"reqId": 109, "data": WshEventData(conId=265598, filter='{"wshe_ed":"true"}', fillWatchlist=True,
+                                         fillPortfolio=False, fillCompetitors=True, startDate="20261101",
+                                         endDate="20261130", totalLimit=50)}),
+    ("cancelWshEventData/default", "cancelWshEventData", {"reqId": 0}),
+    ("cancelWshEventData/set", "cancelWshEventData", {"reqId": 110}),
+    # FA
+    ("requestFA/groups", "requestFA", {"faData": 1}),
+    ("requestFA/profiles", "requestFA", {"faData": 2}),
+    ("requestFA/aliases", "requestFA", {"faData": 3}),
+    ("replaceFA/default", "replaceFA", {"reqId": 0, "faData": 1, "cxml": ""}),
+    ("replaceFA/profiles", "replaceFA", {"reqId": 111, "faData": 2, "cxml": "<ListOfProfiles/>"}),
+    ("replaceFA/set", "replaceFA", {"reqId": 112, "faData": 3, "cxml": _FA_XML}),
+    # display groups
+    ("queryDisplayGroups/default", "queryDisplayGroups", {"reqId": 0}),
+    ("queryDisplayGroups/set", "queryDisplayGroups", {"reqId": 113}),
+    ("subscribeToGroupEvents/default", "subscribeToGroupEvents", {"reqId": 0, "groupId": 0}),
+    ("subscribeToGroupEvents/set", "subscribeToGroupEvents", {"reqId": 114, "groupId": 7}),
+    ("updateDisplayGroup/default", "updateDisplayGroup", {"reqId": 0, "contractInfo": ""}),
+    ("updateDisplayGroup/set", "updateDisplayGroup", {"reqId": 115, "contractInfo": "265598@SMART"}),
+    ("unsubscribeFromGroupEvents/default", "unsubscribeFromGroupEvents", {"reqId": 0}),
+    ("unsubscribeFromGroupEvents/set", "unsubscribeFromGroupEvents", {"reqId": 116}),
+    # verify
+    ("verifyRequest/default", "verifyRequest", {"apiName": "", "apiVersion": ""}),
+    ("verifyRequest/set", "verifyRequest", {"apiName": "MyApi", "apiVersion": "9.72"}),
+    ("verifyMessage/default", "verifyMessage", {"apiData": ""}),
+    ("verifyMessage/set", "verifyMessage", {"apiData": "challenge-1"}),
+    ("verifyAndAuthRequest/default", "verifyAndAuthRequest", {"apiName": "", "apiVersion": "", "opaqueIsvKey": ""}),
+    ("verifyAndAuthRequest/set", "verifyAndAuthRequest",
+     {"apiName": "MyApi", "apiVersion": "9.72", "opaqueIsvKey": "isv-key-1"}),
+    ("verifyAndAuthMessage/default", "verifyAndAuthMessage", {"apiData": "", "xyzResponse": ""}),
+    ("verifyAndAuthMessage/set", "verifyAndAuthMessage", {"apiData": "challenge-2", "xyzResponse": "xyz-response"}),
+]
+
 CASES: list[tuple[str, str, dict]] = [
     # session
     ("startApi/default", "startApi", {}),  # Client's own clientId -1 and optCapab "" (client.py:114-115)
@@ -491,4 +658,5 @@ CASES: list[tuple[str, str, dict]] = [
                                                  symbol="AAPL", secType="STK", exchange="ISLAND", side="BOT")}),
     *PLACE_ORDER_CASES,
     *MARKET_DATA_CASES,
+    *REFERENCE_CASES,
 ]
