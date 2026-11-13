@@ -2,7 +2,7 @@ import Foundation
 
 /// The margin and commission IB works out for an order. A what-if answer fills the margins; live openOrders
 /// carry `commission` and `commissionCurrency` too (seen on Filled ones). Unset values are `nil`.
-public struct OrderState: Sendable, Equatable {
+public struct OrderState: Sendable, Equatable, Encodable {
     /// The initial margin before the order; `nil` when IB sends `""` or its unset marker.
     public var initMarginBefore: Decimal?
     /// The maintenance margin before the order; `nil` when IB sends `""` or its unset marker.

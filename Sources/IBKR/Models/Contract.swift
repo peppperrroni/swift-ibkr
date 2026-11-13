@@ -1,7 +1,7 @@
 import Foundation
 
 /// An instrument as IB describes it: `ib_async`'s `Contract`. Start from `init(symbol:)` or a factory below.
-public struct Contract: Sendable, Equatable, Hashable {
+public struct Contract: Sendable, Equatable, Hashable, Encodable {
     /// IB's contract id (`conId`); 0 until known; `qualifyContracts` returns the matched contract that carries it.
     public var conID: Int
     /// The symbol IB lists the instrument under.

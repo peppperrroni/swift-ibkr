@@ -1,7 +1,7 @@
 import Foundation
 
 /// One `tag=value` pair of an order's options (`orderMiscOptions`).
-public struct TagValue: Sendable, Equatable, Hashable {
+public struct TagValue: Sendable, Equatable, Hashable, Encodable {
     /// The option's name.
     public var tag: String
     /// The option's value.
@@ -12,7 +12,7 @@ public struct TagValue: Sendable, Equatable, Hashable {
 }
 
 /// An order's soft-dollar tier; `value` is `ib_async`'s `val`.
-public struct SoftDollarTier: Sendable, Equatable {
+public struct SoftDollarTier: Sendable, Equatable, Encodable {
     /// The tier's name.
     public var name: String
     /// The tier's value.
@@ -27,7 +27,7 @@ public struct SoftDollarTier: Sendable, Equatable {
 }
 
 /// One leg of a `BAG` contract (`Contract.comboLegs`).
-public struct ComboLeg: Sendable, Equatable, Hashable {
+public struct ComboLeg: Sendable, Equatable, Hashable, Encodable {
     /// The leg contract's id.
     public var conID: Int
     /// The leg's share of the combo.
@@ -55,7 +55,7 @@ public struct ComboLeg: Sendable, Equatable, Hashable {
 }
 
 /// A `BAG` order's price for the leg at the same position (`Order.orderComboLegs`).
-public struct OrderComboLeg: Sendable, Equatable {
+public struct OrderComboLeg: Sendable, Equatable, Encodable {
     /// The leg's price; `nil` goes out as `""`.
     public var price: Decimal?
 
@@ -64,7 +64,7 @@ public struct OrderComboLeg: Sendable, Equatable {
 }
 
 /// A `PEG BEST` order's `competeAgainstBestOffset`; `upToMid` is the wire's `Infinite`.
-public enum CompeteOffset: Sendable, Equatable {
+public enum CompeteOffset: Sendable, Equatable, Encodable {
     /// A fixed offset from the best price.
     case offset(Decimal)
     /// Up to the midpoint (wire `Infinite`).
@@ -72,7 +72,7 @@ public enum CompeteOffset: Sendable, Equatable {
 }
 
 /// The hedge contract of a delta-neutral order (`Contract.deltaNeutralContract`).
-public struct DeltaNeutralContract: Sendable, Equatable, Hashable {
+public struct DeltaNeutralContract: Sendable, Equatable, Hashable, Encodable {
     /// The hedge contract's id.
     public var conID: Int
     /// The hedge contract's delta.

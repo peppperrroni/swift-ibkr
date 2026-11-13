@@ -1,5 +1,5 @@
 /// Which executions reqExecutions (out 7) asks for; `ib_async`'s `ExecutionFilter`.
-public struct ExecutionFilter: Sendable, Equatable {
+public struct ExecutionFilter: Sendable, Equatable, Encodable {
     /// `nil` goes out as `0`, `ib_async`'s default; live, that returned another client's fill (see KNOWN-GAPS).
     public var clientID: Int?
     /// Only this account; empty sends an empty field.

@@ -45,6 +45,17 @@ private func isMalformed(_ fields: [String]) -> Bool {
         orderID: 12, clientID: 1, permID: 918273001, contract: c, order: o, status: .submitted)))
 }
 
+@Test func deprecatedOrderFieldsDecode() {  // decoder.py:948-950
+    var f = openFields()
+    let none = openOrder(f)?.order
+    #expect(none != nil && none?.eTradeOnly == nil && none?.firmQuoteOnly == nil && none?.nbboPriceCap == nil)
+    f[54] = "1"; f[55] = "0"; f[56] = "2.5"
+    let o = openOrder(f)?.order
+    #expect(o?.eTradeOnly == true)
+    #expect(o?.firmQuoteOnly == nil)
+    #expect(o?.nbboPriceCap == d("2.5"))
+}
+
 @Test func bracketChildDecodesParent() {
     let m = openOrder(openFields(orderType: "STP", limitPrice: unset, auxPrice: "180", parentID: "12"))
     #expect(m?.order.parentID == 12)

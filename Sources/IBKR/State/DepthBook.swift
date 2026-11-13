@@ -1,6 +1,6 @@
 /// A depth book, position-indexed per side as `ib_async` keeps it: insert and update set the position, delete
 /// removes it. The published arrays are sorted by position with gaps dropped.
-public struct DepthBook: Sendable, Equatable {
+public struct DepthBook: Sendable, Equatable, Encodable {
     private var bidRows: [Int: DepthLevel] = [:]
     private var askRows: [Int: DepthLevel] = [:]
 

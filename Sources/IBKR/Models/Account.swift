@@ -1,7 +1,7 @@
 import Foundation
 
 /// One held position (position, in 61; positionMulti, in 71).
-public struct Position: Sendable, Equatable {
+public struct Position: Sendable, Equatable, Encodable {
     /// The account id that holds it.
     public var account: String
     /// The instrument held.
@@ -25,7 +25,7 @@ public struct Position: Sendable, Equatable {
 
 /// One row of the account-updates portfolio (in 7). `contract.primaryExchange` is set and `exchange` is empty,
 /// which is how IB lays this message out.
-public struct PortfolioItem: Sendable, Equatable {
+public struct PortfolioItem: Sendable, Equatable, Encodable {
     /// The account id that holds the position.
     public var account: String
     /// The instrument held.
@@ -60,7 +60,7 @@ public struct PortfolioItem: Sendable, Equatable {
 }
 
 /// Account-level P&L (in 94); each part is nil while IB has not set it.
-public struct AccountPnL: Sendable, Equatable {
+public struct AccountPnL: Sendable, Equatable, Encodable {
     /// The day's P&L (pnl's `dailyPnL`); `nil` while IB has not set it.
     public var daily: Decimal?
     /// Unrealized P&L (pnl's `unrealizedPnL`); `nil` while IB has not set it.
@@ -77,7 +77,7 @@ public struct AccountPnL: Sendable, Equatable {
 }
 
 /// One row of an account summary; `value` stays IB's string because some tags are text.
-public struct AccountValue: Sendable, Equatable {
+public struct AccountValue: Sendable, Equatable, Encodable {
     /// The account id the value belongs to.
     public var account: String
     /// IB's key for the value, such as `NetLiquidation`.
@@ -100,7 +100,7 @@ public struct AccountValue: Sendable, Equatable {
 }
 
 /// One position's P&L (pnlSingle, in 95).
-public struct PnL: Sendable, Equatable {
+public struct PnL: Sendable, Equatable, Encodable {
     /// pnlSingle's `pos`: shares or contracts held; negative for a short position.
     public var position: Decimal
     /// pnlSingle's `dailyPnL`; `nil` when IB sent its unset value.

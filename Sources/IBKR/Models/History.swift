@@ -1,7 +1,7 @@
 import Foundation
 
 /// One trading session of a `HistoricalSchedule`; the times are IB's `yyyyMMdd-HH:mm:ss` text in the schedule's zone.
-public struct HistoricalSession: Sendable, Equatable {
+public struct HistoricalSession: Sendable, Equatable, Encodable {
     /// The session's start, `yyyyMMdd-HH:mm:ss`.
     public var startDateTime: String
     /// The session's end, `yyyyMMdd-HH:mm:ss`.
@@ -18,7 +18,7 @@ public struct HistoricalSession: Sendable, Equatable {
 }
 
 /// A contract's trading sessions over a span (historicalSchedule), as IB sends them: text, not `Date`s.
-public struct HistoricalSchedule: Sendable, Equatable {
+public struct HistoricalSchedule: Sendable, Equatable, Encodable {
     /// The schedule's start, `yyyyMMdd-HH:mm:ss`.
     public var startDateTime: String
     /// The schedule's end, `yyyyMMdd-HH:mm:ss`.
@@ -38,7 +38,7 @@ public struct HistoricalSchedule: Sendable, Equatable {
 }
 
 /// One price bucket of a histogram (histogramData 89): how many trades happened at `price` over the requested period.
-public struct HistogramData: Sendable, Equatable {
+public struct HistogramData: Sendable, Equatable, Encodable {
     /// The bucket's price.
     public var price: Decimal
     /// The number of trades at `price`.

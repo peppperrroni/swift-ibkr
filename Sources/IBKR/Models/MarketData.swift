@@ -1,7 +1,7 @@
 import Foundation
 
 /// One contractData (10) answer: the contract IB resolved and its trading rules.
-public struct ContractDetails: Sendable, Equatable {
+public struct ContractDetails: Sendable, Equatable, Encodable {
     /// The fully specified contract, with its `conId`.
     public var contract: Contract
     /// IB's market name for the contract.
@@ -98,7 +98,7 @@ public struct ContractDetails: Sendable, Equatable {
 }
 
 /// One reqMatchingSymbols hit (symbolSamples 79). Its contract has no exchange, only a primary one.
-public struct ContractDescription: Sendable, Equatable {
+public struct ContractDescription: Sendable, Equatable, Encodable {
     /// The matching contract.
     public var contract: Contract
     /// The security types of the derivatives on it.
@@ -118,7 +118,7 @@ public struct ContractDescription: Sendable, Equatable {
 }
 
 /// IB's market-data type: which kind of data `reqMktData` gets without a subscription.
-public enum MarketDataType: Int, Sendable {
+public enum MarketDataType: Int, Sendable, Encodable {
     /// Live data (IB's `1`).
     case realtime = 1
     /// The last close, once the market is shut (IB's `2`).
@@ -131,7 +131,7 @@ public enum MarketDataType: Int, Sendable {
 
 /// One entry of reqMktData's generic tick list: IB's number (`233`) or a tagged entry (`"mdoff"`, `"292:BRFG"`).
 public struct GenericTick: RawRepresentable, Hashable, Sendable,
-    ExpressibleByIntegerLiteral, ExpressibleByStringLiteral
+    ExpressibleByIntegerLiteral, ExpressibleByStringLiteral, Encodable
 {
     /// The entry as it goes on the wire.
     public var rawValue: String
@@ -144,7 +144,7 @@ public struct GenericTick: RawRepresentable, Hashable, Sendable,
 }
 
 /// IB's tick field number. A struct, not an enum, so a number this library does not name survives.
-public struct TickField: RawRepresentable, Hashable, Sendable {
+public struct TickField: RawRepresentable, Hashable, Sendable, Encodable {
     /// IB's tick type number.
     public var rawValue: Int
     /// Creates a field from IB's tick type number.
@@ -181,14 +181,29 @@ public struct TickField: RawRepresentable, Hashable, Sendable {
         66: 1, 67: 2, 68: 4, 69: 0, 70: 3, 71: 5, 72: 6, 73: 7, 74: 8, 75: 9, 76: 14,
         80: 10, 81: 11, 82: 12, 83: 13, 88: 45, 103: 50, 104: 51,
     ]
+    private struct Key: CodingKey {
+        var stringValue: String
+        var intValue: Int? { Int(stringValue) }
+        init(stringValue: String) { self.stringValue = stringValue }
+        init?(intValue: Int) { stringValue = String(intValue) }
+    }
     /// A delayed field's real-time twin; any other field is itself.
     public var live: TickField { TickField(rawValue: Self.delayedTwin[rawValue] ?? rawValue) }
+}
+
+/// Lets `[TickField: V]` encode as a JSON object keyed by the tick number.
+extension TickField: CodingKeyRepresentable {
+    public var codingKey: any CodingKey { Key(stringValue: String(rawValue)) }
+    public init?<T: CodingKey>(codingKey: T) {
+        guard let n = Int(codingKey.stringValue) else { return nil }
+        self.init(rawValue: n)
+    }
 }
 
 /// One historical bar. `time` is the bar's start: epoch seconds for intraday bars, 00:00 UTC of the calendar day
 /// for daily and longer bars. `volume` keeps IB's `-1` for "not reported", as do `average` and `count` on real-time
 /// MIDPOINT, BID and ASK bars.
-public struct Bar: Sendable, Equatable {
+public struct Bar: Sendable, Equatable, Encodable {
     /// The bar's start.
     public var time: Date
     /// The bar's open, high, low and close prices, and its volume.
@@ -221,7 +236,7 @@ public struct Bar: Sendable, Equatable {
 }
 
 /// What a historical-data stream with `keepUpToDate` yields.
-public enum BarEvent: Sendable, Equatable {
+public enum BarEvent: Sendable, Equatable, Encodable {
     /// The initial set of bars (historicalData 17).
     case history([Bar])
     /// A bar that is still forming, or the one that just closed (historicalDataUpdate 90).
@@ -229,7 +244,7 @@ public enum BarEvent: Sendable, Equatable {
 }
 
 /// One market-data tick, as `reqMktData` streams them; each case names the IB message it comes from.
-public enum Tick: Sendable, Equatable {
+public enum Tick: Sendable, Equatable, Encodable {
     /// tickPrice (1): a price with its size. `price` and `size` are `nil` where IB sends an empty or unset value.
     case price(TickField, price: Decimal?, size: Decimal?)
     /// tickSize (2). The size is `nil` where IB sends an empty or unset value.
@@ -252,7 +267,7 @@ public enum Tick: Sendable, Equatable {
 
 /// One tickOptionComputation (21). A value IB has not computed (`-1` for impliedVol, optPrice, pvDividend and
 /// undPrice; `-2` for delta, gamma, vega and theta) is `nil`.
-public struct OptionComputation: Sendable, Equatable {
+public struct OptionComputation: Sendable, Equatable, Encodable {
     /// IB's tick attribute mask for the computation.
     public var tickAttrib: Int
     /// The implied volatility, the delta, the option price, the present value of dividends, the gamma, the vega,
@@ -284,7 +299,7 @@ public struct OptionComputation: Sendable, Equatable {
 }
 
 /// One tickEFP (47): an exchange-for-physical quote.
-public struct EFPData: Sendable, Equatable {
+public struct EFPData: Sendable, Equatable, Encodable {
     /// The basis points; `nil` when IB sends none.
     public var basisPoints: Decimal?
     /// The basis points as IB formats them.
@@ -321,7 +336,7 @@ public struct EFPData: Sendable, Equatable {
 }
 
 /// One tickNews (84). `timeStamp` is IB's raw number: its unit is undocumented.
-public struct NewsTick: Sendable, Equatable {
+public struct NewsTick: Sendable, Equatable, Encodable {
     /// IB's time stamp, as sent.
     public var timeStamp: Int
     /// The news provider's code.
@@ -344,7 +359,7 @@ public struct NewsTick: Sendable, Equatable {
 }
 
 /// What `reqTickByTickData` is asked for; the raw value is the text IB's request carries.
-public enum TickByTickType: String, Sendable {
+public enum TickByTickType: String, Sendable, Encodable {
     /// Trades from the regular session (IB's `Last`).
     case last = "Last"
     /// All trades, including those `last` leaves out (IB's `AllLast`).
@@ -357,7 +372,7 @@ public enum TickByTickType: String, Sendable {
 
 /// One tick-by-tick event. `time` is IB's epoch seconds. The attribute masks are read: a trade's become
 /// `pastLimit` (bit 0) and `unreported` (bit 1); a quote's is dropped.
-public enum TickByTick: Sendable, Equatable {
+public enum TickByTick: Sendable, Equatable, Encodable {
     /// A trade, from the `Last` and `AllLast` types (tickByTick 99, type 1 and 2).
     case trade(
         time: Date, price: Decimal, size: Decimal, exchange: String, conditions: String,
@@ -369,7 +384,7 @@ public enum TickByTick: Sendable, Equatable {
 }
 
 /// One row of the depth book. `marketMaker` is empty unless IB names one (message 13 on non-smart depth).
-public struct DepthLevel: Sendable, Equatable {
+public struct DepthLevel: Sendable, Equatable, Encodable {
     /// The row's price.
     public var price: Decimal
     /// The row's size.
@@ -386,7 +401,7 @@ public struct DepthLevel: Sendable, Equatable {
 }
 
 /// One exchange that offers market depth, as IB lists it (message 80).
-public struct DepthMarketDataDescription: Sendable, Equatable {
+public struct DepthMarketDataDescription: Sendable, Equatable, Encodable {
     /// The exchange that offers depth.
     public var exchange: String
     /// The security type it offers depth for.
@@ -411,7 +426,7 @@ public struct DepthMarketDataDescription: Sendable, Equatable {
 }
 
 /// One exchange behind a SMART route, with its bit in the BBO exchange mask (message 82).
-public struct SmartComponent: Sendable, Equatable {
+public struct SmartComponent: Sendable, Equatable, Encodable {
     /// The exchange's bit in the BBO exchange mask.
     public var bitNumber: Int
     /// The exchange's name.
@@ -428,9 +443,9 @@ public struct SmartComponent: Sendable, Equatable {
 }
 
 /// One change to the book, as IB sends it (messages 12 and 13).
-public struct DepthUpdate: Sendable, Equatable {
+public struct DepthUpdate: Sendable, Equatable, Encodable {
     /// What the update does to the row at `position`.
-    public enum Operation: Int, Sendable {
+    public enum Operation: Int, Sendable, Encodable {
         /// Adds a row at the position (IB's `0`).
         case insert = 0
         /// Replaces the row at the position (IB's `1`).
@@ -439,7 +454,7 @@ public struct DepthUpdate: Sendable, Equatable {
         case delete
     }
     /// The side of the book the update is for.
-    public enum Side: Int, Sendable {
+    public enum Side: Int, Sendable, Encodable {
         /// The ask side (IB's `0`).
         case ask = 0
         /// The bid side (IB's `1`).

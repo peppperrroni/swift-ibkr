@@ -1,7 +1,7 @@
 import Foundation
 
 /// One execution (execDetails, in 11); `ib_async`'s `Execution`.
-public struct Execution: Sendable, Equatable {
+public struct Execution: Sendable, Equatable, Encodable {
     /// IB's execution id; a correction reuses it up to the last `.`-segment.
     public var execID: String
     /// IB's raw text, in two formats that a consumer parses (see KNOWN-GAPS).
@@ -74,7 +74,7 @@ public struct Execution: Sendable, Equatable {
 }
 
 /// The commission of one execution (commissionReport, in 59); `ib_async`'s `CommissionReport`.
-public struct CommissionReport: Sendable, Equatable {
+public struct CommissionReport: Sendable, Equatable, Encodable {
     /// The execution it belongs to.
     public var execID: String
     /// The commission charged, in `currency`.

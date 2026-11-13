@@ -1,7 +1,7 @@
 import Foundation
 
 /// A parent with its take-profit and stop-loss; place it with `IBClient.placeBracket`.
-public struct BracketOrder: Sendable, Equatable {
+public struct BracketOrder: Sendable, Equatable, Encodable {
     /// The limit entry order.
     public var parent: Order
     /// The limit order that takes profit, on the reverse side.

@@ -32,7 +32,7 @@ extension IBRequest {
         w.add(o.ocaType); try w.add(o.rule80A); try w.add(o.settlingFirm)                 // 46-48
         w.add(o.allOrNone); w.add(o.minQty); w.add(o.percentOffset)                       // 49-51
         // 52-54 eTradeOnly, firmQuoteOnly, nbboPriceCap
-        try raw("0", "0", "")
+        w.add(o.eTradeOnly ?? false); w.add(o.firmQuoteOnly ?? false); w.add(o.nbboPriceCap)
         w.add(o.auctionStrategy); w.add(o.startingPrice); w.add(o.stockRefPrice); w.add(o.delta)  // 55-58
         w.add(o.stockRangeLower); w.add(o.stockRangeUpper); w.add(o.overridePercentageConstraints)  // 59-61
         w.add(o.orderType.hasPrefix("VOL") ? o.volatility : nil); w.add(o.volatilityType)  // 62-63

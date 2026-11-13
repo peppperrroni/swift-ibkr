@@ -7,6 +7,7 @@ A row's status changes in the same commit as the code that changes it.
 |---|---|
 | `present` | in `swift-ibkr` under the Swift name given |
 | `MISSING` | not available; the note gives the proposed Swift name and shape |
+| `added` | implemented in stage 14 under the Swift name given; `present` keeps meaning "in 1.0.0" |
 | `n/a` | has no Swift meaning: a synchronous wrapper, pandas, plotting, Qt/Jupyter/event-loop glue, or Python dunder/dataclass mechanics; the note says why |
 
 Shapes: **one-shot** (`async throws`, answer collected to IB's end marker), **request stream**
@@ -329,7 +330,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | ib_async | swift-ibkr | Status | Note |
 |---|---|---|---|
 | `Order` | `Order` | present | ids live on `OrderSnapshot`; `faProfile` is obsolete (not sent at 178) |
-| `Order.eTradeOnly`, `firmQuoteOnly`, `nbboPriceCap` | — | MISSING | optional fields (`Bool?`, `Bool?`, `Decimal?`), `nil` keeps today's wire default; deprecated by IB, a set value draws IB's rejection |
+| `Order.eTradeOnly`, `firmQuoteOnly`, `nbboPriceCap` | `Order.eTradeOnly`, `.firmQuoteOnly`, `.nbboPriceCap` | added | optional fields (`Bool?`, `Bool?`, `Decimal?`), `nil` keeps the wire default; deprecated by IB, a set value draws IB's rejection |
 | `Order.__repr__`, `__str__`, `__eq__`, `__hash__` | — | n/a | Python dunders |
 | `Order.filledQuantity` | `CompletedOrderMessage.filledQuantity` | present | |
 | `LimitOrder`, `MarketOrder`, `StopOrder`, `StopLimitOrder` | `Order.limit`, `.market`, `.stop`, `.stopLimit` | present | |
@@ -382,7 +383,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `df` | — | n/a | pandas |
 | `dataclassAsDict`, `dataclassAsTuple`, `dataclassNonDefaults`, `dataclassUpdate`, `dataclassRepr` (and the `dict`/`tuple`/`update`/`nonDefaults` that `__init__` attaches) | — | n/a | dataclass mechanics |
 | `isnamedtupleinstance` | — | n/a | Python type introspection |
-| `tree` | — | MISSING | synthesised `Encodable` (one-way to JSON, not `Decodable`) on every public model |
+| `tree` | — | added | synthesised `Encodable` (one-way to JSON, not `Decodable`) on every public model; `TickField` is `CodingKeyRepresentable` |
 | `barplot` | — | n/a | plotting |
 | `allowCtrlC` | — | n/a | event-loop glue: asyncio's SIGINT handling |
 | `logToFile`, `logToConsole` | — | MISSING | Swift has a meaning for it: the library logs nothing and its outgoing frames are invisible; `setLogHandler(_:)` taking a public `IBLogLevel` and text (connects, orders, errors, `>>>`/`<<<` frames), no dependency |
@@ -493,4 +494,4 @@ connect), **model helper** (a computed property or method on a model), **factory
 
 ## Totals
 
-Rows, where one row may carry several names: `present` 219 · `MISSING` 164 · `n/a` 33.
+Rows, where one row may carry several names: `present` 219 · `added` 2 · `MISSING` 162 · `n/a` 33.

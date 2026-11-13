@@ -4,6 +4,10 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 
 ## [Unreleased]
 
+### Added
+- `Encodable` (never `Decodable`) on every public model of `IBKR` and on `FlexRecord`, ib_async's `util.tree`: `TickField` is `CodingKeyRepresentable`, so the `Ticker` dictionaries encode as JSON objects; `IBClient`, the trackers, `IBRequest`, the error enums, `ConnectionState`, `ReconnectPolicy` and `ErrorKind` are left out.
+- `Order.eTradeOnly`, `.firmQuoteOnly` and `.nbboPriceCap`, IB's deprecated placeOrder rows 52-54 (openOrder fields 54-56) as optionals: `nil` sends the wire default as before and the default decodes back to `nil`.
+
 ## [1.0.0] - 2026-11-12
 
 ### Added

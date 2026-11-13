@@ -1,7 +1,7 @@
 import Foundation
 
 /// Open set: IB adds statuses, unknown ones are kept as they came.
-public struct OrderStatus: RawRepresentable, Sendable, Hashable {
+public struct OrderStatus: RawRepresentable, Sendable, Hashable, Encodable {
     /// IB's status text, as it came.
     public var rawValue: String
     /// The status with IB's text `rawValue`, known or not.
@@ -31,7 +31,7 @@ public struct OrderStatus: RawRepresentable, Sendable, Hashable {
 }
 
 /// IB's orderStatus message (in 3): where an order stands and what has filled.
-public struct OrderStatusMessage: Sendable, Equatable {
+public struct OrderStatusMessage: Sendable, Equatable, Encodable {
     /// The order's id.
     public var orderID: Int
     /// The order's status.

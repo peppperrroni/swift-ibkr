@@ -1,7 +1,7 @@
 import Foundation
 
 /// One order as the tracker has merged it from openOrder, orderStatus, completedOrder and order errors.
-public struct OrderSnapshot: Sendable, Equatable {
+public struct OrderSnapshot: Sendable, Equatable, Encodable {
     /// The order's id on this API; `0` for a manual or completed order that has none.
     public var orderID: Int
     /// The client id the order belongs to.

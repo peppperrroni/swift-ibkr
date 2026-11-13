@@ -1,7 +1,7 @@
 import Foundation
 
 /// One completed trade: an execution joined with its commission report.
-public struct Fill: Sendable, Equatable {
+public struct Fill: Sendable, Equatable, Encodable {
     /// The instrument traded.
     public var contract: Contract
     /// The execution (execDetails, in 11).

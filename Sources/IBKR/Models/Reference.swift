@@ -1,7 +1,7 @@
 import Foundation
 
 /// What `qualifyContracts` made of one input contract.
-public enum ContractQualification: Sendable, Equatable {
+public enum ContractQualification: Sendable, Equatable, Encodable {
     /// IB's one matching contract, with `SMART` kept as its exchange when the input asked for `SMART`.
     case qualified(Contract)
     /// Several matches: those of the input's secType when it had one (possibly none), else all of them, in IB's order.
@@ -11,7 +11,7 @@ public enum ContractQualification: Sendable, Equatable {
 }
 
 /// One exchange's option chain for an underlying: every expiration and strike it lists, for one trading class.
-public struct OptionChain: Sendable, Equatable {
+public struct OptionChain: Sendable, Equatable, Encodable {
     /// The exchange this chain trades on.
     public var exchange: String
     /// The underlying's contract id.
@@ -34,7 +34,7 @@ public struct OptionChain: Sendable, Equatable {
 }
 
 /// One step of an exchange's price-increment rule: from `lowEdge` upward, prices move in steps of `increment`.
-public struct PriceIncrement: Sendable, Equatable {
+public struct PriceIncrement: Sendable, Equatable, Encodable {
     /// The lowest price this step applies to.
     public var lowEdge: Decimal
     /// The price step from `lowEdge` upward.
@@ -45,7 +45,7 @@ public struct PriceIncrement: Sendable, Equatable {
 }
 
 /// An account and its family code (`ib_async`'s `FamilyCode`); `familyCodeStr` is empty for an account with none.
-public struct FamilyCode: Sendable, Equatable {
+public struct FamilyCode: Sendable, Equatable, Encodable {
     /// The account id.
     public var accountID: String
     /// IB's `familyCodeStr`; empty for an account with none.

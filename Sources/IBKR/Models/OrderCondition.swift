@@ -2,9 +2,9 @@ import Foundation
 
 /// One of an order's conditions (`Order.conditions`); the comment on each case is its wire type. `exchange` is
 /// `ib_async`'s `exch`. The wire order of each element is in docs/protocol-178.md, «Order condition element».
-public enum OrderCondition: Sendable, Equatable {
+public enum OrderCondition: Sendable, Equatable, Encodable {
     /// How this condition joins the next one.
-    public enum Conjunction: String, Sendable {
+    public enum Conjunction: String, Sendable, Encodable {
         /// Both this condition and the next must hold (wire `a`).
         case and = "a"
         /// Either this condition or the next must hold (wire `o`).

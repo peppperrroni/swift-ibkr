@@ -1,7 +1,7 @@
 import Foundation
 
 /// One element of a Flex report: IB's attribute strings, untouched.
-public struct FlexRecord: Sendable, Equatable {
+public struct FlexRecord: Sendable, Equatable, Encodable {
     /// The element's tag name.
     public let topic: String
     /// The element's attributes, as IB wrote them.

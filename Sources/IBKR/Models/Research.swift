@@ -2,7 +2,7 @@ import Foundation
 
 /// Which financial-advisor configuration `faData(_:)` and `replaceFA(_:xml:)` read or write
 /// (`ib_async`'s `faDataType`).
-public enum FADataType: Int, Sendable {
+public enum FADataType: Int, Sendable, Encodable {
     /// IB's FA data type 1.
     case groups = 1
     /// IB's FA data type 2.
@@ -13,7 +13,7 @@ public enum FADataType: Int, Sendable {
 
 /// What `wshEventData(_:)` asks Wall Street Horizon for (`ib_async`'s `WshEventData`). `filter` is IB's JSON text;
 /// dates are IB's `yyyyMMdd`. A `nil` `conID` or `totalLimit` goes out as `2147483647`, as `ib_async` sends it.
-public struct WshEventData: Sendable, Equatable {
+public struct WshEventData: Sendable, Equatable, Encodable {
     /// The contract to ask about; `nil` goes out as `2147483647`.
     public var conID: Int?
     /// IB's JSON filter text; empty for none.
@@ -43,7 +43,7 @@ public struct WshEventData: Sendable, Equatable {
 /// What a market scan looks for (`ib_async`'s `ScannerSubscription`). `instrument`, `locationCode` and `scanCode`
 /// come from `scannerParameters()`; every other filter is unset by default. A `nil` `numberOfRows` asks for IB's
 /// default.
-public struct ScannerSubscription: Sendable, Equatable {
+public struct ScannerSubscription: Sendable, Equatable, Encodable {
     /// `nil` goes out as `-1`, IB's default row count.
     public var numberOfRows: Int?
     /// An instrument from `scannerParameters()`, such as `STK`.
@@ -108,7 +108,7 @@ public struct ScannerSubscription: Sendable, Equatable {
 }
 
 /// One row of a scan: its rank (from 0) and contract, with IB's text for the rest.
-public struct ScanData: Sendable, Equatable {
+public struct ScanData: Sendable, Equatable, Encodable {
     /// The row's rank in the scan, from 0.
     public var rank: Int
     /// The instrument; only the fields scannerData carries are set.
@@ -133,7 +133,7 @@ public struct ScanData: Sendable, Equatable {
 }
 
 /// A news provider IB offers: its code (`BRFG`) and display name.
-public struct NewsProvider: Sendable, Equatable {
+public struct NewsProvider: Sendable, Equatable, Encodable {
     /// The provider's code, such as `BRFG`.
     public var code: String
     /// The provider's display name.
@@ -144,7 +144,7 @@ public struct NewsProvider: Sendable, Equatable {
 }
 
 /// One news article: IB's type code (0 plain text, 1 binary or HTML) and its text.
-public struct NewsArticle: Sendable, Equatable {
+public struct NewsArticle: Sendable, Equatable, Encodable {
     /// 0 for plain text, 1 for binary or HTML.
     public var articleType: Int
     /// The article's text, as IB sends it.
@@ -157,7 +157,7 @@ public struct NewsArticle: Sendable, Equatable {
 }
 
 /// One historical headline. `time` is IB's raw text (`2026-11-10 14:30:00.0`).
-public struct HistoricalNews: Sendable, Equatable {
+public struct HistoricalNews: Sendable, Equatable, Encodable {
     /// IB's raw text.
     public var time: String
     /// The provider's code.
@@ -174,7 +174,7 @@ public struct HistoricalNews: Sendable, Equatable {
 }
 
 /// One news bulletin. `msgType` is IB's: 1 a regular bulletin, 2 an exchange no longer trades, 3 it trades again.
-public struct NewsBulletin: Sendable, Equatable {
+public struct NewsBulletin: Sendable, Equatable, Encodable {
     /// IB's bulletin id.
     public var msgID: Int
     /// 1 a regular bulletin, 2 an exchange no longer trades, 3 it trades again.

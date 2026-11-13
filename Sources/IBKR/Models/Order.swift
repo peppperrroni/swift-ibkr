@@ -1,7 +1,7 @@
 import Foundation
 
 /// What an option exercise request does (`exerciseOptions`'s action): IB's wire value.
-public enum ExerciseAction: Int, Sendable {
+public enum ExerciseAction: Int, Sendable, Encodable {
     /// Exercise the option (wire `1`).
     case exercise = 1
     /// Let the option lapse (wire `2`).
@@ -9,7 +9,7 @@ public enum ExerciseAction: Int, Sendable {
 }
 
 /// An order's side, as IB's wire text.
-public enum OrderAction: String, Sendable {
+public enum OrderAction: String, Sendable, Encodable {
     /// Buy (wire `BUY`).
     case buy = "BUY"
     /// Sell (wire `SELL`).
@@ -20,7 +20,7 @@ public enum OrderAction: String, Sendable {
 
 /// An order as placeOrder (out 3) sends it and openOrder (in 5) / completedOrder (in 101) decode it. Each property
 /// is the `ib_async` `Order` attribute of the same name; prices are `Decimal?`, and `nil` goes out as `""`.
-public struct Order: Sendable, Equatable {
+public struct Order: Sendable, Equatable, Encodable {
     /// `BUY`, `SELL` or `SSHORT` (placeOrder row 16).
     public var action: OrderAction
     /// Shares or contracts (row 17).
@@ -97,6 +97,12 @@ public struct Order: Sendable, Equatable {
     public var minQty: Int?
     /// ib_async's `Order.percentOffset`, sent in placeOrder (row 51).
     public var percentOffset: Decimal?
+    /// IB's deprecated `eTradeOnly` (placeOrder row 52); `nil` sends `0`, and `0` decodes to `nil`.
+    public var eTradeOnly: Bool? = nil
+    /// IB's deprecated `firmQuoteOnly` (row 53); `nil` sends `0`, and `0` decodes to `nil`.
+    public var firmQuoteOnly: Bool? = nil
+    /// IB's deprecated `nbboPriceCap` (row 54); `nil` sends `""`.
+    public var nbboPriceCap: Decimal? = nil
     /// ib_async's `Order.auctionStrategy`, sent in placeOrder (row 55).
     public var auctionStrategy = 0
     /// ib_async's `Order.startingPrice`, sent in placeOrder (row 56).

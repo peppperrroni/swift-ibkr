@@ -1,5 +1,5 @@
 /// How much detail IB Gateway writes to its own log (`setServerLogLevel`).
-public enum ServerLogLevel: Int, Sendable {
+public enum ServerLogLevel: Int, Sendable, Encodable {
     /// IB's level 1.
     case system = 1
     /// IB's level 2.

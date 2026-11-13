@@ -1,7 +1,7 @@
 import Foundation
 
 /// IB's error (in 4): a notice, a warning or a failure for one request, order or the connection.
-public struct IBErrorMessage: Sendable, Equatable {
+public struct IBErrorMessage: Sendable, Equatable, Encodable {
     /// The request or order id the error names; -1 when it names none (a connection-wide notice).
     public var requestID: Int
     /// IB's error code; `ErrorCode.kind(_:)` classifies it.
@@ -21,7 +21,7 @@ public struct IBErrorMessage: Sendable, Equatable {
 }
 
 /// Everything IB sends, decoded; the doc of each case names the IB message and its id.
-public enum IBMessage: Sendable, Equatable {
+public enum IBMessage: Sendable, Equatable, Encodable {
     /// orderStatus (in 3).
     case orderStatus(OrderStatusMessage)
     /// error (in 4).

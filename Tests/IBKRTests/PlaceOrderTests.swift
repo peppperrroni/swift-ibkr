@@ -139,6 +139,14 @@ private func everyPlainField(orderType: String = "VOL") -> IBRequest {
     #expect(try fields(everyPlainField()) == expected)
 }
 
+@Test func deprecatedOrderFieldsAreSent() throws {
+    var o = Order(action: .buy, quantity: d("100"), orderType: "LMT", limitPrice: d("187.25"))
+    #expect(try fields(.placeOrder(orderID: 12, contract: Contract(symbol: "AAPL"), order: o)) == base)  // all nil
+    o.eTradeOnly = true; o.firmQuoteOnly = false; o.nbboPriceCap = d("1.5")
+    #expect(try fields(.placeOrder(orderID: 12, contract: Contract(symbol: "AAPL"), order: o))
+            == replacing(base, [52: "1", 53: "0", 54: "1.5"]))  // client.py:562-564
+}
+
 @Test func volatilityIsSentOnlyForVolOrders() throws {
     let vol = try fields(everyPlainField()), lmt = try fields(everyPlainField(orderType: "LMT"))
     #expect(lmt[62] == "")  // row 62 volatility

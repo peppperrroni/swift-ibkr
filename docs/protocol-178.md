@@ -32,8 +32,7 @@ fields gated above 178 are dropped, fields gated at or below are kept. Defaults 
   `decimal` is a quantity sent as text (`"100"`, `"0.5"`); `double` a price as text; `bool`
   `"1"`/`"0"` (empty decodes as false); `string` as is.
 - **★** marks a `placeOrder` row the `Contract` / `Order` model carries. Unstarred rows are sent
-  with the default shown: msgId and orderId, the deprecated sharesAllocation, eTradeOnly,
-  firmQuoteOnly and nbboPriceCap (never modelled).
+  with the default shown: msgId and orderId, the deprecated sharesAllocation (never modelled). eTradeOnly, firmQuoteOnly and nbboPriceCap are modelled as optionals: `nil` sends the default shown.
   In `openOrder` and `completedOrder`, ★ marks a field read into the model; unstarred fields are
   skipped or land on the message (ids, status, filledQuantity, completedTime / Status).
 
@@ -163,9 +162,9 @@ the legs come from `contract.comboLegs`. Only marketData (reqMktData) and histor
 | 49 | allOrNone ★ | bool | `0` | |
 | 50 | minQty ★ | int | `""` | UNSET |
 | 51 | percentOffset ★ | double | `""` | UNSET |
-| 52 | eTradeOnly | bool | `0` | deprecated, always false |
-| 53 | firmQuoteOnly | bool | `0` | deprecated, always false |
-| 54 | nbboPriceCap | double | `""` | deprecated, always UNSET |
+| 52 | eTradeOnly | bool | `0` | `Order.eTradeOnly` ★ (`nil` sends `0`) |
+| 53 | firmQuoteOnly | bool | `0` | `Order.firmQuoteOnly` ★ (`nil` sends `0`) |
+| 54 | nbboPriceCap | double | `""` | `Order.nbboPriceCap` ★ (`nil` sends `""`) |
 | 55 | auctionStrategy ★ | int | `0` | |
 | 56 | startingPrice ★ | double | `""` | UNSET |
 | 57 | stockRefPrice ★ | double | `""` | UNSET |
@@ -716,9 +715,9 @@ no smart-routing params.
 | 51 | allOrNone ★ | bool | |
 | 52 | minQty ★ | int | |
 | 53 | ocaType ★ | int | |
-| 54 | eTradeOnly | bool | deprecated, skip |
-| 55 | firmQuoteOnly | bool | deprecated, skip |
-| 56 | nbboPriceCap | double | deprecated, skip |
+| 54 | eTradeOnly ★ | bool | `"1"` reads `true`, anything else `nil` |
+| 55 | firmQuoteOnly ★ | bool | `"1"` reads `true`, anything else `nil` |
+| 56 | nbboPriceCap ★ | double | unset reads `nil` |
 | 57 | parentId ★ | int | |
 | 58 | triggerMethod ★ | int | |
 | 59 | volatility ★ | double | |

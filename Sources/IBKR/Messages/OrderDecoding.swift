@@ -1,7 +1,7 @@
 import Foundation
 
 /// IB's openOrder message (in 5): an order as IB holds it, with the margin and commission it works out.
-public struct OpenOrderMessage: Sendable, Equatable {
+public struct OpenOrderMessage: Sendable, Equatable, Encodable {
     /// The order's id on this API; `0` for a manual order.
     public var orderID: Int
     /// The client id the order belongs to.
@@ -32,7 +32,7 @@ public struct OpenOrderMessage: Sendable, Equatable {
 
 /// IB's completedOrder message (in 101): an order that finished, as `reqCompletedOrders` returns it.
 /// `orderId` and `clientId` are not on the wire at version 178: the key is `permID`.
-public struct CompletedOrderMessage: Sendable, Equatable {
+public struct CompletedOrderMessage: Sendable, Equatable, Encodable {
     /// IB's permanent id for the order.
     public var permID: Int
     /// The order's contract.
@@ -88,7 +88,9 @@ extension IBDecoder {
         o.stockRangeUpper = try r.optionalDecimal(); o.displaySize = try r.int()
         o.blockOrder = try r.bool(); o.sweepToFill = try r.bool(); o.allOrNone = try r.bool()
         o.minQty = try r.optionalInt(); o.ocaType = try r.int()
-        try r.skip(3)  // 54–56 eTradeOnly, firmQuoteOnly, nbboPriceCap
+        o.eTradeOnly = try r.string() == "1" ? true : nil  // 54–56 (decoder.py:948-950)
+        o.firmQuoteOnly = try r.string() == "1" ? true : nil
+        o.nbboPriceCap = try r.optionalDecimal()
         o.parentID = try r.int()
         o.triggerMethod = try r.int(); o.volatility = try r.optionalDecimal(); o.volatilityType = try r.optionalInt()
         try deltaNeutral(&r, &o)
