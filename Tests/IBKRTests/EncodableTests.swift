@@ -40,6 +40,8 @@ private func json<T: Encodable>(_ v: T) throws -> String {
         json(EFPData()), json(NewsTick(timeStamp: 1, providerCode: "P", articleID: "A", headline: "H")),
         json(Ticker(contract: contract)),
         json(TickData(time: Date(timeIntervalSince1970: 0), field: .bid, price: 1, size: 2)),
+        json(TickPoint(time: Date(timeIntervalSince1970: 0), price: 1, size: 2)),
+        json(BarList(bars: [], hasNewBar: true)),
         json(DepthTick(time: Date(timeIntervalSince1970: 0), update: DepthUpdate(
             position: 0, marketMaker: "", operation: .insert, side: .bid, price: 1, size: 2))),
         json(Dividends()), json(FundamentalRatios(values: ["MKTCAP": "1"])),

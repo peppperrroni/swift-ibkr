@@ -226,20 +226,20 @@ connect), **model helper** (a computed property or method on a model), **factory
 
 | ib_async | swift-ibkr | Status | Note |
 |---|---|---|---|
-| `TickerUpdateEvent` | — | MISSING | the operators below, as `AsyncSequence` extensions on a `Ticker` stream |
-| `TickerUpdateEvent.trades` | — | MISSING | `tickers(…).trades()` → `(time, price, size)` of ticks 4, 5, 48, 68, 71 |
-| `TickerUpdateEvent.bids` | — | MISSING | `.bids()`: ticks 0, 1, 66, 69 |
-| `TickerUpdateEvent.asks` | — | MISSING | `.asks()`: ticks 2, 3, 67, 70 |
-| `TickerUpdateEvent.bidasks` | — | MISSING | `.bidAsks()`: both sides |
-| `TickerUpdateEvent.midpoints` | — | MISSING | `.midpoints()`: the midpoint after each update |
-| `Tickfilter` | — | MISSING | the `AsyncSequence` that the five above return |
-| `Tickfilter.timebars` | — | MISSING | `.timeBars(every:)`: bars cut by a timer |
-| `Tickfilter.tickbars` | — | MISSING | `.tickBars(count:)`: bars of `count` ticks |
-| `Tickfilter.volumebars` | — | MISSING | `.volumeBars(volume:)`: bars of a set volume |
-| `Midpoints` | — | MISSING | the sequence `.midpoints()` returns |
+| `TickerUpdateEvent` | `AsyncSequence where Element == Ticker` (such as `IBClient.tickers(_:genericTicks:depthRows:smartDepth:tickByTick:options:)`) | added | the operators below are extensions on any `Sendable` sequence of `Ticker` |
+| `TickerUpdateEvent.trades` | `trades()` | added | `TickPoint` (time, price, size) of ticks 4, 5, 48, 68, 71; a tick with no price is skipped, no size reads 0 |
+| `TickerUpdateEvent.bids` | `bids()` | added | ticks 0, 1, 66, 69 |
+| `TickerUpdateEvent.asks` | `asks()` | added | ticks 2, 3, 67, 70 |
+| `TickerUpdateEvent.bidasks` | `bidAsks()` | added | ticks 0, 1, 66, 69, 2, 3, 67, 70 |
+| `TickerUpdateEvent.midpoints` | `midpoints()` | added | `Ticker.time`, `Ticker.midpoint`, size 0 per ticker whose `ticks` is non-empty; a `nil` midpoint is skipped |
+| `Tickfilter` | `AsyncThrowingStream<TickPoint, any Error>`, `TickPoint` | added | what the five above return; stopping it cancels the task reading its source |
+| `Tickfilter.timebars` | `timeBars(timer:)` | added | the timer is any `AsyncSequence` of `Date` (ib_async's timer event); the first date only opens a bar; a bar with no tick takes the previous close, one with no previous bar is dropped where ib_async keeps a NaN bar |
+| `Tickfilter.tickbars` | `tickBars(count:)` | added | yields when a bar completes |
+| `Tickfilter.volumebars` | `volumeBars(volume:)` | added | yields when a bar's volume reaches `volume` |
+| `Midpoints` | `AsyncThrowingStream<TickPoint, any Error>` from `midpoints()` | added | |
 | `Bar` (ticker.py) | `Bar` | present | the builders can emit the existing `Bar` |
-| `BarList` (+ `updateEvent`) | — | MISSING | the builders' accumulated bars with `(bars, hasNewBar)` updates |
-| `TimeBars`, `TickBars`, `VolumeBars` | — | MISSING | the sequences the three builders return |
+| `BarList` (+ `updateEvent`) | `BarList` (`bars`, `hasNewBar`) | added | each element of a builder's stream is one `updateEvent`; `bars` grows without bound, as in ib_async |
+| `TimeBars`, `TickBars`, `VolumeBars` | `AsyncThrowingStream<BarList, any Error>` from `timeBars(timer:)`, `tickBars(count:)`, `volumeBars(volume:)` | added | |
 | `on_source` of `Tickfilter`, `Midpoints`, `TimeBars`, `TickBars`, `VolumeBars` | — | n/a | eventkit `Op` override hooks; the logic belongs to the rows above |
 
 ## objects.py
@@ -494,4 +494,4 @@ connect), **model helper** (a computed property or method on a model), **factory
 
 ## Totals
 
-Rows, where one row may carry several names: `present` 218 · `added` 57 · `MISSING` 108 · `n/a` 33.
+Rows, where one row may carry several names: `present` 218 · `added` 70 · `MISSING` 95 · `n/a` 33.

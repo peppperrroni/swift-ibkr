@@ -321,6 +321,11 @@ Task { for try await tick in try await client.marketData(aapl) { print(tick) } }
 Task { for try await t in try await client.tickers(aapl, depthRows: 5) { print(t.bid as Any, t.depth.bids.first as Any) } }
 // tickByTick: .bidAsk (or .last, .allLast, .midPoint) folds IB's tick-by-tick events in too.
 Task { for try await t in try await client.tickers(aapl, tickByTick: .last) { print(t.tickByTicks) } }
+// ib_async's tick filters and bar builders: trades(), bids(), asks(), bidAsks(), midpoints() yield TickPoint(time, price,
+// size); tickBars(count:), volumeBars(volume:) and timeBars(timer:) (any AsyncSequence of Date) yield BarList(bars,
+// hasNewBar). Stopping the outer loop stops the tickers stream and sends its cancels.
+Task { for try await p in try await client.tickers(aapl).trades() { print(p.time, p.price, p.size) } }
+Task { for try await list in try await client.tickers(aapl).trades().tickBars(count: 100) { print(list.bars.last!) } }
 // Snapshots of many contracts at once, in input order; the first error is thrown and the rest cancelled.
 let snaps = try await client.tickers(for: [aapl, msft])
 
@@ -518,6 +523,8 @@ library leaves out.
 | `Ticker` | `Ticker` |
 | `Ticker.marketPrice`, `Ticker.midpoint`, `Ticker.hasBidAsk` | `Ticker.marketPrice`, `Ticker.midpoint`, `Ticker.hasBidAsk` |
 | `Ticker.ticks`, `Ticker.tickByTicks`, `Ticker.domTicks`, `Ticker.time` | the same names: what each `tickers` update brought, and when |
+| `ticker.updateEvent.trades()`, `.bids()`, `.asks()`, `.bidasks()`, `.midpoints()` | `trades()`, `bids()`, `asks()`, `bidAsks()`, `midpoints()` on any `Ticker` sequence (`tickers(…)`), yielding `TickPoint` |
+| `Tickfilter.timebars`, `.tickbars`, `.volumebars`, `BarList` | `timeBars(timer:)`, `tickBars(count:)`, `volumeBars(volume:)` on a `TickPoint` stream, yielding `BarList` (`bars`, `hasNewBar`) |
 | `TickData`, `MktDepthData` (in `domTicks`), `Dividends`, `FundamentalRatios` | `TickData`, `DepthTick`, `Dividends`, `FundamentalRatios` |
 | the tick filters and bar builders | none |
 | `newsTicks` | `Tick.news` from `marketData` with the news generic ticks |
