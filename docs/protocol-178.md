@@ -1909,10 +1909,21 @@ agrees type by type. The differences are in default values and value formatting 
    or, for a plain `float()` / `int()` read (updatePortfolio, positionMulti's reqId), rejects the frame. IB never leaves
    them unset, and making them optional would be Breaking for no observed frame. A non-optional flag does the same: an unset value (empty or `MAX`) reads as false where `ib_async` reads
    `bool(int(x))` (execDetails' `pendingPriceRevision`). Messages 3, 7, 11, 59, 61, 63, 71, 73, 94, 95, 100.
+   openOrder (5) and completedOrder (101) do the same for every non-optional number and flag of the order, its combo
+   legs, delta-neutral contract and conditions, and for any value of the shared unset set, the long sentinels included
+   (`ib_async` reads `9223372036854775807` in a `float` field as a number): `exemptCode` reads as its default -1, a
+   condition's `isMore` reads empty as false where `ib_async`'s `parse` keeps the dataclass default true, and
+   `eTradeOnly` / `firmQuoteOnly` read any unset value as `nil` (false). An unset group count reads as 0 and an unset
+   delta-neutral-contract flag as false, where `ib_async`'s `int()` rejects the frame or reads a `MAX` flag as set
+   (decoder.py:984-1103, 1236-1325).
 14. **A frame shorter than the 178 layout is malformed.** swift-ibkr reports `.malformed(missingField …)` where
    `ib_async`'s `wrap` zips the fields with its types and lets the wrapper's defaults fill the missing trailing
    arguments (orderStatus without mktCapPrice, message 3). Deliberate strictness at the pinned version, where IB always sends
    the whole layout.
+15. **displaySize reads IB's unset value as 0.** The live gateway sends openOrder's and completedOrder's `displaySize`
+   as `2147483647` for an order without one (item 9); swift-ibkr's `Order.displaySize` is a non-optional `Int`, so it
+   decodes to 0 (any other unset value too), where `ib_async` keeps the sentinel (`""` in the oracle). A `modifyOrder`
+   with a decoded order therefore re-sends `0` where `ib_async` sends `""` (KNOWN-GAPS, the modify line).
 
 No row in this document is unverified: every table was checked line by line against the
 verbatim source of both clients.

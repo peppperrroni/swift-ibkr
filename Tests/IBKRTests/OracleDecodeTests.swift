@@ -7,12 +7,12 @@ import Testing
 
 /// Incoming ids no family maps yet; the comparison and the coverage test skip them. Each decode task removes its own.
 let pendingDecodeIDs: Set<Int> = [
-    1, 2, 5, 10, 12, 13, 14, 16, 17, 18, 19, 20, 21,
+    1, 2, 10, 12, 13, 14, 16, 17, 18, 19, 20, 21,
     45, 46, 47,
     50, 51, 52, 56, 57, 58,
     65, 66, 67, 68, 69, 70, 75, 76, 77, 78, 79, 80,
     81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 96, 97, 98, 99,
-    101, 103, 104, 105, 106,
+    103, 104, 105, 106,
 ]
 
 /// The wrapper calls ib_async would make for what IBDecoder produced; `nil` when no family maps this message.
