@@ -335,22 +335,22 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `Order.filledQuantity` | `CompletedOrderMessage.filledQuantity` | present | |
 | `LimitOrder`, `MarketOrder`, `StopOrder`, `StopLimitOrder` | `Order.limit`, `.market`, `.stop`, `.stopLimit` | present | |
 | `OrderStatus` (the record) | `OrderStatusMessage` | present | |
-| `OrderStatus.total` | — | MISSING | model helper `OrderSnapshot.total` (filled + remaining) |
+| `OrderStatus.total` | `OrderSnapshot.total` | added | model helper: filled + remaining |
 | `PendingSubmit`, `PendingCancel`, `PreSubmitted`, `Submitted`, `ApiPending`, `ApiCancelled`, `Cancelled`, `Filled`, `Inactive` | `OrderStatus.pendingSubmit` … `.inactive` | present | |
-| `OrderStatus.ApiUpdate` | — | MISSING | `OrderStatus.apiUpdate` static |
+| `OrderStatus.ApiUpdate` | `OrderStatus.apiUpdate` | added | |
 | `OrderStatus.ValidationError` | — | MISSING | `OrderStatus.validationError` (active, working), set locally with a `log` entry on a warning (105/321/329/434/492) for a live order (wrapper.py:1634); `rejectReason` is still recorded |
 | `OrderStatus.DoneStates` | `OrderStatus.isFinal` | present | |
-| `OrderStatus.ActiveStates` | — | MISSING | model helper `OrderStatus.isActive` |
-| `OrderStatus.WaitingStates` | — | MISSING | model helper `OrderStatus.isWaiting` |
-| `OrderStatus.WorkingStates` | — | MISSING | model helper `OrderStatus.isWorking` |
+| `OrderStatus.ActiveStates` | `OrderStatus.isActive` | added | model helper: pending submit, API pending, pre-submitted, submitted, validation error, API update |
+| `OrderStatus.WaitingStates` | `OrderStatus.isWaiting` | added | model helper: pending submit, API pending, pre-submitted |
+| `OrderStatus.WorkingStates` | `OrderStatus.isWorking` | added | model helper: submitted, validation error, API update |
 | `OrderState` | `OrderState`; `status` on `OpenOrderMessage`, `completedTime`/`completedStatus` on `CompletedOrderMessage` | present | |
 | `OrderState.numeric`, `OrderStateNumeric` | `OrderState` | present | its margins and commissions are already `Decimal?` |
-| `OrderState.transform` | — | MISSING | model helper `OrderState.map(_:)` over the twelve numbers |
-| `OrderState.formatted` | — | MISSING | model helper `formatted(digits:)` → grouped strings |
+| `OrderState.transform` | `OrderState.map(_:)` | added | model helper over the twelve numbers; `nil` stays `nil` |
+| `OrderState.formatted` | `OrderState.formatted(digits:)` | added | model helper: `[String: String]` keyed by field name, `"300,000.21"`, rounded half-even; `""` for an unset value where ib_async gives `None` |
 | `OrderComboLeg` | `OrderComboLeg` | present | |
 | `Trade` | `OrderSnapshot` | present | |
 | `Trade.contract`, `order`, `orderStatus` | `OrderSnapshot.contract`, `.order`, `.status` … `.whyHeld` | present | |
-| `Trade.orderStatus.mktCapPrice` | — | MISSING | field `OrderSnapshot.marketCapPrice` (on `OrderStatusMessage` only) |
+| `Trade.orderStatus.mktCapPrice` | `OrderSnapshot.marketCapPrice` | added | field, merged from `OrderStatusMessage.marketCapPrice` |
 | `Trade.fills` | — | MISSING | field `OrderSnapshot.fills: [Fill]` |
 | `Trade.log` | — | MISSING | field `OrderSnapshot.log: [TradeLogEntry]` |
 | `Trade.advancedError` | `OrderSnapshot.advancedOrderRejectJSON` | present | |
@@ -362,7 +362,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `Trade.cancelEvent` | — | MISSING | see `cancelOrderEvent` |
 | `Trade.cancelledEvent` | `orders()` updates whose status turns `.cancelled` | present | |
 | `Trade.events` | — | n/a | eventkit bookkeeping tuple |
-| `Trade.isWaiting`, `isWorking`, `isActive` | — | MISSING | model helpers on `OrderSnapshot` (through the `OrderStatus` sets) |
+| `Trade.isWaiting`, `isWorking`, `isActive` | `OrderSnapshot.isWaiting`, `OrderSnapshot.isWorking`, `OrderSnapshot.isActive` | added | model helpers through the `OrderStatus` sets |
 | `Trade.isDone` | `OrderSnapshot.status.isFinal` | present | |
 | `Trade.filled` | `OrderSnapshot.filled` | present | IB's figure; ib_async sums the fills, leaving out BAG legs |
 | `Trade.remaining` | `OrderSnapshot.remaining` | present | IB's figure, clamped at 0 |
@@ -494,4 +494,4 @@ connect), **model helper** (a computed property or method on a model), **factory
 
 ## Totals
 
-Rows, where one row may carry several names: `present` 218 · `added` 70 · `MISSING` 95 · `n/a` 33.
+Rows, where one row may carry several names: `present` 218 · `added` 79 · `MISSING` 86 · `n/a` 33.

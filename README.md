@@ -493,6 +493,8 @@ library leaves out.
 | `exerciseOptions` | `exerciseOptions(_:action:quantity:account:override:)` |
 | `trades`, `openTrades`, `orders`, `openOrders`, `reqOpenOrders`, `reqAllOpenOrders`, `reqCompletedOrders` | `orders()` (open and completed orders, synced at connect) |
 | `Trade` | `OrderSnapshot` |
+| `Trade.isActive`, `.isWaiting`, `.isWorking`, `OrderStatus.total`, `.mktCapPrice` | `OrderSnapshot.isActive`, `.isWaiting`, `.isWorking`, `.total`, `.marketCapPrice` (the sets also on `OrderStatus`) |
+| `OrderState.transform`, `.formatted` | `OrderState.map(_:)`, `.formatted(digits:)` |
 | `fills`, `executions`, `reqExecutions` | `executions()` (synced at connect) |
 | `Fill` | `Fill` |
 | `MarketOrder`, `LimitOrder`, `StopOrder`, `StopLimitOrder` | `Order.market(_:quantity:)`, `.limit(_:quantity:price:)`, `.stop(_:quantity:stopPrice:)`, `.stopLimit(_:quantity:limitPrice:stopPrice:)` |

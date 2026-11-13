@@ -25,9 +25,22 @@ public struct OrderStatus: RawRepresentable, Sendable, Hashable, Encodable {
     public static let filled = OrderStatus(rawValue: "Filled")
     /// IB's `Inactive` status.
     public static let inactive = OrderStatus(rawValue: "Inactive")
+    /// IB's `ApiUpdate` status.
+    public static let apiUpdate = OrderStatus(rawValue: "ApiUpdate")
+    /// `ib_async`'s local status for an order that drew a warning (105, 321, 329, 434, 492) and still lives at IB.
+    public static let validationError = OrderStatus(rawValue: "ValidationError")
 
     /// Whether the order is over: cancelled (by IB or the API), filled or inactive.
     public var isFinal: Bool { self == .cancelled || self == .apiCancelled || self == .filled || self == .inactive }
+    /// Whether the order can still execute (`ib_async`'s `ActiveStates`): pending submit, API pending,
+    /// pre-submitted, submitted, validation error or API update.
+    public var isActive: Bool { isWaiting || isWorking }
+    /// Whether the order is sent but not yet working (`ib_async`'s `WaitingStates`): pending submit, API pending or
+    /// pre-submitted.
+    public var isWaiting: Bool { self == .pendingSubmit || self == .apiPending || self == .preSubmitted }
+    /// Whether the order works at the exchanges (`ib_async`'s `WorkingStates`): submitted, validation error or API
+    /// update.
+    public var isWorking: Bool { self == .submitted || self == .validationError || self == .apiUpdate }
 }
 
 /// IB's orderStatus message (in 3): where an order stands and what has filled.

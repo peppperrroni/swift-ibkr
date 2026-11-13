@@ -30,8 +30,20 @@ public struct OrderSnapshot: Sendable, Equatable, Encodable {
     public var completedTime: String?
     /// The advanced-reject JSON IB attaches to an order error; `nil` when it sent none.
     public var advancedOrderRejectJSON: String?
+    /// IB's price cap from orderStatus (`ib_async`'s `mktCapPrice`); `nil` when IB sends none.
+    public var marketCapPrice: Decimal?
 
-    /// A snapshot of these values; the prices, reject reason, completed time and reject JSON default to `nil`.
+    /// Filled plus remaining: the order's whole size as IB reports it (`ib_async`'s `OrderStatus.total`).
+    public var total: Decimal { filled + remaining }
+    /// Whether the order can still execute (`OrderStatus.isActive`).
+    public var isActive: Bool { status.isActive }
+    /// Whether the order is sent but not yet working (`OrderStatus.isWaiting`).
+    public var isWaiting: Bool { status.isWaiting }
+    /// Whether the order works at the exchanges (`OrderStatus.isWorking`).
+    public var isWorking: Bool { status.isWorking }
+
+    /// A snapshot of these values; the prices, reject reason, completed time, reject JSON and price cap default to
+    /// `nil`.
     public init(
         orderID: Int,
         clientID: Int,
@@ -46,7 +58,8 @@ public struct OrderSnapshot: Sendable, Equatable, Encodable {
         whyHeld: String,
         rejectReason: String? = nil,
         completedTime: String? = nil,
-        advancedOrderRejectJSON: String? = nil
+        advancedOrderRejectJSON: String? = nil,
+        marketCapPrice: Decimal? = nil
     ) {
         self.orderID = orderID
         self.clientID = clientID
@@ -62,6 +75,7 @@ public struct OrderSnapshot: Sendable, Equatable, Encodable {
         self.rejectReason = rejectReason
         self.completedTime = completedTime
         self.advancedOrderRejectJSON = advancedOrderRejectJSON
+        self.marketCapPrice = marketCapPrice
     }
 }
 
@@ -221,6 +235,7 @@ public struct OrderTracker: Sendable {
         if m.permID > 0 { s.permID = m.permID }
         s.status = m.status; s.filled = m.filled; s.remaining = m.remaining
         s.averageFillPrice = m.averageFillPrice; s.lastFillPrice = m.lastFillPrice; s.whyHeld = m.whyHeld
+        s.marketCapPrice = m.marketCapPrice
     }
 
     /// Finds the order by key, then by permID; edits it (or `new`, when there is none) and indexes both

@@ -290,3 +290,43 @@ private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT"
     let r = t.apply(open())
     #expect(r.count == 1 && r[0].orderID == 12 && r[0].order.parentPermID == 918273000)
 }
+
+@Test func statusSetsMatchIbAsync() {
+    let all: [OrderStatus] = [.pendingSubmit, .pendingCancel, .preSubmitted, .submitted, .apiPending, .apiCancelled,
+                              .apiUpdate, .cancelled, .filled, .inactive, .validationError]
+    #expect(OrderStatus.apiUpdate.rawValue == "ApiUpdate" && OrderStatus.validationError.rawValue == "ValidationError")
+    // order.py:274-300
+    #expect(all.filter { $0.isActive } == [.pendingSubmit, .preSubmitted, .submitted, .apiPending, .apiUpdate, .validationError])
+    #expect(all.filter { $0.isWaiting } == [.pendingSubmit, .preSubmitted, .apiPending])
+    #expect(all.filter { $0.isWorking } == [.submitted, .apiUpdate, .validationError])
+    #expect(all.filter { $0.isFinal } == [.apiCancelled, .cancelled, .filled, .inactive])
+}
+
+@Test func snapshotTotalAndSets() {
+    let s = OrderSnapshot(orderID: 1, clientID: 1, permID: 1, contract: aapl, order: sentOrder, status: .preSubmitted,
+                          filled: d("40"), remaining: d("60"), whyHeld: "")
+    #expect(s.total == d("100"))
+    #expect(s.isActive && s.isWaiting && !s.isWorking)
+}
+
+@Test func marketCapPriceIsMerged() throws {
+    var t = OrderTracker(clientID: 1)
+    _ = t.apply(open())
+    let r = t.apply(IBDecoder.decode(body(["3", "12", "Submitted", "0", "100", "0", "918273001", "0", "0", "1", "",
+                                           "187.5"])))
+    try #require(r.count == 1)
+    #expect(r[0].marketCapPrice == d("187.5"))
+}
+
+@Test func orderStateMapAndFormatted() {
+    let s = OrderState(initMarginChange: d("300000.211"), maintMarginAfter: d("-1234.5"), commission: d("0"))
+    let f = s.formatted()
+    #expect(f["initMarginChange"] == "300,000.21")
+    #expect(f["maintMarginAfter"] == "-1,234.50")
+    #expect(f["commission"] == "0.00")
+    #expect(f["minCommission"] == "")
+    #expect(f.count == 12)
+    #expect(OrderState(initMarginChange: d("999.5")).formatted(digits: 0)["initMarginChange"] == "1,000")
+    let doubled = s.map { $0 * 2 }
+    #expect(doubled == OrderState(initMarginChange: d("600000.422"), maintMarginAfter: d("-2469"), commission: d("0")))
+}

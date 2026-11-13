@@ -64,4 +64,46 @@ public struct OrderState: Sendable, Equatable, Encodable {
         self.commissionCurrency = commissionCurrency
         self.warningText = warningText
     }
+
+    /// The twelve margins and commissions by field name, in declaration order.
+    private static var numbers: [(name: String, path: WritableKeyPath<OrderState, Decimal?>)] {
+        [("initMarginBefore", \.initMarginBefore), ("maintMarginBefore", \.maintMarginBefore),
+         ("equityWithLoanBefore", \.equityWithLoanBefore), ("initMarginChange", \.initMarginChange),
+         ("maintMarginChange", \.maintMarginChange), ("equityWithLoanChange", \.equityWithLoanChange),
+         ("initMarginAfter", \.initMarginAfter), ("maintMarginAfter", \.maintMarginAfter),
+         ("equityWithLoanAfter", \.equityWithLoanAfter), ("commission", \.commission),
+         ("minCommission", \.minCommission), ("maxCommission", \.maxCommission)]
+    }
+
+    /// `ib_async`'s `transform`: this state with `transform` applied to each of the twelve margins and commissions
+    /// that is set; `nil` stays `nil`, and the currency and warning text are kept.
+    public func map(_ transform: (Decimal) -> Decimal) -> OrderState {
+        var s = self
+        for n in Self.numbers { s[keyPath: n.path] = s[keyPath: n.path].map(transform) }
+        return s
+    }
+
+    /// `ib_async`'s `formatted`: the twelve margins and commissions keyed by field name (`"initMarginChange"` …),
+    /// rounded half-even to `digits` decimals and grouped by thousands (`"300,000.21"`), the same on every platform;
+    /// `""` for an unset one. A negative `digits` counts as 0.
+    public func formatted(digits: Int = 2) -> [String: String] {
+        Dictionary(uniqueKeysWithValues: Self.numbers.map { n in
+            (n.name, self[keyPath: n.path].map { Self.grouped($0, digits: max(digits, 0)) } ?? "")
+        })
+    }
+
+    /// Groups by hand: ICU's en_US_POSIX pattern has no grouping, and Decimal's description is locale-free.
+    private static func grouped(_ value: Decimal, digits: Int) -> String {
+        var value = value, rounded = Decimal()
+        NSDecimalRound(&rounded, &value, digits, .bankers)   // Python's format rounds half-even
+        let parts = "\(abs(rounded))".split(separator: ".", omittingEmptySubsequences: false)
+        var whole = "", count = 0
+        for c in parts[0].reversed() {
+            if count > 0, count % 3 == 0 { whole.insert(",", at: whole.startIndex) }
+            whole.insert(c, at: whole.startIndex)
+            count += 1
+        }
+        let fraction = (parts.count > 1 ? String(parts[1]) : "").padding(toLength: digits, withPad: "0", startingAt: 0)
+        return (rounded < 0 ? "-" : "") + whole + (digits > 0 ? "." + fraction : "")
+    }
 }
