@@ -32,9 +32,6 @@ from ib_async.client import Client
 from ib_async.decoder import Decoder
 from ib_async.wrapper import Wrapper
 
-from cases import CASES, CLIENT_ATTRS
-from variants import CANARY, VARIANTS
-
 SERVER_VERSION = 178
 ORACLE = os.path.join(HERE, "..", "..", "Tests", "IBKRTests", "Oracle")
 
@@ -56,6 +53,9 @@ socket.socketpair = _refuse
 for _name in ("create_connection", "create_server", "create_unix_connection"):
     setattr(asyncio.BaseEventLoop, _name, _refuse)
 asyncio.open_connection = _refuse
+
+from cases import CASES, CLIENT_ATTRS  # noqa: E402  (after the guard: cases.py decodes a recorded frame at import)
+from variants import CANARY, VARIANTS  # noqa: E402
 
 
 # --- canonical form (decision 5) ----------------------------------------------------------------------------------
@@ -208,9 +208,10 @@ def encode(name, method, kwargs):
         setattr(client, attr, value)
     bound = inspect.signature(getattr(Client, method)).bind(client, **kwargs)
     bound.apply_defaults()
+    # before the call: placeOrder clears a non-VOL order's volatility in place (client.py:480-482)
+    args = {k: case_value(v) for k, v in list(bound.arguments.items())[1:]}
     getattr(client, method)(**kwargs)
     assert len(sent) == 1 and sent[0].endswith("\0"), f"{name}: expected one message, got {sent!r}"
-    args = {k: case_value(v) for k, v in list(bound.arguments.items())[1:]}
     if method in CLIENT_ATTRS:
         args["_client"] = {a: case_value(getattr(client, a)) for a in CLIENT_ATTRS[method]}
     return {"name": name, "method": method, "args": args, "fields": sent[0].split("\0")[:-1]}

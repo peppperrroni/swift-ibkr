@@ -26,6 +26,10 @@ python3.12 -m venv .venv
 - **Encode capture.** A `Client` that never connects: `_serverVersion` 178, `connState` CONNECTED, `sendMsg`
   replaced by a list append; the message is split on `\0`. Arguments go to encode.json as text (`bool`
   `true`/`false`, `float` its `repr`), `None` as null, a dataclass as an object of all its fields plus `_type`; a
-  datetime argument is refused (pass the text `ib.py` sends, through `cases.ib_datetime`).
+  datetime argument is refused (pass the text `ib.py` sends, through `cases.ib_datetime`). Arguments are recorded
+  before the call, because placeOrder clears a non-`VOL` order's `volatility` in place.
+  `placeOrder/modify/recorded-openOrder` sends back the order `Decoder` builds from the first openOrder of
+  `Recorded/liveLimitOrderPlacesAndCancels.json` (`cases.py` decodes it at import, after the network guard); the
+  Swift side decodes the same frame with `IBDecoder`.
 - **Deterministic.** Corpus order, then variants by id; sorted keys, UTF-8, `\n` line ends. CI regenerates and fails
   on `git diff`.

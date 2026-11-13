@@ -48,7 +48,7 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | Area | What you get | State |
 |---|---|---|
 | Connection | handshake, request throttle, `states()`, the raw `messages()` feed, `ib_async`'s connect options (`ConnectOptions`: read-only, account, startup fetch, throttle, connect options), connection stats, idle timeouts, throttle events, a log handler, client-0 auto-bind | ✅ handshake, throttle and feed live-checked; the options, stats, idle timeouts and log on the fake gateway, not yet run live (see KNOWN-GAPS) |
-| Orders | place, modify, cancel, every placeOrder field (conditions, algos, pegged, combos, delta neutral), brackets, OCA, what-if, exercise, open and completed orders merged with ib_async's local states, trade log and fills, open/completed-order and filtered-execution one-shots, id reservation, raw send | ✅ plain orders live-checked; the rest on hand-built frames, not yet run live (see KNOWN-GAPS) |
+| Orders | place, modify, cancel, every placeOrder field (conditions, algos, pegged, combos, delta neutral), brackets, OCA, what-if, exercise, open and completed orders merged with ib_async's local states, trade log and fills, open/completed-order and filtered-execution one-shots, id reservation, raw send | ✅ plain orders live-checked; the rest on hand-built frames and cross-checked against ib_async 2.1.0, not yet run live (see KNOWN-GAPS) |
 | Executions | fills joined with commissions, corrections applied | ✅ live-checked |
 | Positions | synced at connect, whole sets on every change | ✅ live-checked |
 | Session | current time, accounts, next id, user info, log level, auto-bind, global cancel, opt-in reconnect | ✅ cross-checked against ib_async 2.1.0 and on the fake gateway; not yet run live (see KNOWN-GAPS) |
@@ -687,7 +687,8 @@ build) with the wrapper calls `ib_async` makes for each, and `swift test` compar
 messages `ib_async`'s decoder handles at protocol 178 are compared. Requests are checked the same way:
 `encode.json` holds the fields `ib_async`'s `Client` sends for each case of `Scripts/differential/cases.py`, and
 `swift test` builds the same `IBRequest` and compares its body with them (the session, account and order-side
-requests so far). Python is needed only to regenerate the answers (`python -I Scripts/differential/generate.py`, see
+requests and placeOrder's every field group so far). Python is needed only to regenerate the answers
+(`python -I Scripts/differential/generate.py`, see
 [CONTRIBUTING](CONTRIBUTING.md#differential-oracle)); CI regenerates them and fails on any difference.
 
 The live tests run against a **paper** IB Gateway on 127.0.0.1:4002 and are skipped unless you ask for them.

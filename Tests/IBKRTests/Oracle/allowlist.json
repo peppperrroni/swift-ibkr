@@ -15702,5 +15702,61 @@
   "pair": ["0", ""],
   "cite": "protocol-178 Disagreements 13",
   "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "out 3",
+  "field": "totalQuantity",
+  "frames": "placeOrder/modify/recorded-openOrder",
+  "equalAsNumbers": true,
+  "cite": "protocol-178 Disagreements 4",
+  "note": "ib_async's openOrder decoder made it a float, which str() writes with .0 (client.py:278-280); swift-ibkr's Decimal writes the integer"
+ },
+ {
+  "scope": "out 3",
+  "field": "lmtPrice",
+  "frames": "placeOrder/modify/recorded-openOrder",
+  "equalAsNumbers": true,
+  "cite": "protocol-178 Disagreements 4",
+  "note": "ib_async's openOrder decoder made it a float, which str() writes with .0 (client.py:278-280); swift-ibkr's Decimal writes the integer"
+ },
+ {
+  "scope": "out 3",
+  "field": "auxPrice",
+  "frames": "placeOrder/modify/recorded-openOrder",
+  "equalAsNumbers": true,
+  "cite": "protocol-178 Disagreements 4",
+  "note": "ib_async's openOrder decoder made it a float, which str() writes with .0 (client.py:278-280); swift-ibkr's Decimal writes the integer"
+ },
+ {
+  "scope": "out 3",
+  "field": "displaySize",
+  "frames": "placeOrder/modify/recorded-openOrder",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "the recorded 2147483647 decodes to 0 and is re-sent as 0; ib_async keeps the sentinel and send() writes it as empty (client.py:285)"
+ },
+ {
+  "scope": "out 3",
+  "field": "trailStopPrice",
+  "frames": "placeOrder/modify/recorded-openOrder",
+  "equalAsNumbers": true,
+  "cite": "protocol-178 Disagreements 4",
+  "note": "ib_async's openOrder decoder made it a float, which str() writes with .0 (client.py:278-280); swift-ibkr's Decimal writes the integer"
+ },
+ {
+  "scope": "out 3",
+  "field": "cashQty",
+  "frames": "placeOrder/modify/recorded-openOrder",
+  "equalAsNumbers": true,
+  "cite": "protocol-178 Disagreements 4",
+  "note": "ib_async's openOrder decoder made it a float, which str() writes with .0 (client.py:278-280); swift-ibkr's Decimal writes the integer"
+ },
+ {
+  "scope": "out 3",
+  "field": "scalePriceIncrement",
+  "frames": "placeOrder/scale-increment-zero",
+  "equalAsNumbers": true,
+  "cite": "protocol-178 Disagreements 4",
+  "note": "the case's float 0.0 is written by str() (client.py:278-280); swift-ibkr's Decimal writes 0"
  }
 ]

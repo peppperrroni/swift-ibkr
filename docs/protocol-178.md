@@ -1958,7 +1958,9 @@ agrees type by type. The differences are in default values and value formatting 
    as `2147483647` for an order without one (openOrder field 47 in `Recorded/liveLimitOrderPlacesAndCancels.json`,
    completedOrder field 43 in `Recorded/liveAccountSummary.json`); swift-ibkr's `Order.displaySize` is a non-optional `Int`, so it
    decodes to 0 (any other unset value too), where `ib_async` keeps the sentinel (`""` in the oracle). A `modifyOrder`
-   with a decoded order therefore re-sends `0` where `ib_async` sends `""` (KNOWN-GAPS, the modify line).
+   with a decoded order therefore re-sends `0` where `ib_async` sends `""` (KNOWN-GAPS, the modify line; the encode
+   oracle's `placeOrder/modify/recorded-openOrder` case shows it, and no other field of that re-send differs but
+   number formatting, item 4).
 16. **An empty tickPrice price makes no tick in `ib_async`.** Its decoder calls the wrapper only `if price:`
    (decoder.py:200-206), so a frame whose price field is empty gives no call at all; swift-ibkr decodes the frame to
    `.tick(.price(…, price: nil, …))` (unset is `nil`). No recorded live frame has an empty price. On such a frame a `Ticker` field can be cleared where `ib_async`

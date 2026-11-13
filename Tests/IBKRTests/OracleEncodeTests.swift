@@ -7,7 +7,6 @@ import Testing
 
 /// The ib_async `Client` methods whose cases are not mapped yet (Tasks 10-12); Task 12 deletes the constant.
 let pendingRequestMethods: Set<String> = [
-    "placeOrder",
     "reqContractDetails", "reqMatchingSymbols", "reqMktData", "cancelMktData", "reqHistoricalData",
     "cancelHistoricalData", "reqRealTimeBars", "cancelRealTimeBars", "reqMktDepth", "cancelMktDepth",
     "reqTickByTickData", "cancelTickByTickData", "reqHistoricalTicks", "reqHeadTimeStamp", "cancelHeadTimeStamp",
@@ -135,7 +134,7 @@ func ibAsyncMethod(_ r: IBRequest) -> String {
 
 /// The `IBRequest` for a case, from the first family that maps its method (each returns `nil` for another family's).
 func request(for c: EncodeCase) throws -> IBRequest {
-    let families: [(EncodeCase) throws -> IBRequest?] = [sessionRequest]
+    let families: [(EncodeCase) throws -> IBRequest?] = [sessionRequest, placeOrderRequest]
     for family in families { if let r = try family(c) { return r } }
     throw CaseError("no family maps \(c.method)")
 }
@@ -164,13 +163,20 @@ func request(for c: EncodeCase) throws -> IBRequest {
         var mismatches: [Mismatch] = []
         do {
             let ours = FieldReader(try built.body()).fields
+            // placeOrder's fields by protocol-178 name (P7), every other request's by index
+            var names = ours.indices.map(String.init)
+            if case .placeOrder(_, let contract, let order) = built {
+                names = placeOrderFieldNames(contract, order)
+                if names.count != ours.count { Issue.record("\(c.name): \(names.count) names for \(ours.count) fields") }
+            }
             if ours.count != c.fields.count {
-                mismatches = [Mismatch(name: c.name, scope: scope, field: "#count", ours: "\(ours.count): \(ours)",
-                                       theirs: "\(c.fields.count): \(c.fields)")]
-            } else {
-                for (i, (a, b)) in zip(ours, c.fields).enumerated() where a != b {
-                    mismatches.append(Mismatch(name: c.name, scope: scope, field: "\(i)", ours: a, theirs: b))
-                }
+                mismatches.append(Mismatch(name: c.name, scope: scope, field: "#count", ours: "\(ours.count): \(ours)",
+                                           theirs: "\(c.fields.count): \(c.fields)"))
+            }
+            // the common prefix is compared even when the counts differ (R23)
+            for (i, (a, b)) in zip(ours, c.fields).enumerated() where a != b {
+                let field = i < names.count ? names[i] : "\(i)"
+                mismatches.append(Mismatch(name: c.name, scope: scope, field: field, ours: a, theirs: b))
             }
         } catch {
             mismatches = [Mismatch(name: c.name, scope: scope, field: "#error", ours: "\(error)", theirs: "sent")]
@@ -183,13 +189,16 @@ func request(for c: EncodeCase) throws -> IBRequest {
     }
 }
 
-/// P7: an encode entry names one case and a field by index, `#count` or `#error` (placeOrder alone may glob).
+/// P7: an encode entry names one case and a field by index, `#count` (with its `pair`, R23) or `#error`; placeOrder
+/// alone names a field by protocol-178 name or globs its cases.
 @Test func encodeAllowlistEntriesAreNarrow() throws {
     let docs = try oracleDocs()
     let cite = "protocol-178 Disagreements 8"
     let good = [
         AllowEntry(scope: "out 4", field: "3", frames: "cancelOrder/set", cite: cite),
-        AllowEntry(scope: "out 4", field: "#count", frames: "cancelOrder/set", cite: cite),
+        AllowEntry(scope: "out 4", field: "#count", frames: "cancelOrder/set", pair: ["3: []", "4: []"], cite: cite),
+        AllowEntry(scope: "out 3", field: "displaySize", frames: "placeOrder/modify/*", pair: ["0", ""], cite: cite),
+        AllowEntry(scope: "out 3", field: "31", frames: "placeOrder/limit", cite: cite),
     ]
     for e in good { #expect(allowlistProblems([e], decisions: docs.decisions, protocol178: docs.protocol178).isEmpty, "\(e)") }
     let bad = [
@@ -197,6 +206,25 @@ func request(for c: EncodeCase) throws -> IBRequest {
         AllowEntry(scope: "out 4", field: "3", cite: cite),
         AllowEntry(scope: "out 4", field: "3", frames: "cancelOrder/*", cite: cite),
         AllowEntry(scope: "out 4", field: "#calls", frames: "cancelOrder/set", cite: cite),
+        AllowEntry(scope: "out 4", field: "#count", frames: "cancelOrder/set", cite: cite),
+        AllowEntry(scope: "out 3", field: "#count", frames: "placeOrder/limit", cite: cite),
+        AllowEntry(scope: "out 3", field: "31", cite: cite),
     ]
     for e in bad { #expect(allowlistProblems([e], decisions: docs.decisions, protocol178: docs.protocol178).count == 1, "\(e)") }
+}
+
+/// R23: the 80 strings `ibAsyncMethod` returns are distinct and are exactly the methods of `ibAsyncRequestIDs`, so a
+/// wrong string fails before its family is mapped. Read from this file's switch: an `IBRequest` with associated values
+/// cannot be enumerated.
+@Test func ibAsyncMethodStringsAreDistinct() throws {
+    let source = try String(contentsOf: URL(fileURLWithPath: #filePath), encoding: .utf8)
+    let body = try #require(source.components(separatedBy: "func ibAsyncMethod(").dropFirst().first?
+        .components(separatedBy: "\n}").first)
+    let strings = body.split(whereSeparator: \.isNewline).compactMap { line -> String? in
+        guard line.contains("case ."), let quote = line.firstIndex(of: "\"") else { return nil }
+        return String(line[line.index(after: quote)...].prefix { $0 != "\"" })
+    }
+    #expect(strings.count == 80)
+    #expect(Set(strings).count == strings.count, "a method string repeats")
+    #expect(Set(strings) == Set(ibAsyncRequestIDs.keys))
 }

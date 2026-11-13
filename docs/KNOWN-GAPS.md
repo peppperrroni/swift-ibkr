@@ -65,13 +65,14 @@ realized P&L. The stage-4 run of 2026-11-11 (paper account, no market-data subsc
 - **Live gateway.** IB's price cap is about 1.8% from the market in regular hours. The live fill test uses +-1% and
   prices the SELL off the BUY's fill.
 - **Live gateway.** A modify that re-sends an order decoded from a live openOrder (deltaNeutralOrderType `None` with
-  its 8 fields, adjustedOrderType `None`) is unchecked. It also sends displaySize `0` where `ib_async` sends `""`
-  (the gateway's `2147483647` decodes to 0).
-- **Live gateway.** Conditions, algos, PEG and combo orders are checked on hand-built frames only: no live order has
-  carried one.
-- **Live gateway.** What-if is unchecked: `whatIfOrder` is tested on hand-built frames only and the margin /
-  commission decoding is cross-checked against ib_async 2.1.0, unseen live, so the margin text format of a real
-  answer (and whether IB echoes the order first) is unconfirmed.
+  its 8 fields, adjustedOrderType `None`) is unchecked live; it is cross-checked against ib_async 2.1.0, which sends
+  the same values except displaySize: swift-ibkr sends `0` where `ib_async` sends `""` (the gateway's `2147483647`
+  decodes to 0; protocol-178 Disagreements 15).
+- **Live gateway.** Conditions, algos, PEG and combo orders are cross-checked against ib_async 2.1.0 both ways,
+  unseen live: no live order has carried one.
+- **Live gateway.** What-if is unchecked live: `whatIfOrder` is tested on hand-built frames only; the request and the
+  margin / commission decoding are cross-checked against ib_async 2.1.0, unseen live, so the margin text format of a
+  real answer (and whether IB echoes the order first) is unconfirmed.
 - **Live gateway.** The local `.validationError` is checked on hand-built frames only: no live order has drawn a
   warning (105, 321, 329, 434, 492), so IB's status messages after one are unrecorded.
 - **Live gateway, logged in another zone.** execDetails `time` comes in two formats: `20261110-11:56:31` (UTC, no

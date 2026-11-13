@@ -300,8 +300,9 @@ private func sameNumber(_ ours: String, _ theirs: String) -> Bool {
 }
 
 /// What is wrong with `entries`: an unknown scope or field word, a bare `*`, a bare placeOrder index across every
-/// case, an encode entry (not placeOrder) whose field is not an index, `#count` or `#error` or that globs its case,
-/// or a citation that does not name exactly one DECISIONS row or Disagreements item.
+/// case, an encode `#count` without its `pair`, an encode entry (not placeOrder) whose field is not an index, `#count`
+/// or `#error` or that globs its case, or a citation that does not name exactly one DECISIONS row or Disagreements
+/// item.
 func allowlistProblems(_ entries: [AllowEntry], decisions: String, protocol178: String) -> [String] {
     let rows = decisions.split(whereSeparator: \.isNewline).filter { $0.hasPrefix("|") }
     let disagreements = protocol178.components(separatedBy: "## Disagreements").dropFirst().joined()
@@ -314,6 +315,7 @@ func allowlistProblems(_ entries: [AllowEntry], decisions: String, protocol178: 
         if e.field.isEmpty || e.field.contains("*") { problem("field is empty or a glob") }
         if e.field.hasPrefix("#"), !["#calls", "#error", "#uncovered", "#count"].contains(e.field) { problem("unknown field word") }
         if e.scope == "out 3", Int(e.field) != nil, (e.frames ?? "*") == "*" { problem("a bare placeOrder index needs a case glob") }
+        if e.scope.hasPrefix("out "), e.field == "#count", e.pair == nil { problem("an encode #count entry needs its pair (R23)") }
         if e.scope.hasPrefix("out "), e.scope != "out 3" {  // P7: placeOrder alone may name a field or glob its cases
             if Int(e.field) == nil, !["#count", "#error"].contains(e.field) { problem("an encode field is an index, #count or #error") }
             if (e.frames ?? "*").contains(where: { $0 == "*" || $0 == "?" }) { problem("an encode entry names one exact case") }

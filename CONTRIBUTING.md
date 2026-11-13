@@ -108,8 +108,9 @@ python3.12 -m venv .venv            # Windows: py -3.12 -m venv .venv
   `everyRequestKindHasACase`.
 - **A difference.** Our bug: a failing codec test first, then the fix. A recorded deliberate difference: one entry in
   `allowlist.json` with `scope` (`in 4`, `out 4`), `field` (the argument path, `[]` for any index, never `*`; for a
-  request the field's index, `#count` or `#error`), `frames` (a glob over frame names; one exact case name for a
-  request, except placeOrder's protocol-178 field names or case globs), `pair` (`[ours, theirs]`, the exact pair)
+  request the field's index, `#count` or `#error`; for placeOrder the protocol-178 field name the test reports, such
+  as `conditions[].price`), `frames` (a glob over frame names; one exact case name for a request, except placeOrder's
+  case globs), `pair` (`[ours, theirs]`, the exact pair; required on a request's `#count`)
   or `equalAsNumbers`, and `cite`: `protocol-178 Disagreements <n>` or `DECISIONS: <verbatim text of exactly one
   row>`, plus an optional `note`. An entry that cites nothing, or that no mismatch uses, fails the tests. A
   difference with no row is not allowlisted until one is written.
