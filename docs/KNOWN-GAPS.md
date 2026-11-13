@@ -1,9 +1,9 @@
-# Known gaps after stage 14
+# Known gaps after stage 15
 
-What stages 1 to 14 (codec and merging; socket, `IBClient`, a live paper run; positions, account summary, P&L; market
+What stages 1 to 15 (codec and merging; socket, `IBClient`, a live paper run; positions, account summary, P&L; market
 data and contract lookups; session requests, the account stream and reconnect; the full order field set, what-if
 and exercise; market data and history in full; options, reference data, scanner, news and research; Flex reports;
-the 1.0 release; parity with `ib_async` 2.1.0) leave open. Every line under «To confirm against a live gateway»
+the 1.0 release; parity with `ib_async` 2.1.0; the differential oracle and the scenario simulator) leave open. Every line under «To confirm against a live gateway»
 needs something CI does not have and says which: a live gateway (a paper IB Gateway or TWS login), a market-data
 subscription, a Flex token, or an IBC install. «Not covered by CI» and «Owner steps» are standing facts about CI and
 the owner's accounts, not open checks. Delete a line when it is settled.

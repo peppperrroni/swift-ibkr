@@ -72,7 +72,9 @@ what was tried, what was rejected, and why. Lines in `Sources` stay within 120 c
 ## Documents of record
 
 A behaviour change updates `README.md`, `CHANGELOG.md` (under `Unreleased`), `docs/DECISIONS.md`,
-`docs/KNOWN-GAPS.md` and `docs/protocol-178.md` in the same commit.
+`docs/KNOWN-GAPS.md` and `docs/protocol-178.md` in the same commit. A new recorded difference from `ib_async` is
+a Disagreements row there plus an entry in `Tests/IBKRTests/Oracle/allowlist.json`; regenerated `decode.json`,
+`encode.json` and `corpus.json` are committed with the change (see below).
 
 ## IB's code
 
