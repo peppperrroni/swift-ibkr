@@ -9,7 +9,7 @@ func recording(_ name: String, file: String = #filePath) throws -> [[String]] {
 }
 
 /// Every Recorded/*.json, found on disk so a new recording is covered without editing this list.
-private let recordings: [String] = {
+let recordings: [String] = {
     let dir = URL(fileURLWithPath: #filePath).deletingLastPathComponent().appendingPathComponent("Recorded")
     let files = (try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? []
     return files.filter { $0.hasSuffix(".json") }.map { String($0.dropLast(5)) }.sorted()

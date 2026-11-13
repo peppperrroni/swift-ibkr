@@ -78,3 +78,29 @@ A behaviour change updates `README.md`, `CHANGELOG.md` (under `Unreleased`), `do
 
 No code from IB's official API (`ibapi`) or from other clients. Wire layouts follow `ib_async` as read and
 [`docs/protocol-178.md`](docs/protocol-178.md), and every new message gets a codec test on a hand-built frame.
+`ib_async` itself runs only in the oracle's generator, offline; nothing of it is copied into `Sources/`.
+
+## Differential oracle
+
+`Tests/IBKRTests/Oracle/` holds `ib_async` 2.1.0's answers for every frame the tests use, and the Swift tests
+compare `IBDecoder` with them. Python is needed only to regenerate them:
+
+```bash
+python3.12 -m venv .venv            # Windows: py -3.12 -m venv .venv
+.venv/bin/pip install -r Scripts/differential/requirements.txt   # Windows: .venv\Scripts\pip
+.venv/bin/python -I Scripts/differential/generate.py             # rewrites decode.json
+```
+
+- **A new frame.** A new recording or a new `Fixtures.corpusFrames` entry (a new `Fixtures` builder or base call
+  joins that list) fails the tests until its frames are in `corpus.json`; the failure prints the entry to paste.
+  Add it (names: `recorded/<file>#<i>`, `fixtures/<name>`, `fakegateway/<name>`, `sweep/<File>.swift:<line>`,
+  `sim/<scenario>/<n>`), regenerate and commit both files. A frame a new codec test builds inline is not found
+  automatically: add it the same way. Variants of a message (unset values, counts, branches) go in
+  `Scripts/differential/variants.py`.
+- **A difference.** Our bug: a failing codec test first, then the fix. A recorded deliberate difference: one entry in
+  `allowlist.json` with `scope` (`in 4`), `field` (the argument path, `[]` for any index, never `*`), `frames` (a glob
+  over frame names), `pair` (`[ours, theirs]`, the exact pair) or `equalAsNumbers`, and `cite`: `protocol-178
+  Disagreements <n>` or `DECISIONS: <verbatim text of exactly one row>`, plus an optional `note`. An entry that cites
+  nothing, or that no mismatch uses, fails the tests. A difference with no row is not allowlisted until one is
+  written.
+- CI's `oracle` job regenerates the JSON and fails on any diff, so commit the generator's output as it wrote it.

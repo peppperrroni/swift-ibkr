@@ -8,7 +8,7 @@ let package = Package(
     targets: [
         .target(name: "IBKR"),
         .target(name: "IBKRFlex"),
-        .testTarget(name: "IBKRTests", dependencies: ["IBKR"], exclude: ["Recorded"]),
+        .testTarget(name: "IBKRTests", dependencies: ["IBKR"], exclude: ["Oracle", "Recorded"]),
         .testTarget(name: "IBKRFlexTests", dependencies: ["IBKRFlex"]),
     ]
 )

@@ -41,6 +41,18 @@ jobs:
       - run: swift --version
       - run: swift test
 
+  # The differential oracle: regenerate ib_async 2.1.0's answers offline and fail if the committed JSON differs.
+  oracle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: pip install -r Scripts/differential/requirements.txt
+      - run: python -I Scripts/differential/generate.py
+      - run: git diff --exit-code
+
   pod-lint:
     runs-on: macos-latest
     steps:

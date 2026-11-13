@@ -1895,6 +1895,10 @@ agrees type by type. The differences are in default values and value formatting 
 11. **TickAttrib is not from `ib_async`.** `ib_async`'s priceSizeTick drops tickPrice's mask (decoder.py:200-206), so
    it gives no layout. `TickAttrib(mask:)` follows IB's public API documentation: bit 0 canAutoExecute, bit 1
    pastLimit, bit 2 preOpen. Not yet seen live.
+12. **Comma-separated lists are split at decode.** swift-ibkr splits managedAccounts (15) and contractDetails'
+   orderTypes, validExchanges and marketRuleIds (10, 18) into arrays at decode, dropping empty items (a trailing
+   comma adds none). `ib_async`'s decoder passes the raw text, and its wrapper splits it (wrapper.py:521-522 for 15),
+   so the list a user sees is the same; only the decoder-level text differs, e.g. `DU1,` against `DU1`.
 
 No row in this document is unverified: every table was checked line by line against the
 verbatim source of both clients.

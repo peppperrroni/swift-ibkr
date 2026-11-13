@@ -68,6 +68,28 @@ enum Fixtures {
          completedTime, completedStatus ?? status,                                             // 89–90
          "", "", "", "", ""]                                                                   // 91–95 minTradeQty … midOffsetAtHalf
     }
+
+    /// The base builder calls the codec tests make (OpenOrderTests, OrderTrackerTests), checked against the oracle's
+    /// corpus (Tests/IBKRTests/Oracle/corpus.json). A new builder or base call joins this list.
+    static let corpusFrames: [(name: String, fields: [String])] = [
+        ("openOrder-OpenOrderTests", openOrderFields(
+            orderID: 12, permID: 918273001, clientID: 1, symbol: "AAPL", action: "BUY", quantity: "100", orderType: "LMT",
+            limitPrice: "187.25", auxPrice: "1.7976931348623157E308", tif: "DAY", parentID: "0", outsideRTH: "0",
+            orderRef: "preset-1", status: "Submitted")),
+        ("completedOrder-OpenOrderTests", completedOrderFields(
+            orderID: 12, permID: 918273001, clientID: 1, symbol: "AAPL", action: "BUY", quantity: "100", orderType: "LMT",
+            limitPrice: "187.25", auxPrice: "1.7976931348623157E308", tif: "DAY", parentID: "0", outsideRTH: "0",
+            orderRef: "preset-1", status: "Filled", completedTime: "20261109 15:59:01", completedStatus: "Filled",
+            filledQuantity: "100")),
+        ("openOrder-OrderTrackerTests", openOrderFields(
+            orderID: 12, permID: 918273001, clientID: 1, symbol: "AAPL", action: "BUY", quantity: "100", orderType: "LMT",
+            limitPrice: "187.25", auxPrice: "1.7976931348623157E308", tif: "DAY", parentID: "0", outsideRTH: "0",
+            orderRef: "r", status: "Submitted")),
+        ("completedOrder-OrderTrackerTests", completedOrderFields(
+            orderID: 0, permID: 918273001, clientID: 0, symbol: "AAPL", action: "BUY", quantity: "100", orderType: "LMT",
+            limitPrice: "187.25", auxPrice: "1.7976931348623157E308", tif: "DAY", parentID: "0", outsideRTH: "0",
+            orderRef: "r", status: "Filled", completedTime: "20261109 15:59:01")),
+    ]
 }
 
 /// The AAPL Dec 2026 200 call on SMART, and its 12-field contract block.

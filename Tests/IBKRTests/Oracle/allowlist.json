@@ -1,0 +1,34 @@
+[
+ {
+  "scope": "in 4",
+  "field": "errorString",
+  "frames": "sweep/DecoderTests.swift:87",
+  "pair": ["Connexion réussie 😀", "Connexion r\\u00e9ussie \\ud83d\\ude00"],
+  "cite": "DECISIONS: Error `text` is `\\uXXXX`-decoded",
+  "note": "ib_async passes errorString as sent (decoder.py:208-216)"
+ },
+ {
+  "scope": "in 4",
+  "field": "errorString",
+  "frames": "gen/4/unicode-escape",
+  "pair": ["Café farm is OK", "Caf\\u00e9 farm is OK"],
+  "cite": "DECISIONS: Error `text` is `\\uXXXX`-decoded",
+  "note": "ib_async passes errorString as sent (decoder.py:208-216)"
+ },
+ {
+  "scope": "in 15",
+  "field": "accountsList",
+  "frames": "sweep/DecoderTests.swift:27",
+  "pair": ["DU123456", "DU123456,"],
+  "cite": "protocol-178 Disagreements 12",
+  "note": "ib_async's wrapper drops the empty items (wrapper.py:521-522)"
+ },
+ {
+  "scope": "in 15",
+  "field": "accountsList",
+  "frames": "gen/15/trailing-comma",
+  "pair": ["DU0000001,DU0000002", "DU0000001,DU0000002,"],
+  "cite": "protocol-178 Disagreements 12",
+  "note": "ib_async's wrapper drops the empty items (wrapper.py:521-522)"
+ }
+]
