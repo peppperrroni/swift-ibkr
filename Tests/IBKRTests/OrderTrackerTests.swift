@@ -182,6 +182,15 @@ private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT"
     #expect(r.first?.isActive == true && r.first?.isWorking == true)
 }
 
+@Test func fatalAfterWarningBeforeAckMakesTheOrderInactive() {
+    var t = OrderTracker(clientID: 1)
+    _ = t.placed(orderID: 12, clientID: 1, contract: aapl, order: sentOrder)
+    _ = t.apply(error(12, 321, "Error validating request"))
+    let r = t.apply(error(12, 201, "Order rejected"))
+    #expect(r.count == 1 && r[0].status == .inactive && r[0].rejectReason == "Order rejected")
+    #expect(r.first?.isActive == false)
+}
+
 @Test func whatIfOpenOrderLeavesTheTrackerAlone() {
     var f = Fixtures.openOrderFields(
         orderID: 12, permID: 918273001, clientID: 1, symbol: "AAPL", action: "BUY", quantity: "100", orderType: "LMT",

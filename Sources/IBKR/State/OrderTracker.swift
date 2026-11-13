@@ -251,7 +251,8 @@ public struct OrderTracker: Sendable {
     // MARK: -
 
     /// Every error but a notice is logged with its code. A warning makes an unfinished order `.validationError`
-    /// (`ib_async`'s rule); a fatal one makes it `.inactive` only before IB acknowledged it; 202 cancels.
+    /// (`ib_async`'s rule); a fatal one makes it `.inactive` only before IB acknowledged it (no permID yet), so a
+    /// reject after a warning still ends the order; 202 cancels.
     private mutating func apply(_ e: IBErrorMessage, at time: Date) -> [OrderSnapshot] {
         let kind = ErrorCode.kind(e.code)
         guard kind != .notice, let key = errorKey(e.requestID) else { return [] }
@@ -269,8 +270,8 @@ public struct OrderTracker: Sendable {
                 if !s.status.isFinal { s.status = .validationError }   // the order still lives at IB
             default:
                 s.rejectReason = e.text
-                // once IB acknowledged the order, its own status wins
-                if s.status == .pendingSubmit || s.status == .apiPending { s.status = .inactive }
+                // once IB acknowledged the order (openOrder/orderStatus give it a permID), its own status wins
+                if s.permID == 0 && !s.status.isFinal { s.status = .inactive }
             }
             s.log.append(TradeLogEntry(time: time, status: s.status, message: e.text, errorCode: e.code))
         }
