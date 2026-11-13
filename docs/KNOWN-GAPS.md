@@ -88,8 +88,11 @@ realized P&L. The stage-4 run of 2026-11-11 (paper account, no market-data subsc
   with the new terms; the cancel copies liveLimitOrderPlacesAndCancels.json); `reject(nextOrderWith:text:)` (IB's
   error alone, no openOrder or orderStatus, and the book unchanged); a bracket (legs with transmit off unanswered
   until the transmitting leg sends the group, children PreSubmitted until the parent is wholly filled, then
-  Submitted); OCA (a fill cancels the rest of the group, ocaType 1 only, and a bracket child's fill its sibling, each
-  with a bare orderStatus Cancelled; an OCA order's openOrder echoes its ocaType); what-if (one PreSubmitted openOrder
+  Submitted); a held leg (reqAllOpenOrders lists it as PendingSubmit; re-sent, even with transmit on, it stays held
+  and does not send its group; a cancel runs the full recorded sequence); OCA (any fill, a part fill too, cancels the
+  rest of the group, ocaType 1 only, and a bracket child's fill its sibling, each with a bare orderStatus Cancelled;
+  an OCA order's openOrder echoes its ocaType); a cancel of an unknown or final id gets no answer, where live sends
+  10147 (a shortcut, not an assumption); what-if (one PreSubmitted openOrder
   with whatIf set, margins of 50 % / 25 % of the notional on a flat account with equity 1,000,000, commission 1, no
   orderStatus, nothing booked); P&L (one 94 or 95 at the request, valued like the portfolio, daily = unrealized +
   realized as the recorded 95 adds up, no update after a fill or a price); market data (no reply to reqMktData until

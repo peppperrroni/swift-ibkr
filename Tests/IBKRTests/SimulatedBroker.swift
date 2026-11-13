@@ -250,8 +250,9 @@ final class SimulatedBroker: @unchecked Sendable {
     /// What a fill of order `n` does to the owner's other orders: a filled parent sends its children to work
     /// (openOrder + Submitted each); a fill cancels the rest of its OCA group, and of its bracket (IB links a
     /// bracket's children as one group), each with the bare orderStatus Cancelled that ends the recorded cancel.
-    // assumption: unrecorded live — children work only once the parent is wholly filled; ocaType 1 (cancel the rest)
-    // only: 2 and 3 (reduce the rest) are refused, model them when a scenario uses them
+    // assumption: unrecorded live — children work only once the parent is wholly filled; any fill, a part fill too,
+    // cancels the rest of the group or bracket; ocaType 1 (cancel the rest) only: 2 and 3 (reduce the rest) are
+    // refused, model them when a scenario uses them
     private func consequences(of n: Int) -> [[String]] {
         let o = orders[n]
         var out: [[String]] = []
@@ -306,7 +307,8 @@ final class SimulatedBroker: @unchecked Sendable {
         case "71": sessions[i].clientID = Int(f[2])
         case "3": return place(f, session: i)
         case "4": return cancel(f, session: i)
-        case "16":   // assumption: unrecorded live — every client's working orders, openOrder + orderStatus each
+        case "16":   // assumption: unrecorded live — every client's working orders, openOrder + orderStatus each; a
+            // held leg (transmit off) is listed too, as PendingSubmit
             return orders.indices.filter { !orders[$0].status.isFinal }.flatMap { openAndStatus($0) }
         case "99":   // assumption: unrecorded live — completedOrder per final order
             return orders.indices.filter { orders[$0].status.isFinal }.map(completedFrame)
@@ -364,7 +366,7 @@ final class SimulatedBroker: @unchecked Sendable {
         if order.whatIf { return [whatIfFrame(order, f)] }
         if let n = orders.firstIndex(where: { $0.clientID == clientID && $0.orderID == orderID }) {
             // assumption: unrecorded live — a modify: new terms, same permID, status and fills, one openOrder +
-            // orderStatus
+            // orderStatus; a re-sent held leg stays held, even with transmit on: it does not send its group
             (order.permID, order.status, order.filled) = (orders[n].permID, orders[n].status, orders[n].filled)
             (orders[n], placed[n]) = (order, f)
             return openAndStatus(n)
@@ -402,6 +404,7 @@ final class SimulatedBroker: @unchecked Sendable {
     private func cancel(_ f: [String], session i: Int) -> [[String]] {
         let clientID = sessions[i].clientID ?? 0
         // shortcut: an unknown or final id gets no answer where live sends 10147; add it when a scenario needs it
+        // assumption: unrecorded live — a held leg (PendingSubmit) is cancelled with the same sequence
         guard let n = orders.firstIndex(where: { $0.clientID == clientID && "\($0.orderID)" == f[2] }),
               !orders[n].status.isFinal else { return [] }
         orders[n].status = .pendingCancel
