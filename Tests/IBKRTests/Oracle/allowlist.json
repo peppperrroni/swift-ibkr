@@ -17084,7 +17084,7 @@
   "field": "strikes.#",
   "frames": "gen/75/unset-empty-strike-count",
   "pair": ["0", "3"],
-  "cite": "protocol-178 Disagreements 13",
+  "cite": "protocol-178 Disagreements 14",
   "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
  },
  {
@@ -17092,7 +17092,7 @@
   "field": "strikes[]",
   "frames": "gen/75/unset-empty-strike-count",
   "pair": ["<absent>", "190"],
-  "cite": "protocol-178 Disagreements 13",
+  "cite": "protocol-178 Disagreements 14",
   "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
  },
  {
@@ -17100,7 +17100,7 @@
   "field": "strikes[]",
   "frames": "gen/75/unset-empty-strike-count",
   "pair": ["<absent>", "195.5"],
-  "cite": "protocol-178 Disagreements 13",
+  "cite": "protocol-178 Disagreements 14",
   "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
  },
  {
@@ -17108,7 +17108,7 @@
   "field": "strikes[]",
   "frames": "gen/75/unset-empty-strike-count",
   "pair": ["<absent>", "200"],
-  "cite": "protocol-178 Disagreements 13",
+  "cite": "protocol-178 Disagreements 14",
   "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
  },
  {
@@ -17116,7 +17116,7 @@
   "field": "strikes.#",
   "frames": "gen/75/unset-max-strike-count",
   "pair": ["0", "3"],
-  "cite": "protocol-178 Disagreements 13",
+  "cite": "protocol-178 Disagreements 14",
   "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
  },
  {
@@ -17124,7 +17124,7 @@
   "field": "strikes[]",
   "frames": "gen/75/unset-max-strike-count",
   "pair": ["<absent>", "190"],
-  "cite": "protocol-178 Disagreements 13",
+  "cite": "protocol-178 Disagreements 14",
   "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
  },
  {
@@ -17132,7 +17132,7 @@
   "field": "strikes[]",
   "frames": "gen/75/unset-max-strike-count",
   "pair": ["<absent>", "195.5"],
-  "cite": "protocol-178 Disagreements 13",
+  "cite": "protocol-178 Disagreements 14",
   "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
  },
  {
@@ -17140,7 +17140,7 @@
   "field": "strikes[]",
   "frames": "gen/75/unset-max-strike-count",
   "pair": ["<absent>", "200"],
-  "cite": "protocol-178 Disagreements 13",
+  "cite": "protocol-178 Disagreements 14",
   "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
  },
  {

@@ -1947,11 +1947,11 @@ agrees type by type. The differences are in default values and value formatting 
    fields are there. Deliberate strictness at the pinned version, where IB always sends the whole layout. A count longer
    than the fields that follow it (75's strike count) is `.malformed` for the same reason. A field after the end of the
    layout is ignored by swift-ibkr (as by `ib_async` for 10 and the `wrap` messages); in 75 `ib_async` reads every field
-   after the expirations as a strike and ignores the strike count, so a count shorter than the strikes, or an extra
-   trailing field, gives it more strikes (or a `float()` error) than swift-ibkr reads (decoder.py:662). The verify,
-   display-group and replaceFAEnd messages (65-70, 103) are the same: `wrap` passes the fields that are there to a
-   wrapper method that `ib_async`'s `Wrapper` does not have, so the oracle's recorder shows a call with fewer arguments
-   where swift-ibkr reports `.malformed` (decoder.py:143-174).
+   after the expirations as a strike and ignores the strike count, so a count shorter than the strikes (an unset one
+   too, which swift-ibkr reads as 0), or an extra trailing field, gives it more strikes (or a `float()` error) than
+   swift-ibkr reads (decoder.py:662). The verify, display-group and replaceFAEnd messages (65-70, 103) are the same:
+   `wrap` passes the fields that are there to a wrapper method that `ib_async`'s `Wrapper` does not have, so the
+   oracle's recorder shows a call with fewer arguments where swift-ibkr reports `.malformed` (decoder.py:143-174).
 15. **displaySize reads IB's unset value as 0.** The live gateway sends openOrder's and completedOrder's `displaySize`
    as `2147483647` for an order without one (openOrder field 47 in `Recorded/liveLimitOrderPlacesAndCancels.json`,
    completedOrder field 43 in `Recorded/liveAccountSummary.json`); swift-ibkr's `Order.displaySize` is a non-optional `Int`, so it
