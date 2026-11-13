@@ -1,4 +1,12 @@
 import Foundation
+@testable import IBKR
+#if os(Windows)
+import WinSDK
+#elseif canImport(Darwin)
+import Darwin
+#else
+import Glibc
+#endif
 
 func body(_ fields: String...) -> [UInt8] { fields.flatMap { Array($0.utf8) + [0] } }
 
@@ -75,5 +83,74 @@ func within<T: Sendable>(_ what: String, seconds: Int = 15, _ operation: @escapi
             if !Task.isCancelled { race.finish(.failure(TimedOutWaiting(description: "timed out after \(seconds) s waiting for \(what)"))); work.cancel() }
         }
         Task { _ = await work.value; timer.cancel() }
+    }
+}
+
+/// A loopback listener on an ephemeral port, so the test never touches a real gateway.
+struct Listener: Sendable {
+    var handle: TCPSocket.Handle
+    var port = 0
+
+    init() {
+        _ = TCPSocket.startup
+        var addr = sockaddr_in()
+        addr.sin_family = .init(AF_INET)
+        #if os(Windows)
+        addr.sin_addr.S_un.S_addr = UInt32(0x7F00_0001).bigEndian
+        handle = socket(AF_INET, SOCK_STREAM, 0)
+        var len = Int32(MemoryLayout<sockaddr_in>.size)
+        #else
+        addr.sin_addr.s_addr = UInt32(0x7F00_0001).bigEndian
+        handle = socket(AF_INET, TCPSocket.streamType, 0)
+        var len = socklen_t(MemoryLayout<sockaddr_in>.size)
+        #endif
+        let h = handle
+        withUnsafeMutablePointer(to: &addr) {
+            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+                _ = bind(h, $0, len)
+                _ = getsockname(h, $0, &len)
+            }
+        }
+        _ = listen(h, 1)
+        port = Int(UInt16(bigEndian: addr.sin_port))
+    }
+
+    /// Returns at once when a connection is already queued.
+    func accept() -> TCPSocket { TCPSocket(handle: acceptHandle(handle)) }
+
+    /// Waits for the next connection on a thread of its own: a blocking accept on the cooperative pool could starve
+    /// the client that is about to connect.
+    func acceptOffPool() async -> TCPSocket {
+        await withCheckedContinuation { c in Thread { c.resume(returning: accept()) }.start() }
+    }
+}
+
+#if os(Windows)
+private func acceptHandle(_ h: TCPSocket.Handle) -> TCPSocket.Handle { WinSDK.accept(h, nil, nil) }
+#elseif canImport(Darwin)
+private func acceptHandle(_ h: TCPSocket.Handle) -> TCPSocket.Handle { Darwin.accept(h, nil, nil) }
+#else
+private func acceptHandle(_ h: TCPSocket.Handle) -> TCPSocket.Handle { Glibc.accept(h, nil, nil) }
+#endif
+
+/// Pumps a loopback peer into `gateway` one frame per write, the hello first (as `FakeGateway` expects), and the
+/// gateway's bytes back, until either side ends; then closes both.
+func bridge(_ peer: TCPSocket, _ gateway: FakeGateway) -> Task<Void, Never> {
+    Task {
+        let back = Task {
+            do { for try await chunk in gateway.incoming { try peer.write(chunk) } } catch {}
+            peer.close()
+        }
+        var frames = FrameReader(), prefix = 4   // the "API" prefix and its NUL come before the first length
+        do {
+            for try await chunk in peer.incoming {
+                let skip = min(prefix, chunk.count)
+                prefix -= skip
+                try frames.append(Array(chunk.dropFirst(skip)))
+                while let frame = try frames.next() { try gateway.write(try Frame.encode(frame)) }
+            }
+        } catch {}
+        gateway.close()
+        await back.value
     }
 }

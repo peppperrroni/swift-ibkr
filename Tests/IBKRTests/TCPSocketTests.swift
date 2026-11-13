@@ -60,47 +60,6 @@ private func drain(_ stream: AsyncThrowingStream<[UInt8], any Error>) async thro
     try await within2s { try await stream.reduce([], +) }
 }
 
-/// A loopback listener on an ephemeral port, so the test never touches a real gateway.
-private struct Listener {
-    var handle: TCPSocket.Handle
-    var port = 0
-
-    init() {
-        _ = TCPSocket.startup
-        var addr = sockaddr_in()
-        addr.sin_family = .init(AF_INET)
-        #if os(Windows)
-        addr.sin_addr.S_un.S_addr = UInt32(0x7F00_0001).bigEndian
-        handle = socket(AF_INET, SOCK_STREAM, 0)
-        var len = Int32(MemoryLayout<sockaddr_in>.size)
-        #else
-        addr.sin_addr.s_addr = UInt32(0x7F00_0001).bigEndian
-        handle = socket(AF_INET, TCPSocket.streamType, 0)
-        var len = socklen_t(MemoryLayout<sockaddr_in>.size)
-        #endif
-        let h = handle
-        withUnsafeMutablePointer(to: &addr) {
-            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
-                _ = bind(h, $0, len)
-                _ = getsockname(h, $0, &len)
-            }
-        }
-        _ = listen(h, 1)
-        port = Int(UInt16(bigEndian: addr.sin_port))
-    }
-
-    /// Returns at once when a connection is already queued.
-    func accept() -> TCPSocket { TCPSocket(handle: acceptHandle(handle)) }
-}
-
-#if os(Windows)
-private func acceptHandle(_ h: TCPSocket.Handle) -> TCPSocket.Handle { WinSDK.accept(h, nil, nil) }
-#elseif canImport(Darwin)
-private func acceptHandle(_ h: TCPSocket.Handle) -> TCPSocket.Handle { Darwin.accept(h, nil, nil) }
-#else
-private func acceptHandle(_ h: TCPSocket.Handle) -> TCPSocket.Handle { Glibc.accept(h, nil, nil) }
-#endif
-
 @Test func socketsExchangeBytesAndCloseEndsBothStreams() async throws {
     let listener = Listener()
     let client = try await TCPSocket.connect(host: "localhost", port: listener.port, timeout: .seconds(2))

@@ -73,6 +73,12 @@ realized P&L. The stage-4 run of 2026-11-11 (paper account, no market-data subsc
 - **Live gateway.** What-if is unchecked live: `whatIfOrder` is tested on hand-built frames only; the request and the
   margin / commission decoding are cross-checked against ib_async 2.1.0, unseen live, so the margin text format of a
   real answer (and whether IB echoes the order first) is unconfirmed.
+- **Live gateway.** The simulated broker's (`Tests/IBKRTests/SimulatedBroker.swift`) sequences that no recording
+  shows are assumptions, marked `// assumption: unrecorded live`: a part fill (openOrder + orderStatus stay
+  Submitted with filled and remaining), the replies to reqAllOpenOrders (openOrder + orderStatus per working order)
+  and reqCompletedOrders, the reqExecutions replay in the live fill's UTC time form (live replays in the login zone),
+  the account subscription's replies (AccountCode, the portfolio, the account time) and the portfolio updates after a
+  fill or a market price; and, as their scenarios join, bracket, OCA, reject and what-if.
 - **Live gateway.** The local `.validationError` is checked on hand-built frames only: no live order has drawn a
   warning (105, 321, 329, 434, 492), so IB's status messages after one are unrecorded.
 - **Live gateway, logged in another zone.** execDetails `time` comes in two formats: `20261110-11:56:31` (UTC, no

@@ -692,6 +692,12 @@ research, FA, display-group and verify requests). Python is needed only to regen
 (`python -I Scripts/differential/generate.py`, see
 [CONTRIBUTING](CONTRIBUTING.md#differential-oracle)); CI regenerates them and fails on any difference.
 
+Order scenarios run the real `IBClient` against a simulated broker (`Tests/IBKRTests/SimulatedBroker.swift`): one
+book of orders, fills and positions behind fake gateways, so several clients and reconnects see the same state. Every
+frame it sends is in the oracle's corpus, so `ib_async` has decoded each one. Its place, fill and commission
+sequences copy the live recordings; what no recording shows is an assumption, marked in the code and listed in
+[KNOWN-GAPS](docs/KNOWN-GAPS.md). One scenario runs over a real loopback TCP socket.
+
 The live tests run against a **paper** IB Gateway on 127.0.0.1:4002 and are skipped unless you ask for them.
 They refuse to place anything unless every managed account starts with `DU`, which marks a paper account. They
 also record the frames to `Tests/IBKRTests/Recorded/`, with the account id redacted.

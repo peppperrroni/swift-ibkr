@@ -1008,6 +1008,30 @@
   "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
  },
  {
+  "scope": "in 59",
+  "field": "commissionReport.yieldRedemptionDate",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilled/17",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
+ },
+ {
+  "scope": "in 59",
+  "field": "commissionReport.yieldRedemptionDate",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilled/26",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
+ },
+ {
+  "scope": "in 59",
+  "field": "commissionReport.yieldRedemptionDate",
+  "frames": "sim/syncReplaysTheBook/30",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (decoder.py:586-593, int(x or 0))"
+ },
+ {
   "scope": "in 100",
   "field": "reqId",
   "frames": "gen/100/unset-max-permId",
@@ -1043,6 +1067,46 @@
   "scope": "in 11",
   "field": "execution.evMultiplier",
   "frames": "gen/11/unset-max-pendingPriceRevision",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilled/14",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "sim/placedOrderGoesSubmittedPartialFilled/21",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "sim/syncReplaysTheBook/25",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "sim/syncReplaysTheBook/40",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "frames": "sim/syncReplaysTheBook/41",
   "pair": ["", "0"],
   "cite": "DECISIONS: One shared unset set",
   "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
@@ -4537,8 +4601,24 @@
  },
  {
   "scope": "in 101",
+  "field": "order.parentPermId",
+  "frames": "sim/syncReplaysTheBook/38",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "empty on the wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
+ },
+ {
+  "scope": "in 101",
   "field": "order.refFuturesConId",
   "frames": "gen/101/unset-empty",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "empty on the wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"
+ },
+ {
+  "scope": "in 101",
+  "field": "order.refFuturesConId",
+  "frames": "sim/syncReplaysTheBook/38",
   "pair": ["", "0"],
   "cite": "DECISIONS: One shared unset set",
   "note": "empty on the wire: nil here, ib_async's dataclass default 0 (order.py:148, 153; parse 185-198)"

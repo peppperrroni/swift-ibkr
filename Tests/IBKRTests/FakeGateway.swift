@@ -2,7 +2,7 @@ import Foundation
 @testable import IBKR
 
 /// A scripted gateway: answers the hello and the connect-time requests the way IB Gateway does.
-// @unchecked Sendable: the mutable state (`sawHello`, `sent`, `closed`, `_onRequest`) sits behind `lock`.
+// @unchecked Sendable: the mutable state (`sawHello`, `sent`, `fed`, `closed`, `_onRequest`) sits behind `lock`.
 final class FakeGateway: Transport, @unchecked Sendable {
     let incoming: AsyncThrowingStream<[UInt8], any Error>
     private let continuation: AsyncThrowingStream<[UInt8], any Error>.Continuation
@@ -12,6 +12,7 @@ final class FakeGateway: Transport, @unchecked Sendable {
     private let lock = NSLock()
     private var sawHello = false
     private var sent: [[String]] = []
+    private var _fed: [[String]] = []
     private var closed = false
     private var _writesAfterClose = 0
     private var _blocksWrites = false
@@ -44,7 +45,14 @@ final class FakeGateway: Transport, @unchecked Sendable {
         set { lock.withLock { _onRequest = newValue } }
     }
 
-    func feed(_ fields: [String]) { feedRaw(try! Frame.encode(body(fields))) }
+    /// Recorded and yielded under one lock, so `fed` is in the order the client reads.
+    func feed(_ fields: [String]) {
+        let bytes = try! Frame.encode(body(fields))
+        lock.withLock { _fed.append(fields); continuation.yield(bytes) }
+    }
+
+    /// Every frame passed to `feed` so far, in order; the hello reply is not one.
+    var fed: [[String]] { lock.withLock { _fed } }
 
     func feedRaw(_ bytes: [UInt8]) { continuation.yield(bytes) }
 
@@ -81,7 +89,7 @@ final class FakeGateway: Transport, @unchecked Sendable {
             return (closed, !sawHello)
         }
         if wasClosed { throw .connectionClosed }
-        if isHello { return feed([serverVersion, "20261110 10:22:12 GMT"]) }
+        if isHello { return feedRaw(try! Frame.encode(body([serverVersion, "20261110 10:22:12 GMT"]))) }
 
         let fields = FieldReader(Array(bytes.dropFirst(4))).fields   // one write is one frame
         for reply in onRequest?(fields) ?? [] { feed(reply) }
