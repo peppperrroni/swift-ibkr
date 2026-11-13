@@ -1928,10 +1928,17 @@ agrees type by type. The differences are in default values and value formatting 
    or, for a plain `int()` / `float()` read, rejects the frame (an unset count leaves it with too few fields); an unset
    `done` flag or tick mask reads false and its bits clear, where `ib_async` reads `MAX` as set (decoder.py:477-511,
    757-829, 1361-1370).
+   The reference messages (10, 18, 52, 75-80, 82, 93) do the same: the request id, a contract's `conId`, `minTick` and
+   `priceMagnifier`, an option chain's underlying `conId` and strikes, a bond's flags, a smart component's bit number, a
+   market rule's id and price-increment edges, and every group count (secIds, expirations, tiers, family codes, symbol
+   samples and their derivative types, depth exchanges, components, increments) are non-optional, so an empty or unset
+   value decodes to 0 or false where `ib_async` keeps the sentinel, reads `MAX` as a set flag, or rejects the frame (an
+   unset count leaves it with too few fields, or, for 75, swallows the rest of the frame as expirations)
+   (decoder.py:255-424, 648-775).
 14. **A frame shorter than the 178 layout is malformed.** swift-ibkr reports `.malformed(missingField …)` where
    `ib_async`'s `wrap` zips the fields with its types and lets the wrapper's defaults fill the missing trailing
-   arguments (orderStatus without mktCapPrice, message 3). Deliberate strictness at the pinned version, where IB always sends
-   the whole layout.
+   arguments (orderStatus without mktCapPrice, message 3), or, for message 75, slices whatever fields are there. Deliberate
+   strictness at the pinned version, where IB always sends the whole layout.
 15. **displaySize reads IB's unset value as 0.** The live gateway sends openOrder's and completedOrder's `displaySize`
    as `2147483647` for an order without one (openOrder field 47 in `Recorded/liveLimitOrderPlacesAndCancels.json`,
    completedOrder field 43 in `Recorded/liveAccountSummary.json`); swift-ibkr's `Order.displaySize` is a non-optional `Int`, so it
@@ -1949,6 +1956,8 @@ agrees type by type. The differences are in default values and value formatting 
    date text (a bar or head-timestamp date that is neither 8 characters nor all digits, e.g. formatDate 1 text; 17, 88,
    90): `.malformed`, where `ib_async` reads an empty range or keeps the text. A flag other than 0/1 (historicalTicks'
    `done`, `2`) reads false, because swift-ibkr takes only `1` as true; `ib_async`'s `bool(int(x))` reads it true.
+   The reference messages' counts (75's expirations, 77, 78, 79's samples and derivative types, 80, 82, 93) are the same:
+   a negative one is `.malformed` where `ib_async` reads an empty range or slice (decoder.py:648-775).
 18. **historicalData's start and end texts are dropped.** `ib_async`'s decoder passes the two header strings of 17
    (startDate, endDate) to `historicalDataEnd(reqId, _start, _end)` (decoder.py:477-494); swift-ibkr reads and drops
    them, and the answer is the whole batch. `ib_async`'s own wrapper ignores them too (`historicalDataEnd` ends the

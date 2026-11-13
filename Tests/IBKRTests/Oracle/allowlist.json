@@ -12830,5 +12830,1933 @@
   "pair": ["malformed: badNumber(\"-1\", index: 5)", "decoded"],
   "cite": "protocol-178 Disagreements 17",
   "note": "a negative count is .malformed here; ib_async reads an empty range or keeps the text (decoder.py:1361-1370)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.evMultiplier",
+  "frames": "recorded/liveContractLookups.json#10",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.aggGroup",
+  "frames": "sweep/FakeGateway.swift:87#3",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.evMultiplier",
+  "frames": "sweep/FakeGateway.swift:87#3",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.minSize",
+  "frames": "sweep/FakeGateway.swift:87#3",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.sizeIncrement",
+  "frames": "sweep/FakeGateway.swift:87#3",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.suggestedSizeIncrement",
+  "frames": "sweep/FakeGateway.swift:87#3",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.aggGroup",
+  "frames": "sweep/FakeGateway.swift:87#4",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.evMultiplier",
+  "frames": "sweep/FakeGateway.swift:87#4",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.minSize",
+  "frames": "sweep/FakeGateway.swift:87#4",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.sizeIncrement",
+  "frames": "sweep/FakeGateway.swift:87#4",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.suggestedSizeIncrement",
+  "frames": "sweep/FakeGateway.swift:87#4",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.aggGroup",
+  "frames": "sweep/FakeGateway.swift:87#5",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.evMultiplier",
+  "frames": "sweep/FakeGateway.swift:87#5",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.minSize",
+  "frames": "sweep/FakeGateway.swift:87#5",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.sizeIncrement",
+  "frames": "sweep/FakeGateway.swift:87#5",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.suggestedSizeIncrement",
+  "frames": "sweep/FakeGateway.swift:87#5",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.aggGroup",
+  "frames": "sweep/FakeGateway.swift:87#6",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.evMultiplier",
+  "frames": "sweep/FakeGateway.swift:87#6",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.minSize",
+  "frames": "sweep/FakeGateway.swift:87#6",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.sizeIncrement",
+  "frames": "sweep/FakeGateway.swift:87#6",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.suggestedSizeIncrement",
+  "frames": "sweep/FakeGateway.swift:87#6",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.aggGroup",
+  "frames": "sweep/FakeGateway.swift:87#7",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.evMultiplier",
+  "frames": "sweep/FakeGateway.swift:87#7",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.minSize",
+  "frames": "sweep/FakeGateway.swift:87#7",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.sizeIncrement",
+  "frames": "sweep/FakeGateway.swift:87#7",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.suggestedSizeIncrement",
+  "frames": "sweep/FakeGateway.swift:87#7",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.aggGroup",
+  "frames": "sweep/FakeGateway.swift:87#8",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.evMultiplier",
+  "frames": "sweep/FakeGateway.swift:87#8",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.minSize",
+  "frames": "sweep/FakeGateway.swift:87#8",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.sizeIncrement",
+  "frames": "sweep/FakeGateway.swift:87#8",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.suggestedSizeIncrement",
+  "frames": "sweep/FakeGateway.swift:87#8",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.aggGroup",
+  "frames": "sweep/FakeGateway.swift:87#9",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.evMultiplier",
+  "frames": "sweep/FakeGateway.swift:87#9",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.minSize",
+  "frames": "sweep/FakeGateway.swift:87#9",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.sizeIncrement",
+  "frames": "sweep/FakeGateway.swift:87#9",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.suggestedSizeIncrement",
+  "frames": "sweep/FakeGateway.swift:87#9",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.aggGroup",
+  "frames": "sweep/FakeGateway.swift:87#10",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.evMultiplier",
+  "frames": "sweep/FakeGateway.swift:87#10",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.minSize",
+  "frames": "sweep/FakeGateway.swift:87#10",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.sizeIncrement",
+  "frames": "sweep/FakeGateway.swift:87#10",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.suggestedSizeIncrement",
+  "frames": "sweep/FakeGateway.swift:87#10",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.aggGroup",
+  "frames": "sweep/FakeGateway.swift:87#11",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.evMultiplier",
+  "frames": "sweep/FakeGateway.swift:87#11",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.minSize",
+  "frames": "sweep/FakeGateway.swift:87#11",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.sizeIncrement",
+  "frames": "sweep/FakeGateway.swift:87#11",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.suggestedSizeIncrement",
+  "frames": "sweep/FakeGateway.swift:87#11",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.aggGroup",
+  "frames": "sweep/FakeGateway.swift:87#12",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.evMultiplier",
+  "frames": "sweep/FakeGateway.swift:87#12",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.minSize",
+  "frames": "sweep/FakeGateway.swift:87#12",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.sizeIncrement",
+  "frames": "sweep/FakeGateway.swift:87#12",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.suggestedSizeIncrement",
+  "frames": "sweep/FakeGateway.swift:87#12",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "#error",
+  "frames": "gen/10/unset-empty-reqId",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "reqId",
+  "frames": "gen/10/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "reqId",
+  "frames": "gen/10/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "reqId",
+  "frames": "gen/10/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.contract.strike",
+  "frames": "gen/10/unset-empty-strike",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.contract.strike",
+  "frames": "gen/10/unset-max-strike",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.contract.strike",
+  "frames": "gen/10/unset-long-max-strike",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.contract.strike",
+  "frames": "gen/10/unset-long-min-strike",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.contract.conId",
+  "frames": "gen/10/unset-max-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.contract.conId",
+  "frames": "gen/10/unset-long-max-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.contract.conId",
+  "frames": "gen/10/unset-long-min-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.minTick",
+  "frames": "gen/10/unset-max-minTick",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.minTick",
+  "frames": "gen/10/unset-max-double-minTick",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.minTick",
+  "frames": "gen/10/unset-long-max-minTick",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.minTick",
+  "frames": "gen/10/unset-long-min-minTick",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.priceMagnifier",
+  "frames": "gen/10/unset-max-priceMagnifier",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.priceMagnifier",
+  "frames": "gen/10/unset-long-max-priceMagnifier",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.priceMagnifier",
+  "frames": "gen/10/unset-long-min-priceMagnifier",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.underConId",
+  "frames": "gen/10/unset-max-underConId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.underConId",
+  "frames": "gen/10/unset-long-max-underConId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.underConId",
+  "frames": "gen/10/unset-long-min-underConId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.evMultiplier",
+  "frames": "gen/10/unset-empty-evMultiplier",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.aggGroup",
+  "frames": "gen/10/unset-empty-aggGroup",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.minSize",
+  "frames": "gen/10/unset-empty-minSize",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.minSize",
+  "frames": "gen/10/unset-max-minSize",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.minSize",
+  "frames": "gen/10/unset-long-max-minSize",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.minSize",
+  "frames": "gen/10/unset-long-min-minSize",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.sizeIncrement",
+  "frames": "gen/10/unset-empty-sizeIncrement",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.sizeIncrement",
+  "frames": "gen/10/unset-max-sizeIncrement",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.sizeIncrement",
+  "frames": "gen/10/unset-long-max-sizeIncrement",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.sizeIncrement",
+  "frames": "gen/10/unset-long-min-sizeIncrement",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.suggestedSizeIncrement",
+  "frames": "gen/10/unset-empty-suggestedSizeIncrement",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.suggestedSizeIncrement",
+  "frames": "gen/10/unset-max-suggestedSizeIncrement",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.suggestedSizeIncrement",
+  "frames": "gen/10/unset-long-max-suggestedSizeIncrement",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.suggestedSizeIncrement",
+  "frames": "gen/10/unset-long-min-suggestedSizeIncrement",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.orderTypes",
+  "frames": "gen/10/order-types-empty-item",
+  "pair": ["LMT,MKT", "LMT,,MKT"],
+  "cite": "protocol-178 Disagreements 12",
+  "note": "ib_async keeps IB's raw comma text with its empty items (decoder.py:255-344); swift-ibkr splits the list and drops them"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.validExchanges",
+  "frames": "gen/10/valid-exchanges-trailing-comma",
+  "pair": ["SMART,ARCA", "SMART,ARCA,"],
+  "cite": "protocol-178 Disagreements 12",
+  "note": "ib_async keeps IB's raw comma text with its empty items (decoder.py:255-344); swift-ibkr splits the list and drops them"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.marketRuleIds",
+  "frames": "gen/10/market-rule-ids-trailing-comma",
+  "pair": ["26,31", "26,31,"],
+  "cite": "protocol-178 Disagreements 12",
+  "note": "ib_async keeps IB's raw comma text with its empty items (decoder.py:255-344); swift-ibkr splits the list and drops them"
+ },
+ {
+  "scope": "in 10",
+  "field": "#error",
+  "frames": "gen/10/market-rule-ids-not-a-number",
+  "pair": ["malformed: badNumber(\"x\", index: 36)", "decoded"],
+  "cite": "DECISIONS: `marketRuleIDs` is `[Int]` (a non-number is `.malformed`)",
+  "note": "a market rule id that is no number is .malformed here; ib_async keeps the raw text (decoder.py:255-344)"
+ },
+ {
+  "scope": "in 18",
+  "field": "#error",
+  "frames": "gen/18/unset-empty-reqId",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "reqId",
+  "frames": "gen/18/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "reqId",
+  "frames": "gen/18/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "reqId",
+  "frames": "gen/18/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.coupon",
+  "frames": "gen/18/unset-empty-coupon",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.contract.conId",
+  "frames": "gen/18/unset-max-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.contract.conId",
+  "frames": "gen/18/unset-long-max-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.contract.conId",
+  "frames": "gen/18/unset-long-min-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.minTick",
+  "frames": "gen/18/unset-max-minTick",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.minTick",
+  "frames": "gen/18/unset-max-double-minTick",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.minTick",
+  "frames": "gen/18/unset-long-max-minTick",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.minTick",
+  "frames": "gen/18/unset-long-min-minTick",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.evMultiplier",
+  "frames": "gen/18/unset-empty-evMultiplier",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.aggGroup",
+  "frames": "gen/18/unset-empty-aggGroup",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.minSize",
+  "frames": "gen/18/unset-empty-minSize",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.minSize",
+  "frames": "gen/18/unset-max-minSize",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.minSize",
+  "frames": "gen/18/unset-long-max-minSize",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.minSize",
+  "frames": "gen/18/unset-long-min-minSize",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.sizeIncrement",
+  "frames": "gen/18/unset-empty-sizeIncrement",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.sizeIncrement",
+  "frames": "gen/18/unset-max-sizeIncrement",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.sizeIncrement",
+  "frames": "gen/18/unset-long-max-sizeIncrement",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.sizeIncrement",
+  "frames": "gen/18/unset-long-min-sizeIncrement",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.suggestedSizeIncrement",
+  "frames": "gen/18/unset-empty-suggestedSizeIncrement",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's int()/float() of x or 0 makes it 0 (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.suggestedSizeIncrement",
+  "frames": "gen/18/unset-max-suggestedSizeIncrement",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.suggestedSizeIncrement",
+  "frames": "gen/18/unset-long-max-suggestedSizeIncrement",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.suggestedSizeIncrement",
+  "frames": "gen/18/unset-long-min-suggestedSizeIncrement",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.convertible",
+  "frames": "gen/18/unset-max-convertible",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.convertible",
+  "frames": "gen/18/unset-long-max-convertible",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.convertible",
+  "frames": "gen/18/unset-long-min-convertible",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.callable",
+  "frames": "gen/18/unset-max-callable",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.callable",
+  "frames": "gen/18/unset-long-max-callable",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.callable",
+  "frames": "gen/18/unset-long-min-callable",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.putable",
+  "frames": "gen/18/unset-max-putable",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.putable",
+  "frames": "gen/18/unset-long-max-putable",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.putable",
+  "frames": "gen/18/unset-long-min-putable",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.nextOptionPartial",
+  "frames": "gen/18/unset-max-nextOptionPartial",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.nextOptionPartial",
+  "frames": "gen/18/unset-long-max-nextOptionPartial",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.nextOptionPartial",
+  "frames": "gen/18/unset-long-min-nextOptionPartial",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.marketRuleIds",
+  "frames": "gen/18/market-rule-ids-trailing-comma",
+  "pair": ["26,31", "26,31,"],
+  "cite": "protocol-178 Disagreements 12",
+  "note": "ib_async keeps IB's raw comma text with its empty items (decoder.py:346-424); swift-ibkr splits the list and drops them"
+ },
+ {
+  "scope": "in 18",
+  "field": "contractDetails.orderTypes",
+  "frames": "gen/18/order-types-empty-item",
+  "pair": ["LMT,MKT", "LMT,,MKT"],
+  "cite": "protocol-178 Disagreements 12",
+  "note": "ib_async keeps IB's raw comma text with its empty items (decoder.py:346-424); swift-ibkr splits the list and drops them"
+ },
+ {
+  "scope": "in 18",
+  "field": "#error",
+  "frames": "gen/18/market-rule-ids-not-a-number",
+  "pair": ["malformed: badNumber(\"x\", index: 34)", "decoded"],
+  "cite": "DECISIONS: `marketRuleIDs` is `[Int]` (a non-number is `.malformed`)",
+  "note": "a market rule id that is no number is .malformed here; ib_async keeps the raw text (decoder.py:346-424)"
+ },
+ {
+  "scope": "in 52",
+  "field": "reqId",
+  "frames": "gen/52/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:56 (wrap, int(field or 0)))"
+ },
+ {
+  "scope": "in 52",
+  "field": "reqId",
+  "frames": "gen/52/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:56 (wrap, int(field or 0)))"
+ },
+ {
+  "scope": "in 52",
+  "field": "reqId",
+  "frames": "gen/52/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:56 (wrap, int(field or 0)))"
+ },
+ {
+  "scope": "in 75",
+  "field": "#error",
+  "frames": "gen/75/unset-empty-reqId",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "reqId",
+  "frames": "gen/75/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "reqId",
+  "frames": "gen/75/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "reqId",
+  "frames": "gen/75/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "underlyingConId",
+  "frames": "gen/75/unset-empty-underConId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "underlyingConId",
+  "frames": "gen/75/unset-max-underConId",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "underlyingConId",
+  "frames": "gen/75/unset-long-max-underConId",
+  "pair": ["0", "9223372036854775807"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "underlyingConId",
+  "frames": "gen/75/unset-long-min-underConId",
+  "pair": ["0", "-9223372036854775808"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "#error",
+  "frames": "gen/75/strike2-unset-empty",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "strikes[]",
+  "frames": "gen/75/strike2-unset-max",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "strikes[]",
+  "frames": "gen/75/strike2-unset-max-double",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "strikes[]",
+  "frames": "gen/75/strike2-unset-long-max",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "strikes[]",
+  "frames": "gen/75/strike2-unset-long-min",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "#error",
+  "frames": "gen/75/negative-expiration-count",
+  "pair": ["malformed: badNumber(\"-1\", index: 6)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a negative count is .malformed here; ib_async reads an empty range or slice (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "#error",
+  "frames": "gen/75/unset-empty-expiration-count",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "expirations.#",
+  "frames": "gen/75/unset-max-expiration-count",
+  "pair": ["0", "4"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "expirations[]",
+  "frames": "gen/75/unset-max-expiration-count",
+  "pair": ["<absent>", "3"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "expirations[]",
+  "frames": "gen/75/unset-max-expiration-count",
+  "pair": ["<absent>", "190"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "expirations[]",
+  "frames": "gen/75/unset-max-expiration-count",
+  "pair": ["<absent>", "195.5"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "expirations[]",
+  "frames": "gen/75/unset-max-expiration-count",
+  "pair": ["<absent>", "200"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "strikes.#",
+  "frames": "gen/75/unset-max-expiration-count",
+  "pair": ["3", "0"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "strikes[]",
+  "frames": "gen/75/unset-max-expiration-count",
+  "pair": ["190", "<absent>"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "strikes[]",
+  "frames": "gen/75/unset-max-expiration-count",
+  "pair": ["195.5", "<absent>"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "strikes[]",
+  "frames": "gen/75/unset-max-expiration-count",
+  "pair": ["200", "<absent>"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "strikes.#",
+  "frames": "gen/75/unset-empty-strike-count",
+  "pair": ["0", "3"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "strikes[]",
+  "frames": "gen/75/unset-empty-strike-count",
+  "pair": ["<absent>", "190"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "strikes[]",
+  "frames": "gen/75/unset-empty-strike-count",
+  "pair": ["<absent>", "195.5"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "strikes[]",
+  "frames": "gen/75/unset-empty-strike-count",
+  "pair": ["<absent>", "200"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "strikes.#",
+  "frames": "gen/75/unset-max-strike-count",
+  "pair": ["0", "3"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "strikes[]",
+  "frames": "gen/75/unset-max-strike-count",
+  "pair": ["<absent>", "190"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "strikes[]",
+  "frames": "gen/75/unset-max-strike-count",
+  "pair": ["<absent>", "195.5"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "strikes[]",
+  "frames": "gen/75/unset-max-strike-count",
+  "pair": ["<absent>", "200"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "an unset count reads 0 here; ib_async reads MAX as a count that swallows the rest and ignores the strike count altogether (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "#error",
+  "frames": "gen/75/strike-count-long",
+  "pair": ["malformed: missingField(index: 14)", "decoded"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "a frame cut before the layout ends is .malformed here; ib_async slices what is there (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "#error",
+  "frames": "gen/75/short-in-expirations",
+  "pair": ["malformed: missingField(index: 9)", "decoded"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "a frame cut before the layout ends is .malformed here; ib_async slices what is there (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "#error",
+  "frames": "gen/75/short-after-expirations",
+  "pair": ["malformed: missingField(index: 10)", "decoded"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "a frame cut before the layout ends is .malformed here; ib_async slices what is there (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 75",
+  "field": "#error",
+  "frames": "gen/75/short-in-strikes",
+  "pair": ["malformed: missingField(index: 13)", "decoded"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "a frame cut before the layout ends is .malformed here; ib_async slices what is there (decoder.py:648-672)"
+ },
+ {
+  "scope": "in 76",
+  "field": "reqId",
+  "frames": "gen/76/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:57 (wrap, int(field or 0)))"
+ },
+ {
+  "scope": "in 76",
+  "field": "reqId",
+  "frames": "gen/76/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:57 (wrap, int(field or 0)))"
+ },
+ {
+  "scope": "in 76",
+  "field": "reqId",
+  "frames": "gen/76/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:57 (wrap, int(field or 0)))"
+ },
+ {
+  "scope": "in 77",
+  "field": "#error",
+  "frames": "gen/77/unset-empty-reqId",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:674-683)"
+ },
+ {
+  "scope": "in 77",
+  "field": "reqId",
+  "frames": "gen/77/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:674-683)"
+ },
+ {
+  "scope": "in 77",
+  "field": "reqId",
+  "frames": "gen/77/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:674-683)"
+ },
+ {
+  "scope": "in 77",
+  "field": "reqId",
+  "frames": "gen/77/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:674-683)"
+ },
+ {
+  "scope": "in 77",
+  "field": "#error",
+  "frames": "gen/77/unset-empty-n",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:674-683)"
+ },
+ {
+  "scope": "in 77",
+  "field": "#error",
+  "frames": "gen/77/unset-max-n",
+  "pair": ["decoded", "StopIteration: "],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async reads the unset count as a number and runs out of fields (decoder.py:674-683)"
+ },
+ {
+  "scope": "in 77",
+  "field": "#error",
+  "frames": "gen/77/unset-long-max-n",
+  "pair": ["decoded", "StopIteration: "],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async reads the unset count as a number and runs out of fields (decoder.py:674-683)"
+ },
+ {
+  "scope": "in 77",
+  "field": "#error",
+  "frames": "gen/77/negative-count",
+  "pair": ["malformed: badNumber(\"-1\", index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a negative count is .malformed here; ib_async reads an empty range or slice (decoder.py:674-683)"
+ },
+ {
+  "scope": "in 78",
+  "field": "#error",
+  "frames": "gen/78/unset-empty-n",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:685-693)"
+ },
+ {
+  "scope": "in 78",
+  "field": "#error",
+  "frames": "gen/78/unset-max-n",
+  "pair": ["decoded", "StopIteration: "],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async reads the unset count as a number and runs out of fields (decoder.py:685-693)"
+ },
+ {
+  "scope": "in 78",
+  "field": "#error",
+  "frames": "gen/78/unset-long-max-n",
+  "pair": ["decoded", "StopIteration: "],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async reads the unset count as a number and runs out of fields (decoder.py:685-693)"
+ },
+ {
+  "scope": "in 78",
+  "field": "#error",
+  "frames": "gen/78/negative-count",
+  "pair": ["malformed: badNumber(\"-1\", index: 1)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a negative count is .malformed here; ib_async reads an empty range or slice (decoder.py:685-693)"
+ },
+ {
+  "scope": "in 79",
+  "field": "#error",
+  "frames": "gen/79/unset-empty-reqId",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:695-719)"
+ },
+ {
+  "scope": "in 79",
+  "field": "reqId",
+  "frames": "gen/79/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:695-719)"
+ },
+ {
+  "scope": "in 79",
+  "field": "reqId",
+  "frames": "gen/79/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:695-719)"
+ },
+ {
+  "scope": "in 79",
+  "field": "reqId",
+  "frames": "gen/79/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:695-719)"
+ },
+ {
+  "scope": "in 79",
+  "field": "#error",
+  "frames": "gen/79/unset-empty-nSamples",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:695-719)"
+ },
+ {
+  "scope": "in 79",
+  "field": "#error",
+  "frames": "gen/79/unset-max-nSamples",
+  "pair": ["decoded", "ValueError: not enough values to unpack (expected at least 6, got 0)"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:695-719)"
+ },
+ {
+  "scope": "in 79",
+  "field": "#error",
+  "frames": "gen/79/unset-long-max-nSamples",
+  "pair": ["decoded", "ValueError: not enough values to unpack (expected at least 6, got 0)"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:695-719)"
+ },
+ {
+  "scope": "in 79",
+  "field": "#error",
+  "frames": "gen/79/unset-empty-conId",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:695-719)"
+ },
+ {
+  "scope": "in 79",
+  "field": "contractDescriptions[].contract.conId",
+  "frames": "gen/79/unset-max-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:695-719)"
+ },
+ {
+  "scope": "in 79",
+  "field": "contractDescriptions[].contract.conId",
+  "frames": "gen/79/unset-long-max-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:695-719)"
+ },
+ {
+  "scope": "in 79",
+  "field": "contractDescriptions[].contract.conId",
+  "frames": "gen/79/unset-long-min-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:695-719)"
+ },
+ {
+  "scope": "in 79",
+  "field": "#error",
+  "frames": "gen/79/unset-empty-nDerivs",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:695-719)"
+ },
+ {
+  "scope": "in 79",
+  "field": "#error",
+  "frames": "gen/79/unset-max-nDerivs",
+  "pair": ["decoded", "ValueError: not enough values to unpack (expected at least 2, got 0)"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:695-719)"
+ },
+ {
+  "scope": "in 79",
+  "field": "#error",
+  "frames": "gen/79/unset-long-max-nDerivs",
+  "pair": ["decoded", "ValueError: not enough values to unpack (expected at least 2, got 0)"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:695-719)"
+ },
+ {
+  "scope": "in 79",
+  "field": "#error",
+  "frames": "gen/79/negative-sample-count",
+  "pair": ["malformed: badNumber(\"-1\", index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a negative count is .malformed here; ib_async reads an empty range or slice (decoder.py:695-719)"
+ },
+ {
+  "scope": "in 80",
+  "field": "#error",
+  "frames": "gen/80/without-agg-group",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty aggGroup is unset (nil) here; ib_async's int('') rejects the frame (decoder.py:732-747)"
+ },
+ {
+  "scope": "in 80",
+  "field": "#error",
+  "frames": "gen/80/exchange2-without-agg-group",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty aggGroup is unset (nil) here; ib_async's int('') rejects the frame (decoder.py:732-747)"
+ },
+ {
+  "scope": "in 80",
+  "field": "#error",
+  "frames": "gen/80/unset-empty-n",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:732-747)"
+ },
+ {
+  "scope": "in 80",
+  "field": "#error",
+  "frames": "gen/80/unset-max-n",
+  "pair": ["decoded", "StopIteration: "],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async reads the unset count as a number and runs out of fields (decoder.py:732-747)"
+ },
+ {
+  "scope": "in 80",
+  "field": "#error",
+  "frames": "gen/80/unset-long-max-n",
+  "pair": ["decoded", "StopIteration: "],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async reads the unset count as a number and runs out of fields (decoder.py:732-747)"
+ },
+ {
+  "scope": "in 80",
+  "field": "#error",
+  "frames": "gen/80/negative-count",
+  "pair": ["malformed: badNumber(\"-1\", index: 1)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a negative count is .malformed here; ib_async reads an empty range or slice (decoder.py:732-747)"
+ },
+ {
+  "scope": "in 82",
+  "field": "#error",
+  "frames": "gen/82/unset-empty-reqId",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:721-730)"
+ },
+ {
+  "scope": "in 82",
+  "field": "reqId",
+  "frames": "gen/82/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:721-730)"
+ },
+ {
+  "scope": "in 82",
+  "field": "reqId",
+  "frames": "gen/82/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:721-730)"
+ },
+ {
+  "scope": "in 82",
+  "field": "reqId",
+  "frames": "gen/82/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:721-730)"
+ },
+ {
+  "scope": "in 82",
+  "field": "#error",
+  "frames": "gen/82/unset-empty-n",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:721-730)"
+ },
+ {
+  "scope": "in 82",
+  "field": "#error",
+  "frames": "gen/82/unset-max-n",
+  "pair": ["decoded", "StopIteration: "],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async reads the unset count as a number and runs out of fields (decoder.py:721-730)"
+ },
+ {
+  "scope": "in 82",
+  "field": "#error",
+  "frames": "gen/82/unset-long-max-n",
+  "pair": ["decoded", "StopIteration: "],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async reads the unset count as a number and runs out of fields (decoder.py:721-730)"
+ },
+ {
+  "scope": "in 82",
+  "field": "#error",
+  "frames": "gen/82/unset-empty-bitNumber",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:721-730)"
+ },
+ {
+  "scope": "in 82",
+  "field": "components[].bitNumber",
+  "frames": "gen/82/unset-max-bitNumber",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:721-730)"
+ },
+ {
+  "scope": "in 82",
+  "field": "components[].bitNumber",
+  "frames": "gen/82/unset-long-max-bitNumber",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:721-730)"
+ },
+ {
+  "scope": "in 82",
+  "field": "components[].bitNumber",
+  "frames": "gen/82/unset-long-min-bitNumber",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:721-730)"
+ },
+ {
+  "scope": "in 82",
+  "field": "#error",
+  "frames": "gen/82/negative-count",
+  "pair": ["malformed: badNumber(\"-1\", index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a negative count is .malformed here; ib_async reads an empty range or slice (decoder.py:721-730)"
+ },
+ {
+  "scope": "in 93",
+  "field": "#error",
+  "frames": "gen/93/unset-empty-marketRuleId",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 93",
+  "field": "marketRuleId",
+  "frames": "gen/93/unset-max-marketRuleId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 93",
+  "field": "marketRuleId",
+  "frames": "gen/93/unset-long-max-marketRuleId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 93",
+  "field": "marketRuleId",
+  "frames": "gen/93/unset-long-min-marketRuleId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 93",
+  "field": "#error",
+  "frames": "gen/93/unset-empty-n",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 93",
+  "field": "#error",
+  "frames": "gen/93/unset-max-n",
+  "pair": ["decoded", "StopIteration: "],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async reads the unset count as a number and runs out of fields (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 93",
+  "field": "#error",
+  "frames": "gen/93/unset-long-max-n",
+  "pair": ["decoded", "StopIteration: "],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async reads the unset count as a number and runs out of fields (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 93",
+  "field": "#error",
+  "frames": "gen/93/unset-empty-lowEdge",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 93",
+  "field": "priceIncrements[][]",
+  "frames": "gen/93/unset-max-lowEdge",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 93",
+  "field": "priceIncrements[][]",
+  "frames": "gen/93/unset-max-double-lowEdge",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 93",
+  "field": "priceIncrements[][]",
+  "frames": "gen/93/unset-long-max-lowEdge",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 93",
+  "field": "priceIncrements[][]",
+  "frames": "gen/93/unset-long-min-lowEdge",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 93",
+  "field": "#error",
+  "frames": "gen/93/unset-empty-increment",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 93",
+  "field": "priceIncrements[][]",
+  "frames": "gen/93/unset-max-increment",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 93",
+  "field": "priceIncrements[][]",
+  "frames": "gen/93/unset-max-double-increment",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 93",
+  "field": "priceIncrements[][]",
+  "frames": "gen/93/unset-long-max-increment",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 93",
+  "field": "priceIncrements[][]",
+  "frames": "gen/93/unset-long-min-increment",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 93",
+  "field": "#error",
+  "frames": "gen/93/increment2-unset-empty",
+  "pair": ["decoded", "ValueError: could not convert string to float: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() / float() / unpack (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 93",
+  "field": "priceIncrements[][]",
+  "frames": "gen/93/increment2-unset-max",
+  "pair": ["0", "2147483647"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 93",
+  "field": "priceIncrements[][]",
+  "frames": "gen/93/increment2-unset-max-double",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 93",
+  "field": "priceIncrements[][]",
+  "frames": "gen/93/increment2-unset-long-max",
+  "pair": ["0", "9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 93",
+  "field": "priceIncrements[][]",
+  "frames": "gen/93/increment2-unset-long-min",
+  "pair": ["0", "-9223372036854776000"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or flag reads an unset value as 0 / false here; ib_async keeps the sentinel or reads MAX as set (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 93",
+  "field": "#error",
+  "frames": "gen/93/negative-count",
+  "pair": ["malformed: badNumber(\"-1\", index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a negative count is .malformed here; ib_async reads an empty range or slice (decoder.py:767-775)"
  }
 ]

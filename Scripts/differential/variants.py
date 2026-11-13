@@ -781,5 +781,282 @@ VARIANTS[88] += [("empty-date", ["88", "7", ""]), ("text-date", ["88", "7", "202
 VARIANTS[89] += [("negative-count", ["89", "7", "-1"]), ("negative-item-count", ["89", "7", "1", "351.0", "-3"])]
 VARIANTS[106] += [("negative-count", _at(_SCHEDULE, i5="-1"))]
 
+# Contract details and reference data (decoder.py:255-344 contractDetails, 346-424 bondContractDetails, 648-730 option
+# parameters, soft-dollar tiers, family codes, symbol samples, depth exchanges, smart components, market rule 767-775).
+_INT_FIELDS |= {"priceMagnifier", "underConId", "numSecIds", "aggGroup", "bitNumber", "n", "nSamples", "nDerivs",
+                "marketRuleId", "convertible", "callable", "putable", "nextOptionPartial"}
+
+_CD_HEAD = {  # message 10 after its id; neighbouring slots of one kind hold distinct values
+    "reqId": "7", "symbol": "AAPL", "secType": "OPT", "lastTimes": "20261218-16:00:00", "strike": "150.5",
+    "right": "C", "exchange": "SMART", "currency": "USD", "localSymbol": "AAPL  261218C00150500", "marketName": "NMS",
+    "tradingClass": "AAPL2", "conId": "265598", "minTick": "0.01", "multiplier": "100",
+    "orderTypes": "LMT,MKT,STP", "validExchanges": "SMART,ARCA,CBOE", "priceMagnifier": "2", "underConId": "9001",
+    "longName": "APPLE INC", "primaryExchange": "NASDAQ", "contractMonth": "202612", "industry": "Technology",
+    "category": "Computers", "subcategory": "Hardware", "timeZoneId": "US/Eastern",
+    "tradingHours": "20261111:0400-20261111:2000", "liquidHours": "20261111:0930-20261111:1600", "evRule": "EVR",
+    "evMultiplier": "3",
+}
+_CD_TAIL = {"aggGroup": "4", "underSymbol": "UNDSYM", "underSecType": "UNDTYP", "marketRuleIds": "26,31",
+            "realExpirationDate": "20261219", "stockType": "COMMON", "minSize": "0.5", "sizeIncrement": "0.25",
+            "suggestedSizeIncrement": "10"}
+_SEC_IDS = [("ISIN", "US0378331005"), ("CUSIP", "037833100"), ("SEDOL", "2046251")]
+
+
+def _cd(secids: int = 1, **over: str) -> list[str]:
+    head = {**_CD_HEAD, **{k: v for k, v in over.items() if k in _CD_HEAD}}
+    tail = {**_CD_TAIL, **{k: v for k, v in over.items() if k in _CD_TAIL}}
+    count = over.get("numSecIds", str(secids))
+    return ["10", *head.values(), count, *[x for p in _SEC_IDS[:secids] for x in p], *tail.values()]
+
+
+_CD_STRINGS = ["symbol", "secType", "right", "exchange", "currency", "localSymbol", "marketName", "tradingClass",
+               "multiplier", "orderTypes", "validExchanges", "longName", "primaryExchange", "contractMonth", "industry",
+               "category", "subcategory", "timeZoneId", "tradingHours", "liquidHours", "evRule", "underSymbol",
+               "underSecType", "marketRuleIds", "realExpirationDate", "stockType"]
+_CD_NUMBERS = ["reqId", "strike", "conId", "minTick", "priceMagnifier", "underConId", "evMultiplier", "numSecIds",
+               "aggGroup", "minSize", "sizeIncrement", "suggestedSizeIncrement"]
+
+
+def _named_unset(build, names: list[str], prefix: str = "") -> list[tuple[str, list[str]]]:
+    """`unset-<sentinel>-<name>` for every sentinel of every named field, built by name instead of by index."""
+    out = []
+    for name in names:
+        for tag, value in _SENTINELS:
+            if tag == "max-double" and name in _INT_FIELDS:
+                continue
+            out.append((f"{prefix}unset-{tag}-{name}", build(**{name: value})))
+    return out
+
+
+_LAST_TIMES = {  # the date alone, date and time, all three parts, the `-` form with empty parts, whitespace forms
+    "date-only": "20261218", "date-time-zone-dash": "20261218-16:00:00-US/Pacific",
+    "date-time-whitespace": "20261218 16:00:00", "date-time-zone-whitespace": "20261218 16:00:00 US/Pacific",
+    "empty": "", "dash-only": "-", "date-trailing-dash": "20261218-", "empty-time-zone": "20261218-16:00:00-",
+    "four-parts": "20261218-16:00:00-US/Pacific-extra", "leading-dash": "-16:00:00",
+    "whitespace-runs": "20261218   16:00:00", "leading-whitespace": " 20261218 16:00:00",
+}
+
+VARIANTS[10] = [
+    ("base", _cd()),
+    *[(f"secids-{n}", _cd(secids=n)) for n in (0, 2, 3)],
+    *[(f"last-times-{k}", _cd(lastTimes=v)) for k, v in _LAST_TIMES.items()],
+    *[(f"empty-{n}", _cd(**{n: ""})) for n in _CD_STRINGS],
+    *[v for v in _named_unset(_cd, _CD_NUMBERS) if v[0] != "unset-max-double-evMultiplier"],
+    ("empty-secid-tag", _at(_cd(), i31="")),
+    ("empty-secid-value", _at(_cd(), i32="")),
+    ("order-types-one", _cd(orderTypes="LMT")),
+    ("order-types-empty-item", _cd(orderTypes="LMT,,MKT")),
+    ("valid-exchanges-trailing-comma", _cd(validExchanges="SMART,ARCA,")),
+    ("market-rule-ids-one", _cd(marketRuleIds="26")),
+    ("market-rule-ids-three", _cd(marketRuleIds="26,31,4563")),
+    ("market-rule-ids-trailing-comma", _cd(marketRuleIds="26,31,")),
+    ("long-name-unicode-escape", _cd(longName="Caf\\u00e9 \\u0041pple")),
+    ("strike-zero", _cd(strike="0")),
+    ("extra-trailing-field", [*_cd(), "extra"]),
+    ("short-after-min-tick", _cd()[:14]),
+    ("short-before-sec-ids", _cd()[:30]),
+    ("short-in-sec-ids", _cd()[:32]),
+    ("short-after-market-rule-ids", _cd()[:37]),
+    ("short-before-suggested-size", _cd()[:-1]),
+    ("market-rule-ids-not-a-number", _cd(marketRuleIds="26,x")),
+]
+
+_BOND_HEAD = {
+    "reqId": "7", "symbol": "IBM", "secType": "BOND", "cusip": "459200HU8", "coupon": "5", "lastTimes": "20270210",
+    "issueDate": "20170210", "ratings": "A2 A-", "bondType": "FIXED", "couponType": "VARIABLE", "convertible": "1",
+    "callable": "0", "putable": "1", "descAppend": "IBM 5 02/10/27", "exchange": "SMART", "currency": "EUR",
+    "marketName": "BOND", "tradingClass": "IBCID", "conId": "123456789", "minTick": "0.001",
+    "orderTypes": "LMT,MKT", "validExchanges": "SMART,FWB", "nextOptionDate": "20250101", "nextOptionType": "CALL",
+    "nextOptionPartial": "1", "notes": "a note", "longName": "IBM CORP", "evRule": "EVR", "evMultiplier": "3",
+}
+_BOND_TAIL = {"aggGroup": "4", "marketRuleIds": "26,31", "minSize": "0.5", "sizeIncrement": "0.25",
+              "suggestedSizeIncrement": "10"}
+
+
+def _bond(secids: int = 1, **over: str) -> list[str]:
+    head = {**_BOND_HEAD, **{k: v for k, v in over.items() if k in _BOND_HEAD}}
+    tail = {**_BOND_TAIL, **{k: v for k, v in over.items() if k in _BOND_TAIL}}
+    count = over.get("numSecIds", str(secids))
+    return ["18", *head.values(), count, *[x for p in _SEC_IDS[:secids] for x in p], *tail.values()]
+
+
+_BOND_STRINGS = ["symbol", "secType", "cusip", "issueDate", "ratings", "bondType", "couponType", "descAppend",
+                 "exchange", "currency", "marketName", "tradingClass", "orderTypes", "validExchanges",
+                 "nextOptionDate", "nextOptionType", "notes", "longName", "evRule", "marketRuleIds"]
+_BOND_NUMBERS = ["reqId", "coupon", "conId", "minTick", "evMultiplier", "numSecIds", "aggGroup", "minSize",
+                 "sizeIncrement", "suggestedSizeIncrement"]
+_BOND_FLAGS = ["convertible", "callable", "putable", "nextOptionPartial"]
+VARIANTS[18] = [
+    ("base", _bond()),
+    *[(f"secids-{n}", _bond(secids=n)) for n in (0, 2, 3)],
+    *[(f"last-times-{k}", _bond(lastTimes=v)) for k, v in _LAST_TIMES.items()],
+    *[(f"empty-{n}", _bond(**{n: ""})) for n in _BOND_STRINGS],
+    *_named_unset(_bond, _BOND_NUMBERS + _BOND_FLAGS),
+    ("flags-swapped", _bond(convertible="0", callable="1", putable="0", nextOptionPartial="0")),
+    ("market-rule-ids-one", _bond(marketRuleIds="26")),
+    ("market-rule-ids-three", _bond(marketRuleIds="26,31,4563")),
+    ("market-rule-ids-trailing-comma", _bond(marketRuleIds="26,31,")),
+    ("order-types-empty-item", _bond(orderTypes="LMT,,MKT")),
+    ("long-name-unicode-escape", _bond(longName="Caf\\u00e9 IBM")),
+    ("long-name-non-ascii", _bond(longName="Café IBM")),
+    ("coupon-fractional", _bond(coupon="3.45")),
+    ("extra-trailing-field", [*_bond(), "extra"]),
+    ("short-after-min-tick", _bond()[:21]),
+    ("short-before-sec-ids", _bond()[:30]),
+    ("short-in-sec-ids", _bond()[:32]),
+    ("short-before-suggested-size", _bond()[:-1]),
+    ("market-rule-ids-not-a-number", _bond(marketRuleIds="26,x")),
+]
+
+VARIANTS[52] = [("base", ["52", "1", "7"]), *_unset_all(["52", "1", "7"], {"reqId": 2}), ("short", ["52", "1"]),
+                ("extra-trailing-field", ["52", "1", "7", "extra"])]
+VARIANTS[76] = [("base", ["76", "7"]), *_unset_all(["76", "7"], {"reqId": 1}), ("short", ["76"]),
+                ("extra-trailing-field", ["76", "7", "extra"])]
+
+
+def _opt(exps: list[str], strikes: list[str], **over: str) -> list[str]:
+    h = {"reqId": "7", "exchange": "SMART", "underConId": "265598", "tradingClass": "AAPL2", "multiplier": "100", **over}
+    return ["75", *h.values(), str(len(exps)), *exps, str(len(strikes)), *strikes]
+
+
+_EXPS, _STRIKES = ["20261218", "20270115", "20270219"], ["190", "195.5", "200"]
+_OPT3 = _opt(_EXPS, _STRIKES)
+VARIANTS[75] = [
+    *[(f"exps-{e}-strikes-{s}", _opt(_EXPS[:e], _STRIKES[:s])) for e in (0, 1, 3) for s in (0, 1, 3)],
+    ("empty-exchange", _opt(_EXPS, _STRIKES, exchange="")),
+    ("empty-trading-class", _opt(_EXPS, _STRIKES, tradingClass="")),
+    ("empty-multiplier", _opt(_EXPS, _STRIKES, multiplier="")),
+    ("empty-expiration", _opt(["20261218", "", "20270219"], _STRIKES)),
+    *_named_unset(lambda **k: _opt(_EXPS, _STRIKES, **k), ["reqId", "underConId"]),
+    *[(f"strike2-unset-{t}", _opt(_EXPS, ["190", v, "200"])) for t, v in _SENTINELS],
+    ("negative-expiration-count", ["75", "7", "SMART", "265598", "AAPL2", "100", "-1", "3", "190", "195.5", "200"]),
+    ("unset-empty-expiration-count", ["75", "7", "SMART", "265598", "AAPL2", "100", "", "3", "190", "195.5", "200"]),
+    ("unset-max-expiration-count", ["75", "7", "SMART", "265598", "AAPL2", "100", MAX_INT, "3", "190", "195.5", "200"]),
+    ("unset-empty-strike-count", _at(_OPT3, i10="")),
+    ("unset-max-strike-count", _at(_OPT3, i10=MAX_INT)),
+    ("strike-count-long", _at(_OPT3, i10="5")),
+    ("short-in-expirations", _OPT3[:9]),
+    ("short-after-expirations", _OPT3[:10]),
+    ("short-in-strikes", _OPT3[:-1]),
+]
+
+
+def _tiers(rows: list[list[str]]) -> list[str]:
+    return ["77", "7", str(len(rows)), *[x for r in rows for x in r]]
+
+
+_TIER_ROWS = [["Tier1", "T1V", "Tier One"], ["Tier2", "T2V", "Tier Two"], ["Tier3", "T3V", "Tier Three"]]
+VARIANTS[77] = [
+    *[(f"tiers-{n}", _tiers(_TIER_ROWS[:n])) for n in (0, 1, 3)],
+    ("empty-name", _tiers([["", "T1V", "Tier One"]])), ("empty-value", _tiers([["Tier1", "", "Tier One"]])),
+    ("empty-display-name", _tiers([["Tier1", "T1V", ""]])),
+    ("tier2-empty-value", _tiers([_TIER_ROWS[0], ["Tier2", "", "Tier Two"]])),
+    *_unset_all(_tiers(_TIER_ROWS[:1]), {"reqId": 1, "n": 2}),
+    ("negative-count", ["77", "7", "-1"]),
+    ("short-in-tier", _tiers(_TIER_ROWS[:1])[:-1]), ("short-second-tier", _tiers(_TIER_ROWS[:2])[:-3]),
+    ("extra-trailing-field", [*_tiers(_TIER_ROWS[:1]), "extra"]),
+]
+
+
+def _family(rows: list[list[str]]) -> list[str]:
+    return ["78", str(len(rows)), *[x for r in rows for x in r]]
+
+
+_FAMILY_ROWS = [["DU0000001", "F1"], ["DU0000002", "F2"], ["DU0000003", "F3"]]
+VARIANTS[78] = [
+    *[(f"codes-{n}", _family(_FAMILY_ROWS[:n])) for n in (0, 1, 3)],
+    ("empty-code", _family([["DU0000001", ""]])), ("empty-account", _family([["", "F1"]])),
+    ("code2-empty", _family([_FAMILY_ROWS[0], ["DU0000002", ""]])),
+    *_unset_all(_family(_FAMILY_ROWS[:1]), {"n": 1}),
+    ("negative-count", ["78", "-1"]),
+    ("short-in-code", _family(_FAMILY_ROWS[:1])[:-1]), ("short-second-code", _family(_FAMILY_ROWS[:2])[:-1]),
+    ("extra-trailing-field", [*_family(_FAMILY_ROWS[:1]), "extra"]),
+]
+
+
+def _samples(samples: list[list]) -> list[str]:
+    """conId, symbol, secType, primaryExchange, currency, [derivative types], description, issuerId per sample."""
+    out = ["79", "7", str(len(samples))]
+    for s in samples:
+        out += [*s[:5], str(len(s[5])), *s[5], s[6], s[7]]
+    return out
+
+
+_SAMPLE = [["265598", "AAPL", "STK", "NASDAQ", "USD", ["OPT", "WAR"], "APPLE INC", "US0378331005"],
+           ["38708077", "AAPL2", "CFD", "MEXI", "MXN", [], "APPLE CFD", "ISS2"],
+           ["532640894", "AAPL3", "FUT", "TSE", "CAD", ["BAG"], "APPLE FUT", "ISS3"]]
+_S1 = _samples(_SAMPLE[:1])
+VARIANTS[79] = [
+    *[(f"samples-{n}", _samples(_SAMPLE[:n])) for n in (0, 1, 2, 3)],
+    *[(f"derivs-{n}", _samples([[*_SAMPLE[0][:5], ["OPT", "WAR", "BAG"][:n], "APPLE INC", "US0378331005"]]))
+      for n in (0, 1, 2, 3)],
+    *[(f"empty-{n}", _samples([[*_SAMPLE[0][:i], "", *_SAMPLE[0][i + 1:]]]))
+      for n, i in {"symbol": 1, "secType": 2, "primaryExchange": 3, "currency": 4, "description": 6,
+                   "issuerId": 7}.items()],
+    ("empty-derivative-type", _samples([[*_SAMPLE[0][:5], ["", "WAR"], "APPLE INC", "US0378331005"]])),
+    ("sample2-empty-currency", _samples([_SAMPLE[0], [*_SAMPLE[1][:4], "", *_SAMPLE[1][5:]]])),
+    *_unset_all(_S1, {"reqId": 1, "nSamples": 2, "conId": 3, "nDerivs": 8}),
+    ("negative-sample-count", ["79", "7", "-1"]),
+    ("negative-derivative-count", _at(_S1, i8="-1")),
+    ("short-after-currency", _S1[:8]),
+    ("short-in-derivatives", _S1[:10]),
+    ("short-before-issuer-id", _S1[:-1]),
+    ("short-second-sample", _samples(_SAMPLE[:2])[:-2]),
+    ("extra-trailing-field", [*_S1, "extra"]),
+]
+
+
+def _depth(rows: list[list[str]]) -> list[str]:
+    return ["80", str(len(rows)), *[x for r in rows for x in r]]
+
+
+_DEPTH_ROWS = [["ISLAND", "STK", "NASDAQ", "Deep2", "1"], ["NYSE", "FUT", "NYSE2", "Deep", "2"],
+               ["ARCA", "OPT", "ARCA2", "Deep3", "3"]]
+VARIANTS[80] = [
+    *[(f"exchanges-{n}", _depth(_DEPTH_ROWS[:n])) for n in (0, 1, 3)],
+    ("without-agg-group", _depth([[*_DEPTH_ROWS[0][:4], ""]])),
+    ("agg-group-unset-max", _depth([[*_DEPTH_ROWS[0][:4], MAX_INT]])),
+    ("agg-group-unset-long-max", _depth([[*_DEPTH_ROWS[0][:4], LONG_MAX]])),
+    ("agg-group-unset-long-min", _depth([[*_DEPTH_ROWS[0][:4], LONG_MIN]])),
+    ("exchange2-without-agg-group", _depth([_DEPTH_ROWS[0], [*_DEPTH_ROWS[1][:4], ""]])),
+    *[(f"empty-{n}", _depth([[*_DEPTH_ROWS[0][:i], "", *_DEPTH_ROWS[0][i + 1:]]]))
+      for n, i in {"exchange": 0, "secType": 1, "listingExch": 2, "serviceDataType": 3}.items()],
+    *_unset_all(_depth(_DEPTH_ROWS[:1]), {"n": 1}),
+    ("negative-count", ["80", "-1"]),
+    ("short-before-agg-group", _depth(_DEPTH_ROWS[:1])[:-1]), ("short-second-row", _depth(_DEPTH_ROWS[:2])[:-2]),
+    ("extra-trailing-field", [*_depth(_DEPTH_ROWS[:1]), "extra"]),
+]
+
+
+def _smart(rows: list[list[str]]) -> list[str]:
+    return ["82", "7", str(len(rows)), *[x for r in rows for x in r]]
+
+
+_SMART_ROWS = [["0", "NYSE", "N"], ["1", "ARCA", "P"], ["2", "BATS", "Z"]]
+VARIANTS[82] = [
+    *[(f"components-{n}", _smart(_SMART_ROWS[:n])) for n in (0, 1, 3)],
+    ("empty-exchange", _smart([["0", "", "N"]])), ("empty-letter", _smart([["0", "NYSE", ""]])),
+    ("component2-empty-letter", _smart([_SMART_ROWS[0], ["1", "ARCA", ""]])),
+    *_unset_all(_smart(_SMART_ROWS[:1]), {"reqId": 1, "n": 2, "bitNumber": 3}),
+    ("negative-count", ["82", "7", "-1"]),
+    ("short-in-component", _smart(_SMART_ROWS[:1])[:-1]), ("short-second-component", _smart(_SMART_ROWS[:2])[:-2]),
+    ("extra-trailing-field", [*_smart(_SMART_ROWS[:1]), "extra"]),
+]
+
+
+def _rule(rows: list[list[str]], rule: str = "26") -> list[str]:
+    return ["93", rule, str(len(rows)), *[x for r in rows for x in r]]
+
+
+_RULE_ROWS = [["0", "0.01"], ["100", "0.05"], ["1000", "0.5"]]
+VARIANTS[93] = [
+    *[(f"increments-{n}", _rule(_RULE_ROWS[:n])) for n in (0, 1, 3)],
+    *_unset_all(_rule(_RULE_ROWS[:1]), {"marketRuleId": 1, "n": 2, "lowEdge": 3, "increment": 4}),
+    *[(f"increment2-unset-{t}", _rule([_RULE_ROWS[0], ["100", v]])) for t, v in _SENTINELS],
+    ("negative-count", ["93", "26", "-1"]),
+    ("short-in-increment", _rule(_RULE_ROWS[:1])[:-1]), ("short-second-increment", _rule(_RULE_ROWS[:2])[:-2]),
+    ("extra-trailing-field", [*_rule(_RULE_ROWS[:1]), "extra"]),
+]
+
 # A frame ib_async rejects (openOrder cut after its id): the oracle must record the exception, not «no calls».
 CANARY: tuple[str, list[str]] = ("gen/canary/short-openOrder", ["5", "1"])
