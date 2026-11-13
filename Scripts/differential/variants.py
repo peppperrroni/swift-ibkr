@@ -841,7 +841,7 @@ VARIANTS[10] = [
     *[(f"secids-{n}", _cd(secids=n)) for n in (0, 2, 3)],
     *[(f"last-times-{k}", _cd(lastTimes=v)) for k, v in _LAST_TIMES.items()],
     *[(f"empty-{n}", _cd(**{n: ""})) for n in _CD_STRINGS],
-    *[v for v in _named_unset(_cd, _CD_NUMBERS) if v[0] != "unset-max-double-evMultiplier"],
+    *_named_unset(_cd, _CD_NUMBERS),
     ("empty-secid-tag", _at(_cd(), i31="")),
     ("empty-secid-value", _at(_cd(), i32="")),
     ("order-types-one", _cd(orderTypes="LMT")),
@@ -851,6 +851,8 @@ VARIANTS[10] = [
     ("market-rule-ids-three", _cd(marketRuleIds="26,31,4563")),
     ("market-rule-ids-trailing-comma", _cd(marketRuleIds="26,31,")),
     ("long-name-unicode-escape", _cd(longName="Caf\\u00e9 \\u0041pple")),
+    ("long-name-non-ascii", _cd(longName="Café Apple")),
+    ("ev-multiplier-fractional", _cd(evMultiplier="0.5")),
     ("strike-zero", _cd(strike="0")),
     ("extra-trailing-field", [*_cd(), "extra"]),
     ("short-after-min-tick", _cd()[:14]),
@@ -934,10 +936,12 @@ VARIANTS[75] = [
     ("unset-max-expiration-count", ["75", "7", "SMART", "265598", "AAPL2", "100", MAX_INT, "3", "190", "195.5", "200"]),
     ("unset-empty-strike-count", _at(_OPT3, i10="")),
     ("unset-max-strike-count", _at(_OPT3, i10=MAX_INT)),
+    ("strike-count-short", _at(_OPT3, i10="2")),
     ("strike-count-long", _at(_OPT3, i10="5")),
     ("short-in-expirations", _OPT3[:9]),
     ("short-after-expirations", _OPT3[:10]),
     ("short-in-strikes", _OPT3[:-1]),
+    ("extra-trailing-field", [*_OPT3, "extra"]),
 ]
 
 

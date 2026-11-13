@@ -14758,5 +14758,93 @@
   "pair": ["malformed: badNumber(\"-1\", index: 2)", "decoded"],
   "cite": "protocol-178 Disagreements 17",
   "note": "a negative count is .malformed here; ib_async reads an empty range or slice (decoder.py:767-775)"
+ },
+ {
+  "scope": "in 18",
+  "field": "#error",
+  "frames": "sweep/FakeGateway.swift:87#27",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: '3.45'"],
+  "cite": "protocol-178 Disagreements 19",
+  "note": "coupon and evMultiplier are int in ib_async's dataclass, so parse() rejects this text (contract.py:569, 590; decoder.py:192-193); swift-ibkr decodes a Decimal"
+ },
+ {
+  "scope": "in 18",
+  "field": "#error",
+  "frames": "sweep/LookupCodecTests.swift:106",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: '3.45'"],
+  "cite": "protocol-178 Disagreements 19",
+  "note": "coupon and evMultiplier are int in ib_async's dataclass, so parse() rejects this text (contract.py:569, 590; decoder.py:192-193); swift-ibkr decodes a Decimal"
+ },
+ {
+  "scope": "in 10",
+  "field": "#error",
+  "frames": "gen/10/unset-max-double-evMultiplier",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: '1.7976931348623157E308'"],
+  "cite": "protocol-178 Disagreements 19",
+  "note": "coupon and evMultiplier are int in ib_async's dataclass, so parse() rejects this text (contract.py:569, 590; decoder.py:192-193); swift-ibkr decodes a Decimal"
+ },
+ {
+  "scope": "in 10",
+  "field": "contractDetails.longName",
+  "frames": "gen/10/long-name-non-ascii",
+  "pair": ["Café Apple", "CafÃ© Apple"],
+  "cite": "protocol-178 Disagreements 8",
+  "note": "ib_async's unicode-escape decode reads UTF-8 as Latin-1 (decoder.py:333); swift-ibkr keeps the UTF-8"
+ },
+ {
+  "scope": "in 10",
+  "field": "#error",
+  "frames": "gen/10/ev-multiplier-fractional",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: '0.5'"],
+  "cite": "protocol-178 Disagreements 19",
+  "note": "coupon and evMultiplier are int in ib_async's dataclass, so parse() rejects this text (contract.py:569, 590; decoder.py:192-193); swift-ibkr decodes a Decimal"
+ },
+ {
+  "scope": "in 18",
+  "field": "#error",
+  "frames": "gen/18/unset-max-double-coupon",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: '1.7976931348623157E308'"],
+  "cite": "protocol-178 Disagreements 19",
+  "note": "coupon and evMultiplier are int in ib_async's dataclass, so parse() rejects this text (contract.py:569, 590; decoder.py:192-193); swift-ibkr decodes a Decimal"
+ },
+ {
+  "scope": "in 18",
+  "field": "#error",
+  "frames": "gen/18/unset-max-double-evMultiplier",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: '1.7976931348623157E308'"],
+  "cite": "protocol-178 Disagreements 19",
+  "note": "coupon and evMultiplier are int in ib_async's dataclass, so parse() rejects this text (contract.py:569, 590; decoder.py:192-193); swift-ibkr decodes a Decimal"
+ },
+ {
+  "scope": "in 18",
+  "field": "#error",
+  "frames": "gen/18/coupon-fractional",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: '3.45'"],
+  "cite": "protocol-178 Disagreements 19",
+  "note": "coupon and evMultiplier are int in ib_async's dataclass, so parse() rejects this text (contract.py:569, 590; decoder.py:192-193); swift-ibkr decodes a Decimal"
+ },
+ {
+  "scope": "in 75",
+  "field": "strikes.#",
+  "frames": "gen/75/strike-count-short",
+  "pair": ["2", "3"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "ib_async takes every field after the expirations as a strike and ignores the strike count (decoder.py:662); swift-ibkr reads the count and ignores an extra field"
+ },
+ {
+  "scope": "in 75",
+  "field": "strikes[]",
+  "frames": "gen/75/strike-count-short",
+  "pair": ["<absent>", "200"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "ib_async takes every field after the expirations as a strike and ignores the strike count (decoder.py:662); swift-ibkr reads the count and ignores an extra field"
+ },
+ {
+  "scope": "in 75",
+  "field": "#error",
+  "frames": "gen/75/extra-trailing-field",
+  "pair": ["decoded", "ValueError: could not convert string to float: 'extra'"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "ib_async takes every field after the expirations as a strike and ignores the strike count (decoder.py:662); swift-ibkr reads the count and ignores an extra field"
  }
 ]

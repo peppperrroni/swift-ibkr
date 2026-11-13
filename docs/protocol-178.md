@@ -1878,7 +1878,9 @@ agrees type by type. The differences are in default values and value formatting 
    client `v100..<max>`; the handshake above uses `v100..178` per the design.
 8. **Incoming text decoding.** `ib_async` decodes the whole frame as UTF-8 with backslash
    replacement. IB's client decodes `errorString` and `advancedOrderRejectJson` with Python's
-   `unicode-escape` codec from server version 153. Not a field-order matter; noted for the reader.
+   `unicode-escape` codec from server version 153. Not a field-order matter; noted for the reader. The same codec runs
+   over contractDetails' (10) `longName` in `ib_async` (decoder.py:333), which reads the UTF-8 bytes as Latin-1 and
+   mangles non-ASCII text (`Café` as UTF-8 becomes `CafÃ©`); swift-ibkr decodes the JSON-style escapes and keeps the UTF-8.
 9. **Settled by the live paper gateway (stage 2, Task 5).** The tables are the base case, but a
    real gateway never sends it for openOrder: for a plain AAPL LMT order it sent
    deltaNeutralOrderType `None`, so the 8-field delta-neutral group follows and the frame has
@@ -1935,10 +1937,14 @@ agrees type by type. The differences are in default values and value formatting 
    value decodes to 0 or false where `ib_async` keeps the sentinel, reads `MAX` as a set flag, or rejects the frame (an
    unset count leaves it with too few fields, or, for 75, swallows the rest of the frame as expirations)
    (decoder.py:255-424, 648-775).
-14. **A frame shorter than the 178 layout is malformed.** swift-ibkr reports `.malformed(missingField …)` where
+14. **A frame whose length disagrees with the 178 layout or with its own counts.** swift-ibkr reports `.malformed(missingField …)` where
    `ib_async`'s `wrap` zips the fields with its types and lets the wrapper's defaults fill the missing trailing
    arguments (orderStatus without mktCapPrice, message 3), or, for message 75, slices whatever fields are there. Deliberate
-   strictness at the pinned version, where IB always sends the whole layout.
+   strictness at the pinned version, where IB always sends the whole layout. A count longer than the fields that follow
+   it (75's strike count) is `.malformed` for the same reason. A field after the end of the layout is ignored by
+   swift-ibkr (as by `ib_async` for 10 and the `wrap` messages); in 75 `ib_async` reads every field after the
+   expirations as a strike and ignores the strike count, so a count shorter than the strikes, or an extra trailing
+   field, gives it more strikes (or a `float()` error) than swift-ibkr reads (decoder.py:662).
 15. **displaySize reads IB's unset value as 0.** The live gateway sends openOrder's and completedOrder's `displaySize`
    as `2147483647` for an order without one (openOrder field 47 in `Recorded/liveLimitOrderPlacesAndCancels.json`,
    completedOrder field 43 in `Recorded/liveAccountSummary.json`); swift-ibkr's `Order.displaySize` is a non-optional `Int`, so it
@@ -1962,6 +1968,10 @@ agrees type by type. The differences are in default values and value formatting 
    (startDate, endDate) to `historicalDataEnd(reqId, _start, _end)` (decoder.py:477-494); swift-ibkr reads and drops
    them, and the answer is the whole batch. `ib_async`'s own wrapper ignores them too (`historicalDataEnd` ends the
    request, wrapper.py:920-921), so no user-visible value is lost; only the decoder-level call differs.
+19. **ib_async reads bond coupon and evMultiplier as int.** Its dataclass declares `coupon: float = 0` and
+   `evMultiplier: int = 0`, so `parse()` calls `int()` on the text (contract.py:569, 590; decoder.py:192-193) and
+   rejects the whole frame for a fractional value (a bond's `3.45`) or a double `MAX`; swift-ibkr decodes both as
+   `Decimal` (`MAX` is `nil`). An `ib_async` defect; swift-ibkr is unchanged. Messages 10 (evMultiplier) and 18.
 
 No row in this document is unverified: every table was checked line by line against the
 verbatim source of both clients.

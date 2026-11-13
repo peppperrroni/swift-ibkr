@@ -8,7 +8,6 @@ import Testing
 /// Incoming ids no family maps yet; the comparison and the coverage test skip them. Each decode task removes its own.
 let pendingDecodeIDs: Set<Int> = [
     14, 16, 19, 20,
-    18,  // held: ib_async's parse() reads a bond's fractional coupon with int() and rejects the frame (NEEDS_CONTEXT)
     51,
     65, 66, 67, 68, 69, 70,
     83, 85, 86, 87,
