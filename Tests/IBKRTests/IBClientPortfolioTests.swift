@@ -142,3 +142,22 @@ private func next<T: Sendable>(_ count: Int, _ stream: AsyncStream<T>) async thr
     try await connect(client)
     #expect(await client.accountValues().snapshot == [netLiq("200", "DU2")])
 }
+
+@Test func namedAccountKeepsItsPortfolioAcrossAReconnect() async throws {
+    func gateway() -> FakeGateway {
+        let g = FakeGateway(accounts: "DU1,DU2")
+        g.onRequest = { $0[0] == "6" ? [item("DU2", "265598")] : [] }
+        return g
+    }
+    let gateways = Gateways([gateway(), gateway()])
+    let client = IBClient(connector: gateways.connector)
+    let options = ConnectOptions(account: "DU2")
+    try await within2s { try await client.connect(clientID: 7, options: options) }
+    #expect(keys(await client.portfolio().snapshot) == ["DU2/265598"])
+    await client.disconnect()
+    let updates = await client.portfolio().updates
+    try await within2s { try await client.connect(clientID: 7, options: options) }
+    // the set is replaced whole at the 54, with no empty set before it
+    let first = try await next(1, updates).map(keys)
+    #expect(first == [["DU2/265598"]])
+}

@@ -6,7 +6,7 @@ public struct ConnectOptions: Sendable, Equatable, Encodable {
     /// Skips the open and completed orders in the sync (`ib_async`'s `readonly`), for a read-only API login.
     public var readOnly: Bool
     /// The account whose reqAccountUpdates (portfolio and values) the sync sends; `nil` is the only account when
-    /// there is one, and none when there are several.
+    /// there is one, and none when there are several. One that is not ASCII fails `connect` with `.encoding`.
     public var account: String?
     /// Which sync requests `connect` sends (`ib_async`'s `fetchFields`).
     public var fetch: StartupFetch
@@ -57,7 +57,7 @@ public struct StartupFetch: OptionSet, Sendable, Encodable {
     public static let ordersComplete = StartupFetch(rawValue: 1 << 2)
     /// reqAccountUpdates for `ConnectOptions.account`.
     public static let accountUpdates = StartupFetch(rawValue: 1 << 3)
-    /// reqAccountUpdatesMulti per account, when there are several.
+    /// reqAccountUpdatesMulti per account: with several, or for a single account whose reqAccountUpdates is left out.
     public static let subAccountUpdates = StartupFetch(rawValue: 1 << 4)
     /// reqExecutions.
     public static let executions = StartupFetch(rawValue: 1 << 5)

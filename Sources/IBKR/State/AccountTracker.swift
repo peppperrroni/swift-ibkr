@@ -36,15 +36,16 @@ struct AccountTracker: Sendable {
         pending = [:]
     }
 
-    /// Drops the values of accounts not in `accounts` and, when there are several (IB sends no portfolio then),
-    /// the whole portfolio. Returns true when that emptied a visible portfolio.
-    mutating func prune(to accounts: [String]) -> Bool {
+    /// Drops the values of accounts not in `accounts` and, when there are several, the portfolio of every account but
+    /// `keeping` (the one the sync subscribes with reqAccountUpdates, whose set the next `accountDownloadEnd` replaces
+    /// whole). Returns true when that changed the visible portfolio.
+    mutating func prune(to accounts: [String], keeping: String? = nil) -> Bool {
         valueSet = valueSet.filter { accounts.contains($0.key.account) }
         guard accounts.count > 1 else { return false }
         (reloading, pending) = (false, [:])
-        let had = !items.isEmpty
-        items = [:]
-        return had
+        let before = items.count
+        items = items.filter { $0.key.account == keeping }
+        return items.count != before
     }
 
     mutating func apply(_ message: IBMessage) -> AccountChange? {

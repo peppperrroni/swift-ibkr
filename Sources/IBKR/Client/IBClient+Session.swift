@@ -20,9 +20,14 @@ extension IBClient {
 
     /// A fresh stream on every call, of the idle time each time `after` passes with no incoming frame while connected
     /// (`ib_async`'s `setTimeout` and `timeoutEvent`); it fires once, and the next frame arms it again. The connection
-    /// is left alone. Stopping the stream stops its timer.
+    /// is left alone. Stopping the stream stops its timer. An `after` of zero or less finishes the stream at once.
     public func idleTimeouts(after: Duration) -> AsyncStream<Duration> {
         let (stream, out) = AsyncStream.makeStream(of: Duration.self)
+        guard after > .zero else {   // a timer without a period would spin
+            out.finish()
+            return stream
+        }
+        activeIdleTimers += 1
         let timer = Task.detached { [weak self] in
             var reported: ContinuousClock.Instant?   // the last frame already reported idle
             while !Task.isCancelled {
@@ -34,11 +39,14 @@ extension IBClient {
                 }
                 try? await Task.sleep(until: wake)
             }
+            await self?.idleTimerStopped()
             out.finish()
         }
         out.onTermination = { _ in timer.cancel() }
         return stream
     }
+
+    private func idleTimerStopped() { activeIdleTimers -= 1 }
 
     /// Whether connected, and when the last chunk came in.
     private func idleClock() -> (Bool, ContinuousClock.Instant) {

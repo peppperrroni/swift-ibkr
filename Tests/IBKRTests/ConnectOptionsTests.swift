@@ -19,6 +19,14 @@ private final class SendTimes: @unchecked Sendable {
     var all: [ContinuousClock.Instant] { lock.withLock { times } }
 }
 
+/// The idle times a stream yielded, with when each arrived.
+private final class Seen: @unchecked Sendable {
+    private let lock = NSLock()
+    private var items: [(idle: Duration, at: ContinuousClock.Instant)] = []
+    func add(_ idle: Duration) { lock.withLock { items.append((idle, .now)) } }
+    var all: [(idle: Duration, at: ContinuousClock.Instant)] { lock.withLock { items } }
+}
+
 private func connect(_ gateway: FakeGateway, clientID: Int = 7, timeout: Duration = .seconds(10),
                      options: ConnectOptions = .init(), log: LogLines? = nil) async throws -> IBClient {
     let client = IBClient(connector: gateway.connector)
@@ -77,6 +85,23 @@ private func eventually(_ condition: @escaping @Sendable () async -> Bool) async
         #expect(cappedSent.map { $0[0] } == ["71", "16", "99", "7", "61", "6"])
     }
 
+    @Test func subAccountUpdatesAloneSyncTheSingleAccount() async throws {
+        let one = FakeGateway()
+        one.onRequest = { $0[0] == "76" ? [["74", "1", $0[2]]] : [] }   // the fake ends a 76 only with several
+        _ = try await connect(one, options: .init(fetch: [.subAccountUpdates]))
+        let sent = try await one.waitForSent(2)
+        #expect(sent.map { $0[0] } == ["71", "76"])
+        #expect(sent[1][3] == "DU1")
+    }
+
+    @Test func accountThatDoesNotEncodeFailsConnect() async throws {
+        let gateway = FakeGateway(accounts: "DU1,DU2")
+        let client = IBClient(connector: gateway.connector)
+        await #expect(throws: IBClientError.encoding(.nonASCII(field: "DÜ2"))) {
+            try await within2s { try await client.connect(clientID: 7, options: .init(account: "DÜ2")) }
+        }
+    }
+
     @Test func syncErrorsCanBeLogged() async throws {
         let failing: @Sendable ([String]) -> [[String]] = {
             $0[0] == "7" ? [["4", "2", $0[2], "322", "Error processing request", ""]] : []
@@ -85,7 +110,16 @@ private func eventually(_ condition: @escaping @Sendable () async -> Bool) async
         lenient.onRequest = failing
         let log = LogLines()
         _ = try await connect(lenient, options: .init(throwsOnSyncError: false), log: log)
-        #expect(log.at(.error).count == 1)
+        // IB's fatal error, then the sync giving the request up
+        #expect(log.at(.error).count == 2)
+        #expect(log.at(.error).filter { $0.hasPrefix("connect: sync request") }.count == 1)
+
+        let warned = FakeGateway(answersExecutions: false)
+        warned.onRequest = { $0[0] == "7" ? [["4", "2", $0[2], "321", "Error validating request", ""]] : [] }
+        let warnLog = LogLines()
+        _ = try await connect(warned, options: .init(throwsOnSyncError: false), log: warnLog)
+        #expect(warnLog.at(.warning).count == 1)
+        #expect(warnLog.at(.error).filter { $0.hasPrefix("connect: sync request") }.count == 1)
 
         let strict = FakeGateway(answersExecutions: false)
         strict.onRequest = failing
@@ -144,19 +178,40 @@ private func eventually(_ condition: @escaping @Sendable () async -> Bool) async
         #expect(formatSI(12.3) == "12.3 ")
     }
 
-    @Test func idleTimeoutsFireOnSilenceAndRearm() async throws {
+    @Test func idleTimeoutsFireOncePerSilenceAndRearm() async throws {
         let gateway = FakeGateway()
         let client = try await connect(gateway)
-        let start = ContinuousClock.now
-        var idle = await client.idleTimeouts(after: .milliseconds(50)).makeAsyncIterator()
-        let first = try #require(await idle.next())
-        #expect(first >= .milliseconds(50))
+        let seen = Seen()
+        let reader = Task { for await idle in await client.idleTimeouts(after: .milliseconds(50)) { seen.add(idle) } }
+        defer { reader.cancel() }
+        try await eventually { seen.all.count == 1 }
+        #expect(seen.all[0].idle >= .milliseconds(50))
+        try await Task.sleep(for: .milliseconds(150))   // three more periods of silence: still one element
+        #expect(seen.all.count == 1)
         let fed = ContinuousClock.now
         gateway.feed(["49", "1", "1700000000"])
-        let second = try #require(await idle.next())
-        #expect(second >= .milliseconds(50))
-        #expect(ContinuousClock.now - fed >= .milliseconds(50))
-        #expect(ContinuousClock.now - start < .seconds(2))
+        try await eventually { seen.all.count == 2 }
+        #expect(seen.all[1].idle >= .milliseconds(50))
+        #expect(seen.all[1].at - fed >= .milliseconds(50))
+    }
+
+    @Test func idleTimeoutsStopTheirTimerWithTheConsumer() async throws {
+        let client = try await connect(FakeGateway())
+        let reader = Task { for await _ in await client.idleTimeouts(after: .milliseconds(20)) {} }
+        try await eventually { await client.activeIdleTimers == 1 }
+        reader.cancel()
+        try await eventually { await client.activeIdleTimers == 0 }
+    }
+
+    @Test func idleTimeoutsWithoutAPeriodFinishAtOnce() async throws {
+        let client = try await connect(FakeGateway())
+        let got = try await within2s {
+            var n = 0
+            for await _ in await client.idleTimeouts(after: .zero) { n += 1 }
+            return n
+        }
+        #expect(got == 0)
+        #expect(await client.activeIdleTimers == 0)
     }
 
     @Test func throttlingReportsStartAndEnd() async throws {

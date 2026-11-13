@@ -55,7 +55,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `IB.wrapper`, `IB.client` | `IBClient` | present | see the `Client` and `Wrapper` rows |
 | `RequestTimeout` | — | n/a | timeout of the synchronous wrappers only; cancel the calling task |
 | `RaiseRequestErrors` | thrown `IBClientError` | present | the `True` mode only; ib_async's default `False` (log, resolve empty or partial, wrapper.py:1647) is deliberately not offered (DECISIONS rows 61 and 74) |
-| `MaxSyncedSubAccounts` | `ConnectOptions.maxSyncedSubAccounts` | added | 50: with more accounts the sync sends no reqAccountUpdatesMulti; with one account none goes out at all (ib_async sends one for it too, DECISIONS) |
+| `MaxSyncedSubAccounts` | `ConnectOptions.maxSyncedSubAccounts` | added | 50: with more accounts the sync sends no reqAccountUpdatesMulti; with one account none goes out while reqAccountUpdates covers it (ib_async sends one for it too, DECISIONS) |
 | `TimezoneTWS` | — | MISSING | `ConnectOptions.gatewayTimeZone: TimeZone?`, used to read `Execution.time` as a `Date` |
 | `StartupFetch` | `StartupFetch` | added | `OptionSet` with `positions`, `ordersOpen`, `ordersComplete`, `accountUpdates`, `subAccountUpdates`, `executions`, as `ConnectOptions.fetch`; `.positions` gates reqPositions, which ib_async always sends |
 | `StartupFetchALL`, `StartupFetchNONE` | `StartupFetch.all`, `StartupFetch.none` | added | `.none` is `[]`; in an optional context write `StartupFetch.none` |
@@ -78,7 +78,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `accountValues` | `accountValues()` | present | filter by account with `.filter { $0.account == a }` |
 | `accountSummary` / `accountSummaryAsync` | `accountSummary(tags:group:)` | present | |
 | `accountSummary` with no tags (cached, re-requested on 1102) | — | MISSING | ib_async's tag set (34 tags + `$LEDGER:ALL`, group All, ib.py:2247) as the default argument of `accountSummary(tags:group:)`, re-requested on notice 1102 (ib.py:414) |
-| `portfolio` | `portfolio()` | present | one managed account only, as ib_async without `account` |
+| `portfolio` | `portfolio()` | present | the account reqAccountUpdates follows: `ConnectOptions.account`, by default the only managed account, as ib_async |
 | `positions` | `positions()` | present | |
 | `pnl(account, modelCode)` | `pnlValues(account:modelCode:)` → `[AccountPnL]` | added | the latest value of each open `pnl(account:modelCode:)` stream, oldest first; an empty argument matches all (ib.py:554-570); a stream is listed once its first value arrives, where ib_async lists an all-NaN `PnL` from the request; an entry leaves when its stream ends (consumer stop, IB error, connection end) |
 | `pnlSingle(account, modelCode, conId)` | `pnlSingleValues(account:modelCode:conID:)` → `[PnL]` | added | the same for `pnlSingle(account:conID:modelCode:)`; `conID` `nil` matches all, where ib_async's `0` does |
@@ -114,7 +114,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `reqAllOpenOrders` / `reqAllOpenOrdersAsync` | — | MISSING | one-shot `fetchAllOpenOrders() -> [OrderSnapshot]` (16 to openOrderEnd); wire case exists, used only by the sync |
 | `reqCompletedOrders` / `reqCompletedOrdersAsync` | — | MISSING | one-shot `completedOrders(apiOnly:) -> [OrderSnapshot]` (99 to completedOrdersEnd); wire case exists, used only by the sync |
 | `reqExecutions` / `reqExecutionsAsync` | — | MISSING | one-shot `executions(filter: ExecutionFilter) -> [Fill]` (7 to execDetailsEnd); `executions()` has every fill but no filter |
-| `reqPositions` / `reqPositionsAsync` | `positions()` | present | always on |
+| `reqPositions` / `reqPositionsAsync` | `positions()` | present | on for the whole connection unless `ConnectOptions.fetch` leaves out `.positions` (ib_async always sends it) |
 | `reqPnL` / `cancelPnL` | `pnl(account:modelCode:)` | present | stopping the stream cancels |
 | `reqPnLSingle` / `cancelPnLSingle` | `pnlSingle(account:conID:modelCode:)` | present | |
 | `reqContractDetails` / `reqContractDetailsAsync` | `contractDetails(_:)` | present | |
@@ -475,7 +475,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `Client.reqIds` | `nextOrderID()` | present | |
 | `Client.reqManagedAccts` | `managedAccounts()` | present | |
 | `Client.startApi` | `connect(…)` | present | sent by `connect` |
-| `Client.reqPositions`, `cancelPositions` | `positions()`; `disconnect()` | present | always on |
+| `Client.reqPositions`, `cancelPositions` | `positions()`; `disconnect()` | present | sent by the sync unless `ConnectOptions.fetch` leaves out `.positions`; cancelled by a clean `disconnect()` |
 | `Client.reqAccountUpdates(subscribe, acctCode)` | `portfolio()`, `accountValues()` | present | unsubscribing is `ConnectOptions.fetch` |
 | `Client.reqPositionsMulti`, `cancelPositionsMulti` | `positionsMulti(account:modelCode:)` | present | |
 | `Client.reqSoftDollarTiers` | `softDollarTiers()` | present | |

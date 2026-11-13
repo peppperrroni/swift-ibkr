@@ -255,11 +255,11 @@ Outgoing text must be printable ASCII. This is the same rule as IB's own client,
 
 ```swift
 let (fills, fillUpdates) = await client.executions()   // a fill is published once its commission is in
-let (positions, changes) = await client.positions()    // always on: the whole set after every change
+let (positions, changes) = await client.positions()    // on by default: the whole set after every change
 Task { for await set in changes { print(set.map { "\($0.contract.symbol) \($0.quantity)" }) } }
 
-let (items, itemSets) = await client.portfolio()       // always on, one account only: whole sets, with market value
-let (values, valueChanges) = await client.accountValues()   // always on: each changed tag, e.g. NetLiquidation
+let (items, itemSets) = await client.portfolio()       // one account (`ConnectOptions.account`): whole sets, with market value
+let (values, valueChanges) = await client.accountValues()   // on by default: each changed tag, e.g. NetLiquidation
 Task { for await v in valueChanges where v.tag == "NetLiquidation" { print(v.account, v.value, v.currency) } }
 ```
 

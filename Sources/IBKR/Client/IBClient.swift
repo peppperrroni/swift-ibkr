@@ -98,6 +98,7 @@ public actor IBClient {
     var isThrottling = false
     var throttleSubscribers = Subscribers<Bool>()
     let logBox = LogBox()
+    var activeIdleTimers = 0   // running `idleTimeouts` timers
 
     /// Creates a client that is not connected; `connect` opens the socket.
     public init() {
@@ -347,8 +348,8 @@ public actor IBClient {
     }
 
     /// The account values known now, then every changed value from now on. On like `portfolio()`: `connect`
-    /// subscribes with reqAccountUpdates for one account, and with several also with reqAccountUpdatesMulti per
-    /// account while there are at most `maxSyncedSubAccounts` (`fetch` flag `.subAccountUpdates`).
+    /// subscribes with reqAccountUpdates for one account, and with several (or without that request) also with
+    /// reqAccountUpdatesMulti per account while there are at most `maxSyncedSubAccounts` (`.subAccountUpdates`).
     public func accountValues() -> (snapshot: [AccountValue], updates: AsyncStream<AccountValue>) {
         (accountTracker.values,
          accountValueSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(accountValue: id) } })
@@ -1171,8 +1172,9 @@ public actor IBClient {
         case .error(let e) where pendingConnect != nil && ErrorCode.kind(e.code).failsRequest
                 && (syncEnds?.contains(.execDetailsEnd(requestID: e.requestID)) == true
                     || accountSyncIDs.contains(e.requestID)):
-            // a sync request: fails connect, or (logged by logError) is given up so the sync stops waiting for it
+            // a sync request: fails connect, or is given up so the sync stops waiting for it
             if options.throwsOnSyncError { return end(.ib(code: e.code, text: e.text)) }
+            log(.error, "connect: sync request \(e.requestID) given up after IB \(e.code): \(e.text)")
             syncEnds?.removeAll {
                 $0 == .execDetailsEnd(requestID: e.requestID) || $0 == .accountUpdateMultiEnd(requestID: e.requestID)
             }
@@ -1223,15 +1225,21 @@ public actor IBClient {
             try? send(.positions)
         }
         guard let accounts else { return }
-        if accountTracker.prune(to: accounts) { portfolioSubscribers.yield([]) }   // another login's state is stale
         // reqAccountUpdates: the portfolio too, but for one account at a time
-        let account = o.account.flatMap { $0.isEmpty ? nil : $0 } ?? (accounts.count == 1 ? accounts[0] : nil)
-        if let account, o.fetch.contains(.accountUpdates),
-           (try? send(.accountUpdates(subscribe: true, account: account))) != nil {
-            accountTracker.reload()
-            syncEnds?.append(.accountDownloadEnd(account: account))
+        let named = o.account.flatMap { $0.isEmpty ? nil : $0 } ?? (accounts.count == 1 ? accounts[0] : nil)
+        let subscribed = o.fetch.contains(.accountUpdates) ? named : nil
+        // another login's state is stale; the subscribed account's set stays until its accountDownloadEnd replaces it
+        if accountTracker.prune(to: accounts, keeping: subscribed) {
+            portfolioSubscribers.yield(accountTracker.portfolio)
         }
-        guard accounts.count > 1, accounts.count <= o.maxSyncedSubAccounts, o.fetch.contains(.subAccountUpdates)
+        if let subscribed {
+            do { try send(.accountUpdates(subscribe: true, account: subscribed)) } catch { return end(error) }
+            accountTracker.reload()
+            syncEnds?.append(.accountDownloadEnd(account: subscribed))
+        }
+        // reqAccountUpdatesMulti per account, as ib.py:2069 (a single account already subscribed needs none)
+        let covered = accounts.count == 1 && subscribed == accounts[0]
+        guard !covered, accounts.count <= o.maxSyncedSubAccounts, o.fetch.contains(.subAccountUpdates)
         else { return }
         for account in accounts {   // values only; IB has no Multi portfolio
             let id = nextRequestID()
