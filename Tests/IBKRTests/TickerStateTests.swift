@@ -146,6 +146,21 @@ private func aaplTicker() -> Ticker { Ticker(contract: Contract(symbol: "AAPL"))
         #expect(try await box.next() == nil)
     }
 
+    /// A second task iterating the same stream ends at once instead of stranding the first one's wait.
+    @Test func mailboxSecondIteratorEndsInsteadOfStrandingTheFirst() async throws {
+        let box = TickerMailbox(readers: [])
+        let stream = box.stream()
+        let readers = (0..<2).map { _ in
+            Task { var n = 0; for try await _ in stream { n += 1 }; return n }
+        }
+        try await Task.sleep(for: .milliseconds(100))   // both wait in next()
+        box.put(aaplTicker())
+        box.finish(throwing: nil)
+        var taken = 0
+        for r in readers { taken += try await within2s { try await r.value } }
+        #expect(taken == 1)
+    }
+
     @Test func depthBookByPosition() {
         var b = DepthBook()
         b.apply(DepthUpdate(position: 0, marketMaker: "", operation: .insert, side: .bid, price: 10, size: 1))
