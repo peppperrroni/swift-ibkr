@@ -437,7 +437,8 @@ private let aapl = Contract(symbol: "AAPL")
     let reset = try #require(try await within2s { try await seen.first { _ in true } })
     #expect(reset.depth == DepthBook())
     // wrapper.py:1681: one delete per removed row, at position 0 with size 0
-    #expect(reset.domTicks == [DepthTick(time: try #require(reset.time), update: DepthUpdate(
+    let resetTime = try #require(reset.time)   // not nested in #expect: Swift 6.0 rejects a throwing #require there
+    #expect(reset.domTicks == [DepthTick(time: resetTime, update: DepthUpdate(
         position: 0, marketMaker: "", operation: .delete, side: .bid, price: d("351.5"), size: 0))])
     reader.cancel()
 }
