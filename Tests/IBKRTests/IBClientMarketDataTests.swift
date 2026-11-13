@@ -244,6 +244,21 @@ private func noStreamsLeft(_ client: IBClient) async throws {
 
 private let aapl = Contract(symbol: "AAPL")
 
+/// A `timeBars` consumer stopping stops `trades()`, then `tickers`, which sends IB's cancel.
+@Test func stoppingTimeBarsCancelsTheTickersRequest() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.tickers(aapl)
+    let id = try await gateway.waitForSent(FakeGateway.syncFrames + 1)[FakeGateway.syncFrames][2]
+    let (timer, ticking) = AsyncStream<Date>.makeStream()   // never fires and never ends by itself
+    let reader = Task { for try await _ in stream.trades().timeBars(timer: timer) {} }
+    gateway.feed(["1", "6", id, "4", "351.5", "200", "0"])
+    try await Task.sleep(for: .milliseconds(50))
+    reader.cancel()
+    #expect(try await gateway.waitForSent(FakeGateway.syncFrames + 2)[FakeGateway.syncFrames + 1] == ["2", "2", id])
+    withExtendedLifetime(ticking) {}
+}
+
 @Test func tickersYieldWholeTickers() async throws {
     let gateway = FakeGateway()
     let client = try await connected(gateway)

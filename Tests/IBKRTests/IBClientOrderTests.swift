@@ -321,6 +321,19 @@ private func snapshot(of event: OrderEvent) -> OrderSnapshot {
     switch event { case .modified(let s), .cancelRequested(let s): s }
 }
 
+@Test func placingANewOrderIsNoModifyEvent() async throws {
+    let gateway = FakeGateway(nextValidID: 100)
+    let client = try await connected(gateway)
+    let events = await client.orderEvents()
+    let id = try await client.placeOrder(aapl, buy)
+    try await client.cancelOrder(id)
+    guard case .cancelRequested(let s) = try await first(events) else {
+        Issue.record("the new order's placement yielded an event")
+        return
+    }
+    #expect(s.orderID == id)
+}
+
 @Test func placeOrderPublishesPendingSubmitAtOnce() async throws {
     let gateway = FakeGateway(nextValidID: 100)
     let client = try await connected(gateway)

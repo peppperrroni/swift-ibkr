@@ -191,6 +191,40 @@ private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT"
     #expect(r.first?.isActive == false)
 }
 
+@Test func errorsOnAFinalOrderKeepItsStatus() throws {
+    var t = OrderTracker(clientID: 1)
+    _ = t.apply(open(status: "Filled"))
+    _ = t.apply(status(.filled, filled: "100", remaining: "0"))
+    let w = t.apply(error(12, 321, "late warning"))
+    try #require(w.count == 1)
+    #expect(w[0].status == .filled && w[0].log.last?.errorCode == 321)   // logged, status kept
+    var held = sentOrder
+    held.transmit = false
+    var u = OrderTracker(clientID: 1)
+    _ = u.placed(orderID: 12, clientID: 1, contract: aapl, order: held)
+    _ = u.cancelRequested(orderID: 12)   // cancelled locally before IB acknowledged it: final with no permID
+    let f = u.apply(error(12, 201, "late reject"))
+    try #require(f.count == 1)
+    #expect(f[0].status == .cancelled && f[0].log.last?.errorCode == 201)
+}
+
+@Test func completedOrderLogsAStatusChange() throws {
+    var t = OrderTracker(clientID: 1)
+    _ = t.apply(open())
+    let before = t.orders[0].log.count
+    let r = t.apply(completed(permID: 918273001, status: "Cancelled"))
+    try #require(r.count == 1)
+    #expect(r[0].log.count == before + 1 && r[0].log.last?.status == .cancelled)
+    #expect(t.apply(completed(permID: 918273001, status: "Cancelled")).isEmpty)   // no change, no entry
+}
+
+@available(*, deprecated)
+@Test func deprecatedSentForwardsToPlaced() {
+    var t = OrderTracker(clientID: 1)
+    t.sent(orderID: 12, clientID: 1, contract: aapl, order: sentOrder)
+    #expect(t.orders.count == 1 && t.orders.first?.status == .pendingSubmit && t.orders.first?.order == sentOrder)
+}
+
 @Test func whatIfOpenOrderLeavesTheTrackerAlone() {
     var f = Fixtures.openOrderFields(
         orderID: 12, permID: 918273001, clientID: 1, symbol: "AAPL", action: "BUY", quantity: "100", orderType: "LMT",

@@ -171,3 +171,41 @@ private func newsTick(_ id: String, _ headline: String) -> [String] {
         NewsBulletin(msgID: 3, msgType: 3, message: "Exchange trades again", origExchange: "NYSE"),
         NewsBulletin(msgID: 4, msgType: 1, message: "Other news", origExchange: "ARCA")])
 }
+
+/// A fold step that loses the race with the connection's end must not list its ticker again.
+@Test func aFoldStepAfterTheEndDoesNotRelistTheTicker() async throws {
+    let gateway = FakeGateway()
+    let client = try await connected(gateway)
+    let stream = try await client.tickers(aapl)
+    let key = await client.tickerKey
+    await client.disconnect()
+    await client.recordTicker(key, Ticker(contract: aapl))
+    #expect(await client.activeTickers().isEmpty)
+    withExtendedLifetime(stream) {}
+}
+
+/// R27: a policy reconnect keeps the news ticks and bulletins; only a manual `connect` clears them.
+@Test func newsSurvivesAPolicyReconnect() async throws {
+    let (one, two) = (FakeGateway(), FakeGateway())
+    let client = IBClient(connector: Gateways([one, two]).connector)
+    try await within2s {
+        try await client.connect(clientID: 7, reconnect: ReconnectPolicy(delays: [.milliseconds(10)], probeAfter: nil))
+    }
+    one.feed(newsTick("999", "Kept"))
+    one.feed(["14", "1", "3", "1", "Exchange halted", "NYSE"])
+    try await eventually { await client.receivedBulletins().count == 1 }
+    try await eventually { await client.newsTicks().snapshot.count == 1 }
+    let states = await client.states()
+    one.close()
+    try await within2s {
+        var connects = 0
+        for await s in states {
+            if case .connected = s { connects += 1 }
+            if connects == 2 { return }   // the current state, then the reconnect
+        }
+        throw TimedOut()
+    }
+    #expect(await client.newsTicks().snapshot.map(\.headline) == ["Kept"])
+    #expect(await client.receivedBulletins().map(\.msgID) == [3])
+    await client.disconnect()
+}

@@ -161,6 +161,15 @@ private func aaplTicker() -> Ticker { Ticker(contract: Contract(symbol: "AAPL"))
         #expect(taken == 1)
     }
 
+    /// wrapper.py:1338-1346: a delete is recorded with the price of the row it removes and size 0.
+    @Test func depthDeleteRecordsTheRemovedRowsPrice() {
+        var t = aaplTicker()
+        t.apply(DepthUpdate(position: 0, marketMaker: "", operation: .insert, side: .ask, price: 11, size: 3), at: t0)
+        t.apply(DepthUpdate(position: 0, marketMaker: "", operation: .delete, side: .ask, price: 0, size: 3), at: t0)
+        #expect(t.domTicks.last?.update.price == 11 && t.domTicks.last?.update.size == 0)
+        #expect(t.depth.asks.isEmpty)
+    }
+
     @Test func depthBookByPosition() {
         var b = DepthBook()
         b.apply(DepthUpdate(position: 0, marketMaker: "", operation: .insert, side: .bid, price: 10, size: 1))
