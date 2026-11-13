@@ -312,6 +312,8 @@ Task { for try await tick in try await client.marketData(aapl) { print(tick) } }
 // .price, .size, .generic, .string, .dataType, .optionComputation, .efp, .requestParameters, .news
 
 // A whole Ticker (bid/ask/last, OHLC, greeks, the rest keyed by field) after every update; depthRows adds the book.
+// ib_async's names read the same ticks: t.low52Week, t.bidExchange, t.shortableShares, t.impliedVolatility, t.bidEFP, ...
+// (nil until set; generic ticks of 0 or less read nil). t.marketPrice is the last when it is within bid/ask, else t.midpoint.
 Task { for try await t in try await client.tickers(aapl, depthRows: 5) { print(t.bid as Any, t.depth.bids.first as Any) } }
 // Snapshots of many contracts at once, in input order; the first error is thrown and the rest cancelled.
 let snaps = try await client.tickers(for: [aapl, msft])
@@ -508,7 +510,8 @@ library leaves out.
 | `reqTickers` | `tickers(for:regulatorySnapshot:)` |
 | `pendingTickers` | none: each `tickers` stream yields its own `Ticker` |
 | `Ticker` | `Ticker` |
-| `Ticker.marketPrice`, `Ticker.midpoint`, the tick filters and bar builders | none |
+| `Ticker.marketPrice`, `Ticker.midpoint`, `Ticker.hasBidAsk` | `Ticker.marketPrice`, `Ticker.midpoint`, `Ticker.hasBidAsk` |
+| the tick filters and bar builders | none |
 | `newsTicks` | `Tick.news` from `marketData` with the news generic ticks |
 | `reqMktDepth` | `marketDepth(_:rows:smart:options:)` (whole `DepthBook`s), or `tickers` with `depthRows` |
 | `reqMktDepthExchanges` | `depthExchanges()` |

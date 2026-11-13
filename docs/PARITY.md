@@ -173,39 +173,39 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `marketDataType` | `Ticker.marketDataType` | present | |
 | `minTick` | `Ticker.minTick` | present | |
 | `bid`, `bidSize`, `ask`, `askSize`, `last`, `lastSize` | `Ticker.bid` … `Ticker.lastSize` | present | |
-| `bidExchange`, `askExchange`, `lastExchange` | `strings[TickField(rawValue: 32 / 33 / 84)]` | MISSING | model helper: named `Ticker.bidExchange`, `askExchange`, `lastExchange` |
+| `bidExchange`, `askExchange`, `lastExchange` | `Ticker.bidExchange`, `askExchange`, `lastExchange` | added | model helper: named `Ticker.bidExchange`, `askExchange`, `lastExchange` |
 | `lastTimestamp` | `Ticker.lastTimestamp` | present | |
 | `prevBid`, `prevBidSize`, `prevAsk`, `prevAskSize`, `prevLast`, `prevLastSize` | — | MISSING | fields set by `apply(_:)` before each bid/ask/last change, as wrapper.py:1000 |
 | `volume`, `open`, `high`, `low`, `close` | `Ticker.volume` … `Ticker.close` | present | |
 | `vwap` | — | MISSING | field parsed from RT volume (48/77, wrapper.py:482); Swift keeps the raw string in `strings` |
-| `low13week`, `high13week`, `low26week`, `high26week`, `low52week`, `high52week` | `prices[TickField(rawValue: 15…20)]` | MISSING | model helper: named properties |
-| `bidYield`, `askYield`, `lastYield` | `prices[TickField(rawValue: 50 / 51 / 52)]` | MISSING | model helper: named properties |
-| `markPrice` | `prices[TickField(rawValue: 37)]` | MISSING | model helper |
-| `halted` | `generics[.halted]` | MISSING | model helper `Ticker.halted` |
-| `rtHistVolatility` | `generics[TickField(rawValue: 58)]` | MISSING | model helper |
+| `low13week`, `high13week`, `low26week`, `high26week`, `low52week`, `high52week` | `Ticker.low13Week` … `high52Week` | added | model helper: named properties |
+| `bidYield`, `askYield`, `lastYield` | `Ticker.bidYield`, `askYield`, `lastYield` | added | model helper: named properties |
+| `markPrice` | `Ticker.markPrice` | added | model helper |
+| `halted` | `Ticker.halted` | added | model helper `Ticker.halted` |
+| `rtHistVolatility` | `Ticker.rtHistVolatility` | added | model helper |
 | `rtVolume`, `rtTradeVolume`, `rtTime` | raw string in `strings[TickField(rawValue: 48 / 77)]` | MISSING | fields parsed from RT volume (wrapper.py:482); ib_async also moves `last`/`lastSize` from it, Swift keeps them from ticks 4/5 only (DECISIONS row kept; a documented difference) |
-| `avVolume` | `sizes[TickField(rawValue: 21)]` | MISSING | model helper |
-| `tradeCount`, `tradeRate`, `volumeRate` | `generics[TickField(rawValue: 54 / 55 / 56)]` | MISSING | model helper |
-| `volumeRate3Min`, `volumeRate5Min`, `volumeRate10Min` | `sizes[TickField(rawValue: 63 / 64 / 65)]` | MISSING | model helper |
-| `shortable` | `generics[TickField(rawValue: 46)]` | MISSING | model helper |
-| `shortableShares` | `sizes[TickField(rawValue: 89)]` | MISSING | model helper |
-| `indexFuturePremium` | `generics[TickField(rawValue: 31)]` | MISSING | model helper |
-| `futuresOpenInterest` | `sizes[TickField(rawValue: 86)]` | MISSING | model helper |
-| `putOpenInterest`, `callOpenInterest`, `putVolume`, `callVolume` | `sizes[TickField(rawValue: 28 / 27 / 30 / 29)]` | MISSING | model helper |
-| `avOptionVolume` | `sizes[TickField(rawValue: 87)]` | MISSING | model helper |
-| `histVolatility`, `impliedVolatility` | `generics[TickField(rawValue: 23 / 24)]` | MISSING | model helper |
-| `openInterest` | `sizes[TickField(rawValue: 22)]` | MISSING | model helper |
-| `lastRthTrade` | `prices[TickField(rawValue: 57)]` | MISSING | model helper |
-| `lastRegTime` | `strings[TickField(rawValue: 85)]` | MISSING | model helper |
-| `optionBidExch`, `optionAskExch` | `strings[TickField(rawValue: 25 / 26)]` | MISSING | model helper |
-| `bondFactorMultiplier` | `generics[TickField(rawValue: 60)]` | MISSING | model helper |
-| `creditmanMarkPrice`, `creditmanSlowMarkPrice` | `prices[TickField(rawValue: 78 / 79)]` | MISSING | model helper |
+| `avVolume` | `Ticker.averageVolume` | added | model helper |
+| `tradeCount`, `tradeRate`, `volumeRate` | `Ticker.tradeCount`, `tradeRate`, `volumeRate` | added | model helper |
+| `volumeRate3Min`, `volumeRate5Min`, `volumeRate10Min` | `Ticker.volumeRate3Min`, `volumeRate5Min`, `volumeRate10Min` | added | model helper |
+| `shortable` | `Ticker.shortable` | added | model helper |
+| `shortableShares` | `Ticker.shortableShares` | added | model helper |
+| `indexFuturePremium` | `Ticker.indexFuturePremium` | added | model helper |
+| `futuresOpenInterest` | `Ticker.futuresOpenInterest` | added | model helper |
+| `putOpenInterest`, `callOpenInterest`, `putVolume`, `callVolume` | `Ticker.putOpenInterest`, `callOpenInterest`, `putVolume`, `callVolume` | added | model helper |
+| `avOptionVolume` | `Ticker.averageOptionVolume` | added | model helper |
+| `histVolatility`, `impliedVolatility` | `Ticker.histVolatility`, `impliedVolatility` | added | model helper |
+| `openInterest` | `Ticker.openInterest` | added | model helper |
+| `lastRthTrade` | `Ticker.lastRTHTrade` | added | model helper |
+| `lastRegTime` | `Ticker.lastRegTime` | added | model helper |
+| `optionBidExch`, `optionAskExch` | `Ticker.optionBidExchange`, `optionAskExchange` | added | model helper |
+| `bondFactorMultiplier` | `Ticker.bondFactorMultiplier` | added | model helper |
+| `creditmanMarkPrice`, `creditmanSlowMarkPrice` | `Ticker.creditmanMarkPrice`, `creditmanSlowMarkPrice` | added | model helper |
 | `delayedLastTimestamp` | folded into `lastTimestamp` (`TickField.live` maps 88 to 45) | MISSING | field kept apart from `lastTimestamp`, as ib_async |
-| `delayedHalted` | `generics[TickField(rawValue: 90)]` | MISSING | model helper |
-| `reutersMutualFunds` | `strings[TickField(rawValue: 91)]` | MISSING | model helper |
-| `etfNavClose`, `etfNavPriorClose`, `etfNavBid`, `etfNavAsk`, `etfNavLast`, `etfFrozenNavLast`, `etfNavHigh`, `etfNavLow` | `prices[TickField(rawValue: 92…99)]` | MISSING | model helper |
-| `socialMarketAnalytics` | `strings[TickField(rawValue: 100)]` | MISSING | model helper |
-| `estimatedIpoMidpoint`, `finalIpoLast` | `prices[TickField(rawValue: 101 / 102)]` | MISSING | model helper |
+| `delayedHalted` | `Ticker.delayedHalted` | added | model helper |
+| `reutersMutualFunds` | `Ticker.reutersMutualFunds` | added | model helper |
+| `etfNavClose`, `etfNavPriorClose`, `etfNavBid`, `etfNavAsk`, `etfNavLast`, `etfFrozenNavLast`, `etfNavHigh`, `etfNavLow` | `Ticker.etfNavClose` … `etfNavLow` | added | model helper |
+| `socialMarketAnalytics` | `Ticker.socialMarketAnalytics` | added | model helper |
+| `estimatedIpoMidpoint`, `finalIpoLast` | `Ticker.estimatedIPOMidpoint`, `finalIPOLast` | added | model helper |
 | `dividends` | raw string in `strings[TickField(rawValue: 59)]` | MISSING | field `Ticker.dividends: Dividends?` parsed as wrapper.py:1233 |
 | `fundamentalRatios` | raw string in `strings[TickField(rawValue: 47)]` | MISSING | field `Ticker.fundamentalRatios: FundamentalRatios?` parsed as wrapper.py:1208 |
 | `ticks` | — | MISSING | field: the ticks of the last update with their time (`[TickData]`); the raw ticks are on `marketData` |
@@ -214,13 +214,13 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `domBidsDict`, `domAsksDict` | — | MISSING | model helper: the book keyed by position (`DepthBook` keeps it privately) |
 | `domTicks` | — | MISSING | field: the depth updates of the last update with their time (`[MktDepthData]`) |
 | `bidGreeks`, `askGreeks`, `lastGreeks`, `modelGreeks`, `custGreeks` | `Ticker.bidGreeks` … `Ticker.custGreeks` | present | |
-| `bidEfp`, `askEfp`, `lastEfp`, `openEfp`, `highEfp`, `lowEfp`, `closeEfp` | `efp[TickField(rawValue: 38…44)]` | MISSING | model helper: named properties |
-| `auctionVolume`, `auctionPrice`, `auctionImbalance`, `regulatoryImbalance` | `sizes`/`prices[TickField(rawValue: 34 / 35 / 36 / 61)]` | MISSING | model helper |
+| `bidEfp`, `askEfp`, `lastEfp`, `openEfp`, `highEfp`, `lowEfp`, `closeEfp` | `Ticker.bidEFP` … `closeEFP` | added | model helper: named properties |
+| `auctionVolume`, `auctionPrice`, `auctionImbalance`, `regulatoryImbalance` | `Ticker.auctionVolume`, `auctionPrice`, `auctionImbalance`, `regulatoryImbalance` | added | model helper |
 | `bboExchange`, `snapshotPermissions` | `Ticker.bboExchange`, `Ticker.snapshotPermissions` | present | |
 | `isUnset` | — | n/a | compares with the NaN placeholder; Swift's unset is `nil` |
-| `hasBidAsk` | — | MISSING | model helper `Ticker.hasBidAsk: Bool` (ticker.py:263) |
-| `midpoint` | — | MISSING | model helper `Ticker.midpoint: Decimal?` (ticker.py:274) |
-| `marketPrice` | — | MISSING | model helper `Ticker.marketPrice: Decimal?` (ticker.py:281) |
+| `hasBidAsk` | `Ticker.hasBidAsk` | added | model helper `Ticker.hasBidAsk: Bool` (ticker.py:263) |
+| `midpoint` | `Ticker.midpoint` | added | model helper `Ticker.midpoint: Decimal?` (ticker.py:274) |
+| `marketPrice` | `Ticker.marketPrice` | added | model helper `Ticker.marketPrice: Decimal?` (ticker.py:281) |
 
 ## ticker.py: tick filters and bar builders
 
@@ -494,4 +494,4 @@ connect), **model helper** (a computed property or method on a model), **factory
 
 ## Totals
 
-Rows, where one row may carry several names: `present` 219 · `added` 10 · `MISSING` 154 · `n/a` 33.
+Rows, where one row may carry several names: `present` 219 · `added` 42 · `MISSING` 122 · `n/a` 33.

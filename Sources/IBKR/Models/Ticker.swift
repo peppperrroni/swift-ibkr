@@ -2,10 +2,12 @@ import Foundation
 
 /// A contract's market data folded into one value, as `ib_async`'s `Ticker`. `apply(_:)` keys every tick by its live
 /// field, so delayed ticks land where real-time ones do. Bid, ask, last, OHLC, volume, the last timestamp, the five
-/// greeks and the request parameters are named fields; every other tick goes into `prices`, `sizes`, `generics`,
-/// `strings` or `efp` (RT volume, fundamental ratios and dividends stay raw strings; RT volume (48, 77) does not
-/// move `last` or `lastSize`, unlike `ib_async`: `last` comes from tick 4 only). A bid or ask with size 0 has its
-/// price `nil`. News ticks are not kept.
+/// greeks and the request parameters are stored fields; every other tick goes into `prices`, `sizes`, `generics`,
+/// `strings` or `efp`, and `ib_async`'s other names (`low52Week`, `bidExchange`, `shortableShares`, `bidEFP`, …) are
+/// computed properties over those dictionaries, `nil` until the tick arrives (a generic tick of 0 or less reads
+/// `nil`, so `halted` 0 does too). `hasBidAsk`, `midpoint` and `marketPrice` follow `ib_async`. RT volume, fundamental
+/// ratios and dividends stay raw strings; RT volume (48, 77) does not move `last` or `lastSize`, unlike `ib_async`:
+/// `last` comes from tick 4 only. A bid or ask with size 0 has its price `nil`. News ticks are not kept.
 public struct Ticker: Sendable, Equatable, Encodable {
     /// The contract the ticks are for.
     public var contract: Contract

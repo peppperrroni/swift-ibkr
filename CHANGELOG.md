@@ -12,6 +12,7 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 - `TickAttrib` (`canAutoExecute`, `pastLimit`, `preOpen`, with `init(mask:)`), decoded from tickPrice's mask after IB's documentation (ib_async drops it), and `bidPastLow`/`askPastHigh` on `TickByTick.bidAsk`, decoded from tickByTick (99) and historicalTicks (97) with the opposite bit orders ib_async uses.
 - `Execution.evRule`, `.evMultiplier` and `.modelCode`, decoded from execDetails (in 11) instead of skipped; defaulted init parameters.
 - Notice 165 («no items retrieved») on a scanner yields an empty scan `[]`: `scannerSubscription` stays open, `scannerData` returns `[]`.
+- Every named field of `ib_async`'s `Ticker` that reads a tick — exchanges, 13/26/52-week ranges, yields, mark and ETF NAV prices, open interest and volume sizes, auction fields, volume rates, shortable, halted, implied and historical volatility, the EFP quotes — as a computed property of `Ticker` (`Ticker.low52Week`, `.bidExchange`, `.bidEFP`, …), plus `hasBidAsk`, `midpoint` and `marketPrice`. Generic ticks of 0 or less read `nil`, as `ib_async` (so `halted` 0 is `nil`).
 
 ### Changed
 - **Breaking:** `Tick.price` gains a fourth associated value, `attributes: TickAttrib = TickAttrib()`. Constructing it compiles as before; a pattern such as `case .price(let f, let p, let s)` needs a fourth binding (`case .price(let f, let p, let s, _)`). `==` on a decoded `Tick.price` now also compares its attributes, so a non-zero mask no longer equals a value built without them.
