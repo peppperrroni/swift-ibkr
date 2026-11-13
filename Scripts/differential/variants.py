@@ -379,6 +379,9 @@ def _order_variants(msg: int) -> list[tuple[str, list[str]]]:
                                           maxCommission=MAX_DOUBLE)),
             ("what-if-unset-long", _fields(base, whatIf="1", **{m: LONG_MAX for m in _MARGINS},
                                            commission=LONG_MAX, minCommission=LONG_MIN, maxCommission=LONG_MAX)),
+            # same-kind fields that are not neighbours and are equal in every other frame, so a swap would pass
+            ("same-kind-pairs-distinct", _fields(spec(legs=1), blockOrder="0", allOrNone="1", isOmsContainer="1",
+                                                 usePriceMgmtAlgo="0", **{"leg0.openClose": "2", "leg0.ratio": "3"})),
         ]
     return v
 
@@ -468,6 +471,9 @@ VARIANTS[46] = [
     ("empty-value", _at(_TICK_STRING, i4="")),
     ("empty-rt-volume", _at(_TICK_STRING, i3="48", i4="")),
     ("empty-rt-volume-fields", _at(_TICK_STRING, i3="48", i4=";0;1794321000000;0;;false")),
+    # the two texts ib_async's wrapper parses itself (wrapper.py:1208, 1233): fundamental ratios, IB dividends
+    ("fundamental-ratios-47", _at(_TICK_STRING, i3="47", i4="TTMNPMGN=25.5;NLOW=164.08;CURRENCY=USD;")),
+    ("dividends-59", _at(_TICK_STRING, i3="59", i4="0.96,1.04,20261212,0.26")),
     *_unset_all(_TICK_STRING, {"reqId": 2, "tickType": 3}),
     ("short-after-type", _TICK_STRING[:4]),
 ]
@@ -1234,7 +1240,7 @@ for _id, _base in ((66, _VERIFY_DONE), (70, _AUTH_DONE)):
     VARIANTS[_id] = [
         ("success", _at(_base, i2="1")), ("failure", _at(_base, i2="0")), ("empty-error", _at(_base, i3="")),
         ("flag-two", _at(_base, i2="2")), ("flag-negative", _at(_base, i2="-1")),
-        ("flag-true-text", _at(_base, i2="true")),
+        ("flag-true-text", _at(_base, i2="true")), ("flag-false-text", _at(_base, i2="false")),
         *[(f"error-{k}", _at(_base, i3=v)) for k, v in _TEXTS.items()],
         *_unset_all(_base, {"success": 2}),
         ("short-after-flag", _base[:3]), ("short-after-version", _base[:2]),

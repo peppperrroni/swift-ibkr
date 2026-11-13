@@ -9269,7 +9269,7 @@
   "frames": "sweep/TickCodecTests.swift:89",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -9277,7 +9277,7 @@
   "frames": "sweep/TickCodecTests.swift:89",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -9285,7 +9285,7 @@
   "frames": "sweep/TickCodecTests.swift:89",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -9293,7 +9293,7 @@
   "frames": "sweep/TickCodecTests.swift:89",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -9301,7 +9301,7 @@
   "frames": "sweep/TickCodecTests.swift:89",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -9309,7 +9309,7 @@
   "frames": "sweep/TickCodecTests.swift:89",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+  "note": "ib_async's wrapper keeps -2 for vega and theta (wrapper.py:1390-1391 return the value either way, a slip in ib_async, not in the row); the decoder passes the raw value"
  },
  {
   "scope": "in 21",
@@ -9317,7 +9317,7 @@
   "frames": "sweep/TickCodecTests.swift:89",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -9325,7 +9325,7 @@
   "frames": "sweep/TickCodecTests.swift:89",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+  "note": "ib_async's wrapper keeps -2 for vega and theta (wrapper.py:1390-1391 return the value either way, a slip in ib_async, not in the row); the decoder passes the raw value"
  },
  {
   "scope": "in 21",
@@ -10293,7 +10293,7 @@
   "frames": "gen/21/greeks-10-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10301,7 +10301,7 @@
   "frames": "gen/21/greeks-10-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10309,7 +10309,7 @@
   "frames": "gen/21/greeks-10-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10317,7 +10317,7 @@
   "frames": "gen/21/greeks-10-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10325,7 +10325,7 @@
   "frames": "gen/21/greeks-11-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10333,7 +10333,7 @@
   "frames": "gen/21/greeks-11-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10341,7 +10341,7 @@
   "frames": "gen/21/greeks-11-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10349,7 +10349,7 @@
   "frames": "gen/21/greeks-11-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10357,7 +10357,7 @@
   "frames": "gen/21/greeks-12-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10365,7 +10365,7 @@
   "frames": "gen/21/greeks-12-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10373,7 +10373,7 @@
   "frames": "gen/21/greeks-12-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10381,7 +10381,7 @@
   "frames": "gen/21/greeks-12-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10389,7 +10389,7 @@
   "frames": "gen/21/greeks-13-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10397,7 +10397,7 @@
   "frames": "gen/21/greeks-13-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10405,7 +10405,7 @@
   "frames": "gen/21/greeks-13-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10413,7 +10413,7 @@
   "frames": "gen/21/greeks-13-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10421,7 +10421,7 @@
   "frames": "gen/21/greeks-53-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10429,7 +10429,7 @@
   "frames": "gen/21/greeks-53-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10437,7 +10437,7 @@
   "frames": "gen/21/greeks-53-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10445,7 +10445,7 @@
   "frames": "gen/21/greeks-53-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10453,7 +10453,7 @@
   "frames": "gen/21/greeks-80-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10461,7 +10461,7 @@
   "frames": "gen/21/greeks-80-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10469,7 +10469,7 @@
   "frames": "gen/21/greeks-80-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10477,7 +10477,7 @@
   "frames": "gen/21/greeks-80-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10485,7 +10485,7 @@
   "frames": "gen/21/greeks-81-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10493,7 +10493,7 @@
   "frames": "gen/21/greeks-81-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10501,7 +10501,7 @@
   "frames": "gen/21/greeks-81-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10509,7 +10509,7 @@
   "frames": "gen/21/greeks-81-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10517,7 +10517,7 @@
   "frames": "gen/21/greeks-82-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10525,7 +10525,7 @@
   "frames": "gen/21/greeks-82-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10533,7 +10533,7 @@
   "frames": "gen/21/greeks-82-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10541,7 +10541,7 @@
   "frames": "gen/21/greeks-82-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10549,7 +10549,7 @@
   "frames": "gen/21/greeks-83-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10557,7 +10557,7 @@
   "frames": "gen/21/greeks-83-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10565,7 +10565,7 @@
   "frames": "gen/21/greeks-83-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10573,7 +10573,7 @@
   "frames": "gen/21/greeks-83-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10581,7 +10581,7 @@
   "frames": "gen/21/greeks-10-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10589,7 +10589,7 @@
   "frames": "gen/21/greeks-10-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10597,7 +10597,7 @@
   "frames": "gen/21/greeks-10-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+  "note": "ib_async's wrapper keeps -2 for vega and theta (wrapper.py:1390-1391 return the value either way, a slip in ib_async, not in the row); the decoder passes the raw value"
  },
  {
   "scope": "in 21",
@@ -10605,7 +10605,7 @@
   "frames": "gen/21/greeks-10-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+  "note": "ib_async's wrapper keeps -2 for vega and theta (wrapper.py:1390-1391 return the value either way, a slip in ib_async, not in the row); the decoder passes the raw value"
  },
  {
   "scope": "in 21",
@@ -10613,7 +10613,7 @@
   "frames": "gen/21/greeks-11-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10621,7 +10621,7 @@
   "frames": "gen/21/greeks-11-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10629,7 +10629,7 @@
   "frames": "gen/21/greeks-11-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+  "note": "ib_async's wrapper keeps -2 for vega and theta (wrapper.py:1390-1391 return the value either way, a slip in ib_async, not in the row); the decoder passes the raw value"
  },
  {
   "scope": "in 21",
@@ -10637,7 +10637,7 @@
   "frames": "gen/21/greeks-11-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+  "note": "ib_async's wrapper keeps -2 for vega and theta (wrapper.py:1390-1391 return the value either way, a slip in ib_async, not in the row); the decoder passes the raw value"
  },
  {
   "scope": "in 21",
@@ -10645,7 +10645,7 @@
   "frames": "gen/21/greeks-12-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10653,7 +10653,7 @@
   "frames": "gen/21/greeks-12-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10661,7 +10661,7 @@
   "frames": "gen/21/greeks-12-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+  "note": "ib_async's wrapper keeps -2 for vega and theta (wrapper.py:1390-1391 return the value either way, a slip in ib_async, not in the row); the decoder passes the raw value"
  },
  {
   "scope": "in 21",
@@ -10669,7 +10669,7 @@
   "frames": "gen/21/greeks-12-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+  "note": "ib_async's wrapper keeps -2 for vega and theta (wrapper.py:1390-1391 return the value either way, a slip in ib_async, not in the row); the decoder passes the raw value"
  },
  {
   "scope": "in 21",
@@ -10677,7 +10677,7 @@
   "frames": "gen/21/greeks-13-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10685,7 +10685,7 @@
   "frames": "gen/21/greeks-13-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10693,7 +10693,7 @@
   "frames": "gen/21/greeks-13-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+  "note": "ib_async's wrapper keeps -2 for vega and theta (wrapper.py:1390-1391 return the value either way, a slip in ib_async, not in the row); the decoder passes the raw value"
  },
  {
   "scope": "in 21",
@@ -10701,7 +10701,7 @@
   "frames": "gen/21/greeks-13-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+  "note": "ib_async's wrapper keeps -2 for vega and theta (wrapper.py:1390-1391 return the value either way, a slip in ib_async, not in the row); the decoder passes the raw value"
  },
  {
   "scope": "in 21",
@@ -10709,7 +10709,7 @@
   "frames": "gen/21/greeks-53-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10717,7 +10717,7 @@
   "frames": "gen/21/greeks-53-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10725,7 +10725,7 @@
   "frames": "gen/21/greeks-53-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+  "note": "ib_async's wrapper keeps -2 for vega and theta (wrapper.py:1390-1391 return the value either way, a slip in ib_async, not in the row); the decoder passes the raw value"
  },
  {
   "scope": "in 21",
@@ -10733,7 +10733,7 @@
   "frames": "gen/21/greeks-53-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+  "note": "ib_async's wrapper keeps -2 for vega and theta (wrapper.py:1390-1391 return the value either way, a slip in ib_async, not in the row); the decoder passes the raw value"
  },
  {
   "scope": "in 21",
@@ -10741,7 +10741,7 @@
   "frames": "gen/21/greeks-80-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10749,7 +10749,7 @@
   "frames": "gen/21/greeks-80-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10757,7 +10757,7 @@
   "frames": "gen/21/greeks-80-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+  "note": "ib_async's wrapper keeps -2 for vega and theta (wrapper.py:1390-1391 return the value either way, a slip in ib_async, not in the row); the decoder passes the raw value"
  },
  {
   "scope": "in 21",
@@ -10765,7 +10765,7 @@
   "frames": "gen/21/greeks-80-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+  "note": "ib_async's wrapper keeps -2 for vega and theta (wrapper.py:1390-1391 return the value either way, a slip in ib_async, not in the row); the decoder passes the raw value"
  },
  {
   "scope": "in 21",
@@ -10773,7 +10773,7 @@
   "frames": "gen/21/greeks-81-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10781,7 +10781,7 @@
   "frames": "gen/21/greeks-81-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10789,7 +10789,7 @@
   "frames": "gen/21/greeks-81-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+  "note": "ib_async's wrapper keeps -2 for vega and theta (wrapper.py:1390-1391 return the value either way, a slip in ib_async, not in the row); the decoder passes the raw value"
  },
  {
   "scope": "in 21",
@@ -10797,7 +10797,7 @@
   "frames": "gen/21/greeks-81-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+  "note": "ib_async's wrapper keeps -2 for vega and theta (wrapper.py:1390-1391 return the value either way, a slip in ib_async, not in the row); the decoder passes the raw value"
  },
  {
   "scope": "in 21",
@@ -10805,7 +10805,7 @@
   "frames": "gen/21/greeks-82-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10813,7 +10813,7 @@
   "frames": "gen/21/greeks-82-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10821,7 +10821,7 @@
   "frames": "gen/21/greeks-82-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+  "note": "ib_async's wrapper keeps -2 for vega and theta (wrapper.py:1390-1391 return the value either way, a slip in ib_async, not in the row); the decoder passes the raw value"
  },
  {
   "scope": "in 21",
@@ -10829,7 +10829,7 @@
   "frames": "gen/21/greeks-82-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+  "note": "ib_async's wrapper keeps -2 for vega and theta (wrapper.py:1390-1391 return the value either way, a slip in ib_async, not in the row); the decoder passes the raw value"
  },
  {
   "scope": "in 21",
@@ -10837,7 +10837,7 @@
   "frames": "gen/21/greeks-83-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10845,7 +10845,7 @@
   "frames": "gen/21/greeks-83-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10853,7 +10853,7 @@
   "frames": "gen/21/greeks-83-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+  "note": "ib_async's wrapper keeps -2 for vega and theta (wrapper.py:1390-1391 return the value either way, a slip in ib_async, not in the row); the decoder passes the raw value"
  },
  {
   "scope": "in 21",
@@ -10861,7 +10861,7 @@
   "frames": "gen/21/greeks-83-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+  "note": "ib_async's wrapper keeps -2 for vega and theta (wrapper.py:1390-1391 return the value either way, a slip in ib_async, not in the row); the decoder passes the raw value"
  },
  {
   "scope": "in 21",
@@ -10869,7 +10869,7 @@
   "frames": "gen/21/impliedVol-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10877,7 +10877,7 @@
   "frames": "gen/21/optPrice-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10885,7 +10885,7 @@
   "frames": "gen/21/pvDividend-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10893,7 +10893,7 @@
   "frames": "gen/21/undPrice-minus-one",
   "pair": ["", "-1"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10901,7 +10901,7 @@
   "frames": "gen/21/delta-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10909,7 +10909,7 @@
   "frames": "gen/21/gamma-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "ib_async's wrapper turns it into None (wrapper.py:1383-1391); the decoder passes the raw value (decoder.py:547-563)"
+  "note": "ib_async's wrapper turns it into None (wrapper.py:1385-1392); the decoder passes the raw value (decoder.py:547-563)"
  },
  {
   "scope": "in 21",
@@ -10917,7 +10917,7 @@
   "frames": "gen/21/vega-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+  "note": "ib_async's wrapper keeps -2 for vega and theta (wrapper.py:1390-1391 return the value either way, a slip in ib_async, not in the row); the decoder passes the raw value"
  },
  {
   "scope": "in 21",
@@ -10925,7 +10925,7 @@
   "frames": "gen/21/theta-minus-two",
   "pair": ["", "-2"],
   "cite": "DECISIONS: tickOptionComputation (21) turns IB's \"not computed\" into `nil`",
-  "note": "the wrapper keeps -2 for vega and theta (wrapper.py:1390-1391), the row's apparent slip; the decoder passes the raw value"
+  "note": "ib_async's wrapper keeps -2 for vega and theta (wrapper.py:1390-1391 return the value either way, a slip in ib_async, not in the row); the decoder passes the raw value"
  },
  {
   "scope": "in 21",
@@ -18233,6 +18233,14 @@
  },
  {
   "scope": "in 66",
+  "field": "#error",
+  "frames": "gen/66/flag-false-text",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: 'false'"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "the text false reads false here (the shared flag reader); ib_async's int() rejects it (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 66",
   "field": "_1",
   "frames": "gen/66/unset-max-success",
   "pair": ["false", "true"],
@@ -18390,6 +18398,14 @@
   "pair": ["decoded", "ValueError: invalid literal for int() with base 10: 'true'"],
   "cite": "protocol-178 Disagreements 17",
   "note": "the text true reads true here (the shared flag reader); ib_async's int() rejects it (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 70",
+  "field": "#error",
+  "frames": "gen/70/flag-false-text",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: 'false'"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "the text false reads false here (the shared flag reader); ib_async's int() rejects it (wrap, decoder.py:143-174)"
  },
  {
   "scope": "in 70",
@@ -18814,5 +18830,29 @@
   "pair": ["20261113-15:30:00", "20261113 15:30:00 UTC"],
   "cite": "DECISIONS: `start`/`end` go out as the library's `yyyyMMdd-HH:mm:ss` UTC text",
   "note": "date text: ours yyyyMMdd-HH:mm:ss, ib.py's util.formatIBDatetime writes yyyyMMdd HH:mm:ss UTC (ib.py:2414-2415)"
+ },
+ {
+  "scope": "out 54",
+  "field": "15",
+  "frames": "calculateImpliedVolatility/float-zero",
+  "pair": ["0", "0.0"],
+  "cite": "protocol-178 Disagreements 4",
+  "note": "optionPrice: str(0.0) (client.py:278-280); swift-ibkr's Decimal writes 0"
+ },
+ {
+  "scope": "out 54",
+  "field": "16",
+  "frames": "calculateImpliedVolatility/float-zero",
+  "pair": ["0", "0.0"],
+  "cite": "protocol-178 Disagreements 4",
+  "note": "underPrice: str(0.0) (client.py:278-280); swift-ibkr's Decimal writes 0"
+ },
+ {
+  "scope": "out 3",
+  "field": "tif",
+  "frames": "placeOrder/swift-defaults",
+  "pair": ["DAY", ""],
+  "cite": "protocol-178 Disagreements 21",
+  "note": "Order(action:quantity:orderType:) defaults tif to DAY; ib_async's Order() to \"\" (order.py:33)"
  }
 ]

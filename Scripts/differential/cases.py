@@ -268,6 +268,24 @@ PLACE_ORDER_CASES: list[tuple[str, str, dict]] = [
     ("placeOrder/modify/again", "placeOrder", {"orderId": 60, "contract": AAPL, "order": LimitOrder("BUY", 6, 350.75)}),
     ("placeOrder/modify/recorded-openOrder", "placeOrder",
      _recorded_open_order("liveLimitOrderPlacesAndCancels.json")),
+    # isMore true and conjunction `a` on the conditions the cases above send only as isMore false / `o`
+    ("placeOrder/conditions-more-and", "placeOrder",
+     {"orderId": 61, "contract": AAPL,
+      "order": _limit(conditions=[
+          MarginCondition(conjunction="a", isMore=True, percent=35),
+          VolumeCondition(conjunction="a", isMore=True, volume=250000, conId=272093, exch="ARCA"),
+          PercentChangeCondition(conjunction="a", isMore=True, changePercent=1.5, conId=756733, exch="BATS"),
+          ExecutionCondition(conjunction="a", secType="STK", exch="ISLAND", symbol="AAPL")],
+          conditionsIgnoreRth=True, conditionsCancelOrder=True)}),
+    ("placeOrder/peg-best-unset-offset", "placeOrder",
+     {"orderId": 62, "contract": AAPL,
+      "order": Order(action="SELL", totalQuantity=15, orderType="PEG BEST", lmtPrice=350.5, minCompeteSize=300)}),
+    ("placeOrder/misc-options-1", "placeOrder",
+     {"orderId": 63, "contract": AAPL, "order": _limit(orderMiscOptions=[TagValue("opt1", "v1")])}),
+    # the Swift side is `Contract(symbol:)` and `Order(action:quantity:orderType:limitPrice:)`: swift-ibkr's own
+    # defaults against ib_async's Stock and LimitOrder
+    ("placeOrder/swift-defaults", "placeOrder",
+     {"orderId": 64, "contract": Stock("AAPL", "SMART", "USD"), "order": LimitOrder("BUY", 10, 351.5)}),
 ]
 
 # Market data and history. Dates are what ib.py prepares with util.formatIBDatetime (ib.py:2353, 2385, 2414-2415).
@@ -484,6 +502,8 @@ REFERENCE_CASES = [
      {"reqId": 68, "contract": OPTION, "optionPrice": 3.25, "underPrice": 182.75, "implVolOptions": _OPT1}),
     ("calculateImpliedVolatility/options-n", "calculateImpliedVolatility",
      {"reqId": 69, "contract": OPTION, "optionPrice": 4.5, "underPrice": 181.25, "implVolOptions": _OPT3}),
+    ("calculateImpliedVolatility/float-zero", "calculateImpliedVolatility",
+     {"reqId": 73, "contract": OPTION, "optionPrice": 0.0, "underPrice": 0.0, "implVolOptions": []}),
     ("calculateOptionPrice/default", "calculateOptionPrice",
      {"reqId": 0, "contract": _NONE, "volatility": 0, "underPrice": 0, "optPrcOptions": []}),
     ("calculateOptionPrice/options-1", "calculateOptionPrice",

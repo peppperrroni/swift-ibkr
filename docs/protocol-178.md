@@ -85,7 +85,7 @@ Total: 4 fields.
 | 1 | version | int | `1` |
 | 2 | numIds | int | (caller; the reply is `nextValidId (in 9)`) |
 
-Total: 3 fields.
+Total: 3 fields. swift-ibkr's `nextOrderID()` sends numIds 1; IB ignores it.
 
 ### placeOrder (out 3)
 
@@ -922,7 +922,7 @@ Total: 3 fields.
 | 4 | currency | string | |
 | 5 | realizedPNL | double | may be the UNSET sentinel |
 | 6 | yield | double | may be the UNSET sentinel |
-| 7 | yieldRedemptionDate | int | empty decodes as 0 (`ib_async`) |
+| 7 | yieldRedemptionDate | int | empty: swift-ibkr `nil`, `ib_async` 0 |
 
 Total: 8 fields.
 
@@ -1901,93 +1901,112 @@ agrees type by type. The differences are in default values and value formatting 
    orderTypes, validExchanges and marketRuleIds (10, 18) into arrays at decode, dropping empty items (a trailing
    comma adds none). `ib_async`'s decoder passes the raw text, and its wrapper splits it (wrapper.py:521-522 for 15),
    so the list a user sees is the same; only the decoder-level text differs, e.g. `DU1,` against `DU1`.
-
 13. **A field IB always fills is non-optional and reads an unset value as 0.** `reqId`, `conId`, position (`pos`),
    `averageCost`, `marketPrice`, `marketValue`, commissionReport's `commission` (a report always carries one;
    OrderState's what-if commissions stay `Decimal?` because IB sends MAX there for other orders), and the ids, filled
    and remaining quantities, prices and counts of orderStatus (3), execDetails (11) and orderBound (100) are
-   non-optional in swift-ibkr's models, so an empty or
-   `MAX` (2147483647, 1.7976931348623157E308) value decodes to 0 where `ib_async` keeps the sentinel (`""` in the oracle)
-   or, for a plain `float()` / `int()` read (updatePortfolio, positionMulti's reqId), rejects the frame. IB never leaves
-   them unset, and making them optional would be Breaking for no observed frame. A non-optional flag does the same: an unset value (empty or `MAX`) reads as false where `ib_async` reads
-   `bool(int(x))` (execDetails' `pendingPriceRevision`). Messages 3, 7, 11, 59, 61, 63, 71, 73, 94, 95, 100.
+   non-optional in swift-ibkr's models, so an empty or `MAX` (2147483647, 1.7976931348623157E308) value decodes to 0
+   where `ib_async` keeps the sentinel (`""` in the oracle) or, for a plain `float()` / `int()` read (updatePortfolio,
+   positionMulti's reqId), rejects the frame. IB never leaves them unset, and making them optional would be Breaking for
+   no observed frame. A non-optional flag does the same: an unset value (empty or `MAX`) reads as false where `ib_async`
+   reads `bool(int(x))` (execDetails' `pendingPriceRevision`). Messages 3, 7, 11, 59, 61, 63, 71, 73, 94, 95, 100.
    openOrder (5) and completedOrder (101) do the same for every non-optional number and flag of the order, its combo
    legs, delta-neutral contract and conditions, and for any value of the shared unset set, the long sentinels included
    (`ib_async` reads `9223372036854775807` in a `float` field as a number): `exemptCode` reads as its default -1, a
    condition's `isMore` reads empty as false where `ib_async`'s `parse` keeps the dataclass default true. (The optional
-   `eTradeOnly` / `firmQuoteOnly` are not this row: DECISIONS, the flat `Order` row.) An unset group count reads as 0 and an unset
-   delta-neutral-contract flag as false, where `ib_async`'s `int()` rejects the frame or reads a `MAX` flag as set
-   (decoder.py:984-1103, 1236-1325). The market-data messages (1, 2, 12, 13, 21, 45, 47, 50, 56-58, 81, 84, 91, 92, 99)
-   do the same for what IB always fills: the request id, the tick type, `tickAttrib`, a depth row's position, operation,
-   side, price and size, tickGeneric's value, a real-time bar's time, prices, volume and count, tick-by-tick's time,
-   prices, sizes and mask, the delta-neutral contract's numbers, the snapshot permissions and a news time stamp are
-   non-optional, so an empty or unset value (the long limits included, which `ib_async` reads as a float) decodes to 0
-   where `ib_async` keeps the sentinel or, for a plain `int()` / `float()` read, rejects the frame; an unset
-   tick-by-tick mask reads as 0, so both its flags are false where `ib_async` reads `MAX` as set bits (decoder.py:838-880).
-   The history messages (17, 88, 89, 90, 96, 97, 98, 106) do the same: the request id, a bar's prices, volume and count,
-   a histogram bucket's price and count, a historical tick's time, prices, sizes and mask, and a group count (bars,
-   buckets, ticks, sessions) are non-optional, so an empty or unset value decodes to 0 where `ib_async` keeps the sentinel
-   or, for a plain `int()` / `float()` read, rejects the frame (an unset count leaves it with too few fields); an unset
-   `done` flag or tick mask reads false and its bits clear, where `ib_async` reads `MAX` as set (decoder.py:477-511,
-   757-829, 1361-1370).
-   The reference messages (10, 18, 52, 75-80, 82, 93) do the same: the request id, a contract's `conId`, `minTick` and
-   `priceMagnifier`, an option chain's underlying `conId` and strikes, a bond's flags, a smart component's bit number, a
-   market rule's id and price-increment edges, and every group count (secIds, expirations, tiers, family codes, symbol
-   samples and their derivative types, depth exchanges, components, increments) are non-optional, so an empty or unset
-   value decodes to 0 or false where `ib_async` keeps the sentinel, reads `MAX` as a set flag, or rejects the frame (an
-   unset count leaves it with too few fields, or, for 75, swallows the rest of the frame as expirations)
-   (decoder.py:255-424, 648-775).
-   The research messages (14, 16, 20, 51, 66-70, 83, 85-87, 103-105) do the same: the request id, a bulletin's id and
-   type, a news article's type, a scanner row's rank and `conId`, a display group's id, and the counts of scanner rows and
-   news providers are non-optional, so an empty or unset value (the long limits included) decodes to 0 where `ib_async`
-   keeps the sentinel or, for a plain `int()` read, rejects the frame (an unset count leaves it with too few fields, or
-   an empty one with nothing to read); an unset verify or news-end flag reads false where `ib_async` reads `MAX` as set
-   (decoder.py:143-174, 513-545, 749-755).
-14. **A frame whose length disagrees with the 178 layout or with its own counts.** swift-ibkr reports `.malformed(missingField …)` where
-   `ib_async`'s `wrap` zips the fields with its types and lets the wrapper's defaults fill the missing trailing
-   arguments (orderStatus without mktCapPrice, message 3), or, for message 75, slices whatever fields are there. Deliberate
-   strictness at the pinned version, where IB always sends the whole layout. A count longer than the fields that follow
-   it (75's strike count) is `.malformed` for the same reason. A field after the end of the layout is ignored by
-   swift-ibkr (as by `ib_async` for 10 and the `wrap` messages); in 75 `ib_async` reads every field after the
-   expirations as a strike and ignores the strike count, so a count shorter than the strikes, or an extra trailing
-   field, gives it more strikes (or a `float()` error) than swift-ibkr reads (decoder.py:662).
-   The verify, display-group and replaceFAEnd messages (65-70, 103) are the same: `wrap` passes the fields that are there
-   to a wrapper method that `ib_async`'s `Wrapper` does not have, so the oracle's recorder shows a call with fewer
-   arguments where swift-ibkr reports `.malformed` (decoder.py:143-174).
+   `eTradeOnly` / `firmQuoteOnly` are not this row: DECISIONS, the flat `Order` row.) An unset group count reads as 0
+   and an unset delta-neutral-contract flag as false, where `ib_async`'s `int()` rejects the frame or reads a `MAX` flag
+   as set (decoder.py:984-1103, 1236-1325). The market-data messages (1, 2, 12, 13, 21, 45, 46, 47, 50, 56-58, 81, 84,
+   91, 92, 99) do the same for what IB always fills: the request id, the tick type, `tickAttrib`, a depth row's
+   position, operation, side, price and size, tickGeneric's value, a real-time bar's time, prices, volume and count,
+   tick-by-tick's time, prices, sizes and mask, the delta-neutral contract's numbers, the snapshot permissions and a
+   news time stamp are non-optional, so an empty or unset value (the long limits included, which `ib_async` reads as a
+   float) decodes to 0 where `ib_async` keeps the sentinel or, for a plain `int()` / `float()` read, rejects the frame;
+   an unset tick-by-tick mask reads as 0, so both its flags are false where `ib_async` reads `MAX` as set bits
+   (decoder.py:838-880). The history messages (17, 88, 89, 90, 96, 97, 98, 106) do the same: the request id, a bar's
+   prices, volume and count, a histogram bucket's price and count, a historical tick's time, prices, sizes and mask, and
+   a group count (bars, buckets, ticks, sessions) are non-optional, so an empty or unset value decodes to 0 where
+   `ib_async` keeps the sentinel or, for a plain `int()` / `float()` read, rejects the frame (an unset count leaves it
+   with too few fields); an unset `done` flag or tick mask reads false and its bits clear, where `ib_async` reads `MAX`
+   as set (decoder.py:477-511, 757-829, 1361-1370). The reference messages (10, 18, 52, 75-80, 82, 93) do the same: the
+   request id, a contract's `conId`, `minTick` and `priceMagnifier`, an option chain's underlying `conId` and strikes, a
+   bond's flags, a smart component's bit number, a market rule's id and price-increment edges, and every group count
+   (secIds, expirations, tiers, family codes, symbol samples and their derivative types, depth exchanges, components,
+   increments) are non-optional, so an empty or unset value decodes to 0 or false where `ib_async` keeps the sentinel,
+   reads `MAX` as a set flag, or rejects the frame (an unset count leaves it with too few fields, or, for 75, swallows
+   the rest of the frame as expirations) (decoder.py:255-424, 648-775). The research messages (14, 16, 20, 51, 66-70,
+   83, 85-87, 103-105) do the same: the request id, a bulletin's id and type, a news article's type, a scanner row's
+   rank and `conId`, a display group's id, and the counts of scanner rows and news providers are non-optional, so an
+   empty or unset value (the long limits included) decodes to 0 where `ib_async` keeps the sentinel or, for a plain
+   `int()` read, rejects the frame (an unset count leaves it with too few fields, or an empty one with nothing to read);
+   an unset verify or news-end flag reads false where `ib_async` reads `MAX` as set (decoder.py:143-174, 513-545,
+   749-755).
+14. **A frame whose length disagrees with the 178 layout or with its own counts.** swift-ibkr reports
+   `.malformed(missingField …)` where `ib_async`'s `wrap` zips the fields with its types and lets the wrapper's defaults
+   fill the missing trailing arguments (orderStatus without mktCapPrice, message 3), or, for message 75, slices whatever
+   fields are there. Deliberate strictness at the pinned version, where IB always sends the whole layout. A count longer
+   than the fields that follow it (75's strike count) is `.malformed` for the same reason. A field after the end of the
+   layout is ignored by swift-ibkr (as by `ib_async` for 10 and the `wrap` messages); in 75 `ib_async` reads every field
+   after the expirations as a strike and ignores the strike count, so a count shorter than the strikes, or an extra
+   trailing field, gives it more strikes (or a `float()` error) than swift-ibkr reads (decoder.py:662). The verify,
+   display-group and replaceFAEnd messages (65-70, 103) are the same: `wrap` passes the fields that are there to a
+   wrapper method that `ib_async`'s `Wrapper` does not have, so the oracle's recorder shows a call with fewer arguments
+   where swift-ibkr reports `.malformed` (decoder.py:143-174).
 15. **displaySize reads IB's unset value as 0.** The live gateway sends openOrder's and completedOrder's `displaySize`
    as `2147483647` for an order without one (openOrder field 47 in `Recorded/liveLimitOrderPlacesAndCancels.json`,
    completedOrder field 43 in `Recorded/liveAccountSummary.json`); swift-ibkr's `Order.displaySize` is a non-optional `Int`, so it
    decodes to 0 (any other unset value too), where `ib_async` keeps the sentinel (`""` in the oracle). A `modifyOrder`
    with a decoded order therefore re-sends `0` where `ib_async` sends `""` (KNOWN-GAPS, the modify line; the encode
    oracle's `placeOrder/modify/recorded-openOrder` case shows it, and no other field of that re-send differs but
-   number formatting, item 4).
+   number formatting, item 4). That is the decoder-level re-send; an `ib_async` user's modify differs further
+   (item 20).
 16. **An empty tickPrice price makes no tick in `ib_async`.** Its decoder calls the wrapper only `if price:`
    (decoder.py:200-206), so a frame whose price field is empty gives no call at all; swift-ibkr decodes the frame to
    `.tick(.price(…, price: nil, …))` (unset is `nil`). No recorded live frame has an empty price. On such a frame a `Ticker` field can be cleared where `ib_async`
    keeps the old value.
-17. **A value outside what IB sends is malformed, or a flag other than 0/1 reads false.** swift-ibkr reports `.malformed` for an unknown
-   tickByTick type (99), marketDataType id (58, an empty one included) and depth operation or side (12, 13), where
-   `ib_async` passes the value through (58, 12, 13) or makes no call and logs nothing (99). Same pattern as the
-   unknown condition type and `ComboLeg.action` rows of DECISIONS.
-   The same holds for a negative count (17's numBars, 89's n and count, 96-98's n, 106's count) and an empty or unparseable
-   date text (a bar or head-timestamp date that is neither 8 characters nor all digits, e.g. formatDate 1 text; 17, 88,
-   90): `.malformed`, where `ib_async` reads an empty range or keeps the text. A flag other than 0/1 (historicalTicks'
-   `done`, `2`) reads false, because swift-ibkr takes only `1` as true; `ib_async`'s `bool(int(x))` reads it true.
-   The reference messages' counts (75's expirations, 77, 78, 79's samples and derivative types, 80, 82, 93) are the same:
-   a negative one is `.malformed` where `ib_async` reads an empty range or slice (decoder.py:648-775).
-   So are the research messages: a negative count of scanner rows (20) or news providers (85) is `.malformed` where
-   `ib_async` reads an empty range, and an FA data type outside 1-3 (16; an empty or unset one reads 0) is `.malformed` where
-   `ib_async` passes the number through. A verify or news-end flag (66, 70, 87) other than 0/1 reads false (`2`, `-1`),
-   and the text `true` reads true, because swift-ibkr's flag reader takes `1` and `true`; `ib_async`'s `bool(int(x))` reads
-   the numbers as set and rejects the text (decoder.py:143-174, 513-545, 749-755).
+17. **A value outside what IB sends is malformed, or a flag other than 0/1 reads false.** swift-ibkr reports
+   `.malformed` for an unknown tickByTick type (99), marketDataType id (58, an empty one included) and depth operation
+   or side (12, 13), where `ib_async` passes the value through (58, 12, 13) or makes no call and logs nothing (99). Same
+   pattern as the unknown condition type and `ComboLeg.action` rows of DECISIONS. The same holds for a negative count
+   (17's numBars, 89's n and count, 96-98's n, 106's count) and an empty or unparseable date text (a bar or
+   head-timestamp date that is neither 8 characters nor all digits, e.g. formatDate 1 text; 17, 88, 90): `.malformed`,
+   where `ib_async` reads an empty range or keeps the text. A flag other than 0/1 (historicalTicks' `done`, `2`) reads
+   false, because swift-ibkr takes only `1` as true; `ib_async`'s `bool(int(x))` reads it true. The reference messages'
+   counts (75's expirations, 77, 78, 79's samples and derivative types, 80, 82, 93) are the same: a negative one is
+   `.malformed` where `ib_async` reads an empty range or slice (decoder.py:648-775). So are the research messages: a
+   negative count of scanner rows (20) or news providers (85) is `.malformed` where `ib_async` reads an empty range, and
+   an FA data type outside 1-3 (16; an empty or unset one reads 0) is `.malformed` where `ib_async` passes the number
+   through. A verify or news-end flag (66, 70, 87) other than 0/1 reads false (`2`, `-1`), and the text `true` reads
+   true (`false` false), because swift-ibkr's flag reader takes `1` and `true`; `ib_async`'s `bool(int(x))` reads the
+   numbers as set and rejects the text (decoder.py:143-174, 513-545, 749-755). IB's own Python client reads that slot as
+   an int flag too (ibapi's `decode(bool)` is `int(s) != 0`), as `ib_async` does, so text there is outside what both
+   Python clients read; swift-ibkr's also reading `true` and `false` is harmless leniency.
 18. **historicalData's start and end texts are dropped.** `ib_async`'s decoder passes the two header strings of 17
    (startDate, endDate) to `historicalDataEnd(reqId, _start, _end)` (decoder.py:477-494); swift-ibkr reads and drops
    them, and the answer is the whole batch. `ib_async`'s own wrapper ignores them too (`historicalDataEnd` ends the
    request, wrapper.py:920-921), so no user-visible value is lost; only the decoder-level call differs.
 19. **ib_async reads bond coupon and evMultiplier as int.** Its dataclass declares `coupon: float = 0` and
    `evMultiplier: int = 0`, so `parse()` calls `int()` on the text (contract.py:569, 590; decoder.py:192-193) and
-   rejects the whole frame for a fractional value (a bond's `3.45`) or a double `MAX`; swift-ibkr decodes both as
+   rejects the whole frame for a decimal text (a bond's `3.45`, `5.0` too) or a double `MAX`; swift-ibkr decodes both as
    `Decimal` (`MAX` is `nil`). An `ib_async` defect; swift-ibkr is unchanged. Messages 10 (evMultiplier) and 18.
+20. **A modify re-sends IB's echo of the order, where an `ib_async` user re-sends their own.** swift-ibkr's order
+   tracker replaces an order's contract and order with each decoded openOrder (`OrderTracker.applyOpen`), for the
+   orders it placed too, so `modifyOrder(id, snapshot.contract, snapshot.order)` re-sends what the gateway echoed:
+   contract `right` `?`, deltaNeutralOpenClose `?`, displaySize 0 (item 15), deltaNeutralOrderType and
+   adjustedOrderType `None`, clearingIntent `IB` (the live echo, item 9). `ib_async` keeps the user's own `Contract`
+   and `Order` for a trade it placed and copies only permId, totalQuantity, lmtPrice, auxPrice, orderType and
+   orderRef from openOrder into them (wrapper.py:687-693); it drops IB's `?` values from the order only for a trade
+   it did not place (wrapper.py:695-698). So an `ib_async` user's modify of their own order re-sends their own values.
+   The decoders and encoders agree (`placeOrder/modify/recorded-openOrder`); the difference is in the tracker, outside
+   the oracle's layer. Whether the gateway accepts the echo back is unchecked live (KNOWN-GAPS); swift-ibkr is
+   unchanged until it is, and whether a later stage keeps the caller's own order for orders it placed is the
+   owner's call.
+21. **placeOrder `tif` default.** swift-ibkr's `Order(action:quantity:orderType:)` defaults `tif` to `DAY`;
+   `ib_async`'s `Order()` (and `LimitOrder`, `MarketOrder`, …) sends `""`, which leaves the time in force to the
+   gateway's order preset. swift-ibkr names the day order every caller gets unless they set one; every live order
+   so far went out as `DAY` and was accepted. Cost: a login whose preset is not DAY gets DAY from swift-ibkr where
+   `ib_async` would follow the preset. The encode oracle's `placeOrder/swift-defaults` case shows it; it is the only
+   field where swift-ibkr's own `Order` and `Contract` defaults differ from `ib_async`'s.
 
 No row in this document is unverified: every table was checked line by line against the
 verbatim source of both clients, and every incoming table is cross-checked by running `ib_async` 2.1.0's decoder,

@@ -66,9 +66,14 @@ realized P&L. The stage-4 run of 2026-11-11 (paper account, no market-data subsc
 - **Live gateway.** IB's price cap is about 1.8% from the market in regular hours. The live fill test uses +-1% and
   prices the SELL off the BUY's fill.
 - **Live gateway.** A modify that re-sends an order decoded from a live openOrder (deltaNeutralOrderType `None` with
-  its 8 fields, adjustedOrderType `None`) is unchecked live; it is cross-checked against ib_async 2.1.0, which sends
-  the same values except displaySize: swift-ibkr sends `0` where `ib_async` sends `""` (the gateway's `2147483647`
-  decodes to 0; protocol-178 Disagreements 15).
+  its 8 fields, adjustedOrderType `None`) is unchecked live. ib_async 2.1.0's `Client` re-sends the same decoded
+  order with the same values except displaySize: swift-ibkr sends `0` where `ib_async` sends `""` (the gateway's
+  `2147483647` decodes to 0; protocol-178 Disagreements 15). But the tracker keeps IB's echo for the orders the
+  client placed too, so `modifyOrder(id, snapshot.contract, snapshot.order)` re-sends `right` `?`,
+  deltaNeutralOpenClose `?`, displaySize 0, `None` and clearingIntent `IB`, where an `ib_async` user re-sends their
+  own order (Disagreements 20). Live check to run: modify a placed order from its snapshot and see whether the
+  gateway accepts the `?` and `None` values back. Also unchecked: an order sent with the `Order` init's `tif` `DAY`
+  where `ib_async`'s `""` follows the login's preset (Disagreements 21).
 - **Live gateway.** Conditions, algos, PEG and combo orders are cross-checked against ib_async 2.1.0 both ways,
   unseen live: no live order has carried one.
 - **Live gateway.** What-if is unchecked live: `whatIfOrder` is tested on hand-built frames and on the simulated

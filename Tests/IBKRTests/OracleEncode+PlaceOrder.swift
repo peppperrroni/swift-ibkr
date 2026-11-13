@@ -19,6 +19,17 @@ func placeOrderRequest(for c: EncodeCase) throws -> IBRequest? {
         }
         guard m.orderID == id else { throw CaseError("\(c.name): order id \(m.orderID), ib_async sent \(id)") }
         r = .placeOrder(orderID: m.orderID, contract: m.contract, order: m.order)
+    } else if c.name == "placeOrder/swift-defaults" {
+        // swift-ibkr's own defaults: only the fields the case names are read, every other one is the init's
+        var k = try CaseArgs(a.value("contract"), type: "Stock", "contract")
+        var o = try CaseArgs(a.value("order"), type: "LimitOrder", "order")
+        let action = try o.text("action")
+        guard let side = OrderAction(rawValue: action) else { throw CaseError("order.action: \(action)") }
+        r = .placeOrder(orderID: id,
+                        contract: Contract(symbol: try k.text("symbol"), exchange: try k.text("exchange"),
+                                           currency: try k.text("currency")),
+                        order: Order(action: side, quantity: try o.decimal("totalQuantity"), orderType: "LMT",
+                                     limitPrice: try o.decimal("lmtPrice")))
     } else {
         r = .placeOrder(orderID: id, contract: try contract(from: a.value("contract")),
                         order: try order(from: a.value("order"), orderID: id))
