@@ -14811,7 +14811,7 @@
   "scope": "in 96",
   "field": "#error",
   "frames": "gen/96/unset-long-max-time",
-  "pair": ["decoded", "OSError: [Errno 22] Invalid argument"],
+  "pair": ["decoded", "OSError"],
   "cite": "protocol-178 Disagreements 13",
   "note": "a non-optional number reads an unset value as 0 here; ib_async rejects a time outside the platform's range (decoder.py:778-792)"
  },
@@ -14819,7 +14819,7 @@
   "scope": "in 96",
   "field": "#error",
   "frames": "gen/96/unset-long-min-time",
-  "pair": ["decoded", "OSError: [Errno 22] Invalid argument"],
+  "pair": ["decoded", "OSError"],
   "cite": "protocol-178 Disagreements 13",
   "note": "a non-optional number reads an unset value as 0 here; ib_async rejects a time outside the platform's range (decoder.py:778-792)"
  },
@@ -15083,7 +15083,7 @@
   "scope": "in 97",
   "field": "#error",
   "frames": "gen/97/unset-long-max-time",
-  "pair": ["decoded", "OSError: [Errno 22] Invalid argument"],
+  "pair": ["decoded", "OSError"],
   "cite": "protocol-178 Disagreements 13",
   "note": "a non-optional number reads an unset value as 0 here; ib_async rejects a time outside the platform's range (decoder.py:794-815)"
  },
@@ -15091,7 +15091,7 @@
   "scope": "in 97",
   "field": "#error",
   "frames": "gen/97/unset-long-min-time",
-  "pair": ["decoded", "OSError: [Errno 22] Invalid argument"],
+  "pair": ["decoded", "OSError"],
   "cite": "protocol-178 Disagreements 13",
   "note": "a non-optional number reads an unset value as 0 here; ib_async rejects a time outside the platform's range (decoder.py:794-815)"
  },
@@ -15411,7 +15411,7 @@
   "scope": "in 98",
   "field": "#error",
   "frames": "gen/98/unset-long-max-time",
-  "pair": ["decoded", "OSError: [Errno 22] Invalid argument"],
+  "pair": ["decoded", "OSError"],
   "cite": "protocol-178 Disagreements 13",
   "note": "a non-optional number reads an unset value as 0 here; ib_async rejects a time outside the platform's range (decoder.py:817-838)"
  },
@@ -15419,7 +15419,7 @@
   "scope": "in 98",
   "field": "#error",
   "frames": "gen/98/unset-long-min-time",
-  "pair": ["decoded", "OSError: [Errno 22] Invalid argument"],
+  "pair": ["decoded", "OSError"],
   "cite": "protocol-178 Disagreements 13",
   "note": "a non-optional number reads an unset value as 0 here; ib_async rejects a time outside the platform's range (decoder.py:817-838)"
  },

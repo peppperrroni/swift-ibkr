@@ -19,6 +19,10 @@ func ibAsyncCalls(id: Int, _ m: IBMessage) -> [OracleCall]? {
     #expect(canary.error?.isEmpty == false)
     #expect(canary.calls == nil)
     guard case .malformed = IBDecoder.decode(body(canary.fields)) else { Issue.record("not malformed"); return }
+    // the text is the same on every platform (an OSError's errno is not) and names the failure, not its context
+    #expect(file.frames.allSatisfy { $0.error?.contains("[Errno") != true })
+    let short = try #require(file.frames.first { $0.name == "gen/3/short-after-status" })
+    #expect(short.error == "TypeError: missing a required argument: 'filled'")
 }
 
 /// Review Focus 2: the Python side folds IB's sentinels to "", the Swift side never does.

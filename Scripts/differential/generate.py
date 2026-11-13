@@ -141,9 +141,15 @@ class _Errors(logging.Handler):
 
     def emit(self, record):
         exc = record.exc_info[1] if record.exc_info else None
-        while exc is not None and exc.__context__ is not None:  # `wrap` re-raises inside its except: keep the cause
+        # `wrap`'s except formats `args`, unbound when building them failed (decoder.py:150-172): keep that cause only
+        if isinstance(exc, UnboundLocalError) and "'args'" in str(exc) and exc.__context__ is not None:
             exc = exc.__context__
-        self.errors.append(f"{type(exc).__name__}: {exc}" if exc else record.getMessage())
+        if exc is None:
+            self.errors.append(record.getMessage())
+        elif isinstance(exc, OSError):  # errno and strerror are the platform's (Windows 22, Linux 75): the type alone
+            self.errors.append(type(exc).__name__)
+        else:
+            self.errors.append(f"{type(exc).__name__}: {exc}")
 
 
 _errors = _Errors()

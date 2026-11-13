@@ -50553,7 +50553,7 @@
    "name": "gen/2/unset-long-min-size"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'size'",
    "fields": [
     "2",
     "6",
@@ -51367,7 +51367,7 @@
    "name": "gen/3/without-mkt-cap-price"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'filled'",
    "fields": [
     "3",
     "5",
@@ -86539,7 +86539,7 @@
    "name": "gen/12/unset-long-min-size"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'size'",
    "fields": [
     "12",
     "1",
@@ -88013,7 +88013,7 @@
    "name": "gen/13/without-is-smart-depth"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'size'",
    "fields": [
     "13",
     "1",
@@ -88439,7 +88439,7 @@
    "name": "gen/14/unset-long-min-msgType"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'msgType'",
    "fields": [
     "14",
     "1",
@@ -88448,7 +88448,7 @@
    "name": "gen/14/short-after-msg-id"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'message'",
    "fields": [
     "14",
     "1",
@@ -88458,7 +88458,7 @@
    "name": "gen/14/short-after-type"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'origExchange'",
    "fields": [
     "14",
     "1",
@@ -88810,7 +88810,7 @@
    "name": "gen/16/unset-long-min-faType"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'faXmlData'",
    "fields": [
     "16",
     "1",
@@ -88819,7 +88819,7 @@
    "name": "gen/16/short-after-type"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: '_faDataType'",
    "fields": [
     "16",
     "1"
@@ -103384,7 +103384,7 @@
    "name": "gen/19/xml-newline"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'xml'",
    "fields": [
     "19",
     "1"
@@ -115187,7 +115187,7 @@
    "name": "gen/45/unset-long-min-value"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'value'",
    "fields": [
     "45",
     "6",
@@ -115677,7 +115677,7 @@
    "name": "gen/46/unset-long-min-tickType"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'value'",
    "fields": [
     "46",
     "6",
@@ -116999,7 +116999,7 @@
    "name": "gen/47/unset-long-min-dividendsToLastTradeDate"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'dividendsToLastTradeDate'",
    "fields": [
     "47",
     "1",
@@ -118471,7 +118471,7 @@
    "name": "gen/50/unset-long-min-count"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'count'",
    "fields": [
     "50",
     "3",
@@ -118667,7 +118667,7 @@
    "name": "gen/51/unset-long-min-reqId"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'data'",
    "fields": [
     "51",
     "1",
@@ -118775,7 +118775,7 @@
    "name": "gen/52/unset-long-min-reqId"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'reqId'",
    "fields": [
     "52",
     "1"
@@ -119356,7 +119356,7 @@
    "name": "gen/57/unset-long-min-reqId"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'reqId'",
    "fields": [
     "57",
     "1"
@@ -119508,7 +119508,7 @@
    "name": "gen/58/unset-long-min-reqId"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'marketDataId'",
    "fields": [
     "58",
     "1",
@@ -124017,7 +124017,7 @@
    "name": "gen/76/unset-long-min-reqId"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'reqId'",
    "fields": [
     "76"
    ],
@@ -126940,7 +126940,7 @@
    "name": "gen/81/unset-long-min-snapshotPermissions"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'snapshotPermissions'",
    "fields": [
     "81",
     "7",
@@ -127687,7 +127687,7 @@
    "name": "gen/83/unset-long-min-articleType"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'articleText'",
    "fields": [
     "83",
     "7",
@@ -127696,7 +127696,7 @@
    "name": "gen/83/short-after-type"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'articleType'",
    "fields": [
     "83",
     "7"
@@ -127999,7 +127999,7 @@
    "name": "gen/84/unset-long-min-timeStamp"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'extraData'",
    "fields": [
     "84",
     "7",
@@ -128687,7 +128687,7 @@
    "name": "gen/86/unset-long-min-reqId"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'providerCode'",
    "fields": [
     "86",
     "7",
@@ -128696,7 +128696,7 @@
    "name": "gen/86/short-after-time"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'articleId'",
    "fields": [
     "86",
     "7",
@@ -128706,7 +128706,7 @@
    "name": "gen/86/short-after-provider"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'headline'",
    "fields": [
     "86",
     "7",
@@ -128954,7 +128954,7 @@
    "name": "gen/87/unset-long-min-hasMore"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: '_hasMore'",
    "fields": [
     "87",
     "7"
@@ -129082,7 +129082,7 @@
    "name": "gen/88/unset-long-min-reqId"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'headTimestamp'",
    "fields": [
     "88",
     "7"
@@ -132977,7 +132977,7 @@
    "name": "gen/96/unset-max-time"
   },
   {
-   "error": "OSError: [Errno 22] Invalid argument",
+   "error": "OSError",
    "fields": [
     "96",
     "7",
@@ -132991,7 +132991,7 @@
    "name": "gen/96/unset-long-max-time"
   },
   {
-   "error": "OSError: [Errno 22] Invalid argument",
+   "error": "OSError",
    "fields": [
     "96",
     "7",
@@ -133950,7 +133950,7 @@
    "name": "gen/97/unset-max-time"
   },
   {
-   "error": "OSError: [Errno 22] Invalid argument",
+   "error": "OSError",
    "fields": [
     "97",
     "7",
@@ -133966,7 +133966,7 @@
    "name": "gen/97/unset-long-max-time"
   },
   {
-   "error": "OSError: [Errno 22] Invalid argument",
+   "error": "OSError",
    "fields": [
     "97",
     "7",
@@ -135564,7 +135564,7 @@
    "name": "gen/98/unset-max-time"
   },
   {
-   "error": "OSError: [Errno 22] Invalid argument",
+   "error": "OSError",
    "fields": [
     "98",
     "7",
@@ -135580,7 +135580,7 @@
    "name": "gen/98/unset-long-max-time"
   },
   {
-   "error": "OSError: [Errno 22] Invalid argument",
+   "error": "OSError",
    "fields": [
     "98",
     "7",
@@ -138642,7 +138642,7 @@
    "name": "gen/100/unset-max-apiOrderId"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'apiClientId'",
    "fields": [
     "100",
     "610467324"
@@ -153524,7 +153524,7 @@
    "name": "gen/104/unset-long-min-reqId"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'dataJson'",
    "fields": [
     "104",
     "7"
@@ -153737,7 +153737,7 @@
    "name": "gen/105/unset-long-min-reqId"
   },
   {
-   "error": "StopIteration: ",
+   "error": "TypeError: missing a required argument: 'dataJson'",
    "fields": [
     "105",
     "7"
