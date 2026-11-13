@@ -25,6 +25,14 @@ private func first<T: Sendable>(_ stream: AsyncStream<T>) async throws -> T {
     }
 }
 
+/// The first element matching `predicate`, failing after 2 s.
+private func next<T: Sendable>(_ stream: AsyncStream<T>, _ predicate: @escaping @Sendable (T) -> Bool) async throws -> T {
+    try await within2s {
+        for await x in stream where predicate(x) { return x }
+        throw TimedOut()
+    }
+}
+
 /// Polls until `condition` holds, failing after 2 s.
 private func until(_ condition: @escaping @Sendable () async -> Bool) async throws {
     try await within2s {
@@ -75,7 +83,7 @@ private func until(_ condition: @escaping @Sendable () async -> Bool) async thro
     let (_, updates) = await client.orders()
     #expect(try await client.placeOrder(aapl, buy) == 101)
     gateway.feed(["3", "101", "Submitted", "0", "1", "0", "555", "0", "0", "7", "", "0"])
-    let s = try await first(updates)
+    let s = try await next(updates) { $0.status == .submitted }
     #expect(s.orderID == 101 && s.status == .submitted)
     #expect(s.contract.symbol == "AAPL" && s.order.limitPrice == d("1"))
 }
@@ -118,7 +126,7 @@ private func until(_ condition: @escaping @Sendable () async -> Bool) async thro
     let (_, updates) = await client.orders()
     let id = try await client.placeOrder(aapl, buy)
     gateway.feed(["4", "2", "\(id)", "201", "Order rejected", ""])
-    _ = try await first(updates)
+    _ = try await next(updates) { $0.status == .inactive }
     let s = await client.orders().snapshot.first { $0.orderID == 101 }
     #expect(s?.status == .inactive && s?.rejectReason == "Order rejected")
 }
@@ -250,4 +258,115 @@ private func until(_ condition: @escaping @Sendable () async -> Bool) async thro
     let sent = try await gateway.waitForSent(FakeGateway.syncFrames + 1)
     #expect(sent.count == FakeGateway.syncFrames + 1 && sent[FakeGateway.syncFrames][0] == "4")
     #expect(await client.orders().snapshot.isEmpty)
+}
+
+private func submitted(_ id: Int) -> [String] { ["3", "\(id)", "Submitted", "0", "1", "0", "555", "0", "0", "7", "", "0"] }
+
+private func snapshot(of event: OrderEvent) -> OrderSnapshot {
+    switch event { case .modified(let s), .cancelRequested(let s): s }
+}
+
+@Test func placeOrderPublishesPendingSubmitAtOnce() async throws {
+    let gateway = FakeGateway(nextValidID: 100)
+    let client = try await connected(gateway)
+    let (_, updates) = await client.orders()
+    let id = try await client.placeOrder(aapl, buy)
+    let local = try await first(updates)   // before the gateway has answered anything
+    #expect(local.orderID == id && local.clientID == 7 && local.status == .pendingSubmit && local.order == buy)
+    #expect(local.log.map(\.status) == [.pendingSubmit] && local.log.first?.message == "")
+    #expect(await client.orders().snapshot == [local])
+    gateway.feed(Fixtures.openOrderFields(
+        orderID: id, permID: 555, clientID: 7, symbol: "AAPL", action: "BUY", quantity: "1", orderType: "LMT",
+        limitPrice: "1", auxPrice: unset, tif: "DAY", parentID: "0", outsideRTH: "0", orderRef: "",
+        status: "PreSubmitted"))
+    gateway.feed(submitted(id))
+    let acked = try await next(updates) { $0.status == .submitted }
+    #expect(acked.permID == 555 && acked.log.map(\.status) == [.pendingSubmit, .preSubmitted, .submitted])
+    #expect(await client.orders().snapshot.count == 1)
+}
+
+@Test func modifyLogsAndClearsRejectReason() async throws {
+    let gateway = FakeGateway(nextValidID: 100)
+    let client = try await connected(gateway)
+    let (_, updates) = await client.orders()
+    let events = await client.orderEvents()
+    let id = try await client.placeOrder(aapl, buy)
+    gateway.feed(submitted(id))
+    gateway.feed(ibError("\(id)", "110", "The price does not conform to the minimum price variation"))
+    let rejected = try await next(updates) { $0.rejectReason != nil }
+    #expect(rejected.status == .submitted && rejected.log.last?.errorCode == 110)
+    var changed = buy
+    changed.limitPrice = d("2")
+    try await client.modifyOrder(id, aapl, changed)
+    let m = try await next(updates) { $0.log.last?.message == "Modify" }
+    #expect(m.rejectReason == nil && m.status == .submitted && m.order.limitPrice == d("2"))
+    #expect(try await first(events) == .modified(m))
+    gateway.feed(submitted(id))
+    let a = try await next(updates) { $0.log.last?.message == "Modified" }
+    #expect(a.rejectReason == nil && a.log.map(\.message) == ["", "", "The price does not conform to the minimum price variation", "Modify", "Modified"])
+}
+
+@Test func cancelBeforeAcknowledgementEndsCancelled() async throws {
+    let gateway = FakeGateway(nextValidID: 100)
+    let client = try await connected(gateway)
+    let (_, updates) = await client.orders()
+    let events = await client.orderEvents()
+    let id = try await client.placeOrder(aapl, buy)
+    try await client.cancelOrder(id)
+    #expect(await client.orders().snapshot.first?.status == .pendingCancel)
+    #expect(snapshot(of: try await first(events)).status == .pendingCancel)
+    gateway.feed(ibError("\(id)", "202", "Order Canceled - reason:"))
+    let c = try await next(updates) { $0.status == .cancelled }
+    #expect(c.log.map(\.status) == [.pendingSubmit, .pendingCancel, .cancelled])
+
+    var held = buy
+    held.transmit = false
+    let other = try await client.placeOrder(aapl, held)
+    try await client.cancelOrder(other)
+    let e = try await next(events) { snapshot(of: $0).orderID == other }
+    guard case .cancelRequested(let s) = e else { Issue.record("not a cancel: \(e)"); return }
+    #expect(s.status == .cancelled && s.log.map(\.status) == [.pendingSubmit, .cancelled])
+}
+
+@Test func warningSetsValidationError() async throws {
+    let gateway = FakeGateway(nextValidID: 100)
+    let client = try await connected(gateway)
+    let (_, updates) = await client.orders()
+    let id = try await client.placeOrder(aapl, buy)
+    gateway.feed(ibError("\(id)", "321", "Error validating request"))
+    let s = try await next(updates) { $0.status == .validationError }
+    #expect(s.rejectReason == "Error validating request" && s.isActive && s.isWorking)
+    #expect(s.log.last?.message == "Error validating request" && s.log.last?.errorCode == 321)
+}
+
+@Test func fillsJoinTheirOrder() async throws {
+    let gateway = FakeGateway(nextValidID: 100)
+    let client = try await connected(gateway)
+    let (_, updates) = await client.orders()
+    let id = try await client.placeOrder(aapl, buy)
+    let execID = "0000e0d5.6556b5f0.01.01"
+    gateway.feed(["11", "-1", "\(id)", "265598", "AAPL", "STK", "", "0", "", "", "SMART", "USD", "AAPL", "NMS",
+                  execID, "20251109 10:00:00", "DU1", "ISLAND", "BOT", "100", "187.25", "918273001", "7", "0",
+                  "100", "187.25", "", "", "", "", "1", "0"])
+    gateway.feed(["59", "1", execID, "1.5", "USD", unset, unset, ""])
+    let s = try await next(updates) { !$0.fills.isEmpty }
+    #expect(s.fills.count == 1 && s.fills.first?.execution.execID == execID)
+    #expect(s.log.last?.message == "Fill 100@187.25")
+}
+
+@Test func bracketPublishesThreeLocalSnapshots() async throws {
+    let gateway = FakeGateway(nextValidID: 100)
+    let client = try await connected(gateway)
+    let (_, updates) = await client.orders()
+    let ids = try await client.placeBracket(aapl, Order.bracket(.buy, quantity: 100, limitPrice: 180,
+                                                                takeProfitPrice: 190, stopLossPrice: 175))
+    let got = try await within2s {
+        var all: [OrderSnapshot] = []
+        for await s in updates { all.append(s); if all.count == 3 { return all } }
+        throw TimedOut()
+    }
+    #expect(got.map(\.orderID) == [ids.parent, ids.takeProfit, ids.stopLoss])
+    #expect(got.allSatisfy { $0.status == .pendingSubmit && $0.log.count == 1 })
+    #expect(got.map(\.order.transmit) == [false, false, true])
+    #expect(got.map(\.order.parentID) == [0, ids.parent, ids.parent])
 }

@@ -57,6 +57,8 @@ Still open:
 - Conditions, algos, PEG and combo orders are checked on hand-built frames only: no live order has carried one.
 - What-if is unchecked live: `whatIfOrder` and the margin / commission decoding are tested on hand-built frames
   only, so the margin text format of a real answer (and whether IB echoes the order first) is unconfirmed.
+- The local `.validationError` is checked on hand-built frames only: no live order has drawn a warning (105, 321,
+  329, 434, 492), so IB's status messages after one are unrecorded.
 - A filled order replayed by completedOrders (the connect-time sync) has `order.totalQuantity` 0: its size is only
   in `filled`. The tracker keeps the 0 and clamps `remaining` at 0; a consumer reads the size from `filled`.
 - execDetails `time` comes in two formats: `20261110-11:56:31` (UTC, no zone) on a live fill and
@@ -101,7 +103,6 @@ These need the owner's accounts:
 - `frameAfterDisconnectIsIgnored` cannot catch a removed generation guard, because FakeGateway closes its stream;
   it needs a mode that stays open after close. The same goes for the generation guard in `IBClient`'s request-stream
   `stopped(...)`, which stops a late consumer-stop from an old connection cancelling a reused reqId.
-- `rejectReason` is never cleared once set.
 - A fatal error on one of the sync's reqAccountUpdatesMulti ids after `connect` returned goes only to `messages()`:
   `accountValues()` then silently stops updating for that account until the next connect.
 - `Frame.encode` does not enforce `Frame.maxLength`; an oversized header after a good frame is seen one `append`

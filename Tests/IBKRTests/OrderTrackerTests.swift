@@ -55,7 +55,7 @@ private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT"
 
 @Test func statusAfterSendPublishesFromTheSentOrder() {
     var t = OrderTracker(clientID: 1)
-    t.sent(orderID: 12, clientID: 1, contract: aapl, order: sentOrder)
+    _ = t.placed(orderID: 12, clientID: 1, contract: aapl, order: sentOrder)
     let r = t.apply(status(.preSubmitted))
     #expect(r.count == 1 && r[0].contract == aapl && r[0].order == sentOrder && r[0].status == .preSubmitted)
 }
@@ -70,7 +70,7 @@ private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT"
 
 @Test func rejectionBeforeOpenOrder() {
     var t = OrderTracker(clientID: 1)
-    t.sent(orderID: 12, clientID: 1, contract: aapl, order: sentOrder)
+    _ = t.placed(orderID: 12, clientID: 1, contract: aapl, order: sentOrder)
     let r = t.apply(error(12, 201, "Order rejected"))
     #expect(r.count == 1 && r[0].status == .inactive && r[0].rejectReason == "Order rejected")
 }
@@ -176,9 +176,10 @@ private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT"
 
 @Test func warningKeepsAPendingOrderLive() {
     var t = OrderTracker(clientID: 1)
-    t.sent(orderID: 12, clientID: 1, contract: aapl, order: sentOrder)
+    _ = t.placed(orderID: 12, clientID: 1, contract: aapl, order: sentOrder)
     let r = t.apply(error(12, 321, "Error validating request"))
-    #expect(r.count == 1 && r[0].status == .apiPending && r[0].rejectReason == "Error validating request")
+    #expect(r.count == 1 && r[0].status == .validationError && r[0].rejectReason == "Error validating request")
+    #expect(r.first?.isActive == true && r.first?.isWorking == true)
 }
 
 @Test func whatIfOpenOrderLeavesTheTrackerAlone() {
@@ -256,11 +257,11 @@ private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT"
 
 @Test func advancedRejectIsKept() {
     var t = OrderTracker(clientID: 1)
-    t.sent(orderID: 12, clientID: 1, contract: aapl, order: sentOrder)
+    _ = t.placed(orderID: 12, clientID: 1, contract: aapl, order: sentOrder)
     let r = t.apply(error(12, 201, "Order rejected", json: "{\"r\":1}"))
     #expect(r.count == 1 && r[0].advancedOrderRejectJSON == "{\"r\":1}")
     var u = OrderTracker(clientID: 1)
-    u.sent(orderID: 12, clientID: 1, contract: aapl, order: sentOrder)
+    _ = u.placed(orderID: 12, clientID: 1, contract: aapl, order: sentOrder)
     let n = u.apply(error(12, 201, "Order rejected"))
     #expect(n.count == 1 && n[0].advancedOrderRejectJSON == nil)
 }
@@ -329,4 +330,97 @@ private let sentOrder = Order(action: .buy, quantity: d("100"), orderType: "LMT"
     #expect(OrderState(initMarginChange: d("999.5")).formatted(digits: 0)["initMarginChange"] == "1,000")
     let doubled = s.map { $0 * 2 }
     #expect(doubled == OrderState(initMarginChange: d("600000.422"), maintMarginAfter: d("-2469"), commission: d("0")))
+}
+
+private let t0 = Date(timeIntervalSince1970: 1_000), t1 = Date(timeIntervalSince1970: 1_001)
+private let t2 = Date(timeIntervalSince1970: 1_002), t3 = Date(timeIntervalSince1970: 1_003)
+
+@Test func placedPublishesPendingSubmitWithALogEntry() {
+    var t = OrderTracker(clientID: 1)
+    let r = t.placed(orderID: 12, clientID: 1, contract: aapl, order: sentOrder, at: t0)
+    #expect(r == [OrderSnapshot(orderID: 12, clientID: 1, permID: 0, contract: aapl, order: sentOrder,
+                                status: .pendingSubmit, filled: 0, remaining: d("100"), whyHeld: "",
+                                log: [TradeLogEntry(time: t0, status: .pendingSubmit)])])
+    #expect(t.orders == r)
+    let s = t.apply(status(.preSubmitted), at: t1)
+    #expect(s.first?.log == [TradeLogEntry(time: t0, status: .pendingSubmit), TradeLogEntry(time: t1, status: .preSubmitted)])
+    #expect(t.apply(status(.preSubmitted), at: t2).isEmpty, "a repeat appends nothing")
+}
+
+@Test func modifyLogsAndAnUnchangedSubmittedLogsModified() throws {
+    var t = OrderTracker(clientID: 1)
+    _ = t.placed(orderID: 12, clientID: 1, contract: aapl, order: sentOrder, at: t0)
+    _ = t.apply(status(.submitted), at: t0)
+    _ = t.apply(error(12, 110, "The price does not conform"), at: t1)
+    #expect(t.orders[0].status == .submitted && t.orders[0].rejectReason == "The price does not conform")
+    var changed = sentOrder
+    changed.limitPrice = d("187.30")
+    let m = try #require(t.placed(orderID: 12, clientID: 1, contract: aapl, order: changed, at: t2).first)
+    #expect(m.order.limitPrice == d("187.30") && m.rejectReason == nil && m.status == .submitted)
+    #expect(m.log.last == TradeLogEntry(time: t2, status: .submitted, message: "Modify"))
+    #expect(m.log.map(\.errorCode).contains(110), "the rejection stays in the log")
+    let a = try #require(t.apply(status(.submitted), at: t3).first)
+    #expect(a.log.last == TradeLogEntry(time: t3, status: .submitted, message: "Modified"))
+    #expect(t.apply(status(.submitted), at: t3).isEmpty)
+}
+
+@Test func modifyOfAFinalOrderChangesNothing() {
+    var t = OrderTracker(clientID: 1)
+    _ = t.placed(orderID: 12, clientID: 1, contract: aapl, order: sentOrder, at: t0)
+    _ = t.apply(error(12, 202, "Order Canceled - reason:"), at: t1)
+    #expect(t.placed(orderID: 12, clientID: 1, contract: aapl, order: sentOrder, at: t2).isEmpty)
+    #expect(t.orders[0].status == .cancelled)
+}
+
+@Test func cancelRequestedFollowsIbAsync() {
+    var t = OrderTracker(clientID: 1)
+    _ = t.placed(orderID: 12, clientID: 1, contract: aapl, order: sentOrder, at: t0)
+    #expect(t.cancelRequested(orderID: 12, at: t1).first?.status == .pendingCancel)
+    var held = sentOrder
+    held.transmit = false
+    _ = t.placed(orderID: 13, clientID: 1, contract: aapl, order: held, at: t0)
+    let c = t.cancelRequested(orderID: 13, at: t1)
+    #expect(c.first?.status == .cancelled && c.first?.log.last == TradeLogEntry(time: t1, status: .cancelled))
+    #expect(t.cancelRequested(orderID: 13, at: t2).isEmpty, "final")
+    #expect(t.cancelRequested(orderID: 99, at: t2).isEmpty, "unknown")
+    let e = t.apply(error(12, 202, "Order Canceled - reason:"), at: t2)
+    #expect(e.first?.log.map(\.status) == [.pendingSubmit, .pendingCancel, .cancelled])
+    #expect(e.first?.log.last == TradeLogEntry(time: t2, status: .cancelled, message: "Order Canceled - reason:", errorCode: 202))
+}
+
+@Test func fatalErrorBeforeAcknowledgementIsLoggedWithItsCode() {
+    var t = OrderTracker(clientID: 1)
+    _ = t.placed(orderID: 12, clientID: 1, contract: aapl, order: sentOrder, at: t0)
+    let r = t.apply(error(12, 201, "Order rejected"), at: t1)
+    #expect(r.first?.status == .inactive)
+    #expect(r.first?.log.last == TradeLogEntry(time: t1, status: .inactive, message: "Order rejected", errorCode: 201))
+}
+
+@Test func openOrderLogsTheStatusItChanges() {
+    var t = OrderTracker(clientID: 1)
+    #expect(t.apply(open(), at: t0).first?.log == [], "a new order from openOrder starts with no log, as ib_async")
+    _ = t.placed(orderID: 14, clientID: 1, contract: aapl, order: sentOrder, at: t0)
+    let r = t.apply(open(14, permID: 918273002), at: t1)
+    #expect(r.first?.log == [TradeLogEntry(time: t0, status: .pendingSubmit), TradeLogEntry(time: t1, status: .submitted)])
+}
+
+private func fill(_ execID: String, orderID: Int = 12, permID: Int = 918273001, shares: String = "100") -> Fill {
+    let e = Execution(execID: execID, time: "20261109 10:00:00", account: "DU1", exchange: "ISLAND", side: "BOT",
+                      shares: d(shares), price: d("187.25"), permID: permID, clientID: 1, orderID: orderID,
+                      liquidation: 0, cumulativeQuantity: d(shares), averagePrice: d("187.25"), orderRef: "",
+                      lastLiquidity: 1, pendingPriceRevision: false)
+    return Fill(contract: aapl, execution: e, commission: CommissionReport(execID: execID, commission: d("1"), currency: "USD"))
+}
+
+@Test func fillsJoinByPermIDAndCorrectionsReplace() throws {
+    var t = OrderTracker(clientID: 1)
+    _ = t.placed(orderID: 12, clientID: 1, contract: aapl, order: sentOrder, at: t0)
+    let a = t.add(fill("e.01.01", permID: 0), at: t1)
+    #expect(a.first?.log.last == TradeLogEntry(time: t1, status: .pendingSubmit, message: "Fill 100@187.25"))
+    #expect(t.add(fill("e.01.01", permID: 0), at: t2).isEmpty, "the same fill again")
+    let c = try #require(t.add(fill("e.01.02", permID: 0, shares: "90"), at: t2).first)
+    #expect(c.fills.map(\.execution.execID) == ["e.01.02"] && c.log.last?.message == "Fill 90@187.25")
+    _ = t.apply(open(), at: t3)   // indexes permID 918273001
+    #expect(t.add(fill("f.01.01", orderID: 0), at: t3).first?.fills.count == 2, "found by permID")
+    #expect(t.add(fill("g.01.01", orderID: 77, permID: 5), at: t3).isEmpty, "unknown order")
 }

@@ -80,6 +80,11 @@ import Testing
     #expect(OrderSnapshot(
         orderID: 5, clientID: 4, permID: 3, contract: contract, order: order, status: .submitted,
         filled: 0, remaining: 1, whyHeld: "").rejectReason == nil)
+    let entry = TradeLogEntry(time: Date(timeIntervalSince1970: 0), status: .pendingSubmit)
+    #expect(entry.message == "" && entry.errorCode == nil)
+    let snapshot = OrderSnapshot(orderID: 5, clientID: 4, permID: 3, contract: contract, order: order, status: .submitted,
+                                 filled: 0, remaining: 1, whyHeld: "", log: [entry])
+    #expect(snapshot.fills.isEmpty && OrderEvent.modified(snapshot) != .cancelRequested(snapshot))
     #expect(ServerLogLevel(rawValue: 5) == .detail)
     #expect(ExerciseAction(rawValue: 2) == .lapse)
     #expect(ReconnectPolicy().maxAttempts == nil)

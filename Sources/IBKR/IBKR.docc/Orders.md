@@ -25,6 +25,11 @@ try await client.cancelOrder(id)                 // cancelOrder(id, manualCancel
 resends an order under its id, ``IBClient/cancelOrder(_:manualCancelOrderTime:)`` cancels one and
 ``IBClient/cancelAllOrders()`` cancels every open order. The status of an order is an ``OrderStatus``.
 
+As in `ib_async`, the client's own calls publish at once: `placeOrder` a local `.pendingSubmit` snapshot,
+`modifyOrder` the re-sent order and `cancelOrder` a `.pendingCancel` one. ``OrderSnapshot/log`` keeps each order's
+history (``TradeLogEntry``) and ``OrderSnapshot/fills`` its fills; ``IBClient/orderEvents()`` reports this client's
+modifications and cancel requests as ``OrderEvent`` values.
+
 Fills arrive through ``IBClient/executions()``; a fill is published once its commission is in:
 
 ```swift
@@ -78,7 +83,7 @@ try await client.exerciseOptions(option, action: .exercise, quantity: 1, account
 ## How IB's errors reach an order
 
 IB sends informational notices and real errors through the same message. Notices never fail anything. Warnings end
-the request they name but do not reject an order that has not been acknowledged yet; the warning's text is recorded
-as the order's `rejectReason`. Error 202 confirms a cancel, and when IB cancelled the order itself (its price cap),
+the request they name; on an order that is not final they set ``OrderStatus/validationError`` (the order lives on)
+and record their text as the order's `rejectReason`, which a modify clears. Error 202 confirms a cancel, and when IB cancelled the order itself (its price cap),
 the text after `reason:` becomes the `rejectReason`. Every other error is fatal to the request it belongs to. All of
 them are still visible on ``IBClient/messages()``.

@@ -25,9 +25,9 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `updateEvent` | `messages()` | present | one element per decoded message, where ib_async fires once per network packet |
 | `pendingTickersEvent` | — | MISSING | snapshot+stream across every open ticker subscription: `pendingTickers() -> AsyncStream<[Ticker]>`; each `tickers(_:…)` stream only yields its own |
 | `barUpdateEvent` | — | MISSING | request stream across every live bar subscription, `(bars, hasNewBar)`: `barUpdates()`; needs the keepUpToDate fold (`BarDataList.updateEvent`) |
-| `newOrderEvent` | `orders()` updates | present | the first `orders()` update of an id this client placed (ib.py:812 emits only from `placeOrder`; `orders()` fires on every change, from any client); exact once the `placeOrder` local `PendingSubmit` row lands |
-| `orderModifyEvent` | — | MISSING | `OrderEvent.modified` on an order-event stream `orderEvents()`; Swift cannot tell a modification from any other status change |
-| `cancelOrderEvent` | — | MISSING | `OrderEvent.cancelRequested` on `orderEvents()`, with the local `PendingCancel`/`Cancelled` of `cancelOrder` |
+| `newOrderEvent` | `orders()` updates | present | the first `orders()` update of an id this client placed: the local `.pendingSubmit` snapshot `placeOrder` publishes at once (ib.py:812); `orders()` also fires on every later change, from any client |
+| `orderModifyEvent` | `orderEvents()` → `OrderEvent.modified` | added | at `modifyOrder` of a known order that is not final; the snapshot's log ends `Modify` |
+| `cancelOrderEvent` | `orderEvents()` → `OrderEvent.cancelRequested` | added | at `cancelOrder` of a known order that is not final, with the local `.pendingCancel` / `.cancelled` |
 | `openOrderEvent` | `orders()` updates; `messages()` → `.openOrder` | present | |
 | `orderStatusEvent` | `orders()` updates; `messages()` → `.orderStatus` | present | |
 | `execDetailsEvent` | `executions()` updates; `messages()` → `.execDetails` | present | a `Fill` is published once its commission is in; join to the order by `execution.permID` |
@@ -101,9 +101,9 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `whatIfOrder` / `whatIfOrderAsync` | `whatIfOrder(_:_:)` | present | |
 | `placeOrder` (new) | `placeOrder(_:_:)` | present | returns the id; the live `Trade` is `orders()` |
 | `placeOrder` (existing) | `modifyOrder(_:_:_:)` | present | |
-| `placeOrder`: local `PendingSubmit` trade and log | — | MISSING | behaviour: `orders()` publishes a local `.pendingSubmit` snapshot with a `log` entry at `placeOrder`, a `Modify` log entry at `modifyOrder` (ib.py:790); reverses the DECISIONS «first snapshot comes from IB» row |
+| `placeOrder`: local `PendingSubmit` trade and log | `placeOrder(_:_:)`, `placeBracket(_:_:)`, `modifyOrder(_:_:_:)` → `orders()` | added | behaviour: a local `.pendingSubmit` snapshot with one `log` entry at placement; a modify of a known unfinished order replaces order and contract, clears `rejectReason` and logs `Modify`, and the next unchanged `Submitted` logs `Modified` (ib.py:790, wrapper.py:772); a modify of a final order changes nothing locally where `ib_async` asserts |
 | `cancelOrder` | `cancelOrder(_:manualCancelOrderTime:)` | present | |
-| `cancelOrder`: local `PendingCancel` / `Cancelled` | — | MISSING | behaviour: `orders()` publishes a local `.pendingCancel` (or `.cancelled` for an order IB never acknowledged or an `Inactive` one) with a `log` entry at the call (ib.py:830) |
+| `cancelOrder`: local `PendingCancel` / `Cancelled` | `cancelOrder(_:manualCancelOrderTime:)` → `orders()` | added | behaviour: a local `.pendingCancel`, or `.cancelled` for a `.pendingSubmit` order with `transmit` off, logged at the call (ib.py:830); an unknown or final order changes nothing |
 | `reqGlobalCancel` | `cancelAllOrders()` | present | |
 | `reqCurrentTime` / `reqCurrentTimeAsync` | `currentTime()` | present | |
 | `reqAccountUpdates` / `reqAccountUpdatesAsync` | `portfolio()`, `accountValues()` (subscribed at connect) | present | choosing the account is `ConnectOptions.account` |
@@ -297,7 +297,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `TickByTickBidAsk` | `TickByTick.bidAsk` | present | with `bidPastLow`, `askPastHigh` |
 | `TickByTickMidPoint` | `TickByTick.midPoint` | present | |
 | `TickData` | `TickData` | added | `time`, `field` (IB's raw tick type), `price`, `size`, in `Ticker.ticks`; the raw ticks stay `Tick` on `marketData` |
-| `TradeLogEntry` | — | MISSING | model (time, status, message, errorCode) for `Trade.log` |
+| `TradeLogEntry` | `TradeLogEntry` | added | `time`, `status`, `message`, `errorCode` (`nil` where ib_async has 0); an error entry's message is IB's text, not ib_async's `Warning 321, reqId 5: …` |
 | `WshEventData` | `WshEventData` | present | |
 | `EfpData` | `EFPData` | present | |
 | `DynamicObject` | — | n/a | Python dynamic-attribute base class; `FlexRecord` and `FundamentalRatios` take its place |
@@ -338,7 +338,7 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `OrderStatus.total` | `OrderSnapshot.total` | added | model helper: filled + remaining |
 | `PendingSubmit`, `PendingCancel`, `PreSubmitted`, `Submitted`, `ApiPending`, `ApiCancelled`, `Cancelled`, `Filled`, `Inactive` | `OrderStatus.pendingSubmit` … `.inactive` | present | |
 | `OrderStatus.ApiUpdate` | `OrderStatus.apiUpdate` | added | |
-| `OrderStatus.ValidationError` | — | MISSING | `OrderStatus.validationError` (active, working), set locally with a `log` entry on a warning (105/321/329/434/492) for a live order (wrapper.py:1634); `rejectReason` is still recorded |
+| `OrderStatus.ValidationError` | `OrderStatus.validationError` | added | active and working; set locally with a `log` entry (text and code) on a warning for an order that is not final, `rejectReason` still recorded (wrapper.py:1634). The warnings are the table's 105/321/329/434/492 (R4, P18); ib_async also counts 110 (unless PendingSubmit), 165, 399, 404, 10167 and 2100-2199, so e.g. a 399 on a live order leaves the status here where ib_async sets ValidationError |
 | `OrderStatus.DoneStates` | `OrderStatus.isFinal` | present | |
 | `OrderStatus.ActiveStates` | `OrderStatus.isActive` | added | model helper: pending submit, API pending, pre-submitted, submitted, validation error, API update |
 | `OrderStatus.WaitingStates` | `OrderStatus.isWaiting` | added | model helper: pending submit, API pending, pre-submitted |
@@ -351,15 +351,15 @@ connect), **model helper** (a computed property or method on a model), **factory
 | `Trade` | `OrderSnapshot` | present | |
 | `Trade.contract`, `order`, `orderStatus` | `OrderSnapshot.contract`, `.order`, `.status` … `.whyHeld` | present | |
 | `Trade.orderStatus.mktCapPrice` | `OrderSnapshot.marketCapPrice` | added | field, merged from `OrderStatusMessage.marketCapPrice` |
-| `Trade.fills` | — | MISSING | field `OrderSnapshot.fills: [Fill]` |
-| `Trade.log` | — | MISSING | field `OrderSnapshot.log: [TradeLogEntry]` |
+| `Trade.fills` | `OrderSnapshot.fills` | added | field: each whole fill (after its commission) joined by permID, else client and order id; a correction replaces the fill it corrects; the sync's replay joins a fresh tracker's orders too |
+| `Trade.log` | `OrderSnapshot.log` | added | field: local states, status changes, `Modify`/`Modified`, `Fill <shares>@<price>` (Decimal's text), errors with their codes; an openOrder or completedOrder that changes a known order's status logs it too, since here openOrder sets the status |
 | `Trade.advancedError` | `OrderSnapshot.advancedOrderRejectJSON` | present | |
 | `Trade.statusEvent` | `orders()` updates for one `orderID` | present | |
-| `Trade.modifyEvent` | — | MISSING | see `orderModifyEvent` |
+| `Trade.modifyEvent` | `orderEvents()` → `OrderEvent.modified` for one `orderID` | added | see `orderModifyEvent` |
 | `Trade.fillEvent` | `executions()` updates for one `orderID` | present | after the commission |
 | `Trade.commissionReportEvent` | `executions()` updates for one `orderID` | present | |
 | `Trade.filledEvent` | `orders()` updates whose status turns `.filled` | present | |
-| `Trade.cancelEvent` | — | MISSING | see `cancelOrderEvent` |
+| `Trade.cancelEvent` | `orderEvents()` → `OrderEvent.cancelRequested` for one `orderID` | added | see `cancelOrderEvent` |
 | `Trade.cancelledEvent` | `orders()` updates whose status turns `.cancelled` | present | |
 | `Trade.events` | — | n/a | eventkit bookkeeping tuple |
 | `Trade.isWaiting`, `isWorking`, `isActive` | `OrderSnapshot.isWaiting`, `OrderSnapshot.isWorking`, `OrderSnapshot.isActive` | added | model helpers through the `OrderStatus` sets |
@@ -494,4 +494,4 @@ connect), **model helper** (a computed property or method on a model), **factory
 
 ## Totals
 
-Rows, where one row may carry several names: `present` 218 · `added` 79 · `MISSING` 86 · `n/a` 33.
+Rows, where one row may carry several names: `present` 218 · `added` 89 · `MISSING` 76 · `n/a` 33.

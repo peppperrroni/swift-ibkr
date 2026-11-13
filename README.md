@@ -48,7 +48,7 @@ The protocol is pinned to **server version 178**, which has one field layout and
 | Area | What you get | State |
 |---|---|---|
 | Connection | handshake, request throttle, `states()`, the raw `messages()` feed | ✅ live-checked |
-| Orders | place, modify, cancel, every placeOrder field (conditions, algos, pegged, combos, delta neutral), brackets, OCA, what-if, exercise, open and completed orders merged | ✅ plain orders live-checked; the rest on hand-built frames, not yet run live (see KNOWN-GAPS) |
+| Orders | place, modify, cancel, every placeOrder field (conditions, algos, pegged, combos, delta neutral), brackets, OCA, what-if, exercise, open and completed orders merged with ib_async's local states, trade log and fills | ✅ plain orders live-checked; the rest on hand-built frames, not yet run live (see KNOWN-GAPS) |
 | Executions | fills joined with commissions, corrections applied | ✅ live-checked |
 | Positions | synced at connect, whole sets on every change | ✅ live-checked |
 | Session | current time, accounts, next id, user info, log level, auto-bind, global cancel, opt-in reconnect | ✅ on the fake gateway; not yet run live (see KNOWN-GAPS) |
@@ -178,6 +178,16 @@ let call = Contract.option("AAPL", lastTradeDateOrContractMonth: "20261218", str
 let id = try await client.placeOrder(aapl, .limit(.buy, quantity: 1, price: 180))
 try await client.modifyOrder(id, aapl, .limit(.buy, quantity: 1, price: 181))
 try await client.cancelOrder(id)                 // cancelOrder(id, manualCancelOrderTime: "20261112-15:00:00") records a hand cancel
+```
+
+As in `ib_async`, the client's own calls publish at once: `placeOrder` a local `.pendingSubmit` snapshot,
+`modifyOrder` the re-sent order, and `cancelOrder` a `.pendingCancel` one (`.cancelled` for a `.pendingSubmit` order
+sent with `transmit` off). Each snapshot keeps its history in `log` (status changes, `Modify`, fills and IB's errors
+with their codes) and its fills in `fills`; `isActive`, `isWaiting` and `isWorking` are `ib_async`'s status sets.
+`orderEvents()` reports this client's modifications and cancel requests:
+
+```swift
+for await event in await client.orderEvents() { print(event) }   // .modified(snapshot), .cancelRequested(snapshot)
 ```
 
 `Order.market`, `.limit`, `.stop` and `.stopLimit` build the common orders. `placeBracket` places an entry with a
@@ -454,8 +464,9 @@ table, which is in [`docs/DECISIONS.md`](docs/DECISIONS.md):
 
 - **Notices** never fail anything. They include 2104 «market data farm connection is OK», 10167 «delayed data»
   and 399.
-- **Warnings** (105, 321, 329, 434, 492, the codes `ib_async` treats as warnings) end the request they name, but do
-  not reject an order that has not been acknowledged yet.
+- **Warnings** (105, 321, 329, 434, 492, the codes `ib_async` treats as warnings) end the request they name. On an
+  order that is not final they set `.validationError` (the order lives on) and record their text as `rejectReason`,
+  which `modifyOrder` clears.
 - **202** confirms a cancel. When IB cancelled the order itself (its price cap), the text after `reason:` becomes the
   order's `rejectReason`.
 - **Everything else** is fatal to the request it belongs to.
@@ -495,6 +506,8 @@ library leaves out.
 | `Trade` | `OrderSnapshot` |
 | `Trade.isActive`, `.isWaiting`, `.isWorking`, `OrderStatus.total`, `.mktCapPrice` | `OrderSnapshot.isActive`, `.isWaiting`, `.isWorking`, `.total`, `.marketCapPrice` (the sets also on `OrderStatus`) |
 | `OrderState.transform`, `.formatted` | `OrderState.map(_:)`, `.formatted(digits:)` |
+| `Trade.log`, `Trade.fills`, `TradeLogEntry` | `OrderSnapshot.log`, `.fills`, `TradeLogEntry` |
+| `newOrderEvent`, `orderModifyEvent`, `cancelOrderEvent`, `Trade.modifyEvent`, `Trade.cancelEvent` | `orders()` (the local `.pendingSubmit` first), `orderEvents()` (`.modified`, `.cancelRequested`) |
 | `fills`, `executions`, `reqExecutions` | `executions()` (synced at connect) |
 | `Fill` | `Fill` |
 | `MarketOrder`, `LimitOrder`, `StopOrder`, `StopLimitOrder` | `Order.market(_:quantity:)`, `.limit(_:quantity:price:)`, `.stop(_:quantity:stopPrice:)`, `.stopLimit(_:quantity:limitPrice:stopPrice:)` |

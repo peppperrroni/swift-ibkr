@@ -32,6 +32,9 @@ public struct ExecutionTracker: Sendable {
     /// First-seen order; a correction replaces its fill in place.
     public var fills: [Fill] { all }
 
+    /// The whole fill for `execID`, or the correction that replaced it; `nil` while a half is missing.
+    func fill(execID: String) -> Fill? { byExecID[execID].map { all[$0] } }
+
     /// Feeds one message; returns the fills it completes or corrects, else none.
     public mutating func apply(_ message: IBMessage) -> [Fill] {
         switch message {
@@ -56,7 +59,7 @@ public struct ExecutionTracker: Sendable {
     }
 
     /// A correction reuses the execId up to its last `.`-segment (`….01.02` corrects `….01.01`).
-    private static func correctionKey(_ id: String) -> String {
+    static func correctionKey(_ id: String) -> String {
         id.lastIndex(of: ".").map { String(id[..<$0]) } ?? id
     }
 

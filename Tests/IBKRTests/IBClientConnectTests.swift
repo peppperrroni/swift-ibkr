@@ -168,7 +168,11 @@ private let ready = ConnectionState.connected(serverVersion: 178, accounts: ["DU
                 "100", "187.25", "", "", "", "", "1", "0"]
     let commission = ["59", "1", id, "1.5", "USD", "1.7976931348623157E308", "1.7976931348623157E308", ""]
     let (one, two) = (FakeGateway(), FakeGateway())
-    two.onRequest = { $0[0] == "7" ? [exec, commission] : [] }   // the sync replays the fill
+    let order = Fixtures.openOrderFields(
+        orderID: 12, permID: 918273001, clientID: 7, symbol: "AAPL", action: "BUY", quantity: "100", orderType: "LMT",
+        limitPrice: "187.25", auxPrice: "1.7976931348623157E308", tif: "DAY", parentID: "0", outsideRTH: "0",
+        orderRef: "", status: "Submitted")
+    two.onRequest = { $0[0] == "7" ? [exec, commission] : $0[0] == "16" ? [order] : [] }   // the sync replays both
     let gateways = Gateways([one, two])
     let client = IBClient(connector: gateways.connector)
     try await connect(client)
@@ -187,6 +191,7 @@ private let ready = ConnectionState.connected(serverVersion: 178, accounts: ["DU
     got.cancel()
     #expect(await got.value == nil)
     #expect(await client.executions().snapshot.count == 1)
+    #expect(await client.orders().snapshot.first?.fills.count == 1, "the replayed fill still joins the fresh tracker's order")
 }
 
 @Test func fatalErrorOnSyncRequestFailsConnect() async throws {

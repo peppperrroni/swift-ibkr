@@ -18,6 +18,7 @@ public actor IBClient {
     private var stateSubscribers = Subscribers<ConnectionState>()
     private var messageSubscribers = Subscribers<IBMessage>()
     private var orderSubscribers = Subscribers<OrderSnapshot>()
+    private var orderEventSubscribers = Subscribers<OrderEvent>()
     private var fillSubscribers = Subscribers<Fill>()
     private var positionSubscribers = Subscribers<[Position]>()
     private var portfolioSubscribers = Subscribers<[PortfolioItem]>()
@@ -195,7 +196,8 @@ public actor IBClient {
         messageSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(message: id) } }
     }
 
-    /// Queues the order and returns its id at once; IB's answer arrives through `orders()`. Throws
+    /// Queues the order and returns its id at once, publishing a local `.pendingSubmit` snapshot on `orders()`
+    /// (`ib_async`'s new `Trade`); IB's answer arrives through `orders()` too. Throws
     /// `.notConnected` unless the state is `.connected`, and `.encoding` when the order does not encode or has
     /// `whatIf` set (use `whatIfOrder`).
     public func placeOrder(_ contract: Contract, _ order: Order) throws(IBClientError) -> Int {
@@ -223,12 +225,16 @@ public actor IBClient {
         }
         for (i, leg) in legs.enumerated() {
             try enqueue(frames[i])
-            orderTracker.sent(orderID: leg.0, clientID: clientID, contract: contract, order: leg.1)
+            for s in orderTracker.placed(orderID: leg.0, clientID: clientID, contract: contract, order: leg.1) {
+                orderSubscribers.yield(s)
+            }
         }
         return ids
     }
 
-    /// Re-sends the order under its id; IB treats that as a modification.
+    /// Re-sends the order under its id; IB treats that as a modification. A known order that is not final gets the
+    /// new order, loses its `rejectReason`, logs `"Modify"` and goes to `orders()` and, as `.modified`, to
+    /// `orderEvents()`; an unknown id is recorded as a new `.pendingSubmit` order.
     public func modifyOrder(_ orderID: Int, _ contract: Contract, _ order: Order) throws(IBClientError) {
         try requireConnected()
         try submit(orderID, contract, order)
@@ -248,9 +254,15 @@ public actor IBClient {
     }
 
     /// `manualCancelOrderTime` (yyyyMMdd-HH:mm:ss) is the time IB records for a cancel made by hand; "" for none.
+    /// A known order that is not final goes to `orders()` and, as `.cancelRequested`, to `orderEvents()` at once:
+    /// `.pendingCancel`, or `.cancelled` for a `.pendingSubmit` order sent with `transmit` off.
     public func cancelOrder(_ orderID: Int, manualCancelOrderTime: String = "") throws(IBClientError) {
         try requireConnected()
         try send(.cancelOrder(orderID: orderID, manualCancelTime: manualCancelOrderTime))
+        for s in orderTracker.cancelRequested(orderID: orderID) {
+            orderSubscribers.yield(s)
+            orderEventSubscribers.yield(.cancelRequested(s))
+        }
     }
 
     /// Exercises or lets lapse `quantity` contracts of an option; returns the request id. Refuses a `BAG`.
@@ -267,6 +279,12 @@ public actor IBClient {
     /// The orders known now, then every change from now on, as whole snapshots.
     public func orders() -> (snapshot: [OrderSnapshot], updates: AsyncStream<OrderSnapshot>) {
         (orderTracker.orders, orderSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(order: id) } })
+    }
+
+    /// A fresh stream on every call, of this client's modifications and cancel requests from now on
+    /// (`ib_async`'s `orderModifyEvent` and `cancelOrderEvent`).
+    public func orderEvents() -> AsyncStream<OrderEvent> {
+        orderEventSubscribers.stream { [weak self] id in Task { await self?.unsubscribe(orderEvent: id) } }
     }
 
     /// The fills known now, then every new or corrected fill from now on.
@@ -853,7 +871,10 @@ public actor IBClient {
     private func submit(_ id: Int, _ contract: Contract, _ order: Order) throws(IBClientError) {
         if order.whatIf { throw .encoding(.unsupported("whatIf")) }
         try send(.placeOrder(orderID: id, contract: contract, order: order))
-        orderTracker.sent(orderID: id, clientID: clientID, contract: contract, order: order)
+        for s in orderTracker.placed(orderID: id, clientID: clientID, contract: contract, order: order) {
+            orderSubscribers.yield(s)
+            if s.log.last?.message == "Modify" { orderEventSubscribers.yield(.modified(s)) }   // a new id logs ""
+        }
     }
 
     /// Encodes, frames and queues; throws before queuing when the request does not encode.
@@ -932,6 +953,16 @@ public actor IBClient {
         }
     }
 
+    /// The whole fill an execDetails or commissionReport names when the execution tracker already had it: the sync
+    /// replays the day's fills on every connect, and a fresh order tracker still joins them to its orders.
+    private func knownFill(_ message: IBMessage) -> [Fill] {
+        switch message {
+        case .execDetails(_, _, let e): executionTracker.fill(execID: e.execID).map { [$0] } ?? []
+        case .commissionReport(let r): executionTracker.fill(execID: r.execID).map { [$0] } ?? []
+        default: []
+        }
+    }
+
     /// Orders and requests share this one sequence (docs/DECISIONS.md).
     func nextRequestID() -> Int {
         let id = nextID ?? 0
@@ -992,7 +1023,11 @@ public actor IBClient {
         let message = IBDecoder.decode(body)
         messageSubscribers.yield(message)
         for snapshot in orderTracker.apply(message) { orderSubscribers.yield(snapshot) }
-        for fill in executionTracker.apply(message) { fillSubscribers.yield(fill) }
+        let fills = executionTracker.apply(message)
+        for fill in fills { fillSubscribers.yield(fill) }
+        for fill in fills.isEmpty ? knownFill(message) : fills {
+            for s in orderTracker.add(fill) { orderSubscribers.yield(s) }
+        }
         if let set = positionTracker.apply(message) { positionSubscribers.yield(set) }
         let foreign = if case .accountUpdateMulti(let id, _) = message { !accountSyncIDs.contains(id) } else { false }
         switch foreign ? nil : accountTracker.apply(message) {
@@ -1108,6 +1143,7 @@ public actor IBClient {
     private func unsubscribe(state id: Int) { stateSubscribers.remove(id) }
     private func unsubscribe(message id: Int) { messageSubscribers.remove(id) }
     private func unsubscribe(order id: Int) { orderSubscribers.remove(id) }
+    private func unsubscribe(orderEvent id: Int) { orderEventSubscribers.remove(id) }
     private func unsubscribe(fill id: Int) { fillSubscribers.remove(id) }
     private func unsubscribe(position id: Int) { positionSubscribers.remove(id) }
     private func unsubscribe(portfolio id: Int) { portfolioSubscribers.remove(id) }
