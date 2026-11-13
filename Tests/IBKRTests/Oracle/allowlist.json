@@ -1170,6 +1170,14 @@
  {
   "scope": "in 11",
   "field": "execution.evMultiplier",
+  "frames": "sim/reconnectMidStreamRecoversTheBook/26",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async reads 0 (parse, decoder.py:185-198 (an empty value takes the dataclass default 0))"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
   "frames": "sim/twoClientsSeeTheirOwnOrdersAndOneBook/19",
   "pair": ["", "0"],
   "cite": "DECISIONS: One shared unset set",
@@ -8747,6 +8755,14 @@
   "scope": "in 101",
   "field": "order.displaySize",
   "frames": "sim/reconnectMidStreamRecoversTheBook/16",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 15",
+  "note": "ib_async keeps the sentinel (decoder.py:1149-1359)"
+ },
+ {
+  "scope": "in 101",
+  "field": "order.displaySize",
+  "frames": "sim/reconnectMidStreamRecoversTheBook/23",
   "pair": ["0", ""],
   "cite": "protocol-178 Disagreements 15",
   "note": "ib_async keeps the sentinel (decoder.py:1149-1359)"

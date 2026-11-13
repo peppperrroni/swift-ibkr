@@ -285,7 +285,8 @@ final class SimulatedBroker: @unchecked Sendable {
             let out = replies(f, session: i), gateway = _gateways[i]
             _answers.append((f, out))
             guard let d = replyDelay, !["16", "99", "7", "61", "6"].contains(f[0]) else {
-                return out.forEach(gateway.feed)
+                if !gateway.isClosed { out.forEach(gateway.feed) }
+                return
             }
             Task {
                 try? await Task.sleep(for: d)

@@ -75,19 +75,26 @@ private func until(_ condition: @escaping @Sendable () -> Bool) async throws {
 }
 
 /// A drop with an order working and a quote stream open: the stream ends, the state goes disconnected → connecting →
-/// connected, and the sync brings back the order, the position and the fill booked during the outage, once.
+/// connected, and the sync brings back the order, the position and the fill booked during the outage; the part fill
+/// the client saw before the drop is not counted twice.
 @Test func reconnectMidStreamRecoversTheBook() async throws {
     let broker = SimulatedBroker()
     let client = try await connected(broker, clientID: 7, reconnect: ReconnectPolicy(delays: [.milliseconds(20)]))
     let (_, orders) = await client.orders()
     let id = try await client.placeOrder(aapl, limit(.buy, 100, "187.25"))
     _ = try await next(orders) { $0.orderID == id && $0.status == .submitted }
+    broker.fill(orderID: id, clientID: 7, shares: 40, price: d("187.2"))
+    _ = try await next(orders) { $0.orderID == id && $0.fills.count == 1 }
     let (_, quotes) = take(0, try await client.marketData(aapl))
     try await until { broker.openMarketData.count == 1 }
     let states = await client.states()
 
-    // booked while connects are refused, so the policy's 20 ms cannot let the client back in first
-    broker.drop { broker.fill(orderID: id, clientID: 7, shares: 100, price: d("187.25")) }
+    // booked while connects are refused, so the policy's 20 ms cannot let the client back in first; an outage longer
+    // than that only adds refused attempts, during which the client stays .connecting
+    broker.drop {
+        Thread.sleep(forTimeInterval: 0.1)
+        broker.fill(orderID: id, clientID: 7, shares: 60, price: d("187.25"))
+    }
     await #expect(throws: IBClientError.connectionClosed) { try await within2s { try await quotes.value } }
     let seen = try await within2s {
         var seen: [ConnectionState] = []
@@ -103,9 +110,9 @@ private func until(_ condition: @escaping @Sendable () -> Bool) async throws {
     let book = await client.orders().snapshot
     #expect(book.map(\.orderID) == [id] && book.map(\.permID) == [booked.permID])
     #expect(book.map(\.status) == [.filled] && book.map(\.filled) == [booked.filled])
-    #expect(book.first?.fills.count == 1)
+    #expect(book.first?.fills.map(\.execution.shares) == [40, 60])
     let fills = await client.executions().snapshot
-    #expect(fills.map(\.execution.shares) == [100] && fills.map(\.execution.permID) == [booked.permID])
+    #expect(fills.map(\.execution.shares) == [40, 60] && Set(fills.map(\.execution.permID)) == [booked.permID])
     let held = broker.position(account: "DU0000001", conID: 265598)
     let positions = await client.positions().snapshot
     #expect(positions.map(\.quantity) == [held.quantity] && positions.map(\.averageCost) == [held.averageCost])
@@ -191,6 +198,19 @@ private func until(_ condition: @escaping @Sendable () -> Bool) async throws {
     // a permission refusal still sends its cancel (DECISIONS: IB keeps that line open)
     let id = try #require(broker.answers.last { $0.request.first == "1" }?.request[2])
     try await until { broker.answers.contains { $0.request == ["2", "2", id] } }
+    // on a P&L request's reqId the error ends that stream; with reqId -1 it ends the id-less one-shot waiting (R16)
+    let invalid = "Error validating request.-'bN' : cause - Invalid account"
+    broker.failNext("92", code: 322, text: invalid)
+    let (_, pnl) = take(0, try await client.pnl(account: "DU0000002"))
+    await #expect(throws: IBClientError.ib(code: 322, text: invalid)) { try await within2s { try await pnl.value } }
+    let unknown = "No security definition has been found for the request"
+    broker.failNext("94", code: 200, text: unknown)
+    let (_, single) = take(0, try await client.pnlSingle(account: "DU0000001", conID: 1))
+    await #expect(throws: IBClientError.ib(code: 200, text: unknown)) { try await within2s { try await single.value } }
+    broker.failNext("49", code: 322, text: "Error processing request")
+    await #expect(throws: IBClientError.ib(code: 322, text: "Error processing request")) {
+        try await within2s { try await client.currentTime() }
+    }
 
     broker.delayReplies(.milliseconds(30))
     let asked = ContinuousClock.now
@@ -198,4 +218,13 @@ private func until(_ condition: @escaping @Sendable () -> Bool) async throws {
     #expect(ContinuousClock.now - asked >= .milliseconds(30))
     #expect(time == Date(timeIntervalSince1970: 1_794_321_000))
     expectInCorpus(broker.emitted, source: "sim/faultsSurfaceTyped")
+}
+
+/// A request answered after its gateway closed feeds nothing, so `emitted` holds only frames a client read.
+@Test func aClosedGatewayIsFedNoReply() {
+    let broker = SimulatedBroker()
+    let gateway = broker.newGateway()
+    gateway.close()
+    _ = gateway.onRequest?(["49", "1"])
+    #expect(broker.answers.count == 1 && broker.emitted.isEmpty)
 }
