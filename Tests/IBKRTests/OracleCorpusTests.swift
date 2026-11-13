@@ -30,16 +30,22 @@ import Testing
     #expect(file.handlers.count == 82)
 }
 
-/// C6: every message ib_async decodes at 178 has a frame it accepts, unless an `#uncovered` entry says why not.
+/// C6: every message ib_async decodes at 178 has a frame it accepts, unless an `#uncovered` entry says why not. A
+/// request body (`sweep/outgoing/…`) is not a frame of the incoming message that shares its id.
 @Test func everyHandlerHasACorpusEntry() throws {
     let file: OracleDecodeFile = try oracleFile("decode.json")
     let allow: [AllowEntry] = try oracleFile("allowlist.json")
-    let covered = Set(file.frames.filter { $0.error == nil }.compactMap { Int($0.fields[0]) })
+    let covered = Set(file.frames.filter { $0.error == nil && !$0.name.hasPrefix("sweep/outgoing/") }
+        .compactMap { Int($0.fields[0]) })
     let excused = Set(allow.filter { $0.field == "#uncovered" }.map(\.scope))
-    for id in file.handlers where !pendingDecodeIDs.contains(id) {
+    for scope in excused where !file.handlers.contains(where: { "in \($0)" == scope }) {
+        Issue.record("\(scope): an #uncovered entry names an id that has no handler")
+    }
+    for id in file.handlers {
         if !covered.contains(id) && !excused.contains("in \(id)") {
             Issue.record("in \(id) has no frame ib_async accepts: add one to Scripts/differential/variants.py")
         }
         if covered.contains(id) && excused.contains("in \(id)") { Issue.record("in \(id): unused #uncovered entry") }
     }
+    #expect(!file.frames.contains { $0.name.hasPrefix("sweep/outgoing/") }, "request bodies are not decode inputs (R14)")
 }

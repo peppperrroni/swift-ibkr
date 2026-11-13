@@ -169,12 +169,12 @@ func allowlistProblems(_ entries: [AllowEntry], decisions: String, protocol178: 
     return problems
 }
 
-/// The decode entries (`in …`, not `#uncovered`, not for a pending id) that accepted no mismatch.
-func unusedDecodeEntries(_ allow: [AllowEntry], used: Set<Int>, pending: Set<Int>) -> [AllowEntry] {
+/// The decode entries (`in …`, not `#uncovered`) that accepted no mismatch.
+func unusedDecodeEntries(_ allow: [AllowEntry], used: Set<Int>) -> [AllowEntry] {
     allow.indices.filter { i in
         let e = allow[i]
-        guard e.scope.hasPrefix("in "), e.field != "#uncovered", let id = Int(e.scope.dropFirst(3)) else { return false }
-        return !pending.contains(id) && !used.contains(i)
+        guard e.scope.hasPrefix("in "), e.field != "#uncovered" else { return false }
+        return !used.contains(i)
     }.map { allow[$0] }
 }
 

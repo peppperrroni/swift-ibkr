@@ -1062,5 +1062,190 @@ VARIANTS[93] = [
     ("extra-trailing-field", [*_rule(_RULE_ROWS[:1]), "extra"]),
 ]
 
+# Scanner, news, fundamentals, WSH, FA, display groups and the verify messages. scannerData (decoder.py:513-545, rows of
+# 16 fields, the count read as int); newsProviders (749-755); the rest go through `wrap` (143-174), which reads int and
+# float with `int(field or 0)`, bool with `bool(int(field or 0))`, and zips the types with the fields that are there.
+_INT_FIELDS |= {"msgId", "msgType", "faType", "articleType", "rank", "hasMore", "success", "groupId"}
+_TEXTS = {  # non-ASCII, backslash escapes and markup in a free-text slot (protocol-178 item 8)
+    "non-ascii": "Café ☃ 日本語 😀", "escape": "caf\\u00e9 \\n tab\\t", "xml": '<a href="x">&amp; &lt;b&gt;</a>',
+    "newline": "line one\nline two\r\nline three",
+}
+
+_BULLETIN = ["14", "1", "3", "1", "Exchange halted", "NYSE"]
+VARIANTS[14] = [
+    ("base", _BULLETIN),
+    ("trading-resumed", ["14", "1", "4", "3", "Exchange trades again", "ARCA"]),
+    ("empty-message", _at(_BULLETIN, i4="")), ("empty-exchange", _at(_BULLETIN, i5="")),
+    *[(f"message-{k}", _at(_BULLETIN, i4=v)) for k, v in _TEXTS.items()],
+    *_unset_all(_BULLETIN, {"msgId": 2, "msgType": 3}),
+    ("short-after-msg-id", _BULLETIN[:3]), ("short-after-type", _BULLETIN[:4]), ("short-after-message", _BULLETIN[:5]),
+    ("extra-trailing-field", [*_BULLETIN, "extra"]),
+]
+
+_FA = ["16", "1", "1", "<ListOfGroups>\n <Group/>\n</ListOfGroups>"]
+VARIANTS[16] = [
+    ("groups", _FA), ("profiles", _at(_FA, i2="2", i3="<ListOfAllocationProfiles/>")),
+    ("aliases", _at(_FA, i2="3", i3="<ListOfAccountAliases/>")),
+    ("type-zero", _at(_FA, i2="0")), ("type-four", _at(_FA, i2="4")), ("type-negative", _at(_FA, i2="-1")),
+    ("empty-xml", _at(_FA, i3="")),
+    *[(f"xml-{k}", _at(_FA, i3=v)) for k, v in _TEXTS.items()],
+    *_unset_all(_FA, {"faType": 2}),
+    ("short-after-type", _FA[:3]), ("short-after-version", _FA[:2]),
+    ("extra-trailing-field", [*_FA, "extra"]),
+]
+
+_SCAN_PARAMS = ["19", "1", "<ScanParameterResponse><ScanTypeList/></ScanParameterResponse>"]
+VARIANTS[19] = [
+    ("base", _SCAN_PARAMS), ("empty-xml", _at(_SCAN_PARAMS, i2="")),
+    *[(f"xml-{k}", _at(_SCAN_PARAMS, i2=v)) for k, v in _TEXTS.items()],
+    ("short", _SCAN_PARAMS[:2]), ("extra-trailing-field", [*_SCAN_PARAMS, "extra"]),
+]
+
+_SCAN_ROWS = [  # rank conId symbol secType lastTrade strike right exchange currency localSymbol marketName class dist bm proj legs
+    ["0", "265598", "AAPL", "STK", "", "0", "", "SMART", "USD", "AAPL.L", "NMS", "AAPLX", "1.5", "BM1", "PR1", "LEG1"],
+    ["1", "272093", "MSFT", "OPT", "20261218", "150.5", "C", "ARCA", "EUR", "MSFT  261218C00150500", "OPRA", "MSFT2",
+     "2.5", "BM2", "PR2", "LEG2"],
+    ["2", "76792991", "TSLA", "FUT", "202612", "3", "P", "CBOE", "GBP", "TSLAZ6", "GLOBEX", "TSLA3", "3.5", "BM3", "PR3",
+     "LEG3"],
+]
+_SCAN_SLOTS = {"rank": 0, "conId": 1, "symbol": 2, "secType": 3, "lastTradeDate": 4, "strike": 5, "right": 6,
+               "exchange": 7, "currency": 8, "localSymbol": 9, "marketName": 10, "tradingClass": 11, "distance": 12,
+               "benchmark": 13, "projection": 14, "legsStr": 15}
+
+
+def _scan(rows: list[list[str]], req: str = "7", n: str | None = None) -> list[str]:
+    return ["20", "3", req, str(len(rows)) if n is None else n, *[x for r in rows for x in r]]
+
+
+def _scan_at(slot: str, value: str, row: int = 0, rows: int = 1) -> list[str]:
+    f = _scan(_SCAN_ROWS[:rows])
+    f[4 + 16 * row + _SCAN_SLOTS[slot]] = value
+    return f
+
+
+VARIANTS[20] = [
+    *[(f"rows-{n}", _scan(_SCAN_ROWS[:n])) for n in (0, 1, 3)],
+    *[(f"empty-{k}", _scan_at(k, "")) for k in _SCAN_SLOTS if k not in ("rank", "conId", "strike")],
+    ("empty-text-on-row-3", _scan_at("legsStr", "", row=2, rows=3)),
+    *[(f"{k}-{t}", _scan_at(k, v)) for k in ("symbol", "localSymbol", "marketName", "distance", "legsStr")
+      for t, v in (("non-ascii", _TEXTS["non-ascii"]), ("escape", _TEXTS["escape"]))],
+    *_unset_all(_scan(_SCAN_ROWS[:1]), {"reqId": 2, "n": 3, "rank": 4, "conId": 5, "strike": 9}),
+    *[(f"row2-unset-{t}-{k}", _scan_at(k, v, row=1, rows=2)) for k in ("rank", "conId", "strike")
+      for t, v in _SENTINELS if not (t == "max-double" and k != "strike")],
+    ("negative-count", _scan(_SCAN_ROWS[:1], n="-1")),
+    ("count-exceeds-rows", _scan(_SCAN_ROWS[:1], n="2")), ("count-below-rows", _scan(_SCAN_ROWS[:2], n="1")),
+    ("short-after-rank", _scan(_SCAN_ROWS[:1])[:5]), ("short-in-row", _scan(_SCAN_ROWS[:1])[:-1]),
+    ("short-second-row", _scan(_SCAN_ROWS[:2])[:-3]), ("short-after-count", _scan(_SCAN_ROWS[:1])[:4]),
+    ("extra-trailing-field", [*_scan(_SCAN_ROWS[:1]), "extra"]),
+]
+
+_PROVIDERS = [["BRFG", "Briefing.com General Market Columns"], ["DJNL", "Dow Jones Newsletters"],
+              ["FLY", "The Fly"]]
+
+
+def _providers(rows: list[list[str]], n: str | None = None) -> list[str]:
+    return ["85", str(len(rows)) if n is None else n, *[x for r in rows for x in r]]
+
+
+VARIANTS[85] = [
+    *[(f"providers-{n}", _providers(_PROVIDERS[:n])) for n in (0, 1, 3)],
+    ("empty-code", _providers([["", "Briefing"]])), ("empty-name", _providers([["BRFG", ""]])),
+    ("second-empty-name", _providers([_PROVIDERS[0], ["DJNL", ""]])),
+    *[(f"name-{k}", _providers([["BRFG", v]])) for k, v in _TEXTS.items()],
+    *_unset_all(_providers(_PROVIDERS[:1]), {"n": 1}),
+    ("negative-count", _providers([], n="-1")), ("count-exceeds-rows", _providers(_PROVIDERS[:1], n="2")),
+    ("count-below-rows", _providers(_PROVIDERS[:2], n="1")),
+    ("short-in-row", _providers(_PROVIDERS[:1])[:-1]), ("short-second-row", _providers(_PROVIDERS[:2])[:-1]),
+    ("extra-trailing-field", [*_providers(_PROVIDERS[:1]), "extra"]),
+]
+
+_ARTICLE = ["83", "7", "0", "Apple beats estimates"]
+VARIANTS[83] = [
+    ("text-article", _ARTICLE), ("binary-article", _at(_ARTICLE, i2="1", i3="JVBERi0xLjQK")),
+    ("empty-text", _at(_ARTICLE, i3="")), ("type-other", _at(_ARTICLE, i2="2")),
+    *[(f"text-{k}", _at(_ARTICLE, i3=v)) for k, v in _TEXTS.items()],
+    *_unset_all(_ARTICLE, {"reqId": 1, "articleType": 2}),
+    ("short-after-type", _ARTICLE[:3]), ("short-after-req-id", _ARTICLE[:2]),
+    ("extra-trailing-field", [*_ARTICLE, "extra"]),
+]
+
+_HIST_NEWS = ["86", "7", "2026-11-10 14:30:00.0", "BRFG", "BRFG$12345", "Apple headline"]
+VARIANTS[86] = [
+    ("base", _HIST_NEWS),
+    ("second-article", _at(_HIST_NEWS, i1="8", i2="2026-11-10 14:20:00.0", i3="DJNL", i4="A2", i5="Second")),
+    ("empty-time", _at(_HIST_NEWS, i2="")), ("empty-provider", _at(_HIST_NEWS, i3="")),
+    ("empty-article-id", _at(_HIST_NEWS, i4="")), ("empty-headline", _at(_HIST_NEWS, i5="")),
+    *[(f"headline-{k}", _at(_HIST_NEWS, i5=v)) for k, v in _TEXTS.items()],
+    ("headline-bracketed-metadata", _at(_HIST_NEWS, i5="{A:800015:L:en:K:n/a:C:0.9}Apple beats")),
+    *_unset_all(_HIST_NEWS, {"reqId": 1}),
+    ("short-after-time", _HIST_NEWS[:3]), ("short-after-provider", _HIST_NEWS[:4]),
+    ("short-after-article-id", _HIST_NEWS[:5]),
+    ("extra-trailing-field", [*_HIST_NEWS, "extra"]),
+]
+
+_NEWS_END = ["87", "7", "0"]
+VARIANTS[87] = [
+    ("no-more", _NEWS_END), ("has-more", _at(_NEWS_END, i2="1")),
+    ("flag-two", _at(_NEWS_END, i2="2")), ("flag-negative", _at(_NEWS_END, i2="-1")),
+    ("flag-true-text", _at(_NEWS_END, i2="true")),
+    *_unset_all(_NEWS_END, {"reqId": 1, "hasMore": 2}),
+    ("short", _NEWS_END[:2]), ("extra-trailing-field", [*_NEWS_END, "extra"]),
+]
+
+_FUNDAMENTALS = ["51", "1", "7", "<ReportSnapshot><Ratios/></ReportSnapshot>"]
+VARIANTS[51] = [
+    ("base", _FUNDAMENTALS), ("empty-text", _at(_FUNDAMENTALS, i3="")),
+    *[(f"text-{k}", _at(_FUNDAMENTALS, i3=v)) for k, v in _TEXTS.items()],
+    *_unset_all(_FUNDAMENTALS, {"reqId": 2}),
+    ("short-after-req-id", _FUNDAMENTALS[:3]), ("extra-trailing-field", [*_FUNDAMENTALS, "extra"]),
+]
+
+for _id, _base in ((104, ["104", "7", '{"m":1}']), (105, ["105", "7", '{"events":[{"id":1}]}']),
+                   (103, ["103", "7", "FA aliases replaced"])):
+    VARIANTS[_id] = [
+        ("base", _base), ("empty-text", _at(_base, i2="")),
+        *[(f"text-{k}", _at(_base, i2=v))
+          for k, v in {**_TEXTS, "json-escape": '{"s":"caf\\u00e9 \\"q\\" \\\\"}'}.items()],
+        *_unset_all(_base, {"reqId": 1}),
+        ("short-after-req-id", _base[:2]), ("extra-trailing-field", [*_base, "extra"]),
+    ]
+
+_GROUP_LIST = ["67", "1", "7", "1|2|3"]
+_GROUP_UPDATED = ["68", "1", "8", "265598@SMART"]
+for _id, _base in ((67, _GROUP_LIST), (68, _GROUP_UPDATED)):
+    VARIANTS[_id] = [
+        ("base", _base), ("empty-text", _at(_base, i3="")), ("single", _at(_base, i3="1")),
+        *[(f"text-{k}", _at(_base, i3=v)) for k, v in _TEXTS.items()],
+        *_unset_all(_base, {"groupId": 2}),
+        ("short-after-group-id", _base[:3]), ("short-after-version", _base[:2]),
+        ("extra-trailing-field", [*_base, "extra"]),
+    ]
+
+_VERIFY = ["65", "1", "apiData"]
+VARIANTS[65] = [
+    ("base", _VERIFY), ("empty-data", _at(_VERIFY, i2="")),
+    *[(f"data-{k}", _at(_VERIFY, i2=v)) for k, v in _TEXTS.items()],
+    ("short", _VERIFY[:2]), ("extra-trailing-field", [*_VERIFY, "extra"]),
+]
+_VERIFY_DONE = ["66", "1", "1", "bad key"]
+_AUTH = ["69", "1", "apiData", "xyzChallenge"]
+_AUTH_DONE = ["70", "1", "0", "bad key"]
+for _id, _base in ((66, _VERIFY_DONE), (70, _AUTH_DONE)):
+    VARIANTS[_id] = [
+        ("success", _at(_base, i2="1")), ("failure", _at(_base, i2="0")), ("empty-error", _at(_base, i3="")),
+        ("flag-two", _at(_base, i2="2")), ("flag-negative", _at(_base, i2="-1")),
+        ("flag-true-text", _at(_base, i2="true")),
+        *[(f"error-{k}", _at(_base, i3=v)) for k, v in _TEXTS.items()],
+        *_unset_all(_base, {"success": 2}),
+        ("short-after-flag", _base[:3]), ("short-after-version", _base[:2]),
+        ("extra-trailing-field", [*_base, "extra"]),
+    ]
+VARIANTS[69] = [
+    ("base", _AUTH), ("empty-data", _at(_AUTH, i2="")), ("empty-challenge", _at(_AUTH, i3="")),
+    *[(f"challenge-{k}", _at(_AUTH, i3=v)) for k, v in _TEXTS.items()],
+    ("short-after-data", _AUTH[:3]), ("short-after-version", _AUTH[:2]), ("extra-trailing-field", [*_AUTH, "extra"]),
+]
+
+
 # A frame ib_async rejects (openOrder cut after its id): the oracle must record the exception, not «no calls».
 CANARY: tuple[str, list[str]] = ("gen/canary/short-openOrder", ["5", "1"])

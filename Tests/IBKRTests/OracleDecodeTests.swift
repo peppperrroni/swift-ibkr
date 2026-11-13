@@ -5,19 +5,10 @@ import Testing
 // Decode cross-check (C1): each decode.json frame through IBDecoder, mapped to ib_async's wrapper callbacks by the
 // per-family OracleDecode+<Family>.swift files, compared with what ib_async 2.1.0 called.
 
-/// Incoming ids no family maps yet; the comparison and the coverage test skip them. Each decode task removes its own.
-let pendingDecodeIDs: Set<Int> = [
-    14, 16, 19, 20,
-    51,
-    65, 66, 67, 68, 69, 70,
-    83, 85, 86, 87,
-    103, 104, 105,
-]
-
 /// The wrapper calls ib_async would make for what IBDecoder produced; `nil` when no family maps this message.
 func ibAsyncCalls(id: Int, _ m: IBMessage) -> [OracleCall]? {
     sessionCalls(id: id, m) ?? accountCalls(id: id, m) ?? orderCalls(id: id, m) ?? marketDataCalls(id: id, m)
-        ?? historyCalls(id: id, m) ?? referenceCalls(id: id, m)
+        ?? historyCalls(id: id, m) ?? referenceCalls(id: id, m) ?? researchCalls(id: id, m)
 }
 
 /// Review Focus 1: a frame ib_async rejects carries `error`, and swift-ibkr rejects it too.
@@ -73,7 +64,7 @@ func ibAsyncCalls(id: Int, _ m: IBMessage) -> [OracleCall]? {
     let same = [OracleCall(method: "nextValidId", args: ["reqId": "1"])]
     let unused = AllowEntry(scope: "in 9", field: "reqId", cite: "protocol-178 Disagreements 8")
     #expect(compare(same, same, name: "x", scope: "in 9", allow: [unused], used: &used).isEmpty)
-    #expect(unusedDecodeEntries([unused], used: used, pending: []).count == 1)
+    #expect(unusedDecodeEntries([unused], used: used).count == 1)
 }
 
 @Test func ibAsyncDecodesLikeSwiftIBKR() throws {
@@ -82,7 +73,6 @@ func ibAsyncCalls(id: Int, _ m: IBMessage) -> [OracleCall]? {
     var used: Set<Int> = []
     for frame in file.frames {
         guard let id = Int(frame.fields[0]) else { Issue.record("\(frame.name): no message id"); continue }
-        if pendingDecodeIDs.contains(id) { continue }
         let scope = "in \(id)"
         let ours = IBDecoder.decode(body(frame.fields))
         var mismatches: [Mismatch] = []
@@ -100,7 +90,7 @@ func ibAsyncCalls(id: Int, _ m: IBMessage) -> [OracleCall]? {
         }
         for m in unallowed(mismatches, allow: allow, used: &used) { Issue.record("\(m)") }
     }
-    for e in unusedDecodeEntries(allow, used: used, pending: pendingDecodeIDs) {
+    for e in unusedDecodeEntries(allow, used: used) {
         Issue.record("allowlist entry \(e.scope) \(e.field) (\(e.frames ?? "*")) accepts no mismatch: remove it")
     }
 }

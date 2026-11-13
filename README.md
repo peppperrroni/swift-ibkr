@@ -683,8 +683,8 @@ swift test
 
 The decoder is also cross-checked against `ib_async` 2.1.0 itself, run offline: `Tests/IBKRTests/Oracle/` holds
 the frames the tests use (the recordings, the fixtures, the fake gateway's replies and the frames the codec tests
-build) with the wrapper calls `ib_async` makes for each, and `swift test` compares `IBDecoder` with them. So far the
-session messages (error, nextValidId, managedAccounts, currentTime, userInfo) are compared; the rest follow. Python
+build) with the wrapper calls `ib_async` makes for each, and `swift test` compares `IBDecoder` with them. All 82
+messages `ib_async`'s decoder handles at protocol 178 are compared. Python
 is needed only to regenerate the answers (`python -I Scripts/differential/generate.py`, see
 [CONTRIBUTING](CONTRIBUTING.md#differential-oracle)); CI regenerates them and fails on any difference.
 

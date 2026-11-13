@@ -1937,6 +1937,12 @@ agrees type by type. The differences are in default values and value formatting 
    value decodes to 0 or false where `ib_async` keeps the sentinel, reads `MAX` as a set flag, or rejects the frame (an
    unset count leaves it with too few fields, or, for 75, swallows the rest of the frame as expirations)
    (decoder.py:255-424, 648-775).
+   The research messages (14, 16, 20, 51, 66-70, 83, 85-87, 103-105) do the same: the request id, a bulletin's id and
+   type, a news article's type, a scanner row's rank and `conId`, a display group's id, and the counts of scanner rows and
+   news providers are non-optional, so an empty or unset value (the long limits included) decodes to 0 where `ib_async`
+   keeps the sentinel or, for a plain `int()` read, rejects the frame (an unset count leaves it with too few fields, or
+   an empty one with nothing to read); an unset verify or news-end flag reads false where `ib_async` reads `MAX` as set
+   (decoder.py:143-174, 513-545, 749-755).
 14. **A frame whose length disagrees with the 178 layout or with its own counts.** swift-ibkr reports `.malformed(missingField …)` where
    `ib_async`'s `wrap` zips the fields with its types and lets the wrapper's defaults fill the missing trailing
    arguments (orderStatus without mktCapPrice, message 3), or, for message 75, slices whatever fields are there. Deliberate
@@ -1945,6 +1951,9 @@ agrees type by type. The differences are in default values and value formatting 
    swift-ibkr (as by `ib_async` for 10 and the `wrap` messages); in 75 `ib_async` reads every field after the
    expirations as a strike and ignores the strike count, so a count shorter than the strikes, or an extra trailing
    field, gives it more strikes (or a `float()` error) than swift-ibkr reads (decoder.py:662).
+   The verify, display-group and replaceFAEnd messages (65-70, 103) are the same: `wrap` passes the fields that are there
+   to a wrapper method that `ib_async`'s `Wrapper` does not have, so the oracle's recorder shows a call with fewer
+   arguments where swift-ibkr reports `.malformed` (decoder.py:143-174).
 15. **displaySize reads IB's unset value as 0.** The live gateway sends openOrder's and completedOrder's `displaySize`
    as `2147483647` for an order without one (openOrder field 47 in `Recorded/liveLimitOrderPlacesAndCancels.json`,
    completedOrder field 43 in `Recorded/liveAccountSummary.json`); swift-ibkr's `Order.displaySize` is a non-optional `Int`, so it
@@ -1964,6 +1973,11 @@ agrees type by type. The differences are in default values and value formatting 
    `done`, `2`) reads false, because swift-ibkr takes only `1` as true; `ib_async`'s `bool(int(x))` reads it true.
    The reference messages' counts (75's expirations, 77, 78, 79's samples and derivative types, 80, 82, 93) are the same:
    a negative one is `.malformed` where `ib_async` reads an empty range or slice (decoder.py:648-775).
+   So are the research messages: a negative count of scanner rows (20) or news providers (85) is `.malformed` where
+   `ib_async` reads an empty range, and an FA data type outside 1-3 (16; an empty or unset one reads 0) is `.malformed` where
+   `ib_async` passes the number through. A verify or news-end flag (66, 70, 87) other than 0/1 reads false (`2`, `-1`),
+   and the text `true` reads true, because swift-ibkr's flag reader takes `1` and `true`; `ib_async`'s `bool(int(x))` reads
+   the numbers as set and rejects the text (decoder.py:143-174, 513-545, 749-755).
 18. **historicalData's start and end texts are dropped.** `ib_async`'s decoder passes the two header strings of 17
    (startDate, endDate) to `historicalDataEnd(reqId, _start, _end)` (decoder.py:477-494); swift-ibkr reads and drops
    them, and the answer is the whole batch. `ib_async`'s own wrapper ignores them too (`historicalDataEnd` ends the
@@ -1974,4 +1988,5 @@ agrees type by type. The differences are in default values and value formatting 
    `Decimal` (`MAX` is `nil`). An `ib_async` defect; swift-ibkr is unchanged. Messages 10 (evMultiplier) and 18.
 
 No row in this document is unverified: every table was checked line by line against the
-verbatim source of both clients.
+verbatim source of both clients, and every incoming table is cross-checked by running `ib_async` 2.1.0's decoder,
+`Tests/IBKRTests/Oracle/`.

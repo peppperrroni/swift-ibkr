@@ -14846,5 +14846,861 @@
   "pair": ["decoded", "ValueError: could not convert string to float: 'extra'"],
   "cite": "protocol-178 Disagreements 14",
   "note": "ib_async takes every field after the expirations as a strike and ignores the strike count (decoder.py:662); swift-ibkr reads the count and ignores an extra field"
+ },
+ {
+  "scope": "in 14",
+  "field": "msgId",
+  "frames": "gen/14/unset-max-msgId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 14",
+  "field": "msgId",
+  "frames": "gen/14/unset-long-max-msgId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 14",
+  "field": "msgId",
+  "frames": "gen/14/unset-long-min-msgId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 14",
+  "field": "msgType",
+  "frames": "gen/14/unset-max-msgType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 14",
+  "field": "msgType",
+  "frames": "gen/14/unset-long-max-msgType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 14",
+  "field": "msgType",
+  "frames": "gen/14/unset-long-min-msgType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 16",
+  "field": "#error",
+  "frames": "gen/16/type-zero",
+  "pair": ["malformed: badNumber(\"0\", index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an FA data type outside 1-3 (an empty or unset one reads 0) is .malformed here; ib_async passes the number through (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 16",
+  "field": "#error",
+  "frames": "gen/16/type-four",
+  "pair": ["malformed: badNumber(\"4\", index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an FA data type outside 1-3 (an empty or unset one reads 0) is .malformed here; ib_async passes the number through (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 16",
+  "field": "#error",
+  "frames": "gen/16/type-negative",
+  "pair": ["malformed: badNumber(\"-1\", index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an FA data type outside 1-3 (an empty or unset one reads 0) is .malformed here; ib_async passes the number through (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 16",
+  "field": "#error",
+  "frames": "gen/16/unset-empty-faType",
+  "pair": ["malformed: badNumber(\"0\", index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an FA data type outside 1-3 (an empty or unset one reads 0) is .malformed here; ib_async passes the number through (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 16",
+  "field": "#error",
+  "frames": "gen/16/unset-max-faType",
+  "pair": ["malformed: badNumber(\"0\", index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an FA data type outside 1-3 (an empty or unset one reads 0) is .malformed here; ib_async passes the number through (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 16",
+  "field": "#error",
+  "frames": "gen/16/unset-long-max-faType",
+  "pair": ["malformed: badNumber(\"0\", index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an FA data type outside 1-3 (an empty or unset one reads 0) is .malformed here; ib_async passes the number through (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 16",
+  "field": "#error",
+  "frames": "gen/16/unset-long-min-faType",
+  "pair": ["malformed: badNumber(\"0\", index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "an FA data type outside 1-3 (an empty or unset one reads 0) is .malformed here; ib_async passes the number through (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 20",
+  "field": "#error",
+  "frames": "gen/20/unset-empty-reqId",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "reqId",
+  "frames": "gen/20/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "reqId",
+  "frames": "gen/20/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "reqId",
+  "frames": "gen/20/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "#error",
+  "frames": "gen/20/unset-empty-n",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "#error",
+  "frames": "gen/20/unset-max-n",
+  "pair": ["decoded", "ValueError: not enough values to unpack (expected at least 16, got 0)"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async reads the unset count as a number and runs out of fields (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "#error",
+  "frames": "gen/20/unset-long-max-n",
+  "pair": ["decoded", "ValueError: not enough values to unpack (expected at least 16, got 0)"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async reads the unset count as a number and runs out of fields (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "#error",
+  "frames": "gen/20/unset-empty-rank",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "rank",
+  "frames": "gen/20/unset-max-rank",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "rank",
+  "frames": "gen/20/unset-long-max-rank",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "rank",
+  "frames": "gen/20/unset-long-min-rank",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "contractDetails.contract.conId",
+  "frames": "gen/20/unset-max-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "contractDetails.contract.conId",
+  "frames": "gen/20/unset-long-max-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "contractDetails.contract.conId",
+  "frames": "gen/20/unset-long-min-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "contractDetails.contract.strike",
+  "frames": "gen/20/unset-empty-strike",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "contractDetails.contract.strike",
+  "frames": "gen/20/unset-max-strike",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "contractDetails.contract.strike",
+  "frames": "gen/20/unset-long-max-strike",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "contractDetails.contract.strike",
+  "frames": "gen/20/unset-long-min-strike",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "#error",
+  "frames": "gen/20/row2-unset-empty-rank",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "rank",
+  "frames": "gen/20/row2-unset-max-rank",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "rank",
+  "frames": "gen/20/row2-unset-long-max-rank",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "rank",
+  "frames": "gen/20/row2-unset-long-min-rank",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "contractDetails.contract.conId",
+  "frames": "gen/20/row2-unset-max-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "contractDetails.contract.conId",
+  "frames": "gen/20/row2-unset-long-max-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "contractDetails.contract.conId",
+  "frames": "gen/20/row2-unset-long-min-conId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "contractDetails.contract.strike",
+  "frames": "gen/20/row2-unset-empty-strike",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "contractDetails.contract.strike",
+  "frames": "gen/20/row2-unset-max-strike",
+  "pair": ["", "2147483647"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "contractDetails.contract.strike",
+  "frames": "gen/20/row2-unset-long-max-strike",
+  "pair": ["", "9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "contractDetails.contract.strike",
+  "frames": "gen/20/row2-unset-long-min-strike",
+  "pair": ["", "-9223372036854776000"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "IB's unset marker is nil here; ib_async reads it as a number (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 20",
+  "field": "#error",
+  "frames": "gen/20/negative-count",
+  "pair": ["malformed: badNumber(\"-1\", index: 3)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a negative count is .malformed here; ib_async reads an empty range (decoder.py:513-545)"
+ },
+ {
+  "scope": "in 51",
+  "field": "reqId",
+  "frames": "gen/51/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 51",
+  "field": "reqId",
+  "frames": "gen/51/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 51",
+  "field": "reqId",
+  "frames": "gen/51/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 65",
+  "field": "#error",
+  "frames": "gen/65/short",
+  "pair": ["malformed: missingField(index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "a frame cut short is .malformed here; ib_async's Wrapper lacks this method, so the recorder shows a call with the fields that are there (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 66",
+  "field": "_1",
+  "frames": "gen/66/flag-two",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a flag other than 0/1 reads false here (only 1 is true); ib_async's bool(int(x)) reads it true (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 66",
+  "field": "_1",
+  "frames": "gen/66/flag-negative",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a flag other than 0/1 reads false here (only 1 is true); ib_async's bool(int(x)) reads it true (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 66",
+  "field": "#error",
+  "frames": "gen/66/flag-true-text",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: 'true'"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "the text true reads true here (the shared flag reader); ib_async's int() rejects it (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 66",
+  "field": "_1",
+  "frames": "gen/66/unset-max-success",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional flag reads an unset value as false here; ib_async reads MAX as set (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 66",
+  "field": "_1",
+  "frames": "gen/66/unset-long-max-success",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional flag reads an unset value as false here; ib_async reads MAX as set (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 66",
+  "field": "_1",
+  "frames": "gen/66/unset-long-min-success",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional flag reads an unset value as false here; ib_async reads MAX as set (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 66",
+  "field": "#error",
+  "frames": "gen/66/short-after-flag",
+  "pair": ["malformed: missingField(index: 3)", "decoded"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "a frame cut short is .malformed here; ib_async's Wrapper lacks this method, so the recorder shows a call with the fields that are there (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 66",
+  "field": "#error",
+  "frames": "gen/66/short-after-version",
+  "pair": ["malformed: missingField(index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "a frame cut short is .malformed here; ib_async's Wrapper lacks this method, so the recorder shows a call with the fields that are there (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 67",
+  "field": "_1",
+  "frames": "gen/67/unset-max-groupId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 67",
+  "field": "_1",
+  "frames": "gen/67/unset-long-max-groupId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 67",
+  "field": "_1",
+  "frames": "gen/67/unset-long-min-groupId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 67",
+  "field": "#error",
+  "frames": "gen/67/short-after-group-id",
+  "pair": ["malformed: missingField(index: 3)", "decoded"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "a frame cut short is .malformed here; ib_async's Wrapper lacks this method, so the recorder shows a call with the fields that are there (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 67",
+  "field": "#error",
+  "frames": "gen/67/short-after-version",
+  "pair": ["malformed: missingField(index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "a frame cut short is .malformed here; ib_async's Wrapper lacks this method, so the recorder shows a call with the fields that are there (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 68",
+  "field": "_1",
+  "frames": "gen/68/unset-max-groupId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 68",
+  "field": "_1",
+  "frames": "gen/68/unset-long-max-groupId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 68",
+  "field": "_1",
+  "frames": "gen/68/unset-long-min-groupId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 68",
+  "field": "#error",
+  "frames": "gen/68/short-after-group-id",
+  "pair": ["malformed: missingField(index: 3)", "decoded"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "a frame cut short is .malformed here; ib_async's Wrapper lacks this method, so the recorder shows a call with the fields that are there (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 68",
+  "field": "#error",
+  "frames": "gen/68/short-after-version",
+  "pair": ["malformed: missingField(index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "a frame cut short is .malformed here; ib_async's Wrapper lacks this method, so the recorder shows a call with the fields that are there (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 69",
+  "field": "#error",
+  "frames": "gen/69/short-after-data",
+  "pair": ["malformed: missingField(index: 3)", "decoded"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "a frame cut short is .malformed here; ib_async's Wrapper lacks this method, so the recorder shows a call with the fields that are there (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 69",
+  "field": "#error",
+  "frames": "gen/69/short-after-version",
+  "pair": ["malformed: missingField(index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "a frame cut short is .malformed here; ib_async's Wrapper lacks this method, so the recorder shows a call with the fields that are there (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 70",
+  "field": "_1",
+  "frames": "gen/70/flag-two",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a flag other than 0/1 reads false here (only 1 is true); ib_async's bool(int(x)) reads it true (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 70",
+  "field": "_1",
+  "frames": "gen/70/flag-negative",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a flag other than 0/1 reads false here (only 1 is true); ib_async's bool(int(x)) reads it true (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 70",
+  "field": "#error",
+  "frames": "gen/70/flag-true-text",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: 'true'"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "the text true reads true here (the shared flag reader); ib_async's int() rejects it (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 70",
+  "field": "_1",
+  "frames": "gen/70/unset-max-success",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional flag reads an unset value as false here; ib_async reads MAX as set (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 70",
+  "field": "_1",
+  "frames": "gen/70/unset-long-max-success",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional flag reads an unset value as false here; ib_async reads MAX as set (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 70",
+  "field": "_1",
+  "frames": "gen/70/unset-long-min-success",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional flag reads an unset value as false here; ib_async reads MAX as set (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 70",
+  "field": "#error",
+  "frames": "gen/70/short-after-flag",
+  "pair": ["malformed: missingField(index: 3)", "decoded"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "a frame cut short is .malformed here; ib_async's Wrapper lacks this method, so the recorder shows a call with the fields that are there (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 70",
+  "field": "#error",
+  "frames": "gen/70/short-after-version",
+  "pair": ["malformed: missingField(index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "a frame cut short is .malformed here; ib_async's Wrapper lacks this method, so the recorder shows a call with the fields that are there (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 83",
+  "field": "reqId",
+  "frames": "gen/83/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 83",
+  "field": "reqId",
+  "frames": "gen/83/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 83",
+  "field": "reqId",
+  "frames": "gen/83/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 83",
+  "field": "articleType",
+  "frames": "gen/83/unset-max-articleType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 83",
+  "field": "articleType",
+  "frames": "gen/83/unset-long-max-articleType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 83",
+  "field": "articleType",
+  "frames": "gen/83/unset-long-min-articleType",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 85",
+  "field": "#error",
+  "frames": "gen/85/unset-empty-n",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async rejects an empty slot with int() (decoder.py:749-755)"
+ },
+ {
+  "scope": "in 85",
+  "field": "#error",
+  "frames": "gen/85/unset-max-n",
+  "pair": ["decoded", "StopIteration: "],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async reads the unset count as a number and runs out of fields (decoder.py:749-755)"
+ },
+ {
+  "scope": "in 85",
+  "field": "#error",
+  "frames": "gen/85/unset-long-max-n",
+  "pair": ["decoded", "StopIteration: "],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number or count reads an unset value as 0 here; ib_async reads the unset count as a number and runs out of fields (decoder.py:749-755)"
+ },
+ {
+  "scope": "in 85",
+  "field": "#error",
+  "frames": "gen/85/negative-count",
+  "pair": ["malformed: badNumber(\"-1\", index: 1)", "decoded"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a negative count is .malformed here; ib_async reads an empty range (decoder.py:749-755)"
+ },
+ {
+  "scope": "in 86",
+  "field": "reqId",
+  "frames": "gen/86/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 86",
+  "field": "reqId",
+  "frames": "gen/86/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 86",
+  "field": "reqId",
+  "frames": "gen/86/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 87",
+  "field": "_hasMore",
+  "frames": "gen/87/flag-two",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a flag other than 0/1 reads false here (only 1 is true); ib_async's bool(int(x)) reads it true (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 87",
+  "field": "_hasMore",
+  "frames": "gen/87/flag-negative",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "a flag other than 0/1 reads false here (only 1 is true); ib_async's bool(int(x)) reads it true (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 87",
+  "field": "#error",
+  "frames": "gen/87/flag-true-text",
+  "pair": ["decoded", "ValueError: invalid literal for int() with base 10: 'true'"],
+  "cite": "protocol-178 Disagreements 17",
+  "note": "the text true reads true here (the shared flag reader); ib_async's int() rejects it (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 87",
+  "field": "reqId",
+  "frames": "gen/87/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 87",
+  "field": "reqId",
+  "frames": "gen/87/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 87",
+  "field": "reqId",
+  "frames": "gen/87/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 87",
+  "field": "_hasMore",
+  "frames": "gen/87/unset-max-hasMore",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional flag reads an unset value as false here; ib_async reads MAX as set (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 87",
+  "field": "_hasMore",
+  "frames": "gen/87/unset-long-max-hasMore",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional flag reads an unset value as false here; ib_async reads MAX as set (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 87",
+  "field": "_hasMore",
+  "frames": "gen/87/unset-long-min-hasMore",
+  "pair": ["false", "true"],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional flag reads an unset value as false here; ib_async reads MAX as set (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 103",
+  "field": "_1",
+  "frames": "gen/103/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 103",
+  "field": "_1",
+  "frames": "gen/103/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 103",
+  "field": "_1",
+  "frames": "gen/103/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 103",
+  "field": "#error",
+  "frames": "gen/103/short-after-req-id",
+  "pair": ["malformed: missingField(index: 2)", "decoded"],
+  "cite": "protocol-178 Disagreements 14",
+  "note": "a frame cut short is .malformed here; ib_async's Wrapper lacks this method, so the recorder shows a call with the fields that are there (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 104",
+  "field": "reqId",
+  "frames": "gen/104/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 104",
+  "field": "reqId",
+  "frames": "gen/104/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 104",
+  "field": "reqId",
+  "frames": "gen/104/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 105",
+  "field": "reqId",
+  "frames": "gen/105/unset-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 105",
+  "field": "reqId",
+  "frames": "gen/105/unset-long-max-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
+ },
+ {
+  "scope": "in 105",
+  "field": "reqId",
+  "frames": "gen/105/unset-long-min-reqId",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "a non-optional number reads an unset value as 0 here; ib_async keeps the sentinel (wrap, decoder.py:143-174)"
  }
 ]
