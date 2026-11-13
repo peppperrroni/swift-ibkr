@@ -302,5 +302,67 @@
   "pair": ["decoded", "ValueError: invalid literal for int() with base 10: ''"],
   "cite": "protocol-178 Disagreements 13",
   "note": "non-optional in the model: an unset value reads as 0 (Fields.swift int()/decimal())"
+ },
+ {
+  "scope": "in 3",
+  "field": "avgFillPrice",
+ "frames": "gen/3/unset-empty-avgFillPrice",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (wrap 143-174, float(x) of '' is read as 0 by parse; decoder.py:49-53)"
+ },
+ {
+  "scope": "in 3",
+  "field": "lastFillPrice",
+ "frames": "gen/3/unset-empty-lastFillPrice",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (wrap 143-174, float(x) of '' is read as 0 by parse; decoder.py:49-53)"
+ },
+ {
+  "scope": "in 3",
+  "field": "mktCapPrice",
+ "frames": "gen/3/unset-empty-mktCapPrice",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (wrap 143-174, float(x) of '' is read as 0 by parse; decoder.py:49-53)"
+ },
+ {
+  "scope": "in 11",
+  "field": "execution.evMultiplier",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (decoder.py:426-475, parse(ex))"
+ },
+ {
+  "scope": "in 59",
+  "field": "commissionReport.yieldRedemptionDate",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (decoder.py:586-593, int(x or 0))"
+ },
+ {
+  "scope": "in 59",
+  "field": "commissionReport.yield_",
+ "frames": "gen/59/unset-empty-yield",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (decoder.py:586-593, float(x or 0))"
+ },
+ {
+  "scope": "in 59",
+  "field": "commissionReport.realizedPNL",
+ "frames": "gen/59/unset-empty-realizedPNL",
+  "pair": ["", "0"],
+  "cite": "DECISIONS: One shared unset set",
+  "note": "an empty optional number is unset (nil) here; ib_async's float(x or 0) makes it 0 (decoder.py:586-593, float(x or 0))"
+ },
+ {
+  "scope": "in 59",
+  "field": "commissionReport.commission",
+ "frames": "gen/59/unset-max-commission",
+  "pair": ["0", ""],
+  "cite": "protocol-178 Disagreements 13",
+  "note": "commission is non-optional here and reads an unset value as 0; ib_async keeps the sentinel (decoder.py:586-593)"
  }
 ]

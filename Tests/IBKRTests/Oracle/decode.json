@@ -31961,6 +31961,321 @@
    "calls": [
     {
      "args": {
+      "avgFillPrice": "351.5",
+      "clientId": "7",
+      "filled": "40",
+      "lastFillPrice": "351.5",
+      "mktCapPrice": "0",
+      "orderId": "5",
+      "parentId": "0",
+      "permId": "610467324",
+      "remaining": "60",
+      "status": "Submitted",
+      "whyHeld": ""
+     },
+     "method": "orderStatus"
+    }
+   ],
+   "fields": [
+    "3",
+    "5",
+    "Submitted",
+    "40",
+    "60",
+    "351.5",
+    "610467324",
+    "0",
+    "351.5",
+    "7",
+    "",
+    "0"
+   ],
+   "name": "gen/3/base"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "avgFillPrice": "351.5",
+      "clientId": "7",
+      "filled": "40",
+      "lastFillPrice": "351.5",
+      "mktCapPrice": "12.5",
+      "orderId": "5",
+      "parentId": "0",
+      "permId": "610467324",
+      "remaining": "60",
+      "status": "Submitted",
+      "whyHeld": ""
+     },
+     "method": "orderStatus"
+    }
+   ],
+   "fields": [
+    "3",
+    "5",
+    "Submitted",
+    "40",
+    "60",
+    "351.5",
+    "610467324",
+    "0",
+    "351.5",
+    "7",
+    "",
+    "12.5"
+   ],
+   "name": "gen/3/mkt-cap-price"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "avgFillPrice": "351.5",
+      "clientId": "7",
+      "filled": "40",
+      "lastFillPrice": "351.5",
+      "mktCapPrice": "0",
+      "orderId": "5",
+      "parentId": "0",
+      "permId": "610467324",
+      "remaining": "60",
+      "status": "Submitted",
+      "whyHeld": "locate"
+     },
+     "method": "orderStatus"
+    }
+   ],
+   "fields": [
+    "3",
+    "5",
+    "Submitted",
+    "40",
+    "60",
+    "351.5",
+    "610467324",
+    "0",
+    "351.5",
+    "7",
+    "locate",
+    "0"
+   ],
+   "name": "gen/3/why-held"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "avgFillPrice": "0",
+      "clientId": "7",
+      "filled": "40",
+      "lastFillPrice": "351.5",
+      "mktCapPrice": "0",
+      "orderId": "5",
+      "parentId": "0",
+      "permId": "610467324",
+      "remaining": "60",
+      "status": "Submitted",
+      "whyHeld": ""
+     },
+     "method": "orderStatus"
+    }
+   ],
+   "fields": [
+    "3",
+    "5",
+    "Submitted",
+    "40",
+    "60",
+    "",
+    "610467324",
+    "0",
+    "351.5",
+    "7",
+    "",
+    "0"
+   ],
+   "name": "gen/3/unset-empty-avgFillPrice"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "avgFillPrice": "",
+      "clientId": "7",
+      "filled": "40",
+      "lastFillPrice": "351.5",
+      "mktCapPrice": "0",
+      "orderId": "5",
+      "parentId": "0",
+      "permId": "610467324",
+      "remaining": "60",
+      "status": "Submitted",
+      "whyHeld": ""
+     },
+     "method": "orderStatus"
+    }
+   ],
+   "fields": [
+    "3",
+    "5",
+    "Submitted",
+    "40",
+    "60",
+    "1.7976931348623157E308",
+    "610467324",
+    "0",
+    "351.5",
+    "7",
+    "",
+    "0"
+   ],
+   "name": "gen/3/unset-max-avgFillPrice"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "avgFillPrice": "351.5",
+      "clientId": "7",
+      "filled": "40",
+      "lastFillPrice": "0",
+      "mktCapPrice": "0",
+      "orderId": "5",
+      "parentId": "0",
+      "permId": "610467324",
+      "remaining": "60",
+      "status": "Submitted",
+      "whyHeld": ""
+     },
+     "method": "orderStatus"
+    }
+   ],
+   "fields": [
+    "3",
+    "5",
+    "Submitted",
+    "40",
+    "60",
+    "351.5",
+    "610467324",
+    "0",
+    "",
+    "7",
+    "",
+    "0"
+   ],
+   "name": "gen/3/unset-empty-lastFillPrice"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "avgFillPrice": "351.5",
+      "clientId": "7",
+      "filled": "40",
+      "lastFillPrice": "",
+      "mktCapPrice": "0",
+      "orderId": "5",
+      "parentId": "0",
+      "permId": "610467324",
+      "remaining": "60",
+      "status": "Submitted",
+      "whyHeld": ""
+     },
+     "method": "orderStatus"
+    }
+   ],
+   "fields": [
+    "3",
+    "5",
+    "Submitted",
+    "40",
+    "60",
+    "351.5",
+    "610467324",
+    "0",
+    "1.7976931348623157E308",
+    "7",
+    "",
+    "0"
+   ],
+   "name": "gen/3/unset-max-lastFillPrice"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "avgFillPrice": "351.5",
+      "clientId": "7",
+      "filled": "40",
+      "lastFillPrice": "351.5",
+      "mktCapPrice": "0",
+      "orderId": "5",
+      "parentId": "0",
+      "permId": "610467324",
+      "remaining": "60",
+      "status": "Submitted",
+      "whyHeld": ""
+     },
+     "method": "orderStatus"
+    }
+   ],
+   "fields": [
+    "3",
+    "5",
+    "Submitted",
+    "40",
+    "60",
+    "351.5",
+    "610467324",
+    "0",
+    "351.5",
+    "7",
+    "",
+    ""
+   ],
+   "name": "gen/3/unset-empty-mktCapPrice"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "avgFillPrice": "351.5",
+      "clientId": "7",
+      "filled": "40",
+      "lastFillPrice": "351.5",
+      "mktCapPrice": "",
+      "orderId": "5",
+      "parentId": "0",
+      "permId": "610467324",
+      "remaining": "60",
+      "status": "Submitted",
+      "whyHeld": ""
+     },
+     "method": "orderStatus"
+    }
+   ],
+   "fields": [
+    "3",
+    "5",
+    "Submitted",
+    "40",
+    "60",
+    "351.5",
+    "610467324",
+    "0",
+    "351.5",
+    "7",
+    "",
+    "1.7976931348623157E308"
+   ],
+   "name": "gen/3/unset-max-mktCapPrice"
+  },
+  {
+   "calls": [
+    {
+     "args": {
       "advancedOrderRejectJson": "{\"code\":\"X\"}",
       "errorCode": "201",
       "errorString": "Order rejected - reason:",
@@ -33037,6 +33352,762 @@
    "calls": [
     {
      "args": {
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "ISLAND",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "execution.acctNumber": "DU0000001",
+      "execution.avgPrice": "351.5",
+      "execution.clientId": "7",
+      "execution.cumQty": "40",
+      "execution.evMultiplier": "0",
+      "execution.evRule": "",
+      "execution.exchange": "ISLAND",
+      "execution.execId": "0000e0d5.6564a7b1.01.01",
+      "execution.lastLiquidity": "1",
+      "execution.liquidation": "0",
+      "execution.modelCode": "",
+      "execution.orderId": "5",
+      "execution.orderRef": "",
+      "execution.pendingPriceRevision": "false",
+      "execution.permId": "610467324",
+      "execution.price": "351.5",
+      "execution.shares": "40",
+      "execution.side": "BOT",
+      "execution.time": "1794311791",
+      "reqId": "-1"
+     },
+     "method": "execDetails"
+    }
+   ],
+   "fields": [
+    "11",
+    "-1",
+    "5",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0",
+    "",
+    "",
+    "ISLAND",
+    "USD",
+    "AAPL",
+    "NMS",
+    "0000e0d5.6564a7b1.01.01",
+    "20261110-11:56:31",
+    "DU0000001",
+    "ISLAND",
+    "BOT",
+    "40",
+    "351.5",
+    "610467324",
+    "7",
+    "0",
+    "40",
+    "351.5",
+    "",
+    "",
+    "",
+    "",
+    "1",
+    "0"
+   ],
+   "name": "gen/11/base"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "ISLAND",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "execution.acctNumber": "DU0000001",
+      "execution.avgPrice": "351.5",
+      "execution.clientId": "7",
+      "execution.cumQty": "40",
+      "execution.evMultiplier": "0",
+      "execution.evRule": "",
+      "execution.exchange": "ISLAND",
+      "execution.execId": "0000e0d5.6564a7b1.01.01",
+      "execution.lastLiquidity": "1",
+      "execution.liquidation": "0",
+      "execution.modelCode": "",
+      "execution.orderId": "5",
+      "execution.orderRef": "",
+      "execution.pendingPriceRevision": "false",
+      "execution.permId": "610467324",
+      "execution.price": "351.5",
+      "execution.shares": "40",
+      "execution.side": "BOT",
+      "execution.time": "1794311791",
+      "reqId": "-1"
+     },
+     "method": "execDetails"
+    }
+   ],
+   "fields": [
+    "11",
+    "-1",
+    "5",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0",
+    "",
+    "",
+    "ISLAND",
+    "USD",
+    "AAPL",
+    "NMS",
+    "0000e0d5.6564a7b1.01.01",
+    "20261110 06:56:31 US/Eastern",
+    "DU0000001",
+    "ISLAND",
+    "BOT",
+    "40",
+    "351.5",
+    "610467324",
+    "7",
+    "0",
+    "40",
+    "351.5",
+    "",
+    "",
+    "",
+    "",
+    "1",
+    "0"
+   ],
+   "name": "gen/11/time-with-zone"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "ISLAND",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "execution.acctNumber": "DU0000001",
+      "execution.avgPrice": "351.5",
+      "execution.clientId": "7",
+      "execution.cumQty": "40",
+      "execution.evMultiplier": "0",
+      "execution.evRule": "",
+      "execution.exchange": "ISLAND",
+      "execution.execId": "0000e0d5.6564a7b1.01.01",
+      "execution.lastLiquidity": "1",
+      "execution.liquidation": "0",
+      "execution.modelCode": "",
+      "execution.orderId": "5",
+      "execution.orderRef": "",
+      "execution.pendingPriceRevision": "false",
+      "execution.permId": "610467324",
+      "execution.price": "351.5",
+      "execution.shares": "40",
+      "execution.side": "BOT",
+      "execution.time": "1794311791",
+      "reqId": "-1"
+     },
+     "method": "execDetails"
+    }
+   ],
+   "fields": [
+    "11",
+    "-1",
+    "5",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0",
+    "",
+    "",
+    "ISLAND",
+    "USD",
+    "AAPL",
+    "NMS",
+    "0000e0d5.6564a7b1.01.01",
+    "20261110 11:56:31 UTC",
+    "DU0000001",
+    "ISLAND",
+    "BOT",
+    "40",
+    "351.5",
+    "610467324",
+    "7",
+    "0",
+    "40",
+    "351.5",
+    "",
+    "",
+    "",
+    "",
+    "1",
+    "0"
+   ],
+   "name": "gen/11/time-with-utc"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "ISLAND",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "execution.acctNumber": "DU0000001",
+      "execution.avgPrice": "351.5",
+      "execution.clientId": "7",
+      "execution.cumQty": "40",
+      "execution.evMultiplier": "0.25",
+      "execution.evRule": "",
+      "execution.exchange": "ISLAND",
+      "execution.execId": "0000e0d5.6564a7b1.01.01",
+      "execution.lastLiquidity": "1",
+      "execution.liquidation": "0",
+      "execution.modelCode": "",
+      "execution.orderId": "5",
+      "execution.orderRef": "",
+      "execution.pendingPriceRevision": "false",
+      "execution.permId": "610467324",
+      "execution.price": "351.5",
+      "execution.shares": "40",
+      "execution.side": "BOT",
+      "execution.time": "1794311791",
+      "reqId": "-1"
+     },
+     "method": "execDetails"
+    }
+   ],
+   "fields": [
+    "11",
+    "-1",
+    "5",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0",
+    "",
+    "",
+    "ISLAND",
+    "USD",
+    "AAPL",
+    "NMS",
+    "0000e0d5.6564a7b1.01.01",
+    "20261110-11:56:31",
+    "DU0000001",
+    "ISLAND",
+    "BOT",
+    "40",
+    "351.5",
+    "610467324",
+    "7",
+    "0",
+    "40",
+    "351.5",
+    "",
+    "",
+    "0.25",
+    "",
+    "1",
+    "0"
+   ],
+   "name": "gen/11/ev-multiplier"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "ISLAND",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "execution.acctNumber": "DU0000001",
+      "execution.avgPrice": "351.5",
+      "execution.clientId": "7",
+      "execution.cumQty": "40",
+      "execution.evMultiplier": "0",
+      "execution.evRule": "Vwap",
+      "execution.exchange": "ISLAND",
+      "execution.execId": "0000e0d5.6564a7b1.01.01",
+      "execution.lastLiquidity": "1",
+      "execution.liquidation": "0",
+      "execution.modelCode": "",
+      "execution.orderId": "5",
+      "execution.orderRef": "",
+      "execution.pendingPriceRevision": "false",
+      "execution.permId": "610467324",
+      "execution.price": "351.5",
+      "execution.shares": "40",
+      "execution.side": "BOT",
+      "execution.time": "1794311791",
+      "reqId": "-1"
+     },
+     "method": "execDetails"
+    }
+   ],
+   "fields": [
+    "11",
+    "-1",
+    "5",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0",
+    "",
+    "",
+    "ISLAND",
+    "USD",
+    "AAPL",
+    "NMS",
+    "0000e0d5.6564a7b1.01.01",
+    "20261110-11:56:31",
+    "DU0000001",
+    "ISLAND",
+    "BOT",
+    "40",
+    "351.5",
+    "610467324",
+    "7",
+    "0",
+    "40",
+    "351.5",
+    "",
+    "Vwap",
+    "",
+    "",
+    "1",
+    "0"
+   ],
+   "name": "gen/11/ev-rule"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "ISLAND",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "execution.acctNumber": "DU0000001",
+      "execution.avgPrice": "351.5",
+      "execution.clientId": "7",
+      "execution.cumQty": "40",
+      "execution.evMultiplier": "0",
+      "execution.evRule": "",
+      "execution.exchange": "ISLAND",
+      "execution.execId": "0000e0d5.6564a7b1.01.01",
+      "execution.lastLiquidity": "1",
+      "execution.liquidation": "0",
+      "execution.modelCode": "",
+      "execution.orderId": "5",
+      "execution.orderRef": "",
+      "execution.pendingPriceRevision": "true",
+      "execution.permId": "610467324",
+      "execution.price": "351.5",
+      "execution.shares": "40",
+      "execution.side": "BOT",
+      "execution.time": "1794311791",
+      "reqId": "-1"
+     },
+     "method": "execDetails"
+    }
+   ],
+   "fields": [
+    "11",
+    "-1",
+    "5",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0",
+    "",
+    "",
+    "ISLAND",
+    "USD",
+    "AAPL",
+    "NMS",
+    "0000e0d5.6564a7b1.01.01",
+    "20261110-11:56:31",
+    "DU0000001",
+    "ISLAND",
+    "BOT",
+    "40",
+    "351.5",
+    "610467324",
+    "7",
+    "0",
+    "40",
+    "351.5",
+    "",
+    "",
+    "",
+    "",
+    "1",
+    "1"
+   ],
+   "name": "gen/11/pending-price-revision"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "ISLAND",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "execution.acctNumber": "DU0000001",
+      "execution.avgPrice": "351.5",
+      "execution.clientId": "7",
+      "execution.cumQty": "40",
+      "execution.evMultiplier": "0",
+      "execution.evRule": "",
+      "execution.exchange": "ISLAND",
+      "execution.execId": "0000e0d5.6564a7b1.01.01",
+      "execution.lastLiquidity": "1",
+      "execution.liquidation": "0",
+      "execution.modelCode": "",
+      "execution.orderId": "5",
+      "execution.orderRef": "",
+      "execution.pendingPriceRevision": "false",
+      "execution.permId": "610467324",
+      "execution.price": "351.5",
+      "execution.shares": "40",
+      "execution.side": "SLD",
+      "execution.time": "1794311791",
+      "reqId": "-1"
+     },
+     "method": "execDetails"
+    }
+   ],
+   "fields": [
+    "11",
+    "-1",
+    "5",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0",
+    "",
+    "",
+    "ISLAND",
+    "USD",
+    "AAPL",
+    "NMS",
+    "0000e0d5.6564a7b1.01.01",
+    "20261110-11:56:31",
+    "DU0000001",
+    "ISLAND",
+    "SLD",
+    "40",
+    "351.5",
+    "610467324",
+    "7",
+    "0",
+    "40",
+    "351.5",
+    "",
+    "",
+    "",
+    "",
+    "1",
+    "0"
+   ],
+   "name": "gen/11/sold"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "ISLAND",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "execution.acctNumber": "DU0000001",
+      "execution.avgPrice": "351.5",
+      "execution.clientId": "7",
+      "execution.cumQty": "40",
+      "execution.evMultiplier": "0",
+      "execution.evRule": "",
+      "execution.exchange": "ISLAND",
+      "execution.execId": "0000e0d5.6564a7b1.01.01",
+      "execution.lastLiquidity": "1",
+      "execution.liquidation": "0",
+      "execution.modelCode": "",
+      "execution.orderId": "5",
+      "execution.orderRef": "",
+      "execution.pendingPriceRevision": "false",
+      "execution.permId": "610467324",
+      "execution.price": "351.5",
+      "execution.shares": "40",
+      "execution.side": "BOT",
+      "execution.time": "1794311791",
+      "reqId": "-1"
+     },
+     "method": "execDetails"
+    }
+   ],
+   "fields": [
+    "11",
+    "-1",
+    "5",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0",
+    "",
+    "",
+    "ISLAND",
+    "USD",
+    "AAPL",
+    "NMS",
+    "0000e0d5.6564a7b1.01.01",
+    "20261110-11:56:31",
+    "DU0000001",
+    "ISLAND",
+    "BOT",
+    "40",
+    "351.5",
+    "610467324",
+    "7",
+    "0",
+    "40",
+    "351.5",
+    "",
+    "",
+    "",
+    "",
+    "1",
+    "0"
+   ],
+   "name": "gen/11/unset-empty-evMultiplier"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "contract.comboLegs.#": "0",
+      "contract.comboLegsDescrip": "",
+      "contract.conId": "265598",
+      "contract.currency": "USD",
+      "contract.deltaNeutralContract": "",
+      "contract.description": "",
+      "contract.exchange": "ISLAND",
+      "contract.includeExpired": "false",
+      "contract.issuerId": "",
+      "contract.lastTradeDateOrContractMonth": "",
+      "contract.localSymbol": "AAPL",
+      "contract.multiplier": "",
+      "contract.primaryExchange": "",
+      "contract.right": "",
+      "contract.secId": "",
+      "contract.secIdType": "",
+      "contract.secType": "STK",
+      "contract.strike": "0",
+      "contract.symbol": "AAPL",
+      "contract.tradingClass": "NMS",
+      "execution.acctNumber": "DU0000001",
+      "execution.avgPrice": "351.5",
+      "execution.clientId": "7",
+      "execution.cumQty": "40",
+      "execution.evMultiplier": "",
+      "execution.evRule": "",
+      "execution.exchange": "ISLAND",
+      "execution.execId": "0000e0d5.6564a7b1.01.01",
+      "execution.lastLiquidity": "1",
+      "execution.liquidation": "0",
+      "execution.modelCode": "",
+      "execution.orderId": "5",
+      "execution.orderRef": "",
+      "execution.pendingPriceRevision": "false",
+      "execution.permId": "610467324",
+      "execution.price": "351.5",
+      "execution.shares": "40",
+      "execution.side": "BOT",
+      "execution.time": "1794311791",
+      "reqId": "-1"
+     },
+     "method": "execDetails"
+    }
+   ],
+   "fields": [
+    "11",
+    "-1",
+    "5",
+    "265598",
+    "AAPL",
+    "STK",
+    "",
+    "0",
+    "",
+    "",
+    "ISLAND",
+    "USD",
+    "AAPL",
+    "NMS",
+    "0000e0d5.6564a7b1.01.01",
+    "20261110-11:56:31",
+    "DU0000001",
+    "ISLAND",
+    "BOT",
+    "40",
+    "351.5",
+    "610467324",
+    "7",
+    "0",
+    "40",
+    "351.5",
+    "",
+    "",
+    "1.7976931348623157E308",
+    "",
+    "1",
+    "0"
+   ],
+   "name": "gen/11/unset-max-evMultiplier"
+  },
+  {
+   "calls": [
+    {
+     "args": {
       "accountsList": "DU0000001"
      },
      "method": "managedAccounts"
@@ -33100,6 +34171,19 @@
   {
    "calls": [
     {
+     "args": {},
+     "method": "openOrderEnd"
+    }
+   ],
+   "fields": [
+    "53",
+    "1"
+   ],
+   "name": "gen/53/base"
+  },
+  {
+   "calls": [
+    {
      "args": {
       "_account": "DU0000001"
      },
@@ -33112,6 +34196,230 @@
     "DU0000001"
    ],
    "name": "gen/54/base"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "reqId": "9"
+     },
+     "method": "execDetailsEnd"
+    }
+   ],
+   "fields": [
+    "55",
+    "1",
+    "9"
+   ],
+   "name": "gen/55/base"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "commissionReport.commission": "1",
+      "commissionReport.currency": "USD",
+      "commissionReport.execId": "0000e0d5.6564a7b1.01.01",
+      "commissionReport.realizedPNL": "",
+      "commissionReport.yieldRedemptionDate": "0",
+      "commissionReport.yield_": ""
+     },
+     "method": "commissionReport"
+    }
+   ],
+   "fields": [
+    "59",
+    "1",
+    "0000e0d5.6564a7b1.01.01",
+    "1",
+    "USD",
+    "1.7976931348623157E308",
+    "1.7976931348623157E308",
+    ""
+   ],
+   "name": "gen/59/base"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "commissionReport.commission": "1",
+      "commissionReport.currency": "USD",
+      "commissionReport.execId": "0000e0d5.6564a7b1.01.01",
+      "commissionReport.realizedPNL": "-12.5",
+      "commissionReport.yieldRedemptionDate": "20271115",
+      "commissionReport.yield_": "0.045"
+     },
+     "method": "commissionReport"
+    }
+   ],
+   "fields": [
+    "59",
+    "1",
+    "0000e0d5.6564a7b1.01.01",
+    "1",
+    "USD",
+    "-12.5",
+    "0.045",
+    "20271115"
+   ],
+   "name": "gen/59/realized-and-yield"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "commissionReport.commission": "0",
+      "commissionReport.currency": "USD",
+      "commissionReport.execId": "0000e0d5.6564a7b1.01.01",
+      "commissionReport.realizedPNL": "",
+      "commissionReport.yieldRedemptionDate": "0",
+      "commissionReport.yield_": ""
+     },
+     "method": "commissionReport"
+    }
+   ],
+   "fields": [
+    "59",
+    "1",
+    "0000e0d5.6564a7b1.01.01",
+    "",
+    "USD",
+    "1.7976931348623157E308",
+    "1.7976931348623157E308",
+    ""
+   ],
+   "name": "gen/59/unset-empty-commission"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "commissionReport.commission": "",
+      "commissionReport.currency": "USD",
+      "commissionReport.execId": "0000e0d5.6564a7b1.01.01",
+      "commissionReport.realizedPNL": "",
+      "commissionReport.yieldRedemptionDate": "0",
+      "commissionReport.yield_": ""
+     },
+     "method": "commissionReport"
+    }
+   ],
+   "fields": [
+    "59",
+    "1",
+    "0000e0d5.6564a7b1.01.01",
+    "1.7976931348623157E308",
+    "USD",
+    "1.7976931348623157E308",
+    "1.7976931348623157E308",
+    ""
+   ],
+   "name": "gen/59/unset-max-commission"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "commissionReport.commission": "1",
+      "commissionReport.currency": "USD",
+      "commissionReport.execId": "0000e0d5.6564a7b1.01.01",
+      "commissionReport.realizedPNL": "0",
+      "commissionReport.yieldRedemptionDate": "0",
+      "commissionReport.yield_": ""
+     },
+     "method": "commissionReport"
+    }
+   ],
+   "fields": [
+    "59",
+    "1",
+    "0000e0d5.6564a7b1.01.01",
+    "1",
+    "USD",
+    "",
+    "1.7976931348623157E308",
+    ""
+   ],
+   "name": "gen/59/unset-empty-realizedPNL"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "commissionReport.commission": "1",
+      "commissionReport.currency": "USD",
+      "commissionReport.execId": "0000e0d5.6564a7b1.01.01",
+      "commissionReport.realizedPNL": "",
+      "commissionReport.yieldRedemptionDate": "0",
+      "commissionReport.yield_": ""
+     },
+     "method": "commissionReport"
+    }
+   ],
+   "fields": [
+    "59",
+    "1",
+    "0000e0d5.6564a7b1.01.01",
+    "1",
+    "USD",
+    "1.7976931348623157E308",
+    "1.7976931348623157E308",
+    ""
+   ],
+   "name": "gen/59/unset-max-realizedPNL"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "commissionReport.commission": "1",
+      "commissionReport.currency": "USD",
+      "commissionReport.execId": "0000e0d5.6564a7b1.01.01",
+      "commissionReport.realizedPNL": "",
+      "commissionReport.yieldRedemptionDate": "0",
+      "commissionReport.yield_": "0"
+     },
+     "method": "commissionReport"
+    }
+   ],
+   "fields": [
+    "59",
+    "1",
+    "0000e0d5.6564a7b1.01.01",
+    "1",
+    "USD",
+    "1.7976931348623157E308",
+    "",
+    ""
+   ],
+   "name": "gen/59/unset-empty-yield"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "commissionReport.commission": "1",
+      "commissionReport.currency": "USD",
+      "commissionReport.execId": "0000e0d5.6564a7b1.01.01",
+      "commissionReport.realizedPNL": "",
+      "commissionReport.yieldRedemptionDate": "0",
+      "commissionReport.yield_": ""
+     },
+     "method": "commissionReport"
+    }
+   ],
+   "fields": [
+    "59",
+    "1",
+    "0000e0d5.6564a7b1.01.01",
+    "1",
+    "USD",
+    "1.7976931348623157E308",
+    "1.7976931348623157E308",
+    ""
+   ],
+   "name": "gen/59/unset-max-yield"
   },
   {
    "calls": [
@@ -35169,6 +36477,38 @@
     "1.7976931348623157E308"
    ],
    "name": "gen/95/unset-max-value"
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "apiClientId": "7",
+      "apiOrderId": "5",
+      "reqId": "610467324"
+     },
+     "method": "orderBound"
+    }
+   ],
+   "fields": [
+    "100",
+    "610467324",
+    "7",
+    "5"
+   ],
+   "name": "gen/100/base"
+  },
+  {
+   "calls": [
+    {
+     "args": {},
+     "method": "completedOrdersEnd"
+    }
+   ],
+   "fields": [
+    "102",
+    "1"
+   ],
+   "name": "gen/102/base"
   },
   {
    "calls": [

@@ -112,5 +112,45 @@ VARIANTS[95] = [
                           "unrealizedPnL": (4, "double"), "realizedPnL": (5, "double"), "value": (6, "double")}),
 ]
 
+# Order events (orderStatus 49-53, execDetails 426-475, commissionReport 573-594, orderBound 133 of decoder.py).
+_STATUS = ["3", "5", "Submitted", "40", "60", "351.5", "610467324", "0", "351.5", "7", "", "0"]
+VARIANTS[3] = [
+    ("base", _STATUS),
+    ("mkt-cap-price", [*_STATUS[:11], "12.5"]),
+    ("why-held", [*_STATUS[:10], "locate", "0"]),
+    *_unset(_STATUS, {"avgFillPrice": (5, "double"), "lastFillPrice": (8, "double"), "mktCapPrice": (11, "double")}),
+]
+_EXEC = ["11", "-1", "5", "265598", "AAPL", "STK", "", "0", "", "", "ISLAND", "USD", "AAPL", "NMS",
+         "0000e0d5.6564a7b1.01.01", "20261110-11:56:31", "DU0000001", "ISLAND", "BOT", "40", "351.5", "610467324",
+         "7", "0", "40", "351.5", "", "", "", "", "1", "0"]
+
+
+def _exec(i: int, v: str) -> list[str]:
+    f = list(_EXEC)
+    f[i] = v
+    return f
+
+
+VARIANTS[11] = [
+    ("base", _EXEC),
+    ("time-with-zone", _exec(15, "20261110 06:56:31 US/Eastern")),
+    ("time-with-utc", _exec(15, "20261110 11:56:31 UTC")),
+    ("ev-multiplier", _exec(28, "0.25")),
+    ("ev-rule", _exec(27, "Vwap")),
+    ("pending-price-revision", _exec(31, "1")),
+    ("sold", _exec(18, "SLD")),
+    *_unset(_EXEC, {"evMultiplier": (28, "double")}),
+]
+VARIANTS[53] = [("base", ["53", "1"])]
+VARIANTS[55] = [("base", ["55", "1", "9"])]
+_COMMISSION = ["59", "1", "0000e0d5.6564a7b1.01.01", "1", "USD", MAX_DOUBLE, MAX_DOUBLE, ""]
+VARIANTS[59] = [
+    ("base", _COMMISSION),
+    ("realized-and-yield", [*_COMMISSION[:5], "-12.5", "0.045", "20271115"]),
+    *_unset(_COMMISSION, {"commission": (3, "double"), "realizedPNL": (5, "double"), "yield": (6, "double")}),
+]
+VARIANTS[100] = [("base", ["100", "610467324", "7", "5"])]
+VARIANTS[102] = [("base", ["102", "1"])]
+
 # A frame ib_async rejects (openOrder cut after its id): the oracle must record the exception, not «no calls».
 CANARY: tuple[str, list[str]] = ("gen/canary/short-openOrder", ["5", "1"])
